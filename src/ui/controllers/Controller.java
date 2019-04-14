@@ -1,16 +1,16 @@
 package ui.controllers;
 
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import model.abc.Class;
+import model.FileLoader;
 import model.abilityScores.AbilityScore;
 import model.enums.Attribute;
 import model.enums.Proficiency;
+import model.abc.Class;
 
 import java.util.Map;
 
@@ -18,7 +18,7 @@ import static ui.Main.character;
 
 public class Controller {
     @FXML
-    private ListView<String> classList;
+    private ListView<Class> classList;
     @FXML
     private TextField characterName;
     @FXML
@@ -55,13 +55,13 @@ public class Controller {
 
 
 
-        classList.setItems(FXCollections.observableArrayList (Class.getClassNames()));
+        classList.getItems().addAll(FileLoader.getClasses());
 
         characterName.textProperty().addListener((observable, oldValue, newValue) -> character.setName(newValue));
 
         setClass.setOnAction((event) -> {
-            String selectedItem = classList.getSelectionModel().getSelectedItem();
-            classDisplay.setText(selectedItem);
+            Class selectedItem = classList.getSelectionModel().getSelectedItem();
+            classDisplay.setText(selectedItem.toString());
             character.setClass(selectedItem);
         });
 

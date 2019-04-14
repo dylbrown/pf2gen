@@ -1,0 +1,21 @@
+<?xml version = "1.0"?>
+<class>
+    <Name>Paladin</Name>
+    <HP>10</HP>
+    <KeyAbilityChoices>
+        <AbilityScore>Str</AbilityScore>
+    </KeyAbilityChoices>
+    <FeatureList level="1">
+        <AbilitySlot type="filled" name="Initial Proficiencies">
+            <Ability>
+                <AttributeMods Proficiency="Trained">
+                    Religion, Perception, Reflex, Simple Weapons, Martial Weapons, Light Armor, Medium Armor, Heavy Armor, Shields
+                </AttributeMods>
+                <AttributeMods Proficiency="Expert">
+                    Fortitude, Will
+                </AttributeMods>
+            </Ability>
+        </AbilitySlot>
+    </FeatureList>
+    <feats></feats>
+</class>

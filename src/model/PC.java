@@ -48,8 +48,8 @@ public class PC {
         apply(background.getMod());
     }
 
-    public void setClass(String selectedItem) {
-        pClass = Class.getClass(selectedItem);
+    public void setClass(Class newClass) {
+        pClass = newClass;
         applyLevel(pClass.getLevel(1));
     }
 

@@ -9,7 +9,7 @@ import model.enums.Proficiency;
 import java.util.List;
 
 public class Background extends ABC {
-    //Acrobat(Str, Dex, "Circus", null), AnimalWhisperer(Wis, Cha, "Animal", null), Barkeep(Con, Cha, "Alcohol", null), Blacksmith(Str, Int, "Smithing", null), Criminal(Dex, Int, "Underworld", null), Entertainer(Dex, Cha, "Entertainment", null), Farmhand(Con, Wis, "Farming", null), Gladiator(Str, Cha, "Gladiatorial", null), Hunter(Dex, Wis, "Hunting", null), Laborer(Str, Con, "Labor", null), Merchant(Int, Cha, "Mercantile", null), Noble(Int, Cha, "Nobility", null), Nomad(Con, Wis, "A Terrain", null), Sailor(Str, Dex, "Sailing", null), ScholarArcana(Int, Wis, Arcana, null), ScholarNature(Int, Wis, Nature, null), ScholarOccultism(Int, Wis, Occultism, null), ScholarReligion(Int, Wis, Religion, null), Scout(Dex, Wis, "Scouting", null), StreetUrchin(Dex, Int, "Underworld", null), Warrior(Str, Con, "Warfare", null);
+    //Farmhand(Con, Wis, "Farming", null), Gladiator(Str, Cha, "Gladiatorial", null), Hunter(Dex, Wis, "Hunting", null), Laborer(Str, Con, "Labor", null), Merchant(Int, Cha, "Mercantile", null), Noble(Int, Cha, "Nobility", null), Nomad(Con, Wis, "A Terrain", null), Sailor(Str, Dex, "Sailing", null), ScholarArcana(Int, Wis, Arcana, null), ScholarNature(Int, Wis, Nature, null), ScholarOccultism(Int, Wis, Occultism, null), ScholarReligion(Int, Wis, Religion, null), Scout(Dex, Wis, "Scouting", null), StreetUrchin(Dex, Int, "Underworld", null), Warrior(Str, Con, "Warfare", null);
 
     private AttributeMod mod;
     private Ability freeFeat;
