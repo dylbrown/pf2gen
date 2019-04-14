@@ -1,0 +1,31 @@
+package model;
+
+import model.enums.Attribute;
+import model.enums.Proficiency;
+
+public class AttributeMod {
+    private String data;
+    private Attribute attr;
+    private Proficiency mod;
+    public AttributeMod(Attribute attr, Proficiency mod) {
+        this.attr = attr;
+        this.mod = mod;
+    }
+
+    public AttributeMod(Attribute attr, Proficiency mod, String data) {
+        this(attr, mod);
+        this.data = data;
+    }
+
+    public Attribute getAttr() {
+        return attr;
+    }
+
+    public Proficiency getMod() {
+        return mod;
+    }
+
+    public String getData() {
+        return data;
+    }
+}
