@@ -1,6 +1,10 @@
-Name: Halfling
-HP: 6
-Size: Small
-Speed: 25
-Bonuses: Dex, Wis, Free
-Penalties: Str
+<?xml version = "1.0"?>
+<ancestry>
+    <Name>Halfling</Name>
+    <HP>6</HP>
+    <Size>Small</Size>
+    <Speed>25</Speed>
+    <AbilityBonuses>Dex, Wis, Free</AbilityBonuses>
+    <AbilityPenalties>Str</AbilityPenalties>
+    <feats></feats>
+</ancestry>

@@ -1,3 +1,6 @@
-Name: Entertainer
-Bonuses: Dex or Cha, Free
-Skill: Lore (Entertainment)
+<?xml version = "1.0"?>
+<background>
+    <Name>Entertainer</Name>
+    <Skill>Lore (Entertainment)</Skill>
+    <AbilityBonuses>Dex or Cha, Free</AbilityBonuses>
+</background>

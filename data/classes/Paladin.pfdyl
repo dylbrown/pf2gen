@@ -2,11 +2,11 @@
 <class>
     <Name>Paladin</Name>
     <HP>10</HP>
-    <KeyAbilityChoices>
+    <AbilityChoices>
         <AbilityScore>Str</AbilityScore>
-    </KeyAbilityChoices>
+    </AbilityChoices>
     <FeatureList level="1">
-        <AbilitySlot type="filled" name="Initial Proficiencies">
+        <AbilitySlot state="filled" name="Initial Proficiencies">
             <Ability>
                 <AttributeMods Proficiency="Trained">
                     Religion, Perception, Reflex, Simple Weapons, Martial Weapons, Light Armor, Medium Armor, Heavy Armor, Shields
@@ -16,6 +16,56 @@
                 </AttributeMods>
             </Ability>
         </AbilitySlot>
+        <AbilitySlot state="feat" type="Class Feat" name="Paladin Feat"/>
+        <AbilitySlot state="feat" type="Ancestry Feat" name="Ancestry Feat"/>
+        <AbilitySlot state="filled" name="Champion Powers">
+            <Ability>
+                <Description>
+                    Divine power flows through you, and you have learned to channel it to heal others. This grants you special spells called champion powers. You gain a pool of Spell Points you can spend to cast champion powers. Your maximum number of Spell Points is equal to your Charisma modifier (minimum 0). You regain all your Spell Points when you prepare each day. Your key spellcasting ability score is Charisma, and you’re trained in spell rolls and spell DCs for your champion powers. Your champion powers are divine spells.
+                    Champion powers are available only to paladins, and they can’t be learned by other characters. They appear in the Spells chapter (page 192). Some paladin feats grant you additional champion powers, and such feats typically increase your pool of Spell Points. The spell level of each of your champion powers is equal to half your character level, rounded down, and produces heightened effects (see page 192) for those champion powers that have heightened entries. You gain the ability to cast the lay on hands champion power by spending 1 Spell Point.
+                </Description>
+            </Ability>
+        </AbilitySlot>
+        <AbilitySlot state="filled" name="Deific Weapon">
+            <Ability>
+                <Description>
+                    If your deity’s favored weapon is uncommon, you gain access to it. If the weapon is simple, increase the damage die by one step when you wield it (d4 to d6, d6 to d8, d8 to d10, d10 to d12).
+                </Description>
+            </Ability>
+        </AbilitySlot>
+        <AbilitySlot state="choice" name="Alignment">
+            <AbilitySet name="Defender (LG)">
+                <Ability name="Paladin's Code">
+                    <Description>
+                        1. You must never willingly commit an evil act, such as murder, torture, or the casting an evil spell, and you must never perform acts anathema to your deity.
+                        2. You must not use actions that you know will harm an innocent, or through inaction cause an innocent immediate harm when you knew your action could reasonably prevent it. This tenet doesn’t force you to take action against possible harm to innocents or to sacrifice your life and potential to attempt to protect an innocent.
+                        3. You must act with honor, never cheating, lying, or taking advantage of others.
+                        4. You must respect the lawful authority of the legitimate ruler or leadership in whichever land you may be, following their laws unless they violate a higher tenet.
+                    </Description>
+                </Ability>
+            </AbilitySet>
+            <AbilitySet name="Redeemer (NG)">
+                <Ability name="Paladin's Code">
+                    <Description>
+                        1. You must never willingly commit an evil act, such as murder, torture, or the casting an evil spell, and you must never perform acts anathema to your deity.
+                        2. You must not use actions that you know will harm an innocent, or through inaction cause an innocent immediate harm when you knew your action could reasonably prevent it. This tenet doesn’t force you to take action against possible harm to innocents or to sacrifice your life and potential to attempt to protect an innocent.
+                        3. You must first try to redeem or rehabilitate those who commit evil acts, rather than immediately killing them or meting out undeserved punishment. However, if they choose to continue on a wicked path, you might need to take more extreme measures, especially if innocents would come to harm.
+                        4. You must show compassion for others, regardless of their authority or station.
+                    </Description>
+                </Ability>
+            </AbilitySet>
+            <AbilitySet name="Liberator (CG)">
+                <Ability name="Paladin's Code">
+                    <Description>
+                        1. You must never willingly commit an evil act, such as murder, torture, or the casting an evil spell, and you must never perform acts anathema to your deity.
+                        2. You must not use actions that you know will harm an innocent, or through inaction cause an innocent immediate harm when you knew your action could reasonably prevent it. This tenet doesn’t force you to take action against possible harm to innocents or to sacrifice your life and potential to attempt to protect an innocent.
+                        3.You must respect the choices others make for their own lives and can’t force someone to act in a particular way or threaten them if they don’t act that way.
+                        4. You must demand and fight for the freedom of others to make their own decisions. You must never engage in or countenance slavery or tyranny.
+                    </Description>
+                </Ability>
+            </AbilitySet>
+        </AbilitySlot>
+        <!--deity and cause, paladin’s reaction.-->
     </FeatureList>
     <feats></feats>
 </class>

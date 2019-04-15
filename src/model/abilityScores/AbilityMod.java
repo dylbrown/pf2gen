@@ -1,16 +1,16 @@
 package model.abilityScores;
 
-import model.enums.AbilityType;
+import model.enums.Type;
 
 import java.util.Objects;
 
 public class AbilityMod {
     private AbilityScore target;
     private boolean positive;
-    private AbilityType source;
+    private Type source;
     private int level = 1;
 
-    public AbilityMod(AbilityScore target, boolean positive, AbilityType source) {
+    public AbilityMod(AbilityScore target, boolean positive, Type source) {
         this.target = target;
         this.positive = positive;
         this.source = source;

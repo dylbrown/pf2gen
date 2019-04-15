@@ -1,6 +1,10 @@
-Name: Gnome
-HP: 8
-Size: Small
-Speed: 20
-Bonuses: Con, Cha, Free
-Penalties: Str
+<?xml version = "1.0"?>
+<ancestry>
+    <Name>Gnome</Name>
+    <HP>8</HP>
+    <Size>Small</Size>
+    <Speed>20</Speed>
+    <AbilityBonuses>Con, Cha, Free</AbilityBonuses>
+    <AbilityPenalties>Str</AbilityPenalties>
+    <feats></feats>
+</ancestry>

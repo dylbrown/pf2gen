@@ -1,3 +1,6 @@
-Name: Barkeep
-Bonuses: Con or Cha, Free
-Skill: Lore (Alcohol)
+<?xml version = "1.0"?>
+<background>
+    <Name>Barkeep</Name>
+    <Skill>Lore (Alcohol)</Skill>
+    <AbilityBonuses>Con or Cha, Free</AbilityBonuses>
+</background>

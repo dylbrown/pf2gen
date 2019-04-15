@@ -1,3 +1,6 @@
-Name: Acrobat
-Bonuses: Str or Dex, Free
-Skill: Lore (Circus)
+<?xml version = "1.0"?>
+<background>
+    <Name>Acrobat</Name>
+    <Skill>Lore (Circus)</Skill>
+    <AbilityBonuses>Str or Dex, Free</AbilityBonuses>
+</background>

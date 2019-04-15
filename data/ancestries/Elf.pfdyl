@@ -1,6 +1,10 @@
-Name: Elf
-HP: 6
-Size: Medium
-Speed: 30
-Bonuses: Dex, Int, Free
-Penalties: Con
+<?xml version = "1.0"?>
+<ancestry>
+    <Name>Elf</Name>
+    <HP>6</HP>
+    <Size>Medium</Size>
+    <Speed>30</Speed>
+    <AbilityBonuses>Dex, Int, Free</AbilityBonuses>
+    <AbilityPenalties>Con</AbilityPenalties>
+    <feats></feats>
+</ancestry>

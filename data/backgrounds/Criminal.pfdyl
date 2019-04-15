@@ -1,3 +1,6 @@
-Name: Criminal
-Bonuses: Dex or Int, Free
-Skill: Lore (Underworld)
+<?xml version = "1.0"?>
+<background>
+    <Name>Criminal</Name>
+    <Skill>Lore (Underworld)</Skill>
+    <AbilityBonuses>Dex or Int, Free</AbilityBonuses>
+</background>

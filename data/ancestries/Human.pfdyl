@@ -1,5 +1,9 @@
-Name: Human
-HP: 8
-Size: Medium
-Speed: 25
-Bonuses: Free, Free
+<?xml version = "1.0"?>
+<ancestry>
+    <Name>Human</Name>
+    <HP>8</HP>
+    <Size>Medium</Size>
+    <Speed>25</Speed>
+    <AbilityBonuses>Free, Free</AbilityBonuses>
+    <feats></feats>
+</ancestry>

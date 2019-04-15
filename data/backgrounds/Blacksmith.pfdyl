@@ -1,3 +1,6 @@
-Name: Blacksmith
-Bonuses: Str or Int, Free
-Skill: Lore (Smithing)
+<?xml version = "1.0"?>
+<background>
+    <Name>Blacksmith</Name>
+    <Skill>Lore (Smithing)</Skill>
+    <AbilityBonuses>Str or Int, Free</AbilityBonuses>
+</background>

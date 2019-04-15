@@ -1,3 +1,6 @@
-Name: Acolyte
-Bonuses: Con or Wis, Free
-Skill: Lore (Your Deity)
+<?xml version = "1.0"?>
+<background>
+    <Name>Acolyte</Name>
+    <Skill>Lore (Your Deity)</Skill>
+    <AbilityBonuses>Con or Wis, Free</AbilityBonuses>
+</background>

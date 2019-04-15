@@ -1,6 +1,10 @@
-Name: Dwarf
-HP: 10
-Size: Medium
-Speed: 20
-Bonuses: Con, Wis, Free
-Penalties: Cha
+<?xml version = "1.0"?>
+<ancestry>
+    <Name>Dwarf</Name>
+    <HP>10</HP>
+    <Size>Medium</Size>
+    <Speed>20</Speed>
+    <AbilityBonuses>Con, Wis, Free</AbilityBonuses>
+    <AbilityPenalties>Cha</AbilityPenalties>
+    <feats></feats>
+</ancestry>

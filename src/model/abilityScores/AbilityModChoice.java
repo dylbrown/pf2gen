@@ -1,6 +1,6 @@
 package model.abilityScores;
 
-import model.enums.AbilityType;
+import model.enums.Type;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,12 +8,12 @@ import java.util.List;
 
 public class AbilityModChoice extends AbilityMod {
     private List<AbilityScore> choices;
-    public AbilityModChoice(List<AbilityScore> choices, AbilityType source) {
+    public AbilityModChoice(List<AbilityScore> choices, Type source) {
         super(AbilityScore.Free, true, source);
         this.choices = choices;
     }
 
-    public AbilityModChoice(AbilityType source) {
+    public AbilityModChoice(Type source) {
         super(AbilityScore.Free, true, source);
         this.choices = Arrays.asList(AbilityScore.scores());
     }

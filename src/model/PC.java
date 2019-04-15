@@ -2,12 +2,16 @@ package model;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import model.abc.Ancestry;
 import model.abc.Background;
 import model.abc.Class;
+import model.abilities.abilitySlots.AbilitySlot;
 import model.abilityScores.AbilityMod;
 import model.abilityScores.AbilityScore;
-import model.enums.*;
+import model.enums.Attribute;
+import model.enums.Proficiency;
 
 import java.util.*;
 
@@ -19,7 +23,7 @@ public class PC {
     private Class pClass;
     private int level = 1;
     private Map<Attribute, ReadOnlyObjectWrapper<Proficiency>> proficiencies = new HashMap<>();
-    private List<AbilitySlot> abilities = new ArrayList<>();
+    private ObservableList<AbilitySlot> abilities = FXCollections.observableArrayList();
     private Map<AbilityScore, List<AbilityMod>> abilityScores = new HashMap<>();
     private List<AbilityMod> remaining = new ArrayList<>();
     private String name;
@@ -63,9 +67,10 @@ public class PC {
     }
 
     private void apply(AbilitySlot slot) {
-        for(AttributeMod mod: slot.getCurrentAbility().getModifiers()){
-            apply(mod);
-        }
+        if(slot.getCurrentAbility() != null)
+            for(AttributeMod mod: slot.getCurrentAbility().getModifiers()){
+                apply(mod);
+            }
     }
 
     public Map<Attribute, ObservableValue<Proficiency>> getProficiencies() {

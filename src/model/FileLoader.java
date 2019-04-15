@@ -3,12 +3,19 @@ package model;
 import model.abc.Ancestry;
 import model.abc.Background;
 import model.abc.Class;
+import model.abilities.Ability;
+import model.abilities.AbilitySet;
+import model.abilities.abilitySlots.AbilitySlot;
+import model.abilities.abilitySlots.ChoiceSlot;
+import model.abilities.abilitySlots.FeatSlot;
+import model.abilities.abilitySlots.FilledSlot;
 import model.abilityScores.AbilityMod;
 import model.abilityScores.AbilityModChoice;
 import model.abilityScores.AbilityScore;
-import model.enums.AbilityType;
 import model.enums.Attribute;
+import model.enums.Proficiency;
 import model.enums.Size;
+import model.enums.Type;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -18,9 +25,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
@@ -57,23 +62,43 @@ public class FileLoader {
         if(ancestries == null) {
             ancestries = new ArrayList<>();
             for (File file : Objects.requireNonNull(ancestriesPath.listFiles())) {
-                try{
-                    BufferedReader reader = new BufferedReader(new FileReader(file));
-                    Map<String, String> data = new HashMap<>();
-                    String line;
-                    while((line = reader.readLine()) != null) {
-                        String[] datum = parseLine(line);
-                        data.put(datum[0], datum[1]);
-                    }
-                    String name = camelCase(data.get("name"));
-                    int hp = Integer.parseInt(data.get("hp"));
-                    Size size = Size.valueOf(camelCase(data.get("size")));
-                    int speed = Integer.parseInt(data.get("speed"));
-                    List<AbilityMod> abilityMods = getAbilityMods(data.computeIfAbsent("bonuses", (key) -> ""), data.computeIfAbsent("penalties", (key) -> ""), AbilityType.Ancestry);
-                    ancestries.add(new Ancestry(name, hp, size, speed, abilityMods));
-                } catch (IOException e) {
+                Document doc = null;
+                try {
+                    doc = builder.parse(file);
+                } catch (IOException | SAXException e) {
                     e.printStackTrace();
                 }
+                assert doc != null;
+                NodeList classProperties = doc.getElementsByTagName("ancestry").item(0).getChildNodes();
+
+                String name = ""; int hp = 0; Size size = Size.Medium; int speed=0; String bonuses=""; String penalties="";
+
+                for(int i=0; i<classProperties.getLength(); i++) {
+                    if(classProperties.item(i).getNodeType() != Node.ELEMENT_NODE)
+                        continue;
+                    Element curr = (Element) classProperties.item(i);
+                    switch(curr.getTagName()){
+                        case "Name":
+                            name = curr.getTextContent().trim();
+                            break;
+                        case "HP":
+                            hp = Integer.parseInt(curr.getTextContent().trim());
+                            break;
+                        case "Size":
+                            size = Size.valueOf(camelCaseWord(curr.getTextContent().trim()));
+                            break;
+                        case "Speed":
+                            speed = Integer.parseInt(curr.getTextContent().trim());
+                            break;
+                        case "AbilityBonuses":
+                            bonuses = curr.getTextContent().trim();
+                            break;
+                        case "AbilityPenalties":
+                            penalties = curr.getTextContent().trim();
+                    }
+                }
+
+                ancestries.add(new Ancestry(name, hp, size, speed, getAbilityMods(bonuses, penalties, Type.Ancestry)));
             }
         }
         return ancestries;
@@ -83,25 +108,42 @@ public class FileLoader {
         if(backgrounds == null) {
             backgrounds = new ArrayList<>();
             for (File file : Objects.requireNonNull(backgroundsPath.listFiles())) {
-                try{
-                    BufferedReader reader = new BufferedReader(new FileReader(file));
-                    Map<String, String> data = new HashMap<>();
-                    String line;
-                    while((line = reader.readLine()) != null) {
-                        String[] datum = parseLine(line);
-                        data.put(datum[0], datum[1]);
-                    }
-                    String name = camelCase(data.get("name"));
-                    List<AbilityMod> abilityMods = getAbilityMods(data.computeIfAbsent("bonuses", (key) -> ""), "", AbilityType.Background);
-                    if(camelCase(data.get("skill").trim()).substring(0, 4).equals("Lore")) {
-                        backgrounds.add(new Background(name, abilityMods, Attribute.Lore, camelCase(data.get("skill").trim()).substring(4).trim().replaceAll("[()]", "")));
-                    }else{
-                        Attribute skill = Attribute.valueOf(camelCase(data.get("skill").trim()));
-                        backgrounds.add(new Background(name, abilityMods, skill));
-                    }
-                } catch (IOException e) {
+                Document doc = null;
+                try {
+                    doc = builder.parse(file);
+                } catch (IOException | SAXException e) {
                     e.printStackTrace();
                 }
+                assert doc != null;
+                NodeList classProperties = doc.getElementsByTagName("background").item(0).getChildNodes();
+
+                String name = "";
+                Attribute skill=null;
+                String data="";
+                String bonuses="";
+
+                for(int i=0; i<classProperties.getLength(); i++) {
+                    if(classProperties.item(i).getNodeType() != Node.ELEMENT_NODE)
+                        continue;
+                    Element curr = (Element) classProperties.item(i);
+                    switch(curr.getTagName()){
+                        case "Name":
+                            name = curr.getTextContent().trim();
+                            break;
+                        case "Skill":
+                            if(camelCaseWord(curr.getTextContent().trim()).substring(0, 4).equals("Lore")) {
+                                skill = Attribute.Lore;
+                                data = camelCaseWord(curr.getTextContent().trim()).substring(4).trim().replaceAll("[()]", "");
+                            }else{
+                                skill = Attribute.valueOf(camelCaseWord(curr.getTextContent().trim()));
+                            }
+                            break;
+                        case "AbilityBonuses":
+                            bonuses = curr.getTextContent().trim();
+                            break;
+                    }
+                }
+                backgrounds.add(new Background(name, getAbilityMods(bonuses, "", Type.Background), skill, data));
             }
         }
         return backgrounds;
@@ -133,32 +175,106 @@ public class FileLoader {
                         case "HP":
                             hp = Integer.parseInt(curr.getTextContent().trim());
                             break;
-                        case "KeyAbilityChoices":
+                        case "AbilityChoices":
                             if(curr.getElementsByTagName("AbilityScore").getLength() == 1) {
-                                abilityMod = new AbilityMod(AbilityScore.valueOf(camelCase(curr.getElementsByTagName("AbilityScore").item(0).getTextContent())), true, AbilityType.Class);
+                                abilityMod = new AbilityMod(AbilityScore.valueOf(camelCaseWord(curr.getElementsByTagName("AbilityScore").item(0).getTextContent())), true, Type.Class);
                             }else{
                                 List<AbilityScore> scores = new ArrayList<>();
                                 for(int j=0; j<curr.getElementsByTagName("AbilityScore").getLength(); j++) {
-                                    scores.add(AbilityScore.valueOf(camelCase(curr.getElementsByTagName("AbilityScore").item(j).getTextContent())));
+                                    scores.add(AbilityScore.valueOf(camelCaseWord(curr.getElementsByTagName("AbilityScore").item(j).getTextContent())));
                                 }
-                                abilityMod = new AbilityModChoice(scores, AbilityType.Class);
+                                abilityMod = new AbilityModChoice(scores, Type.Class);
                             }
                             break;
                         case "FeatureList":
                             int level = Integer.parseInt(curr.getAttribute("level"));
+                            List<AbilitySlot> abilitySlots = new ArrayList<>();
+                            for(int j=0; j<curr.getElementsByTagName("AbilitySlot").getLength(); j++) {
+                                if(curr.getElementsByTagName("AbilitySlot").item(j).getNodeType() != Node.ELEMENT_NODE)
+                                    continue;
+                                Element slotNode = (Element) curr.getElementsByTagName("AbilitySlot").item(j);
+                                String abilityName = slotNode.getAttribute("name");
+                                switch(slotNode.getAttribute("state").toLowerCase().trim()){
+                                    case "filled":
+                                        Element temp = (Element) slotNode.getElementsByTagName("Ability").item(0);
+                                        abilitySlots.add(new FilledSlot(abilityName, makeAbility(temp, abilityName)));
+                                        break;
+                                    case "feat":
+                                        abilitySlots.add(new FeatSlot(abilityName, getTypes(slotNode.getAttribute("type"))));
+                                        break;
+                                    case "choice":
+                                        abilitySlots.add(new ChoiceSlot(abilityName, makeAbilities(slotNode.getElementsByTagName("*"))));
+                                        break;
+                                }
+                            }
+                            table.put(level, abilitySlots);
                             break;
                     }
                 }
-
                 classes.add(new Class(name, hp, abilityMod, table));
-
-
             }
         }
         return classes;
     }
 
-    private List<AbilityMod> getAbilityMods(String bonuses, String penalties, AbilityType type) {
+    private List<Ability> makeAbilities(NodeList nodes) {
+        List<Ability> choices = new ArrayList<>();
+        for(int i=0; i<nodes.getLength(); i++) {
+            Element item = (Element) nodes.item(i);
+            Ability name = makeAbility(item, item.getAttribute("name"));
+            if(name != null)
+                choices.add(name);
+        }
+        return choices;
+    }
+
+    private List<Type> getTypes(String string) {
+        List<Type> results = new ArrayList<>();
+        String[] split = string.trim().split(" ");
+        for(String term: split) {
+            if(!term.trim().equals(""))
+                results.add(Type.valueOf(camelCaseWord(term.trim())));
+        }
+        return results;
+    }
+
+    private Ability makeAbility(Element element, String name) {
+        if(element.getTagName().equals("Ability")) {
+            List<AttributeMod> mods = new ArrayList<>();
+            String description = "";
+            for (int i = 0; i < element.getChildNodes().getLength(); i++) {
+                Node item = element.getChildNodes().item(i);
+                if (item.getNodeType() != Node.ELEMENT_NODE)
+                    continue;
+                Element propElem = (Element) item;
+                String trim = propElem.getTextContent().trim();
+                switch (propElem.getTagName()) {
+                    case "AttributeMods":
+                        Proficiency prof = Proficiency.valueOf(camelCaseWord(propElem.getAttribute("Proficiency").trim()));
+                        addMods(trim, prof, mods);
+                        break;
+                    case "Description":
+                        description = trim;
+                        break;
+                }
+            }
+            return new Ability(name, mods, description);
+        }else if(element.getTagName().equals("AbilitySet")){
+            return new AbilitySet(name, makeAbilities(element.getElementsByTagName("*")));
+        }
+        return null;
+    }
+
+    private void addMods(String textContent, Proficiency prof, List<AttributeMod> mods) {
+        String[] split = textContent.split(",");
+        for(String str: split) {
+            if (!str.trim().equals(""))
+                mods.add(new AttributeMod(Attribute.valueOf(camelCase(str.trim()).replaceAll(" ", "")), prof));
+        }
+        //TODO: Handle Lore
+    }
+
+    private List<AbilityMod> getAbilityMods(String bonuses, String penalties, Type type) {
         List<AbilityMod> abilityMods = new ArrayList<>();
 
         String[] split = bonuses.split(",");
@@ -167,7 +283,7 @@ public class FileLoader {
             if(split[i].equals("")) continue;
             String[] eachScore = split[i].split("or");
             if(eachScore.length == 1) {
-                AbilityScore abilityScore = AbilityScore.valueOf(camelCase(split[i]));
+                AbilityScore abilityScore = AbilityScore.valueOf(camelCaseWord(split[i]));
                 if(abilityScore != AbilityScore.Free)
                     abilityMods.add(new AbilityMod(abilityScore, true, type));
                 else
@@ -181,7 +297,7 @@ public class FileLoader {
         split = penalties.split(",");
         for(int i=0;i<split.length;i++) {
             if(split[i].trim().equals("")) continue;
-            split[i] = camelCase(split[i].trim());
+            split[i] = camelCaseWord(split[i].trim());
             abilityMods.add(new AbilityMod(AbilityScore.valueOf(split[i]), false, type));
         }
 
@@ -191,20 +307,20 @@ public class FileLoader {
     private AbilityScore[] parseChoices(String[] eachScore) {
         AbilityScore[] scores = new AbilityScore[eachScore.length];
         for(int i=0;i<eachScore.length;i++) {
-            scores[i] = AbilityScore.valueOf(camelCase(eachScore[i].trim()));
+            scores[i] = AbilityScore.valueOf(camelCaseWord(eachScore[i].trim()));
         }
         return scores;
     }
 
     private String camelCase(String str) {
-        return str.substring(0,1).toUpperCase() + str.substring(1).toLowerCase();
+        String[] split = str.split(" ");
+        for(int i=0; i<split.length;i++) {
+            split[i] = camelCaseWord(split[i]);
+        }
+        return String.join(" ", split);
     }
 
-    private String[] parseLine(String line) {
-        String[] split = line.split(":");
-        for(int i=0;i<split.length;i++) {
-            split[i] = split[i].toLowerCase().trim();
-        }
-        return split;
+    private String camelCaseWord(String str) {
+        return str.substring(0,1).toUpperCase() + str.substring(1).toLowerCase();
     }
 }

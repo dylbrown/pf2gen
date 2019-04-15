@@ -1,6 +1,10 @@
-Name: Goblin
-HP: 6
-Size: Small
-Speed: 25
-Bonuses: Dex, Cha, Free
-Penalties: Wis
+<?xml version = "1.0"?>
+<ancestry>
+    <Name>Goblin</Name>
+    <HP>6</HP>
+    <Size>Small</Size>
+    <Speed>25</Speed>
+    <AbilityBonuses>Dex, Cha, Free</AbilityBonuses>
+    <AbilityPenalties>Wis</AbilityPenalties>
+    <feats></feats>
+</ancestry>

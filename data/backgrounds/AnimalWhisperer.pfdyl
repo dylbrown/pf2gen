@@ -1,3 +1,6 @@
-Name: Animal Whisperer
-Bonuses: Wis or Cha, Free
-Skill: Lore (Animal)
+<?xml version = "1.0"?>
+<background>
+    <Name>Animal Whisperer</Name>
+    <Skill>Lore (Animal)</Skill>
+    <AbilityBonuses>Wis or Cha, Free</AbilityBonuses>
+</background>

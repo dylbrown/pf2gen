@@ -1,6 +1,6 @@
 package model.abc;
 
-import model.AbilitySlot;
+import model.abilities.abilitySlots.AbilitySlot;
 import model.abilityScores.AbilityMod;
 
 import java.util.*;
