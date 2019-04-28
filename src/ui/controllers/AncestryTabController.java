@@ -6,8 +6,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import model.FileLoader;
 import model.abc.Ancestry;
-
-import static ui.Main.character;
+import ui.Main;
 
 public class AncestryTabController {
     @FXML
@@ -23,7 +22,7 @@ public class AncestryTabController {
         setAncestry.setOnAction((event) -> {
             Ancestry selectedItem = ancestryList.getSelectionModel().getSelectedItem();
             ancestryDisplay.setText(selectedItem.toString());
-            character.setAncestry(selectedItem);
+            Main.character.setAncestry(selectedItem);
         });
     }
 }

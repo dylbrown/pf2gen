@@ -3,19 +3,26 @@ package model;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import model.abc.Ancestry;
 import model.abc.Background;
 import model.abc.Class;
+import model.abilities.Ability;
 import model.abilities.abilitySlots.AbilitySlot;
+import model.abilities.abilitySlots.ChoiceSlot;
+import model.abilities.abilitySlots.FeatSlot;
+import model.abilities.abilitySlots.Pickable;
 import model.abilityScores.AbilityMod;
+import model.abilityScores.AbilityModChoice;
 import model.abilityScores.AbilityScore;
 import model.enums.Attribute;
 import model.enums.Proficiency;
+import model.enums.Type;
 
 import java.util.*;
 
-import static model.abilityScores.AbilityScore.Con;
+import static model.abilityScores.AbilityScore.*;
 
 public class PC {
     private Ancestry ancestry;
@@ -27,7 +34,25 @@ public class PC {
     private Map<AbilityScore, List<AbilityMod>> abilityScores = new HashMap<>();
     private List<AbilityMod> remaining = new ArrayList<>();
     private String name;
+    private SortedMap<Integer, Set<Attribute>> skillChoices = new TreeMap<>();
+    private SortedMap<Integer, Integer> skillIncreases = new TreeMap<>();
 
+    public PC() {
+        abilityScores.computeIfAbsent(Int, (key)-> FXCollections.observableArrayList()).addListener((ListChangeListener<? super AbilityMod>) (event)->{
+            if(pClass != null) {
+                skillIncreases.put(1, pClass.getSkillIncreases() + getAbilityMod(Int));
+                proficiencyChange.wink();
+            }
+        });
+        List<AbilityModChoice> choices = Arrays.asList(
+                new AbilityModChoice(Type.Initial),
+                new AbilityModChoice(Type.Initial),
+                new AbilityModChoice(Type.Initial),
+                new AbilityModChoice(Type.Initial)
+        );
+        abilityScoreChoices.addAll(choices);
+        abilityScoresByType.put(Type.Initial, new ArrayList<>(choices));
+    }
 
     public void setName(String name) {
         this.name = name;
@@ -42,6 +67,7 @@ public class PC {
             remove(this.ancestry.getAbilityMods());
         this.ancestry = ancestry;
         apply(ancestry.getAbilityMods());
+        ancestryWatcher.wink();
     }
 
     public void setBackground(Background background) {
@@ -50,16 +76,21 @@ public class PC {
         this.background = background;
         apply(background.getAbilityMods());
         apply(background.getMod());
+        proficiencyChange.wink();
     }
 
     public void setClass(Class newClass) {
         pClass = newClass;
         applyLevel(pClass.getLevel(1));
+        skillIncreases.put(1, pClass.getSkillIncreases() + getAbilityMod(Int));
+        proficiencyChange.wink();
     }
 
     private void applyLevel(List<AbilitySlot> level) {
         for(AbilitySlot slot: level) {
             abilities.add(slot);
+            if(slot instanceof FeatSlot || slot instanceof ChoiceSlot)
+                decisions.add(slot);
             if(slot.isPreSet()) {
                 apply(slot);
             }
@@ -78,7 +109,7 @@ public class PC {
     }
 
     public ObservableValue<Proficiency> getProficiency(Attribute attr) {
-        return proficiencies.computeIfAbsent(attr, (key) -> new ReadOnlyObjectWrapper<>(null));
+        return proficiencies.computeIfAbsent(attr, (key) -> new ReadOnlyObjectWrapper<>(Proficiency.Untrained));
     }
 
     private void apply(AttributeMod mod) {
@@ -100,10 +131,12 @@ public class PC {
 
     public int getAbilityScore(AbilityScore ability) {
         int score = 10;
-        for(AbilityMod mod: abilityScores.computeIfAbsent(ability, (key)->new ArrayList<>())) {
-            if(mod.isPositive()) {
+        List<Type> stackingCheck = new ArrayList<>();
+        for(AbilityMod mod: abilityScores.computeIfAbsent(ability, (key)-> FXCollections.observableArrayList())) {
+            if(mod.isPositive() && !stackingCheck.contains(mod.getSource())) {
                 score += (score < 18) ? 2 : 1;
-            }else{
+                stackingCheck.add(mod.getSource());
+            }else if(!mod.isPositive()){
                 score -= 2;
             }
         }
@@ -112,7 +145,10 @@ public class PC {
 
     private void apply(List<AbilityMod> abilityMods) {
         for(AbilityMod mod: abilityMods) {
-            abilityScores.computeIfAbsent(mod.getTarget(), (key)-> new ArrayList<>()).add(mod);
+            abilityScores.computeIfAbsent(mod.getTarget(), (key)-> FXCollections.observableArrayList()).add(mod);
+            abilityScoresByType.computeIfAbsent(mod.getSource(), (key)->new ArrayList<>()).add(mod);
+            if(mod instanceof AbilityModChoice)
+                abilityScoreChoices.add((AbilityModChoice) mod);
         }
     }
 
@@ -120,6 +156,163 @@ public class PC {
         for(AbilityMod mod: abilityMods) {
             List<AbilityMod> mods = abilityScores.get(mod.getTarget());
             mods.remove(mod);
+            abilityScoresByType.get(mod.getSource()).remove(mod);
+            if(mod instanceof AbilityModChoice)
+                abilityScoreChoices.remove(mod);
         }
+    }
+    public void addProficiencyObserver(Observer o) {
+        proficiencyChange.addObserver(o);
+    }
+    public void addAncestryObserver(Observer o) {
+        ancestryWatcher.addObserver(o);
+    }
+
+    public List<AbilityModChoice> getFreeScores() {
+        return Collections.unmodifiableList(abilityScoreChoices);
+    }
+
+    public void choose(AbilityModChoice choice, AbilityScore value) {
+        AbilityScore old = choice.getTarget();
+        if(choice.pick(value)) {
+            abilityScores.computeIfAbsent(old, (key)->FXCollections.observableArrayList()).remove(choice);
+            abilityScores.computeIfAbsent(value, (key)->FXCollections.observableArrayList()).add(choice);
+            abilityScoreChange.wink();
+        }
+    }
+
+    public boolean advanceSkill(Attribute skill) {
+        if(!Arrays.asList(Attribute.getSkills()).contains(skill))
+            return false;
+        ReadOnlyObjectWrapper<Proficiency> prof = proficiencies.get(skill);
+        if(prof.getValue() == Proficiency.Legendary) return false;
+        for (Map.Entry<Integer, Integer> entry : skillIncreases.entrySet()) {
+            if(prof.getValue() == Proficiency.Expert && entry.getKey() < 7)
+                continue;
+            if(prof.getValue() == Proficiency.Master && entry.getKey() < 15)
+                continue;
+            Set<Attribute> choices = skillChoices.computeIfAbsent(entry.getKey(), (key) -> new HashSet<>());
+            if(entry.getValue() - choices.size() <= 0)
+                continue;
+            if(choices.contains(skill))
+                continue;
+            choices.add(skill);
+            prof.setValue(Proficiency.values()[Arrays.asList(Proficiency.values()).indexOf(prof.getValue())+1]);
+            proficiencyChange.wink();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean canAdvanceSkill(Attribute skill) {
+        if(!Arrays.asList(Attribute.getSkills()).contains(skill))
+            return false;
+        ReadOnlyObjectWrapper<Proficiency> prof = proficiencies.get(skill);
+        if(prof.getValue() == Proficiency.Legendary) return false;
+        for (Map.Entry<Integer, Integer> entry : skillIncreases.entrySet()) {
+            if(prof.getValue() == Proficiency.Expert && entry.getKey() < 7)
+                continue;
+            if(prof.getValue() == Proficiency.Master && entry.getKey() < 15)
+                continue;
+            Set<Attribute> choices = skillChoices.computeIfAbsent(entry.getKey(), (key) -> new HashSet<>());
+            if(entry.getValue() - choices.size() <= 0)
+                continue;
+            if(choices.contains(skill))
+                continue;
+            return true;
+        }
+        return false;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public boolean regressSkill(Attribute skill) {
+        if(!Arrays.asList(Attribute.getSkills()).contains(skill))
+            return false;
+        ReadOnlyObjectWrapper<Proficiency> prof = proficiencies.get(skill);
+        if(prof.getValue() == Proficiency.Untrained) return false;
+        Stack<Map.Entry<Integer, Integer>> reverser = new Stack<>();
+        for (Map.Entry<Integer, Integer> entry : skillIncreases.entrySet()) {
+            reverser.push(entry);
+        }
+        for (Map.Entry<Integer, Integer> entry : reverser) {
+            Set<Attribute> choices = skillChoices.computeIfAbsent(entry.getKey(), (key) -> new HashSet<>());
+            if(!choices.contains(skill))
+                continue;
+            choices.remove(skill);
+            prof.setValue(Proficiency.values()[Arrays.asList(Proficiency.values()).indexOf(prof.getValue())-1]);
+            proficiencyChange.wink();
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean canRegressSkill(Attribute skill) {
+        if(!Arrays.asList(Attribute.getSkills()).contains(skill))
+            return false;
+        ReadOnlyObjectWrapper<Proficiency> prof = proficiencies.get(skill);
+        if(prof.getValue() == Proficiency.Untrained) return false;
+        for (Map.Entry<Integer, Integer> entry : skillIncreases.entrySet()) {
+            Set<Attribute> choices = skillChoices.computeIfAbsent(entry.getKey(), (key) -> new HashSet<>());
+            if(!choices.contains(skill))
+                continue;
+            return true;
+        }
+        return false;
+    }
+
+    public ObservableList<AbilitySlot> getDecisions() {
+        return FXCollections.unmodifiableObservableList(decisions);
+    }
+
+    public List<Ability> getFeatSet(List<Type> allowedTypes) {
+        List<Ability> results = new ArrayList<>();
+        for (Type allowedType : allowedTypes) {
+            switch(allowedType) {
+                case Class:
+                    if(pClass != null)
+                        results.addAll(pClass.getFeats());
+                    break;
+                case Ancestry:
+                    if(ancestry != null)
+                        results.addAll(ancestry.getFeats());
+                    break;
+            }
+        }
+        return results;
+    }
+
+    public void choose(AbilitySlot slot, Ability selectedItem) {
+        if(slot instanceof Pickable) {
+            ((Pickable) slot).fill(selectedItem);
+            apply(slot);
+        }
+    }
+
+    public int getAC() {
+        return 10 + level + getAbilityMod(Dex);
+    }
+
+    public int getTAC() {
+        return 10 + level + getAbilityMod(Dex);
+    }
+
+    public int getTotalMod(Attribute attribute) {
+        return level+getAbilityMod(attribute.getKeyAbility())+getProficiency(attribute).getValue().getMod();
+    }
+
+    public int getSpeed() {
+        return (ancestry != null) ? ancestry.getSpeed() : 0;
+    }
+
+    public List<AbilityMod> getAbilityMods(Type type) {
+        return Collections.unmodifiableList(abilityScoresByType.computeIfAbsent(type, (key)->new ArrayList<>()));
+    }
+
+    public List<AbilityModChoice> getAbilityScoreChoices() {
+        return Collections.unmodifiableList(abilityScoreChoices);
     }
 }

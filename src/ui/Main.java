@@ -9,12 +9,15 @@ import model.PC;
 
 public class Main extends Application {
     public static PC character;
+
+    static{
+        character = new PC();
+    }
     @Override
     public void start(Stage primaryStage) throws Exception{
-        character = new PC();
         Parent root = FXMLLoader.load(getClass().getResource("fxml/home.fxml"));
         primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 640, 480));
+        primaryStage.setScene(new Scene(root, 800, 450));
         primaryStage.show();
     }
 

@@ -1,0 +1,23 @@
+<?xml version = "1.0"?>
+<class>
+    <Name>Cleric</Name>
+    <HP>8</HP>
+    <AbilityChoices>
+        <AbilityScore>Wis</AbilityScore>
+    </AbilityChoices>
+    <SkillIncreases>3</SkillIncreases>
+    <FeatureList level="1">
+        <AbilitySlot state="filled" name="Initial Proficiencies">
+            <Ability>
+                <AttributeMods Proficiency="Trained">
+                    Religion, Perception, Reflex, Simple Weapons, Light Armor, Medium Armor, Shields
+                </AttributeMods>
+                <AttributeMods Proficiency="Expert">
+                    Fortitude, Will
+                </AttributeMods>
+            </Ability>
+        </AbilitySlot>
+        <AbilitySlot state="feat" type="Class Feat" name="Cleric Feat"/>
+        <AbilitySlot state="feat" type="Ancestry Feat" name="Ancestry Feat"/>
+    </FeatureList>
+</class>

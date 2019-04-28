@@ -5,8 +5,6 @@ import model.abilityScores.AbilityScore;
 import java.util.*;
 
 import static model.abilityScores.AbilityScore.*;
-import static model.abilityScores.AbilityScore.Cha;
-import static model.abilityScores.AbilityScore.Wis;
 
 public enum Attribute {
     Acrobatics(Dex), Arcana(Int), Athletics(Str), Crafting(Int), Deception(Cha), Diplomacy(Cha), Intimidation(Cha), Lore(Int), Medicine(Wis), Nature(Wis), Occultism(Int), Performance(Cha), Religion(Wis), Society(Int), Stealth(Dex), Survival(Wis), Thievery(Dex),
@@ -16,6 +14,12 @@ public enum Attribute {
     SimpleWeapons, MartialWeapons, LightArmor, MediumArmor, HeavyArmor, Shields;
 
     private static Map<AbilityScore, List<Attribute>> skillsByScore = new HashMap<>();
+
+    public static Attribute[] getSkills() {
+        return skills;
+    }
+
+    private static final Attribute[] skills = {Acrobatics, Arcana, Athletics, Crafting, Deception, Diplomacy, Intimidation, Lore, Medicine, Nature, Occultism, Performance, Religion, Society, Stealth, Survival, Thievery};
 
     static{
         skillsByScore.put(Str, new ArrayList<>(Collections.singletonList(Athletics)));

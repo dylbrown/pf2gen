@@ -1,0 +1,23 @@
+<?xml version = "1.0"?>
+<class>
+    <Name>Wizard</Name>
+    <HP>6</HP>
+    <AbilityChoices>
+        <AbilityScore>Int</AbilityScore>
+    </AbilityChoices>
+    <SkillIncreases>4</SkillIncreases>
+    <FeatureList level="1">
+        <AbilitySlot state="filled" name="Initial Proficiencies">
+            <Ability>
+                <AttributeMods Proficiency="Trained">
+                    Perception, Fortitude, Reflex, Simple Weapons, Arcana
+                </AttributeMods>
+                <AttributeMods Proficiency="Expert">
+                    Will
+                </AttributeMods>
+            </Ability>
+        </AbilitySlot>
+        <AbilitySlot state="feat" type="Class Feat" name="Wizard Feat"/>
+        <AbilitySlot state="feat" type="Ancestry Feat" name="Ancestry Feat"/>
+    </FeatureList>
+</class>

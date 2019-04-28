@@ -7,6 +7,7 @@ public abstract class AbilitySlot {
 
     protected Ability currentAbility;
     protected boolean preSet = false;
+    private int level=1;
 
     protected AbilitySlot(String name) {
         this.name = name;
@@ -22,5 +23,10 @@ public abstract class AbilitySlot {
 
     public Ability getCurrentAbility() {
         return currentAbility;
+    }
+
+    @Override
+    public String toString() {
+        return name+" "+level;
     }
 }

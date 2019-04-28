@@ -1,5 +1,6 @@
 package model.abc;
 
+import model.abilities.Ability;
 import model.abilityScores.AbilityMod;
 import model.enums.Size;
 
@@ -12,16 +13,26 @@ public class Ancestry extends ABC {
     private final int HP;
     private final Size size;
     private final int speed;
+    private final List<Ability> feats;
 
-    public Ancestry(String name, int HP, Size size, int speed, List<AbilityMod> abilityMods){
+    public Ancestry(String name, int HP, Size size, int speed, List<AbilityMod> abilityMods, List<Ability> feats){
         super(name, abilityMods);
         this.HP = HP;
         this.size = size;
         this.speed = speed;
+        this.feats = feats;
         //TODO: Add languages
     }
 
     public int getHP() {
         return HP;
+    }
+
+    public List<Ability> getFeats() {
+        return feats;
+    }
+
+    public int getSpeed() {
+        return speed;
     }
 }

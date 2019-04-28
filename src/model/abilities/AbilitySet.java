@@ -6,8 +6,8 @@ import java.util.List;
 
 public class AbilitySet extends Ability {
     private List<Ability> abilities;
-    public AbilitySet(String name, List<Ability> abilities) {
-        super(name);
+    public AbilitySet(String name, String desc, List<Ability> abilities) {
+        super(name, desc);
         this.abilities = abilities;
         modifiers = new ArrayList<>();
         for(Ability ability: abilities) {

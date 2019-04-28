@@ -28,4 +28,8 @@ public class AttributeMod {
     public String getData() {
         return data;
     }
+
+    public String toNiceAttributeString() {
+        return (data != null) ? attr.toString()+" ("+data+")" : attr.toString();
+    }
 }

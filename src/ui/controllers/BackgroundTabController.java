@@ -15,7 +15,15 @@ public class BackgroundTabController {
     @FXML
     private Label backgroundDisplay;
     @FXML
+    private Label backgroundDesc;
+    @FXML
     private Button setBackground;
+    @FXML
+    private Label skill;
+    @FXML
+    private Label feat;
+    @FXML
+    private Label mods;
 
     @FXML
     private void initialize() {
@@ -27,6 +35,11 @@ public class BackgroundTabController {
             Background selectedItem = backgroundList.getSelectionModel().getSelectedItem();
             backgroundDisplay.setText(selectedItem.toString());
             character.setBackground(selectedItem);
+        });
+        backgroundList.getSelectionModel().selectedItemProperty().addListener((event)->{
+            backgroundDesc.setText(backgroundList.getSelectionModel().getSelectedItem().getDesc());
+            skill.setText(backgroundList.getSelectionModel().getSelectedItem().getMod().toNiceAttributeString());
+            mods.setText(backgroundList.getSelectionModel().getSelectedItem().getModString());
         });
     }
 }

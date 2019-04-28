@@ -1,0 +1,24 @@
+<?xml version = "1.0"?>
+<class>
+    <Name>Rogue</Name>
+    <HP>8</HP>
+    <AbilityChoices>
+        <AbilityScore>Str</AbilityScore>
+        <AbilityScore>Dex</AbilityScore>
+    </AbilityChoices>
+    <SkillIncreases>10</SkillIncreases>
+    <FeatureList level="1">
+        <AbilitySlot state="filled" name="Initial Proficiencies">
+            <Ability>
+                <AttributeMods Proficiency="Trained">
+                    Fortitude, Simple Weapons, Light Armor
+                </AttributeMods>
+                <AttributeMods Proficiency="Expert">
+                    Perception, Reflex, Will
+                </AttributeMods>
+            </Ability>
+        </AbilitySlot>
+        <AbilitySlot state="feat" type="Class Feat" name="Rogue Feat"/>
+        <AbilitySlot state="feat" type="Ancestry Feat" name="Ancestry Feat"/>
+    </FeatureList>
+</class>

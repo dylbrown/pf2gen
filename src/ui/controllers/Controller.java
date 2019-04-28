@@ -1,18 +1,15 @@
 package ui.controllers;
 
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
-import model.FileLoader;
+import javafx.scene.web.WebView;
 import model.abilityScores.AbilityScore;
 import model.enums.Attribute;
-import model.enums.Proficiency;
-import model.abc.Class;
 
-import java.util.Map;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 import static ui.Main.character;
 
@@ -22,33 +19,11 @@ public class Controller {
     @FXML
     private TextField characterName;
     @FXML
-    private Button setClass;
+    private Tab displayTab;
     @FXML
-    private Label fortitudeDisplay;
-    @FXML
-    private Label reflexDisplay;
-    @FXML
-    private Label willDisplay;
-    @FXML
-    private Label classDisplay;
-    @FXML
-    private Button display;
-    @FXML
-    private Label proficienciesDisplay;
-    @FXML
-    private Label healthDisplay;
-    @FXML
-    private Label Str;
-    @FXML
-    private Label Dex;
-    @FXML
-    private Label Con;
-    @FXML
-    private Label Int;
-    @FXML
-    private Label Wis;
-    @FXML
-    private Label Cha;
+    private WebView display;
+
+    private static final String htmlTemplate;
     @FXML
     private void initialize(){
 
@@ -58,32 +33,40 @@ public class Controller {
         classList.getItems().addAll(FileLoader.getClasses());
 
         characterName.textProperty().addListener((observable, oldValue, newValue) -> character.setName(newValue));
-
-        setClass.setOnAction((event) -> {
-            Class selectedItem = classList.getSelectionModel().getSelectedItem();
-            classDisplay.setText(selectedItem.toString());
-            character.setClass(selectedItem);
-        });
-
-        display.setOnAction((event) -> {
-            fortitudeDisplay.setText((character.getProficiency(Attribute.Fortitude).getValue() != null) ? character.getProficiency(Attribute.Fortitude).getValue().toString(): "Untrained");
-            reflexDisplay.setText((character.getProficiency(Attribute.Reflex).getValue() != null) ? character.getProficiency(Attribute.Reflex).getValue().toString(): "Untrained");
-            willDisplay.setText((character.getProficiency(Attribute.Will).getValue() != null) ? character.getProficiency(Attribute.Will).getValue().toString(): "Untrained");
-            StringBuilder profs = new StringBuilder();
-            for(Map.Entry<Attribute, ObservableValue<Proficiency>> entry: character.getProficiencies().entrySet()) {
-                if(entry.getKey() == Attribute.Fortitude || entry.getKey() == Attribute.Reflex || entry.getKey() == Attribute.Will || entry.getValue() == null || entry.getValue().getValue() == null)
-                    continue;
-                profs.append(entry.getKey().name()).append(": ").append(entry.getValue().getValue().name()).append("\n");
+        displayTab.setOnSelectionChanged((event) -> {
+            if(displayTab.isSelected()) {
+                display.getEngine().loadContent(
+                        String.format(htmlTemplate, character.getName(), character.getLevel(),
+                        addSign(character.getTotalMod(Attribute.Perception)),
+                        addSign(character.getAbilityMod(AbilityScore.Str)),
+                        addSign(character.getAbilityMod(AbilityScore.Dex)),
+                        addSign(character.getAbilityMod(AbilityScore.Con)),
+                        addSign(character.getAbilityMod(AbilityScore.Int)),
+                        addSign(character.getAbilityMod(AbilityScore.Wis)),
+                        addSign(character.getAbilityMod(AbilityScore.Cha)),
+                        character.getAC(), character.getTAC(),
+                        addSign(character.getTotalMod(Attribute.Fortitude)),
+                        addSign(character.getTotalMod(Attribute.Reflex)),
+                        addSign(character.getTotalMod(Attribute.Will)),
+                        character.getHP(),
+                        character.getSpeed()
+                ));
             }
-            proficienciesDisplay.setText(profs.toString());
-            healthDisplay.setText(String.valueOf(character.getHP()));
-            Str.setText(String.valueOf(character.getAbilityScore(AbilityScore.Str)));
-            Dex.setText(String.valueOf(character.getAbilityScore(AbilityScore.Dex)));
-            Con.setText(String.valueOf(character.getAbilityScore(AbilityScore.Con)));
-            Int.setText(String.valueOf(character.getAbilityScore(AbilityScore.Int)));
-            Wis.setText(String.valueOf(character.getAbilityScore(AbilityScore.Wis)));
-            Cha.setText(String.valueOf(character.getAbilityScore(AbilityScore.Cha)));
         });
     }
 
+    static{
+        String diskData;
+        try {
+            diskData = new String(Files.readAllBytes(new File("data/output.html").toPath()));
+        } catch (IOException e) {
+            e.printStackTrace();
+            diskData = "";
+        }
+        htmlTemplate = diskData;
+    }
+
+    private String addSign(int mod) {
+        return ((mod > 0) ? "+" : "")+ mod;
+    }
 }

@@ -5,8 +5,13 @@ import model.enums.Type;
 import java.util.Objects;
 
 public class AbilityMod {
-    private AbilityScore target;
+    protected AbilityScore target;
     private boolean positive;
+
+    public Type getSource() {
+        return source;
+    }
+
     private Type source;
     private int level = 1;
 
