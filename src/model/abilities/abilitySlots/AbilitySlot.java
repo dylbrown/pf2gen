@@ -9,8 +9,9 @@ public abstract class AbilitySlot {
     protected boolean preSet = false;
     private int level=1;
 
-    protected AbilitySlot(String name) {
+    protected AbilitySlot(String name, int level) {
         this.name = name;
+        this.level = level;
     }
 
     public String getName() {
@@ -29,4 +30,8 @@ public abstract class AbilitySlot {
     public String toString() {
         return name+" "+level;
     }
+
+    public int getLevel(){
+        return level;
+    };
 }

@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import model.PC;
 
@@ -16,7 +17,8 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("fxml/home.fxml"));
-        primaryStage.setTitle("Hello World");
+        primaryStage.setTitle("PF2Gen");
+        primaryStage.getIcons().add(new Image("PF2Gen.png"));
         primaryStage.setScene(new Scene(root, 800, 450));
         primaryStage.show();
     }

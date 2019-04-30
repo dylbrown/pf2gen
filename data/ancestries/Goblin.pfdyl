@@ -6,5 +6,6 @@
     <Speed>25</Speed>
     <AbilityBonuses>Dex, Cha, Free</AbilityBonuses>
     <AbilityPenalties>Wis</AbilityPenalties>
-    <feats></feats>
+    <Description>It’s been almost 20 years since the end of the Goblinblood Wars that scorched the Chitterwood, forcing dozens of tribes into hiding. Now with new threats rising up, the many tribal elders have put aside their reckless ways in the hope of forging alliances that give them a chance at survival. While many have stayed to protect their homelands, others have become refugees, with some traveling to Absalom in search of a home that might offer them sanctuary in a world that does not trust them.</Description>
+    <Feats></Feats>
 </ancestry>

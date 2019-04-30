@@ -69,7 +69,7 @@ public class FileLoader {
                 assert doc != null;
                 NodeList classProperties = doc.getElementsByTagName("ancestry").item(0).getChildNodes();
 
-                String name = ""; int hp = 0; Size size = Size.Medium; int speed=0; String bonuses=""; String penalties=""; List<Ability> feats = new ArrayList<>();
+                String name = ""; int hp = 0; Size size = Size.Medium; int speed=0; String bonuses=""; String penalties=""; List<Ability> feats = new ArrayList<>();List<Ability> heritages = new ArrayList<>(); String description = "";
 
                 for(int i=0; i<classProperties.getLength(); i++) {
                     if(classProperties.item(i).getNodeType() != Node.ELEMENT_NODE)
@@ -78,6 +78,9 @@ public class FileLoader {
                     switch(curr.getTagName()){
                         case "Name":
                             name = curr.getTextContent().trim();
+                            break;
+                        case "Description":
+                            description = curr.getTextContent().trim();
                             break;
                         case "HP":
                             hp = Integer.parseInt(curr.getTextContent().trim());
@@ -94,14 +97,20 @@ public class FileLoader {
                         case "AbilityPenalties":
                             penalties = curr.getTextContent().trim();
                         case "Feats":
-                            NodeList featNodes = curr.getElementsByTagName("Feat");
-                            for(int j=0; j<featNodes.getLength(); j++) {
-                                feats.add(makeAbility((Element) featNodes.item(i), ((Element) featNodes.item(i)).getAttribute("name")));
+                            NodeList[] nodeLists = {curr.getElementsByTagName("Ability"),curr.getElementsByTagName("AbilitySet")};
+                            for (NodeList featNodes : nodeLists) {
+                                for (int j = 0; j < featNodes.getLength(); j++) {
+                                    if (((Element) featNodes.item(j)).getAttribute("type").trim().toLowerCase().equals("heritage")) {
+                                        heritages.add(makeAbility((Element) featNodes.item(j), ((Element) featNodes.item(j)).getAttribute("name")));
+                                    } else {
+                                        feats.add(makeAbility((Element) featNodes.item(j), ((Element) featNodes.item(j)).getAttribute("name")));
+                                    }
+                                }
                             }
                     }
                 }
 
-                ancestries.add(new Ancestry(name, hp, size, speed, getAbilityMods(bonuses, penalties, Type.Ancestry), feats));
+                ancestries.add(new Ancestry(name, description, hp, size, speed, getAbilityMods(bonuses, penalties, Type.Ancestry), feats, heritages));
             }
         }
         return ancestries;
@@ -169,7 +178,7 @@ public class FileLoader {
                 assert doc != null;
                 NodeList classProperties = doc.getElementsByTagName("class").item(0).getChildNodes();
 
-                String name = ""; int hp = 0; int skillIncreases = 0; AbilityMod abilityMod = null; Map<Integer, List<AbilitySlot>> table = new HashMap<>(); List<Ability> feats = new ArrayList<>();
+                String name = ""; int hp = 0; int skillIncreases = 0; AbilityMod abilityMod = null; Map<Integer, List<AbilitySlot>> table = new HashMap<>(); List<Ability> feats = new ArrayList<>(); String description="";
 
                 for(int i=0; i<classProperties.getLength(); i++) {
                     if(classProperties.item(i).getNodeType() != Node.ELEMENT_NODE)
@@ -178,6 +187,9 @@ public class FileLoader {
                     switch(curr.getTagName()){
                         case "Name":
                             name = curr.getTextContent().trim();
+                            break;
+                        case "Description":
+                            description = curr.getTextContent().trim();
                             break;
                         case "HP":
                             hp = Integer.parseInt(curr.getTextContent().trim());
@@ -207,26 +219,28 @@ public class FileLoader {
                                 switch(slotNode.getAttribute("state").toLowerCase().trim()){
                                     case "filled":
                                         Element temp = (Element) slotNode.getElementsByTagName("Ability").item(0);
-                                        abilitySlots.add(new FilledSlot(abilityName, makeAbility(temp, abilityName)));
+                                        abilitySlots.add(new FilledSlot(abilityName, level, makeAbility(temp, abilityName)));
                                         break;
                                     case "feat":
-                                        abilitySlots.add(new FeatSlot(abilityName, getTypes(slotNode.getAttribute("type"))));
+                                        abilitySlots.add(new FeatSlot(abilityName, level, getTypes(slotNode.getAttribute("type"))));
                                         break;
                                     case "choice":
-                                        abilitySlots.add(new ChoiceSlot(abilityName, makeAbilities(slotNode.getChildNodes())));
+                                        abilitySlots.add(new ChoiceSlot(abilityName, level, makeAbilities(slotNode.getChildNodes())));
                                         break;
                                 }
                             }
                             table.put(level, abilitySlots);
                             break;
                         case "Feats":
-                            NodeList featNodes = curr.getElementsByTagName("Ability");
-                            for(int j=0; j<featNodes.getLength(); j++) {
-                                feats.add(makeAbility((Element) featNodes.item(j), ((Element) featNodes.item(j)).getAttribute("name")));
+                            NodeList[] nodeLists = {curr.getElementsByTagName("Ability"),curr.getElementsByTagName("AbilitySet")};
+                            for (NodeList featNodes : nodeLists) {
+                                for (int j = 0; j < featNodes.getLength(); j++) {
+                                    feats.add(makeAbility((Element) featNodes.item(j), ((Element) featNodes.item(j)).getAttribute("name")));
+                                }
                             }
                     }
                 }
-                classes.add(new Class(name, hp, skillIncreases, abilityMod, table, feats));
+                classes.add(new Class(name, description, hp, skillIncreases, abilityMod, table, feats));
             }
         }
         return classes;
@@ -255,10 +269,17 @@ public class FileLoader {
     }
 
     private Ability makeAbility(Element element, String name) {
-        boolean activity=false; Action cost = Action.One;
+        boolean activity=false; Action cost = Action.One; String trigger = ""; List<String> prerequisites = new ArrayList<>();int level = 1;
         if(element.getTagName().equals("Ability")) {
             List<AttributeMod> mods = new ArrayList<>();
             String description = "";
+            if(!element.getAttribute("cost").equals("")) {
+                activity=true;
+                cost=Action.robustValueOf(camelCaseWord(element.getAttribute("cost").trim()));
+            }
+            if(!element.getAttribute("level").equals("")) {
+                level=Integer.parseInt(element.getAttribute("level"));
+            }
             for (int i = 0; i < element.getChildNodes().getLength(); i++) {
                 Node item = element.getChildNodes().item(i);
                 if (item.getNodeType() != Node.ELEMENT_NODE)
@@ -266,9 +287,8 @@ public class FileLoader {
                 Element propElem = (Element) item;
                 String trim = propElem.getTextContent().trim();
                 switch (propElem.getTagName()) {
-                    case "Activity":
-                        activity=true;
-                        cost=Action.valueOf(camelCaseWord(propElem.getAttribute("cost").trim()));
+                    case "Trigger":
+                        trigger = trim;
                         break;
                     case "AttributeMods":
                         Proficiency prof = Proficiency.valueOf(camelCaseWord(propElem.getAttribute("Proficiency").trim()));
@@ -277,17 +297,24 @@ public class FileLoader {
                     case "Description":
                         description = trim;
                         break;
+                    case "Prerequisites":
+                        prerequisites.addAll(Arrays.asList(trim.split(",")));
+                        break;
                 }
             }
-            if(activity)
-                return new Activity(cost, name, description);
+            if(cost == Action.Reaction)
+                return new Activity(cost, trigger, level, name, description, prerequisites);
+            else if(activity)
+                return new Activity(cost, level, name, description, prerequisites);
             else
-                return new Ability(name, mods, description);
+                return new Ability(level, name, mods, description, prerequisites);
         }else if(element.getTagName().equals("AbilitySet")){
             String desc="";
             if(element.getElementsByTagName("Description").getLength() > 0)
                 desc = element.getElementsByTagName("Description").item(0).getTextContent().trim();
-            return new AbilitySet(name, desc, makeAbilities(element.getElementsByTagName("Ability")));
+            if(element.getElementsByTagName("Prerequisites").getLength() > 0)
+                prerequisites.addAll(Arrays.asList(element.getElementsByTagName("Prerequisites").item(0).getTextContent().trim().split(",")));
+            return new AbilitySet(level, name, desc, makeAbilities(element.getElementsByTagName("Ability")),prerequisites);
         }
         return null;
     }

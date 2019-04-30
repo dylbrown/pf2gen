@@ -19,6 +19,7 @@
         </AbilitySlot>
         <AbilitySlot state="feat" type="Class Feat" name="Paladin Feat"/>
         <AbilitySlot state="feat" type="Ancestry Feat" name="Ancestry Feat"/>
+        <AbilitySlot state="feat" type="Heritage Feat" name="Heritage"/>
         <AbilitySlot state="filled" name="Champion Powers">
             <Ability>
                 <Description>
@@ -73,11 +74,9 @@
                         4. You must demand and fight for the freedom of others to make their own decisions. You must never engage in or countenance slavery or tyranny.
                     </Description>
                 </Ability>
-                <Ability name="Liberating Step">
-                    <Activity cost="Reaction"></Activity>
-                    <Description>Trigger An enemy attacks, Grabs, or Grapples one of your allies or a creature that’s friendly to you. Both the enemy and ally or friendly creature must be within 15 feet of you.
-                        -------------
-                        You call out a liberating command, allowing your ally to move to safety. The ally or friendly creature gains resistance to all damage from the triggering attack, if any. This resistance equals 2 + your level. After suffering the effects of the attack, Grab, or Grapple, the ally can attempt to break free of effects entangling, grabbing, immobilizing, or restraining them. They can either attempt a new saving throw against any one such effect that had a saving throw, or as a free action they can attempt to Break Free or Escape from any one effect that allows such attempts. Finally, if the ally can move, they can Step as a free action, even if the ally didn’t have any hindrance to escape from.
+                <Ability name="Liberating Step" cost="Reaction">
+                    <Trigger>An enemy attacks, Grabs, or Grapples one of your allies or a creature that’s friendly to you. Both the enemy and ally or friendly creature must be within 15 feet of you.</Trigger>
+                    <Description>You call out a liberating command, allowing your ally to move to safety. The ally or friendly creature gains resistance to all damage from the triggering attack, if any. This resistance equals 2 + your level. After suffering the effects of the attack, Grab, or Grapple, the ally can attempt to break free of effects entangling, grabbing, immobilizing, or restraining them. They can either attempt a new saving throw against any one such effect that had a saving throw, or as a free action they can attempt to Break Free or Escape from any one effect that allows such attempts. Finally, if the ally can move, they can Step as a free action, even if the ally didn’t have any hindrance to escape from.
                     </Description>
                 </Ability>
             </AbilitySet>
@@ -85,13 +84,13 @@
         <!--deity and cause, paladin’s reaction.-->
     </FeatureList>
     <Feats>
-        <Ability name="Deity's Domain">
+        <Ability name="Deity's Domain" level="1">
             <Description> You embody an aspect of your deity. Choose one of your deity’s domains (see the Deity table on page 72). You gain the ability to cast the domain’s initial domain power as a champion power by spending 1 Spell Point. Increase your Spell Point pool by 1.</Description>
             <AttributeMods Proficiency="Trained">
                 Survival
             </AttributeMods>
         </Ability>
-        <Ability name="Unimpeded Step">
+        <Ability name="Unimpeded Step" level="1">
             <Description>The divine power in your Liberating Step allows your ally to Step away even with poor footing or terrain. Your ally’s movement from your Liberating Step is not affected by difficult terrain, greater difficult terrain, narrow surfaces, or uneven ground.</Description>
         </Ability>
     </Feats>

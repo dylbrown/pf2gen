@@ -6,5 +6,6 @@
     <Speed>30</Speed>
     <AbilityBonuses>Dex, Int, Free</AbilityBonuses>
     <AbilityPenalties>Con</AbilityPenalties>
-    <feats></feats>
+    <Description>Elven culture is deep, rich, and on the decline. Their society peaked millennia ago, long before they fled Golarion to escape the calamity of Earthfall. Returning to a changed land, the elves have struggled to reclaim their ancestral homes, most notably from the terrible demons that have invaded parts of their homeland. Remnants of great elven settlements lie scattered across the Inner Sea region, and even their ancestral lands contain long-forgotten ruins and artifacts alongside newer structures.</Description>
+    <Feats></Feats>
 </ancestry>

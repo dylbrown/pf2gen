@@ -7,32 +7,28 @@ import model.enums.Size;
 import java.util.Collections;
 import java.util.List;
 
-public class Ancestry extends ABC {
-   // Gnome(8, Small, 20), Goblin(6, Small, 25), Halfling(6, Small, 25), Human(8, Medium, 25);
-
-    private final int HP;
+public class Ancestry extends AC {
     private final Size size;
     private final int speed;
-    private final List<Ability> feats;
+    private final List<Ability> heritages;
 
-    public Ancestry(String name, int HP, Size size, int speed, List<AbilityMod> abilityMods, List<Ability> feats){
-        super(name, abilityMods);
-        this.HP = HP;
+    public Ancestry(String name, String description, int HP, Size size, int speed, List<AbilityMod> abilityMods, List<Ability> feats, List<Ability> heritages){
+        super(name, description, abilityMods, HP, feats);
         this.size = size;
         this.speed = speed;
-        this.feats = feats;
+        this.heritages = heritages;
         //TODO: Add languages
     }
 
-    public int getHP() {
-        return HP;
-    }
-
-    public List<Ability> getFeats() {
-        return feats;
+    public List<Ability> getHeritages() {
+        return Collections.unmodifiableList(heritages);
     }
 
     public int getSpeed() {
         return speed;
+    }
+
+    public Size getSize() {
+        return size;
     }
 }

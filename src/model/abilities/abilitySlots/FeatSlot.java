@@ -11,8 +11,8 @@ import static ui.Main.character;
 public class FeatSlot extends AbilitySlot implements Pickable {
     private List<Type> allowedTypes;
 
-    public FeatSlot(String name, List<Type> allowedTypes) {
-        super(name);
+    public FeatSlot(String name, int level, List<Type> allowedTypes) {
+        super(name, level);
         this.allowedTypes = allowedTypes;
     }
 
@@ -21,8 +21,8 @@ public class FeatSlot extends AbilitySlot implements Pickable {
     }
 
     @Override
-    public List<Ability> getAbilities() {
-        return character.getFeatSet(allowedTypes);
+    public List<Ability> getAbilities(int level) {
+        return character.getFeatSet(allowedTypes, level);
     }
 
     @Override

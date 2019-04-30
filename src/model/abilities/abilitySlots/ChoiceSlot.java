@@ -8,12 +8,16 @@ import java.util.List;
 public class ChoiceSlot extends AbilitySlot implements Pickable {
     private List<Ability> choices;
 
-    public ChoiceSlot(String abilityName, List<Ability> choices) {
-        super(abilityName);
+    public ChoiceSlot(String abilityName, int level, List<Ability> choices) {
+        super(abilityName, level);
         this.choices = choices;
     }
 
     @Override
+    public List<Ability> getAbilities(int level) {
+        return getAbilities();
+    }
+
     public List<Ability> getAbilities() {
         return Collections.unmodifiableList(choices);
     }

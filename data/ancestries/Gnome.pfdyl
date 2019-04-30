@@ -6,5 +6,6 @@
     <Speed>20</Speed>
     <AbilityBonuses>Con, Cha, Free</AbilityBonuses>
     <AbilityPenalties>Str</AbilityPenalties>
-    <feats></feats>
+    <Description>Long ago, early gnome ancestors migrated from the First World, realm of the fey. While it’s unclear why the first gnomes wandered to Golarion, their origin manifests in modern gnomes’ bizarre reasoning, eccentricity, obsessive tendencies, and what some see as naivete. These qualities are further reflected in their physical characteristics, such as spindly limbs, brightly colored hair, and childlike and extremely expressive facial features that further reflect their otherworldly origins.</Description>
+    <Feats></Feats>
 </ancestry>

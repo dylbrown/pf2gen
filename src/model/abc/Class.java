@@ -8,18 +8,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class Class extends ABC {
+public class Class extends AC {
     private final int skillIncreases;
-    private final List<Ability> feats;
     private int hp;
     private Map<Integer, List<AbilitySlot>> advancementTable;
 
-    public Class(String name, int hp, int skillIncreases, AbilityMod keyAbility, Map<Integer, List<AbilitySlot>> table, List<Ability> feats) {
-        super(name, Collections.singletonList(keyAbility));
-        this.hp = hp;
+    public Class(String name, String description, int hp, int skillIncreases, AbilityMod keyAbility, Map<Integer, List<AbilitySlot>> table, List<Ability> feats) {
+        super(name, description, Collections.singletonList(keyAbility),hp,feats);
         this.skillIncreases = skillIncreases;
         advancementTable = table;
-        this.feats = feats;
     }
 
     public List<AbilitySlot> getLevel(int level) {
@@ -32,9 +29,5 @@ public class Class extends ABC {
 
     public int getSkillIncreases() {
         return skillIncreases;
-    }
-
-    public List<Ability> getFeats() {
-        return Collections.unmodifiableList(feats);
     }
 }

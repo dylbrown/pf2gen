@@ -1,5 +1,6 @@
 package ui.customControls;
 
+import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -13,6 +14,8 @@ import model.abilities.abilitySlots.AbilitySlot;
 import model.abilities.abilitySlots.FeatSlot;
 import model.abilities.abilitySlots.Pickable;
 import model.enums.Type;
+
+import java.util.Comparator;
 
 import static ui.Main.character;
 
@@ -28,7 +31,8 @@ public class FeatSelectionPane extends AnchorPane {
         Label desc = new Label();
         desc.setWrapText(true);
         ListView<Ability> choices = new ListView<>();
-        choices.getItems().addAll(((Pickable)slot).getAbilities());
+        choices.getItems().addAll(((Pickable)slot).getAbilities(slot.getLevel()));
+        FXCollections.sort(choices.getItems(), Comparator.comparing(Ability::toString));
         Button select = new Button("Select");
         select.setStyle("size:100px");
         Label selectedLabel = new Label("Selection: ");
@@ -57,7 +61,10 @@ public class FeatSelectionPane extends AnchorPane {
             selectedLabel.setText("Selection: "+choices.getSelectionModel().getSelectedItem().toString());
         }));
         if(slot instanceof FeatSlot && ((FeatSlot) slot).getAllowedTypes().contains(Type.Ancestry)) {
-            character.addAncestryObserver((observable, arg)->choices.getItems().setAll(((Pickable)slot).getAbilities()));
+            character.addAncestryObserver((observable, arg)->{
+                choices.getItems().setAll(((Pickable)slot).getAbilities(slot.getLevel()));
+                FXCollections.sort(choices.getItems(), Comparator.comparing(Ability::toString));
+            });
         }
     }
 }

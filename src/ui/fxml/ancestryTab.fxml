@@ -9,8 +9,10 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<fx:root type="AnchorPane" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.AncestryTabController">
+<fx:root type="AnchorPane" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.AncestryTabController">
    <children>
         <SplitPane dividerPositions="0.3" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <items>
@@ -21,18 +23,73 @@
                 </AnchorPane>
                 <GridPane>
                     <children>
-                        <Label text="Ancestry:" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-                        <Label fx:id="ancestryDisplay" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-                        <AnchorPane GridPane.rowIndex="1">
-                            <children>
-                                <Button fx:id="setAncestry" mnemonicParsing="false" text="Set" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" GridPane.rowIndex="1" />
-                            </children>
-                        </AnchorPane>
-                        <Label text="This is where the ancestry info will eventually go, once I feel less lazy" wrapText="true" GridPane.columnSpan="2147483647">
+                        <Label fx:id="ancestryDesc" text="This is where the ancestry info will eventually go, once I feel less lazy" wrapText="true" GridPane.columnSpan="2147483647">
                             <padding>
                                 <Insets left="10.0" right="10.0" />
                             </padding>
                         </Label>
+                        <Label text="Ancestry:" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                        <Label fx:id="ancestryDisplay" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                        <AnchorPane GridPane.rowIndex="2">
+                            <children>
+                                <Button fx:id="setAncestry" mnemonicParsing="false" text="Set" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" GridPane.rowIndex="1" />
+                            </children>
+                        </AnchorPane>
+                  <GridPane alignment="TOP_CENTER" GridPane.columnSpan="2147483647" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="NEVER">
+                     <children>
+                        <VBox alignment="TOP_CENTER">
+                           <children>
+                              <Label text="HP">
+                                 <font>
+                                    <Font name="System Bold" size="27.0" />
+                                 </font></Label>
+                              <Label fx:id="hp" />
+                           </children>
+                        </VBox><VBox alignment="TOP_CENTER" GridPane.columnIndex="1">
+                         <children>
+                             <Label text="Size">
+                                 <font>
+                                    <Font name="System Bold" size="27.0" />
+                                 </font></Label>
+                             <Label fx:id="size" />
+                         </children>
+                     </VBox><VBox alignment="TOP_CENTER" GridPane.columnIndex="2">
+                         <children>
+                             <Label text="Speed">
+                                 <font>
+                                    <Font name="System Bold" size="27.0" />
+                                 </font></Label>
+                             <Label fx:id="speed" />
+                         </children>
+                     </VBox><VBox alignment="TOP_CENTER" GridPane.columnIndex="3">
+                         <children>
+                             <Label text="+">
+                                 <font>
+                                    <Font name="System Bold" size="27.0" />
+                                 </font></Label>
+                             <Label fx:id="bonuses" />
+                         </children>
+                     </VBox><VBox alignment="TOP_CENTER" GridPane.columnIndex="4">
+                         <children>
+                             <Label text="-">
+                                 <font>
+                                    <Font name="System Bold" size="27.0" />
+                                 </font></Label>
+                             <Label fx:id="penalties" />
+                         </children>
+                     </VBox>
+                     </children>
+                     <columnConstraints>
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints />
+                     </rowConstraints>
+                  </GridPane>
                     </children>
                     <columnConstraints>
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -40,8 +97,9 @@
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                     </columnConstraints>
                     <rowConstraints>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="60.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="100.0" vgrow="NEVER" />
+                        <RowConstraints minHeight="10.0" prefHeight="60.0" vgrow="NEVER" />
                     </rowConstraints>
                 </GridPane>
             </items>

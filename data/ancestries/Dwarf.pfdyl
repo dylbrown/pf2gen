@@ -6,5 +6,69 @@
     <Speed>20</Speed>
     <AbilityBonuses>Con, Wis, Free</AbilityBonuses>
     <AbilityPenalties>Cha</AbilityPenalties>
-    <feats></feats>
+    <Description>Dwarven lore tells epic tales of the short, stocky people’s long-ago pilgrimage from their Darklands home to the surface—a journey they undertook at the behest of a prophet of the god of dwarvenkind. The people reached their destination and built magnificent fortifications they came to call Sky Citadels, and many dwarves remain ensconced within these and other ancestral homes to this day. Given the dwarves’ harrowing history, their reputation as a stoic and stern people is well earned.</Description>
+    <Feats>
+        <!--Heritages-->
+        <AbilitySet name="Ancient-Blooded" type="Heritage">
+            <Description>Dwarven heroes of old could shrug off their enemies’ magic, and some of that resistance manifests in you.
+                You gain the Call on Ancient Blood reaction, but your resistance hampers your connection to magic items. Reduce your total Resonance Points by 2 (minimum 0). For more information about Resonance Points, see page 376. </Description>
+            <Ability name="Call On Ancient Blood">
+                <Activity>Reaction</Activity>
+                <Trigger>You attempt a saving throw against a magical effect.</Trigger>
+                <Description>Your ancestors’ innate resistance to magic manifests, protecting you. You gain a +2 circumstance bonus to the triggering saving throw.</Description>
+            </Ability>
+        </AbilitySet>
+        <Ability name="Desert Dwarf" type="Heritage">
+            <Description>As a proud denizen of the desert, you have incredible resilience against hot environments. This grants you resistance to fire equal to half your level (minimum 1) and the ability to ignore extreme and severe heat up to 140° F.</Description>
+        </Ability>
+        <Ability name="Stronghearted Dwarf" type="Heritage">
+            <Description>Your blood runs hearty and strong, and you can shake off toxins that would lay others low. You gain poison resistance equal to half your level (minimum 1), and each of your successful saving throws against an ongoing poison reduces its stage by 2, or 1 for a virulent poison. Each critical success against an ongoing poison reduces its stage by 3, or 2 for a virulent poison.</Description>
+        </Ability>
+        <Ability name="Unburdened Dwarf" type="Heritage">
+            <Description>Your ancestors fought in ancient wars, generations after generations adapting to wearing massive suits of armor. If your Speed would be reduced by armor you wear or the encumbered condition, you ignore 5 feet of that reduction.</Description>
+        </Ability>
+        <!--Regular Feats-->
+        <Ability name="Ancestral Hatred" level="1">
+            <Description>You have shaped your hatred of ancestral dwarven foes into a powerful weapon. Choose two of the following creature traits: derro, duergar, giant, or orc. You gain a +1 circumstance bonus to damage rolls against creatures with one of the chosen traits. If a creature with a chosen trait critically succeeds at an attack against you, this bonus increases to +4 against that creature for 1 minute.
+                Special: Your GM can add appropriate creature traits to this list if your character is from a community that commonly fights other types of enemies.</Description>
+        </Ability>
+        <Ability name="Boulder Roll" level="5">
+            <Description>Your dwarven build allows you to push foes around. Take a Step into the square of a foe that is your size or smaller, and the foe must move into the empty space directly behind it. The foe must move even if doing so places it in harm’s way. The foe can attempt to block your Step by rolling a Fortitude saving throw against your Athletics DC. If the foe attempts this saving throw, regardless of the saving throw’s result, the creature takes bludgeoning damage equal to your level plus your Strength modifier.
+                If the foe can’t move into an empty space (if it is surrounded by solid objects or other creatures, for example), your Boulder Roll has no effect.</Description>
+            <Prerequisites>Mountain Roots</Prerequisites>
+        </Ability>
+        <Ability name="Giant Bane" level="1">
+            <Description>Your squat stature and your hatred for giantkind give you an edge when fighting them. You gain a +1 circumstance bonus to your Armor Class against giants; Fortitude and Reflex DCs against giants’ attempts to Disarm, Grapple, Shove, or Trip you; Survival checks to track giants; Perception checks to notice giants; and Stealth checks to avoid being noticed by giants.</Description>
+        </Ability>
+        <Ability name="Mountain Roots" level="1">
+            <Description>You can plant your feet on the ground to become nearly immovable. You gain a +2 circumstance bonus to your Fortitude or Reflex DC whenever anyone attempts to Shove or Trip you. This bonus also applies to saves against spells or effects that attempt to knock you prone. In addition, if any ability or effect would force you to move 10 feet or more in any direction, you are moved only half the distance.</Description>
+        </Ability>
+        <Ability name="Mountain's Stoutness" level="9">
+            <Description>You can withstand more punishment than most before going down. Increase your maximum Hit Points by your level. Every time you gain a level, adjust your maximum Hit Points gained from Hardy accordingly (for example, at level 17, this feat would increase your maximum Hit Points by 17). If you also have the Toughness feat, the Hit Points gained from each source are cumulative.
+                You also decrease the DC of your recovery rolls to 9 + your dying value (see page 295), or to 6 + your dying value if you also have the Toughness feat.</Description>
+        </Ability>
+        <Ability name="Rock Runner" level="1">
+            <Description>Your innate connection to stone makes you adept at moving across uneven surfaces. When you take the Step action, you can ignore difficult terrain caused by uneven ground made of stone and earth. In addition, when you use the Acrobatics skill to Balance (see page 144) on narrow surfaces or uneven ground made of stone or earth, you aren’t flat-footed, and you treat a success on the Acrobatics check as if it were a critical success.</Description>
+        </Ability>
+        <Ability name="Stonecunning" level="1">
+            <Description>You have a knack for noticing inconsistencies and craftsmanship techniques in the stonework around you. You gain a +2 circumstance bonus to Perception checks to notice unusual stonework. This bonus applies to checks to discover mechanical traps made of stone or hidden inside of stone.
+                If you aren’t using the Seek action (see page 308) or searching, the GM rolls a secret check without the bonus and with a –2 circumstance penalty for you to notice unusual stonework anyway (in such cases, this feat takes on the secret trait).</Description>
+        </Ability>
+        <Ability name="Stonewalker" level="9">
+            <Description>You have a deep reverence and connection to stone. You gain meld into stone as a 3rd-level divine innate spell that you can cast once per day.
+                If you have Stonecunning, you can find unusual stonework and stonework traps as though you were legendary in Perception. If you have Stonecunning and are legendary in Perception, when you’re not Seeking and the GM rolls a secret check for you to notice unusual, you keep the bonus from Stonecunning and don’t take the –2 circumstance penalty.</Description>
+        </Ability>
+        <Ability name="Weapon Cunning (Dwarf)" level="5">
+            <Description>Whenever you critically hit using a weapon of the axe, hammer, or pick group, you apply the weapon’s critical specialization effect.</Description>
+            <Prerequisites>Weapon Familiarity (Dwarf)</Prerequisites>
+        </Ability>
+        <Ability name="Weapon Expertise (Dwarf)" level="13">
+            <Description>You become an expert in battleaxes, picks, warhammers, and all dwarven weapons in which you are trained.</Description>
+            <Prerequisites>Weapon Familiarity (Dwarf)</Prerequisites>
+        </Ability>
+        <Ability name="Weapon Familiarity (Dwarf)" level="1">
+            <Description>Your kin have instilled in you an affinity for hardhitting weapons, and you prefer them to more elegant arms. You are trained with the battleaxe, pick, and warhammer.
+                In addition, you gain access to all uncommon dwarf weapons. For the purpose of proficiencies, you treat martial dwarf weapons as simple weapons and exotic dwarf weapons as martial weapons. More about weapons can be found on page 178.</Description>
+        </Ability>
+    </Feats>
 </ancestry>

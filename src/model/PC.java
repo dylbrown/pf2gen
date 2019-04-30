@@ -25,6 +25,7 @@ import java.util.*;
 import static model.abilityScores.AbilityScore.*;
 
 public class PC {
+    public static final int MAX_LEVEL = 20;
     private Ancestry ancestry;
     private Background background;
     private Class pClass;
@@ -49,7 +50,7 @@ public class PC {
                 new AbilityModChoice(Type.Initial),
                 new AbilityModChoice(Type.Initial),
                 new AbilityModChoice(Type.Initial)
-        );
+        );//TODO: Add to advancement table
         abilityScoreChoices.addAll(choices);
         abilityScoresByType.put(Type.Initial, new ArrayList<>(choices));
     }
@@ -268,17 +269,21 @@ public class PC {
         return FXCollections.unmodifiableObservableList(decisions);
     }
 
-    public List<Ability> getFeatSet(List<Type> allowedTypes) {
+    public List<Ability> getFeatSet(List<Type> allowedTypes, int level) {
         List<Ability> results = new ArrayList<>();
         for (Type allowedType : allowedTypes) {
             switch(allowedType) {
                 case Class:
                     if(pClass != null)
-                        results.addAll(pClass.getFeats());
+                        results.addAll(pClass.getFeats(level));
                     break;
                 case Ancestry:
                     if(ancestry != null)
-                        results.addAll(ancestry.getFeats());
+                        results.addAll(ancestry.getFeats(level));
+                    break;
+                case Heritage:
+                    if(ancestry != null)
+                        results.addAll(ancestry.getHeritages());
                     break;
             }
         }
