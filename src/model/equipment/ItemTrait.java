@@ -3,8 +3,8 @@ package model.equipment;
 import java.util.Objects;
 
 public class ItemTrait {
-    private String name;
-    private String effect;
+    private final String name;
+    private final String effect;
 
     public ItemTrait(String name, String effect) {
         this.name = name;

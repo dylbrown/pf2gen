@@ -5,8 +5,8 @@ import javafx.scene.layout.GridPane;
 
 import java.io.IOException;
 
-public class AbilityTab extends GridPane {
-    public AbilityTab(){
+class AbilityDisplay extends GridPane {
+    public AbilityDisplay(){
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(
                 "/ui/fxml/abilityDisplay.fxml"));
         fxmlLoader.setRoot(this);

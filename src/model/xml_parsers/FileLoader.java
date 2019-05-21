@@ -1,0 +1,208 @@
+package model.xml_parsers;
+
+import model.AttributeMod;
+import model.abilities.Ability;
+import model.abilities.AbilitySet;
+import model.abilities.Activity;
+import model.abilities.SkillIncrease;
+import model.ability_scores.AbilityMod;
+import model.ability_scores.AbilityModChoice;
+import model.ability_scores.AbilityScore;
+import model.enums.Action;
+import model.enums.Attribute;
+import model.enums.Proficiency;
+import model.enums.Type;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+abstract class FileLoader<T> {
+    File path;
+    private static DocumentBuilder builder = null;
+
+    static{
+        try {
+            builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+        assert builder != null;
+    }
+
+    public abstract List<T> parse();
+
+    Document getDoc(File path) {
+        Document doc = null;
+        try {
+            doc = builder.parse(path);
+        } catch (IOException | SAXException e) {
+            e.printStackTrace();
+        }
+        assert doc != null;
+        return doc;
+    }
+
+
+    List<Ability> makeAbilities(NodeList nodes) {
+        List<Ability> choices = new ArrayList<>();
+        for(int i=0; i<nodes.getLength(); i++) {
+            if(!(nodes.item(i) instanceof Element)) continue;
+            Element item = (Element) nodes.item(i);
+            Ability name = makeAbility(item, item.getAttribute("name"));
+            if(name != null)
+                choices.add(name);
+        }
+        return choices;
+    }
+
+    List<Type> getTypes(String string) {
+        List<Type> results = new ArrayList<>();
+        String[] split = string.trim().split(" ");
+        for(String term: split) {
+            if(!term.trim().equals(""))
+                results.add(Type.valueOf(camelCaseWord(term.trim())));
+        }
+        return results;
+    }
+    Ability makeAbility(Element element, String name) {
+        return makeAbility(element, name, 1);
+    }
+    Ability makeAbility(Element element, String name, int level) {
+        boolean activity=false; Action cost = Action.One; String trigger = ""; List<String> prerequisites = new ArrayList<>();
+        if(element.getTagName().equals("Ability")) {
+            List<AttributeMod> mods = new ArrayList<>();
+            String description = "";
+            if(!element.getAttribute("cost").equals("")) {
+                activity=true;
+                cost=Action.robustValueOf(camelCaseWord(element.getAttribute("cost").trim()));
+            }
+            if(!element.getAttribute("level").equals("")) {
+                level=Integer.parseInt(element.getAttribute("level"));
+            }
+            for (int i = 0; i < element.getChildNodes().getLength(); i++) {
+                Node item = element.getChildNodes().item(i);
+                if (item.getNodeType() != Node.ELEMENT_NODE)
+                    continue;
+                Element propElem = (Element) item;
+                String trim = propElem.getTextContent().trim();
+                switch (propElem.getTagName()) {
+                    case "Trigger":
+                        trigger = trim;
+                        break;
+                    case "AttributeMods":
+                        Proficiency prof = Proficiency.valueOf(camelCaseWord(propElem.getAttribute("Proficiency").trim()));
+                        addMods(trim, prof, mods);
+                        break;
+                    case "Description":
+                        description = trim;
+                        break;
+                    case "Prerequisites":
+                        prerequisites.addAll(Arrays.asList(trim.split(",")));
+                        break;
+                }
+            }
+            if(cost == Action.Reaction)
+                return new Activity(cost, trigger, level, name, description, prerequisites);
+            else if(activity)
+                return new Activity(cost, level, name, description, prerequisites);
+            else if(element.getAttribute("skillIncrease").equals("true"))
+                return new SkillIncrease(level, name, description, prerequisites);
+            else if(!element.getAttribute("abilityBoosts").trim().equals("")) {
+                int count = Integer.parseInt(element.getAttribute("abilityBoosts"));
+                return new Ability(level, name, getBoosts(count, level), description);
+            }else
+                return new Ability(level, name, mods, description, prerequisites);
+        }else if(element.getTagName().equals("AbilitySet")){
+            String desc="";
+            if(element.getElementsByTagName("Description").getLength() > 0)
+                desc = element.getElementsByTagName("Description").item(0).getTextContent().trim();
+            if(element.getElementsByTagName("Prerequisites").getLength() > 0)
+                prerequisites.addAll(Arrays.asList(element.getElementsByTagName("Prerequisites").item(0).getTextContent().trim().split(",")));
+            return new AbilitySet(level, name, desc, makeAbilities(element.getElementsByTagName("Ability")),prerequisites);
+        }
+        return null;
+    }
+
+    private List<AbilityMod> getBoosts(int count, int level) {
+        List<AbilityMod> boosts = new ArrayList<>(count);
+        for(int i=0; i<count; i++)
+            boosts.add(new AbilityModChoice(Type.get(level)));
+        return boosts;
+    }
+
+    private void addMods(String textContent, Proficiency prof, List<AttributeMod> mods) {
+        String[] split = textContent.split(",");
+        for(String str: split) {
+            if (!str.trim().equals("")) {
+                if(camelCaseWord(camelCase(str.trim()).replaceAll(" ", "")).substring(0, 4).equals("Lore")) {
+                    Attribute skill = Attribute.Lore;
+                    String data = camelCaseWord(camelCase(str.trim()).replaceAll(" ", "")).substring(4).trim().replaceAll("[()]", "");
+                    mods.add(new AttributeMod(skill, prof, data));
+                }else{
+                    mods.add(new AttributeMod(Attribute.valueOf(camelCase(str.trim()).replaceAll(" ", "")), prof));
+                }
+            }
+        }
+    }
+
+    List<AbilityMod> getAbilityMods(String bonuses, String penalties, Type type) {
+        List<AbilityMod> abilityMods = new ArrayList<>();
+
+        String[] split = bonuses.split(",");
+        for(int i=0;i<split.length;i++) {
+            split[i] = split[i].trim();
+            if(split[i].equals("")) continue;
+            String[] eachScore = split[i].split("or");
+            if(eachScore.length == 1) {
+                AbilityScore abilityScore = AbilityScore.valueOf(camelCaseWord(split[i]));
+                if(abilityScore != AbilityScore.Free)
+                    abilityMods.add(new AbilityMod(abilityScore, true, type));
+                else
+                    abilityMods.add(new AbilityModChoice(type));
+            }else{
+                abilityMods.add(new AbilityModChoice(Arrays.asList(parseChoices(eachScore)), type));
+            }
+
+        }
+
+        split = penalties.split(",");
+        for(int i=0;i<split.length;i++) {
+            if(split[i].trim().equals("")) continue;
+            split[i] = camelCaseWord(split[i].trim());
+            abilityMods.add(new AbilityMod(AbilityScore.valueOf(split[i]), false, type));
+        }
+
+        return abilityMods;
+    }
+
+    private AbilityScore[] parseChoices(String[] eachScore) {
+        AbilityScore[] scores = new AbilityScore[eachScore.length];
+        for(int i=0;i<eachScore.length;i++) {
+            scores[i] = AbilityScore.valueOf(camelCaseWord(eachScore[i].trim()));
+        }
+        return scores;
+    }
+
+    String camelCase(String str) {
+        String[] split = str.split(" ");
+        for(int i=0; i<split.length;i++) {
+            split[i] = camelCaseWord(split[i]);
+        }
+        return String.join(" ", split);
+    }
+
+    String camelCaseWord(String str) {
+        return str.substring(0,1).toUpperCase() + str.substring(1).toLowerCase();
+    }
+}

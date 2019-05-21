@@ -4,67 +4,67 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<AnchorPane xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.BackgroundTabController">
-        <children>
-            <SplitPane dividerPositions="0.3" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                <items>
-                    <AnchorPane>
-                        <children>
-                            <ListView fx:id="backgroundList" layoutX="100.0" layoutY="-14.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                        </children>
-                    </AnchorPane>
-                    <GridPane>
-                        <children>
-                            <Label fx:id="backgroundDesc" wrapText="true" GridPane.columnSpan="2147483647">
-                                <padding>
-                                    <Insets left="10.0" right="10.0" />
-                                </padding>
-                            </Label>
-                            <Label text="Background:" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-                            <Label fx:id="backgroundDisplay" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-                            <AnchorPane GridPane.rowIndex="2">
-                                <children>
-                                    <Button fx:id="setBackground" mnemonicParsing="false" text="Set" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" GridPane.rowIndex="1" />
-                                </children>
-                            </AnchorPane>
-                  <VBox alignment="CENTER" prefHeight="100.0" prefWidth="100.0" GridPane.halignment="CENTER" GridPane.rowIndex="1">
-                     <children>
-                         <Label text="Skill"><font>
-                             <Font name="System Bold" size="27.0" />
-                         </font></Label>
-                        <Label fx:id="skill" />
-                     </children>
-                  </VBox>
-                  <VBox alignment="CENTER" prefHeight="100.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1">
-                     <children>
-                        <Label text="Feat"><font>
-                            <Font name="System Bold" size="27.0" />
-                        </font></Label>
-                        <Label fx:id="feat" />
-                     </children>
-                  </VBox>
-                  <VBox alignment="CENTER" prefHeight="100.0" prefWidth="100.0" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1">
-                     <children>
-                        <Label text="Ability Mods"><font>
-                            <Font name="System Bold" size="27.0" />
-                        </font></Label>
-                        <Label fx:id="mods" />
-                     </children>
-                  </VBox>
-                        </children>
-                        <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                        </columnConstraints>
-                        <rowConstraints>
-                            <RowConstraints minHeight="10.0" prefHeight="60.0" vgrow="SOMETIMES" />
-                            <RowConstraints minHeight="10.0" prefHeight="60.0" vgrow="NEVER" />
-                            <RowConstraints minHeight="10.0" prefHeight="60.0" vgrow="NEVER" />
-                        </rowConstraints>
-                    </GridPane>
-                </items>
-            </SplitPane>
-        </children>
-    </AnchorPane>
-</fx:root>
+<AnchorPane xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ui.controllers.BackgroundTabController">
+    <SplitPane dividerPositions="0.3" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+               AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <AnchorPane>
+            <ListView fx:id="backgroundList" layoutX="100.0" layoutY="-14.0" prefHeight="200.0"
+                      prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                      AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+        </AnchorPane>
+        <GridPane>
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="60.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="60.0" vgrow="NEVER"/>
+                <RowConstraints minHeight="10.0" prefHeight="60.0" vgrow="NEVER"/>
+            </rowConstraints>
+            <Label fx:id="backgroundDesc" wrapText="true" GridPane.columnSpan="2147483647">
+                <padding>
+                    <Insets left="10.0" right="10.0"/>
+                </padding>
+            </Label>
+            <Label text="Background:" GridPane.columnIndex="1" GridPane.halignment="CENTER"
+                   GridPane.rowIndex="2"/>
+            <Label fx:id="backgroundDisplay" GridPane.columnIndex="2" GridPane.halignment="CENTER"
+                   GridPane.rowIndex="2"/>
+            <AnchorPane GridPane.rowIndex="2">
+                <Button fx:id="setBackground" mnemonicParsing="false" text="Set"
+                        AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                        AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" GridPane.rowIndex="1"/>
+            </AnchorPane>
+            <VBox alignment="CENTER" prefHeight="100.0" prefWidth="100.0" GridPane.halignment="CENTER"
+                  GridPane.rowIndex="1">
+                <Label text="Skill">
+                    <font>
+                        <Font name="System Bold" size="27.0"/>
+                    </font>
+                </Label>
+                <Label fx:id="skill"/>
+            </VBox>
+            <VBox alignment="CENTER" prefHeight="100.0" prefWidth="100.0" GridPane.columnIndex="1"
+                  GridPane.halignment="CENTER" GridPane.rowIndex="1">
+                <Label text="Feat">
+                    <font>
+                        <Font name="System Bold" size="27.0"/>
+                    </font>
+                </Label>
+                <Label fx:id="feat"/>
+            </VBox>
+            <VBox alignment="CENTER" prefHeight="100.0" prefWidth="100.0" GridPane.columnIndex="2"
+                  GridPane.halignment="CENTER" GridPane.rowIndex="1">
+                <Label text="Ability Mods">
+                    <font>
+                        <Font name="System Bold" size="27.0"/>
+                    </font>
+                </Label>
+                <Label fx:id="mods"/>
+            </VBox>
+        </GridPane>
+    </SplitPane>
+</AnchorPane>

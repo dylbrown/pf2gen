@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class AbilitySet extends Ability {
-    private List<Ability> abilities;
+    private final List<Ability> abilities;
     public AbilitySet(int level, String name, String desc, List<Ability> abilities, List<String> prerequisites) {
         super(level, name, desc, prerequisites);
         this.abilities = abilities;

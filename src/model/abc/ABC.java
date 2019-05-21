@@ -1,6 +1,6 @@
 package model.abc;
 
-import model.abilityScores.AbilityMod;
+import model.ability_scores.AbilityMod;
 
 import java.util.Collections;
 import java.util.List;
@@ -8,9 +8,9 @@ import java.util.List;
 public class ABC {
     private final String name;
     private final List<AbilityMod> abilityMods;
-    private String description;
+    private final String description;
 
-    public ABC(String name, String description, List<AbilityMod> abilityMods) {
+    ABC(String name, String description, List<AbilityMod> abilityMods) {
         this.name = name;
         this.description = description;
         this.abilityMods = abilityMods;

@@ -1,0 +1,12 @@
+<?xml version = "1.0"?>
+<feats>
+    <Ability name="Deity's Domain" level="1">
+        <Description> You embody an aspect of your deity. Choose one of your deity’s domains (see the Deity table on page 72). You gain the ability to cast the domain’s initial domain power as a champion power by spending 1 Spell Point. Increase your Spell Point pool by 1.</Description>
+        <AttributeMods Proficiency="Trained">
+            Survival
+        </AttributeMods>
+    </Ability>
+    <Ability name="Unimpeded Step" level="1">
+        <Description>The divine power in your Liberating Step allows your ally to Step away even with poor footing or terrain. Your ally’s movement from your Liberating Step is not affected by difficult terrain, greater difficult terrain, narrow surfaces, or uneven ground.</Description>
+    </Ability>
+</feats>

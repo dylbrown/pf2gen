@@ -44,7 +44,7 @@
                 <Ability name="Paladin's Code">
                     <Description>
                         1. You must never willingly commit an evil act, such as murder, torture, or the casting an evil spell, and you must never perform acts anathema to your deity.
-                        2. You must not use actions that you know will harm an innocent, or through inaction cause an innocent immediate harm when you knew your action could reasonably prevent it. This tenet doesn’t force you to take action against possible harm to innocents or to sacrifice your life and potential to attempt to protect an innocent.
+                        2. You must not use actions that you know will harm an innocent, or through inaction cause an innocent immediate harm when you knew your action could reasonably prevent it. This tenet doesn't force you to take action against possible harm to innocents or to sacrifice your life and potential to attempt to protect an innocent.
                         3. You must act with honor, never cheating, lying, or taking advantage of others.
                         4. You must respect the lawful authority of the legitimate ruler or leadership in whichever land you may be, following their laws unless they violate a higher tenet.
                     </Description>
@@ -57,7 +57,7 @@
                 <Ability name="Paladin's Code">
                     <Description>
                         1. You must never willingly commit an evil act, such as murder, torture, or the casting an evil spell, and you must never perform acts anathema to your deity.
-                        2. You must not use actions that you know will harm an innocent, or through inaction cause an innocent immediate harm when you knew your action could reasonably prevent it. This tenet doesn’t force you to take action against possible harm to innocents or to sacrifice your life and potential to attempt to protect an innocent.
+                        2. You must not use actions that you know will harm an innocent, or through inaction cause an innocent immediate harm when you knew your action could reasonably prevent it. This tenet doesn't force you to take action against possible harm to innocents or to sacrifice your life and potential to attempt to protect an innocent.
                         3. You must first try to redeem or rehabilitate those who commit evil acts, rather than immediately killing them or meting out undeserved punishment. However, if they choose to continue on a wicked path, you might need to take more extreme measures, especially if innocents would come to harm.
                         4. You must show compassion for others, regardless of their authority or station.
                     </Description>
@@ -70,14 +70,14 @@
                 <Ability name="Paladin's Code">
                     <Description>
                         1. You must never willingly commit an evil act, such as murder, torture, or the casting an evil spell, and you must never perform acts anathema to your deity.
-                        2. You must not use actions that you know will harm an innocent, or through inaction cause an innocent immediate harm when you knew your action could reasonably prevent it. This tenet doesn’t force you to take action against possible harm to innocents or to sacrifice your life and potential to attempt to protect an innocent.
+                        2. You must not use actions that you know will harm an innocent, or through inaction cause an innocent immediate harm when you knew your action could reasonably prevent it. This tenet doesn't force you to take action against possible harm to innocents or to sacrifice your life and potential to attempt to protect an innocent.
                         3.You must respect the choices others make for their own lives and can’t force someone to act in a particular way or threaten them if they don’t act that way.
                         4. You must demand and fight for the freedom of others to make their own decisions. You must never engage in or countenance slavery or tyranny.
                     </Description>
                 </Ability>
                 <Ability name="Liberating Step" cost="Reaction">
                     <Trigger>An enemy attacks, Grabs, or Grapples one of your allies or a creature that’s friendly to you. Both the enemy and ally or friendly creature must be within 15 feet of you.</Trigger>
-                    <Description>You call out a liberating command, allowing your ally to move to safety. The ally or friendly creature gains resistance to all damage from the triggering attack, if any. This resistance equals 2 + your level. After suffering the effects of the attack, Grab, or Grapple, the ally can attempt to break free of effects entangling, grabbing, immobilizing, or restraining them. They can either attempt a new saving throw against any one such effect that had a saving throw, or as a free action they can attempt to Break Free or Escape from any one effect that allows such attempts. Finally, if the ally can move, they can Step as a free action, even if the ally didn’t have any hindrance to escape from.
+                    <Description>You call out a liberating command, allowing your ally to move to safety. The ally or friendly creature gains resistance to all damage from the triggering attack, if any. This resistance equals 2 + your level. After suffering the effects of the attack, Grab, or Grapple, the ally can attempt to break free of effects entangling, grabbing, immobilizing, or restraining them. They can either attempt a new saving throw against any one such effect that had a saving throw, or as a free action they can attempt to Break Free or Escape from any one effect that allows such attempts. Finally, if the ally can move, they can Step as a free action, even if the ally didn't have any hindrance to escape from.
                     </Description>
                 </Ability>
             </AbilitySet>

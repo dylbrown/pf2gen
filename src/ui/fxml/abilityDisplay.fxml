@@ -6,111 +6,125 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<fx:root fx:id="gridPane" alignment="CENTER" type="GridPane" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.AbilityDisplayController">
-   <columnConstraints>
-      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="75.0" />
-      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="75.0" />
-      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="75.0" />
-      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="75.0" />
-      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="75.0" />
-      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="75.0" />
-   </columnConstraints>
-   <rowConstraints>
-      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-   </rowConstraints>
-   <children>
-      <Label text="Str" GridPane.columnIndex="1" GridPane.halignment="CENTER">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding></Label>
-      <Label text="Dex" GridPane.columnIndex="2" GridPane.halignment="CENTER">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding></Label>
-      <Label text="Con" GridPane.columnIndex="3" GridPane.halignment="CENTER">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding></Label>
-      <Label text="Int" GridPane.columnIndex="4" GridPane.halignment="CENTER">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding></Label>
-      <Label text="Wis" GridPane.columnIndex="5" GridPane.halignment="CENTER">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding></Label>
-      <Label text="Cha" GridPane.columnIndex="6" GridPane.halignment="CENTER">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding></Label>
-      <Label text="10" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding></Label>
-      <Label text="10" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding></Label>
-      <Label text="Score" GridPane.rowIndex="1">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding></Label>
-      <Label text="Modifier" GridPane.rowIndex="2">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding></Label>
-      <Label text="10" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding></Label>
-      <Label text="10" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="1">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding></Label>
-      <Label text="10" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="1">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding></Label>
-      <Label text="10" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="1">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding></Label>
-      <Label text="0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding>
-      </Label>
-      <Label text="0" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding>
-      </Label>
-      <Label text="0" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="2">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding>
-      </Label>
-      <Label text="0" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="2">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding>
-      </Label>
-      <Label text="0" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="2">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding>
-      </Label>
-      <Label text="0" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="2">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding>
-      </Label>
-      <Label text="Ability">
-         <padding>
-            <Insets bottom="5.0" left="2.0" right="2.0" top="5.0" />
-         </padding></Label>
-   </children>
-</fx:root>
+<GridPane fx:id="gridPane" alignment="CENTER" xmlns="http://javafx.com/javafx/8.0.172-ea"
+          xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.AbilityDisplayController">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="75.0"/>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="75.0"/>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="75.0"/>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="75.0"/>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="75.0"/>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="75.0"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+    </rowConstraints>
+    <Label text="Str" GridPane.columnIndex="1" GridPane.halignment="CENTER">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="Dex" GridPane.columnIndex="2" GridPane.halignment="CENTER">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="Con" GridPane.columnIndex="3" GridPane.halignment="CENTER">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="Int" GridPane.columnIndex="4" GridPane.halignment="CENTER">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="Wis" GridPane.columnIndex="5" GridPane.halignment="CENTER">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="Cha" GridPane.columnIndex="6" GridPane.halignment="CENTER">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="10" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="10" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="Score" GridPane.rowIndex="1">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="Modifier" GridPane.rowIndex="2">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="10" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="10" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="1">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="10" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="1">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="10" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="1">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="0" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="0" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="0" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="0" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="0" GridPane.columnIndex="6" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+    <Label text="Ability">
+        <padding>
+          <Insets bottom="5.0" left="2.0" right="2.0" top="5.0"/>
+        </padding>
+    </Label>
+</GridPane>

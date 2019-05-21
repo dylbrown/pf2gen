@@ -13,15 +13,15 @@ import model.abilities.abilitySlots.AbilitySlot;
 import model.abilities.abilitySlots.ChoiceSlot;
 import model.abilities.abilitySlots.FeatSlot;
 import model.abilities.abilitySlots.Pickable;
-import model.abilityScores.AbilityMod;
-import model.abilityScores.AbilityModChoice;
-import model.abilityScores.AbilityScore;
+import model.ability_scores.AbilityMod;
+import model.ability_scores.AbilityModChoice;
+import model.ability_scores.AbilityScore;
 import model.enums.*;
 import model.equipment.*;
 
 import java.util.*;
 
-import static model.abilityScores.AbilityScore.*;
+import static model.ability_scores.AbilityScore.*;
 
 public class PC {
     public static final int MAX_LEVEL = 20;
@@ -34,12 +34,12 @@ public class PC {
     private Map<AbilityScore, List<AbilityMod>> abilityScores = new HashMap<>();
     private List<AbilityMod> remaining = new ArrayList<>();
     private String name;
-    private SortedMap<Integer, Set<Attribute>> skillChoices = new TreeMap<>(); //Map from level to selected skills
-    private SortedMap<Integer, Integer> skillIncreases = new TreeMap<>(); // Maps from level to number of increases
-    private List<Language> languages = new ArrayList<>();
-    private ReadOnlyObjectWrapper<Double> money= new ReadOnlyObjectWrapper<>(150.0);
-    private ObservableMap<Equipment, Equipment> inventory = FXCollections.observableHashMap();
-    private Map<Slot, Equipment> equipped = new HashMap<>();
+    private final SortedMap<Integer, Set<Attribute>> skillChoices = new TreeMap<>(); //Map from level to selected skills
+    private final SortedMap<Integer, Integer> skillIncreases = new TreeMap<>(); // Maps from level to number of increases
+    private final List<Language> languages = new ArrayList<>();
+    private final ReadOnlyObjectWrapper<Double> money= new ReadOnlyObjectWrapper<>(150.0);
+    private final ObservableMap<Equipment, Equipment> inventory = FXCollections.observableHashMap();
+    private final Map<Slot, Equipment> equipped = new HashMap<>();
 
     public PC() {
         abilityScores.computeIfAbsent(Int, (key)-> FXCollections.observableArrayList()).addListener((ListChangeListener<? super AbilityMod>) (event)->{
@@ -53,7 +53,7 @@ public class PC {
                 new AbilityModChoice(Type.Initial),
                 new AbilityModChoice(Type.Initial),
                 new AbilityModChoice(Type.Initial)
-        );//TODO: Add to advancement table
+        );
         abilityScoreChoices.addAll(choices);
         abilityScoresByType.put(Type.Initial, new ArrayList<>(choices));
     }
@@ -132,6 +132,7 @@ public class PC {
             for (AttributeMod mod : slot.getCurrentAbility().getModifiers()) {
                 apply(mod);
             }
+            apply(slot.getCurrentAbility().getAbilityMods());
         }
     }
 
@@ -145,6 +146,8 @@ public class PC {
             for (AttributeMod mod : slot.getCurrentAbility().getModifiers()) {
                 remove(mod);
             }
+
+            remove(slot.getCurrentAbility().getAbilityMods());
         }
     }
 
@@ -256,7 +259,8 @@ public class PC {
         AbilityScore old = choice.getTarget();
         if(choice.pick(value)) {
             abilityScores.computeIfAbsent(old, (key)->FXCollections.observableArrayList()).remove(choice);
-            abilityScores.computeIfAbsent(value, (key)->FXCollections.observableArrayList()).add(choice);
+            if(value != None && value != Free)
+                abilityScores.computeIfAbsent(value, (key)->FXCollections.observableArrayList()).add(choice);
             abilityScoreChange.wink();
         }
     }
@@ -346,27 +350,6 @@ public class PC {
 
     public ObservableList<AbilitySlot> getDecisions() {
         return FXCollections.unmodifiableObservableList(decisions);
-    }
-
-    public List<Ability> getFeatSet(List<Type> allowedTypes, int level) {
-        List<Ability> results = new ArrayList<>();
-        for (Type allowedType : allowedTypes) {
-            switch(allowedType) {
-                case Class:
-                    if(pClass != null)
-                        results.addAll(pClass.getFeats(level));
-                    break;
-                case Ancestry:
-                    if(ancestry != null)
-                        results.addAll(ancestry.getFeats(level));
-                    break;
-                case Heritage:
-                    if(ancestry != null)
-                        results.addAll(ancestry.getHeritages());
-                    break;
-            }
-        }
-        return results;
     }
 
     public void choose(AbilitySlot slot, Ability selectedItem) {
@@ -468,7 +451,7 @@ public class PC {
         }else return false;
     }
 
-    public boolean unequip(Equipment item, int count) {
+    private boolean unequip(Equipment item, int count) {
         Slot slot = item.getSlot();
         Equipment slotContents = equipped.get(slot);
         if(slotContents != null && slotContents.equals(item) && slotContents.getCount() >= count) {
@@ -505,5 +488,13 @@ public class PC {
             return (int) (getAbilityMod(Str) * 1.5);
         else
             return getAbilityMod(Str);
+    }
+
+    public Ancestry getAncestry() {
+        return ancestry;
+    }
+
+    public Class getPClass() {
+        return pClass;
     }
 }

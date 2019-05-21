@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 import model.PC;
 
 public class Main extends Application {
-    public static PC character;
+    public static final PC character;
 
     static{
         character = new PC();

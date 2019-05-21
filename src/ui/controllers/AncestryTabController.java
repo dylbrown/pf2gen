@@ -4,9 +4,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import model.FileLoader;
 import model.abc.Ancestry;
-import model.abilityScores.AbilityMod;
+import model.ability_scores.AbilityMod;
+import model.xml_parsers.AncestriesLoader;
 import ui.Main;
 
 public class AncestryTabController {

@@ -6,12 +6,12 @@ import model.enums.Slot;
 import java.util.List;
 
 public class Armor extends Equipment {
-    private int AC;
-    private int TAC;
-    private int maxDex;
-    private int ACP;
-    private int speedPenalty;
-    private List<ItemTrait> traits;
+    private final int AC;
+    private final int TAC;
+    private final int maxDex;
+    private final int ACP;
+    private final int speedPenalty;
+    private final List<ItemTrait> traits;
 
     public Armor(double weight, double value, String name, String description, Rarity rarity, int acMod, int tacMod, int maxDex, int acp, int speedPenalty, List<ItemTrait> traits) {
         super(weight, value, name, description, rarity, Slot.Armor);
@@ -23,7 +23,7 @@ public class Armor extends Equipment {
         this.traits = traits;
     }
 
-    public Armor(double weight, double value, String name, String description, Rarity rarity, int acMod, int tacMod, int maxDex, int acp, int speedPenalty, List<ItemTrait> traits, Slot weirdSlot) {
+    Armor(double weight, double value, String name, String description, Rarity rarity, int acMod, int tacMod, int maxDex, int acp, int speedPenalty, List<ItemTrait> traits, Slot weirdSlot) {
         super(weight, value, name, description, rarity, weirdSlot);
         this.AC = acMod;
         this.TAC = tacMod;
@@ -53,7 +53,7 @@ public class Armor extends Equipment {
         return speedPenalty;
     }
 
-    public List<ItemTrait> getTraits() {
+    List<ItemTrait> getTraits() {
         return traits;
     }
 

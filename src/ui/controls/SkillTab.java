@@ -12,10 +12,10 @@ import static model.enums.Attribute.*;
 import static ui.Main.character;
 
 public class SkillTab extends AnchorPane {
-    private List<Label> totals = new ArrayList<>(Arrays.asList(new Label[18]));
-    private List<Label> abilities = new ArrayList<>(Arrays.asList(new Label[18]));
-    private List<Label> proficiencies = new ArrayList<>(Arrays.asList(new Label[18]));
-    private Attribute[] skills = {Acrobatics, Arcana, Athletics, Crafting, Deception, Diplomacy, Intimidation, Lore, Lore, Medicine, Nature, Occultism, Performance, Religion, Society, Stealth, Survival, Thievery};
+    private final List<Label> totals = new ArrayList<>(Arrays.asList(new Label[18]));
+    private final List<Label> abilities = new ArrayList<>(Arrays.asList(new Label[18]));
+    private final List<Label> proficiencies = new ArrayList<>(Arrays.asList(new Label[18]));
+    private final Attribute[] skills = {Acrobatics, Arcana, Athletics, Crafting, Deception, Diplomacy, Intimidation, Lore, Lore, Medicine, Nature, Occultism, Performance, Religion, Society, Stealth, Survival, Thievery};
 
     public SkillTab() {
         GridPane grid = new GridPane();

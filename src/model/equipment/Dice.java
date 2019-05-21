@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Dice {
-    private int count;
-    private int size;
-    private static Map<Integer, Map<Integer, Dice>> dice = new HashMap<>();
+    private final int count;
+    private final int size;
+    private static final Map<Integer, Map<Integer, Dice>> dice = new HashMap<>();
 
     private Dice(int count, int size) {
         this.count = count;

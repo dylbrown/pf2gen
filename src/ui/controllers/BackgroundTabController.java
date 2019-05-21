@@ -4,8 +4,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import model.FileLoader;
 import model.abc.Background;
+import model.xml_parsers.BackgroundsLoader;
 
 import static ui.Main.character;
 

@@ -1,10 +1,10 @@
 package model.enums;
 
-import model.abilityScores.AbilityScore;
+import model.ability_scores.AbilityScore;
 
 import java.util.*;
 
-import static model.abilityScores.AbilityScore.*;
+import static model.ability_scores.AbilityScore.*;
 
 public enum Attribute {
     Acrobatics(Dex), Arcana(Int), Athletics(Str), Crafting(Int), Deception(Cha), Diplomacy(Cha), Intimidation(Cha), Lore(Int), Medicine(Wis), Nature(Wis), Occultism(Int), Performance(Cha), Religion(Wis), Society(Int), Stealth(Dex), Survival(Wis), Thievery(Dex),
@@ -15,7 +15,7 @@ public enum Attribute {
 
     LightArmor, MediumArmor, HeavyArmor, Shields;
 
-    private static Map<AbilityScore, List<Attribute>> skillsByScore = new HashMap<>();
+    private static final Map<AbilityScore, List<Attribute>> skillsByScore = new HashMap<>();
 
     public static Attribute[] getSkills() {
         return skills;

@@ -1,7 +1,7 @@
 package model.abc;
 
 import model.abilities.Ability;
-import model.abilityScores.AbilityMod;
+import model.ability_scores.AbilityMod;
 import model.enums.Language;
 import model.enums.Size;
 

@@ -7,15 +7,15 @@ import model.enums.Slot;
 import java.util.Objects;
 
 public abstract class Equipment {
-    private ReadOnlyDoubleWrapper weight;
-    private ReadOnlyDoubleWrapper value;
-    private ReadOnlyStringWrapper name;
-    private ReadOnlyObjectWrapper<Rarity> rarity;
-    private ReadOnlyStringWrapper description;
-    private ReadOnlyObjectWrapper<Slot> slot;
-    private ReadOnlyIntegerWrapper count;
+    private final ReadOnlyDoubleWrapper weight;
+    private final ReadOnlyDoubleWrapper value;
+    private final ReadOnlyStringWrapper name;
+    private final ReadOnlyObjectWrapper<Rarity> rarity;
+    private final ReadOnlyStringWrapper description;
+    private final ReadOnlyObjectWrapper<Slot> slot;
+    private final ReadOnlyIntegerWrapper count;
 
-    public Equipment(double weight, double value, String name, String description, Rarity rarity, Slot slot) {
+    Equipment(double weight, double value, String name, String description, Rarity rarity, Slot slot) {
         this.weight = new ReadOnlyDoubleWrapper(weight);
         this.value = new ReadOnlyDoubleWrapper(value);
         this.name = new ReadOnlyStringWrapper(name);
@@ -25,7 +25,7 @@ public abstract class Equipment {
         this.count = new ReadOnlyIntegerWrapper(1);
     }
 
-    public double getWeight() {
+    double getWeight() {
         return weight.get();
     }
 
@@ -77,7 +77,7 @@ public abstract class Equipment {
         return rarity.getReadOnlyProperty();
     }
 
-    public String getDescription() {
+    String getDescription() {
         return description.get();
     }
 

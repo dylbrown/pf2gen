@@ -9,7 +9,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
-import model.abilityScores.AbilityScore;
+import model.ability_scores.AbilityScore;
 import model.enums.Attribute;
 import model.enums.Proficiency;
 import model.equipment.Equipment;
@@ -104,9 +104,7 @@ public class Controller {
             }
         });
         level.setText("0");
-        character.getLevel().addListener((event)->{
-            level.setText(character.getLevel().get().toString());
-        });
+        character.getLevel().addListener((event)-> level.setText(character.getLevel().get().toString()));
         levelUp.setOnAction((event -> character.levelUp()));
     }
 

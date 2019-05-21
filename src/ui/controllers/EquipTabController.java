@@ -7,53 +7,49 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import model.FileLoader;
 import model.equipment.Armor;
 import model.equipment.Equipment;
 import model.equipment.Weapon;
+import model.xml_parsers.ArmorLoader;
+import model.xml_parsers.WeaponsLoader;
 import ui.Main;
 
 import java.util.Comparator;
 
 public class EquipTabController {
 
+    @FXML
     public Label TotalMoney;
-    public Label itemName;
-    public Label itemWeight;
-    public Label itemCost;
-    public Label itemRarity;
-    public Label itemDesc;
-    public Label itemDamage;
-    public Label itemHands;
-    public Label itemGroup;
-    public ListView<Equipment> inventory;
-    public ListView<Equipment> allItems;
-    public ListView<Equipment> unequipped;
-    public TableView<Equipment> equipped;
+    @FXML
+    private Label itemName, itemWeight, itemCost, itemRarity, itemDesc, itemDamage, itemHands, itemGroup;
+    @FXML
+    private ListView<Equipment> inventory, allItems, unequipped;
+    @FXML
+    private TableView<Equipment> equipped;
+    @FXML
     public GridPane itemGrid;
-    public Label itemAC;
-    public Label itemTAC;
-    public Label itemMaxDex;
-    public Label itemACP;
-    public Label itemSpeedPenalty;
-    public HBox itemInfoRow;
-    public Label money;
-    public Label totalValue;
+    @FXML
+    private Label itemAC, itemTAC, itemMaxDex, itemACP, itemSpeedPenalty, money, totalValue;
+    @FXML
+    private HBox itemInfoRow;
     private double value = 0;
-    private ReadOnlyObjectWrapper<Boolean> weaponShowing = new ReadOnlyObjectWrapper<>(true);
-    private ReadOnlyObjectWrapper<Boolean> armorShowing = new ReadOnlyObjectWrapper<>(true);
-    private ObservableList<Node> simpleItemRow = FXCollections.observableArrayList();
-    private ObservableList<Node> weaponRow = FXCollections.observableArrayList();
-    private ObservableList<Node> armorRow = FXCollections.observableArrayList();
-    private ObservableList<Equipment> inventoryList = FXCollections.observableArrayList();
+    private final ReadOnlyObjectWrapper<Boolean> weaponShowing = new ReadOnlyObjectWrapper<>(true);
+    private final ReadOnlyObjectWrapper<Boolean> armorShowing = new ReadOnlyObjectWrapper<>(true);
+    private final ObservableList<Node> simpleItemRow = FXCollections.observableArrayList();
+    private final ObservableList<Node> weaponRow = FXCollections.observableArrayList();
+    private final ObservableList<Node> armorRow = FXCollections.observableArrayList();
+    private final ObservableList<Equipment> inventoryList = FXCollections.observableArrayList();
 
     @FXML
     private void initialize() {
-        allItems.getItems().addAll(FileLoader.getWeapons());
-        allItems.getItems().addAll(FileLoader.getArmorAndShields());
+        allItems.getItems().addAll(new WeaponsLoader().parse());
+        allItems.getItems().addAll(new ArmorLoader().parse());
         money.setText(Main.character.getMoneyProperty().get()+" sp");
         Main.character.getMoneyProperty().addListener((event)-> money.setText(Main.character.getMoneyProperty().get()+" sp"));
         value = Main.character.getTotalValue();

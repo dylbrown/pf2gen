@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class ChoiceSlot extends AbilitySlot implements Pickable {
-    private List<Ability> choices;
+    private final List<Ability> choices;
 
     public ChoiceSlot(String abilityName, int level, List<Ability> choices) {
         super(abilityName, level);
@@ -18,7 +18,7 @@ public class ChoiceSlot extends AbilitySlot implements Pickable {
         return getAbilities();
     }
 
-    public List<Ability> getAbilities() {
+    private List<Ability> getAbilities() {
         return Collections.unmodifiableList(choices);
     }
 

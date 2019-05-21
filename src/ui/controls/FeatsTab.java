@@ -15,9 +15,9 @@ import java.util.Map;
 import static ui.Main.character;
 
 public class FeatsTab extends AnchorPane {
-    private ComboBox<AbilitySlot> box = new ComboBox<>();
-    private AnchorPane container = new AnchorPane();
-    private Map<AbilitySlot, FeatSelectionPane> panes = new HashMap<>();
+    private final ComboBox<AbilitySlot> box = new ComboBox<>();
+    private final AnchorPane container = new AnchorPane();
+    private final Map<AbilitySlot, FeatSelectionPane> panes = new HashMap<>();
     public FeatsTab(){
         GridPane grid = new GridPane();
         this.getChildren().add(grid);

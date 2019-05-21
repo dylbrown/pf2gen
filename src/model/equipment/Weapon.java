@@ -9,12 +9,12 @@ import java.util.Collections;
 import java.util.List;
 
 public class Weapon extends Equipment {
-    private Dice damage;
-    private DamageType damageType;
-    private int hands;
-    private WeaponGroup group;
-    private List<ItemTrait> traits;
-    private WeaponProficiency proficiency;
+    private final Dice damage;
+    private final DamageType damageType;
+    private final int hands;
+    private final WeaponGroup group;
+    private final List<ItemTrait> traits;
+    private final WeaponProficiency proficiency;
 
     public Weapon(double weight, double value, String name, String description, Rarity rarity, Dice damage, DamageType damageType, int hands, WeaponGroup group, List<ItemTrait> traits, WeaponProficiency proficiency) {
         super(weight, value, name, description, rarity, getSlot(hands));

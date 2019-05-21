@@ -5,11 +5,11 @@ import model.abilities.Ability;
 public abstract class AbilitySlot {
     private final String name;
 
-    protected Ability currentAbility;
-    protected boolean preSet = false;
-    private int level=1;
+    Ability currentAbility;
+    boolean preSet = false;
+    private int level;
 
-    protected AbilitySlot(String name, int level) {
+    AbilitySlot(String name, int level) {
         this.name = name;
         this.level = level;
     }
@@ -33,5 +33,5 @@ public abstract class AbilitySlot {
 
     public int getLevel(){
         return level;
-    };
+    }
 }

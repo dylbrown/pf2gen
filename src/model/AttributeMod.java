@@ -5,8 +5,8 @@ import model.enums.Proficiency;
 
 public class AttributeMod {
     private String data;
-    private Attribute attr;
-    private Proficiency mod;
+    private final Attribute attr;
+    private final Proficiency mod;
     public AttributeMod(Attribute attr, Proficiency mod) {
         this.attr = attr;
         this.mod = mod;

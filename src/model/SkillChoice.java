@@ -1,5 +1,5 @@
 package model;
 
-public class SkillChoice {
+class SkillChoice {
     private int level;
 }

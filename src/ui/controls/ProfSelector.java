@@ -13,8 +13,8 @@ import static ui.Main.character;
 
 public class ProfSelector extends HBox {
     private final Attribute skill;
-    private CheckBox[] checkBoxes = {new CheckBox(), new CheckBox(), new CheckBox(), new CheckBox()};
-    private Proficiency[] profs = {Proficiency.Trained, Proficiency.Expert, Proficiency.Master, Proficiency.Legendary};
+    private final CheckBox[] checkBoxes = {new CheckBox(), new CheckBox(), new CheckBox(), new CheckBox()};
+    private final Proficiency[] profs = {Proficiency.Trained, Proficiency.Expert, Proficiency.Master, Proficiency.Legendary};
     private boolean infiniteStopper = false;
 
     public ProfSelector(Attribute skill) {
