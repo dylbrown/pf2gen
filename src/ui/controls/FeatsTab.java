@@ -1,4 +1,4 @@
-package ui.customControls;
+package ui.controls;
 
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.ComboBox;

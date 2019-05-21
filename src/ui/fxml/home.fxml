@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -9,13 +10,10 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.web.WebView?>
-<?import ui.customControls.AbilityTab?>
-<?import ui.customControls.AncestryTab?>
-<?import ui.customControls.BackgroundTab?>
-<?import ui.customControls.ClassTab?>
-<?import ui.customControls.FeatsTab?>
-<?import ui.customControls.SkillTab?>
+<?import ui.controls.FeatsTab?>
+<?import ui.controls.SkillTab?>
 
 <AnchorPane minHeight="720.0" minWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.Controller">
    <children>
@@ -27,9 +25,12 @@
                      <children>
                         <Label text="Character Name" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                         <Label text="Player" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                        <TextField fx:id="characterName" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <TextField fx:id="characterName" prefWidth="300.0" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="1" />
+                        <TextField GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="2" />
                         <Label text="Dylan's Character Generator" GridPane.columnSpan="2147483647" />
+                        <Label text="Level" GridPane.rowIndex="3" />
+                        <Label fx:id="level" text="0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <Button fx:id="levelUp" alignment="CENTER_RIGHT" mnemonicParsing="false" text="Level Up" GridPane.columnIndex="2" GridPane.rowIndex="3" />
                      </children>
                      <padding>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -37,30 +38,28 @@
                      <columnConstraints>
                         <ColumnConstraints />
                         <ColumnConstraints />
+                        <ColumnConstraints halignment="RIGHT" prefWidth="100" />
                      </columnConstraints>
                      <rowConstraints>
                         <RowConstraints />
                         <RowConstraints />
                         <RowConstraints />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" />
                      </rowConstraints>
                   </GridPane>
                </content>
             </Tab>
              <Tab closable="false" text="Ancestry">
-                 <AncestryTab />
+                 <fx:include source="ancestryTab.fxml" />
              </Tab>
              <Tab closable="false" text="Background">
-                 <BackgroundTab />
+                 <fx:include source="backgroundTab.fxml" />
              </Tab>
              <Tab closable="false" text="Class">
-                 <content>
-                     <ClassTab />
-                 </content>
+                 <fx:include source="classTab.fxml" />
              </Tab>
              <Tab closable="false" text="Ability Scores">
-                 <content>
-                     <AbilityTab />
-                 </content>
+                 <fx:include source="abilityTab.fxml" />
              </Tab>
             <Tab closable="false" text="Skills">
               <content>
@@ -72,12 +71,25 @@
                 <FeatsTab />
               </content>
             </Tab>
+             <Tab closable="false" text="Equipment">
+                 <fx:include source="equipTab.fxml" />
+             </Tab>
             <Tab fx:id="displayTab" closable="false" text="Display">
                <content>
-                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                  <StackPane>
                      <children>
-                        <WebView fx:id="display" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                     </children></AnchorPane>
+                        <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                           <children>
+                              <WebView fx:id="display" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                           </children>
+                        </AnchorPane>
+                        <Button fx:id="export" alignment="CENTER" mnemonicParsing="false" text="Export" StackPane.alignment="TOP_RIGHT">
+                           <StackPane.margin>
+                              <Insets right="10.0" top="10.0" />
+                           </StackPane.margin>
+                        </Button>
+                     </children>
+                  </StackPane>
                </content></Tab>
          </tabs>
       </TabPane>

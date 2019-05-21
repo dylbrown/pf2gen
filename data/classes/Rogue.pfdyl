@@ -7,6 +7,7 @@
         <AbilityScore>Dex</AbilityScore>
     </AbilityChoices>
     <SkillIncreases>10</SkillIncreases>
+    <Description>You are skilled and opportunistic, and you use your sharp wits to take advantage of your opponents’ missteps in order to strike where it hurts most. While the stereotypical rogue is a thief or scoundrel, plenty of rogues make respectable and honorable livings as bounty hunters, detectives, or scouts, and even sometimes as aristocrats, diplomats, or politicians. One thing you all share in common is the breadth and depth of your training in skills, easily outpacing your more martially or magically inclined comrades.</Description>
     <FeatureList level="1">
         <AbilitySlot state="filled" name="Initial Proficiencies">
             <Ability>

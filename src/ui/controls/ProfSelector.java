@@ -1,4 +1,4 @@
-package ui.customControls;
+package ui.controls;
 
 import javafx.geometry.Pos;
 import javafx.scene.Node;

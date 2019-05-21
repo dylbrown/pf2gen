@@ -6,6 +6,8 @@
     <Speed>20</Speed>
     <AbilityBonuses>Con, Wis, Free</AbilityBonuses>
     <AbilityPenalties>Cha</AbilityPenalties>
+    <Languages>Common, Dwarven</Languages>
+    <BonusLanguages>Giant, Gnomish ,Goblin, Orcish, Terran, Undercommon</BonusLanguages>
     <Description>Dwarven lore tells epic tales of the short, stocky people’s long-ago pilgrimage from their Darklands home to the surface—a journey they undertook at the behest of a prophet of the god of dwarvenkind. The people reached their destination and built magnificent fortifications they came to call Sky Citadels, and many dwarves remain ensconced within these and other ancestral homes to this day. Given the dwarves’ harrowing history, their reputation as a stoic and stern people is well earned.</Description>
     <Feats>
         <!--Heritages-->

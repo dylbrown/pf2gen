@@ -6,18 +6,19 @@
         <AbilityScore>Cha</AbilityScore>
     </AbilityChoices>
     <SkillIncreases>3</SkillIncreases>
+    <Description>You didn’t choose to become a spellcaster—you were born one. There’s magic in your blood, whether divinity touched one of your ancestors, a forebear communed with a primal creature, or a powerful occult ritual has influenced your line. Regardless, self-reflection and study allow you to refine your inherent magical skills and continuously unlock new and more powerful abilities. The power in your blood carries a risk, however, and you constantly face the choice of whether you’ll rise to become a master spellcaster or fall into destruction.</Description>
     <FeatureList level="1">
-    <AbilitySlot state="filled" name="Initial Proficiencies">
-        <Ability>
-            <AttributeMods Proficiency="Trained">
-                Perception, Fortitude, Reflex, Simple Weapons
-            </AttributeMods>
-            <AttributeMods Proficiency="Expert">
-                Will
-            </AttributeMods>
-        </Ability>
-    </AbilitySlot>
-    <AbilitySlot state="feat" type="Class Feat" name="Sorcerer Feat"/>
-    <AbilitySlot state="feat" type="Ancestry Feat" name="Ancestry Feat"/>
+        <AbilitySlot state="filled" name="Initial Proficiencies">
+            <Ability>
+                <AttributeMods Proficiency="Trained">
+                    Perception, Fortitude, Reflex, Simple Weapons
+                </AttributeMods>
+                <AttributeMods Proficiency="Expert">
+                    Will
+                </AttributeMods>
+            </Ability>
+        </AbilitySlot>
+        <AbilitySlot state="feat" type="Class Feat" name="Sorcerer Feat"/>
+        <AbilitySlot state="feat" type="Ancestry Feat" name="Ancestry Feat"/>
     </FeatureList>
 </class>

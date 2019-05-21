@@ -6,6 +6,7 @@ import model.abc.Class;
 import model.abilities.Ability;
 import model.abilities.AbilitySet;
 import model.abilities.Activity;
+import model.abilities.SkillIncrease;
 import model.abilities.abilitySlots.AbilitySlot;
 import model.abilities.abilitySlots.ChoiceSlot;
 import model.abilities.abilitySlots.FeatSlot;
@@ -14,6 +15,7 @@ import model.abilityScores.AbilityMod;
 import model.abilityScores.AbilityModChoice;
 import model.abilityScores.AbilityScore;
 import model.enums.*;
+import model.equipment.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -35,6 +37,11 @@ public class FileLoader {
     private List<Ancestry> ancestries;
     private List<Background> backgrounds;
     private List<Class> classes;
+    private List<Weapon> weapons;
+    private List<Armor> armorAndShields;
+    private Map<String, WeaponGroup> weaponGroups = new HashMap<>();
+    private Map<String, ItemTrait> weaponTraits = new HashMap<>();
+    private Map<String, ItemTrait> armorTraits = new HashMap<>();
     private DocumentBuilder builder;
 
     static{
@@ -46,6 +53,7 @@ public class FileLoader {
         }
         assert instance.builder != null;
     }
+
     public static List<Ancestry> getAncestries() {
         return instance.getAnc();
     }
@@ -55,6 +63,8 @@ public class FileLoader {
     public static List<Class> getClasses() {
         return instance.getCls();
     }
+    public static List<Weapon> getWeapons() {return instance.getWeaps();}
+    public static List<Armor> getArmorAndShields() {return instance.getArmor();}
 
     private List<Ancestry> getAnc() {
         if(ancestries == null) {
@@ -69,33 +79,48 @@ public class FileLoader {
                 assert doc != null;
                 NodeList classProperties = doc.getElementsByTagName("ancestry").item(0).getChildNodes();
 
-                String name = ""; int hp = 0; Size size = Size.Medium; int speed=0; String bonuses=""; String penalties=""; List<Ability> feats = new ArrayList<>();List<Ability> heritages = new ArrayList<>(); String description = "";
+                String name = ""; int hp = 0; Size size = Size.Medium; int speed=0; String bonuses=""; String penalties=""; List<Ability> feats = new ArrayList<>();List<Ability> heritages = new ArrayList<>(); String description = ""; List<Language> languages = new ArrayList<>();List<Language> bonusLanguages = new ArrayList<>();
 
                 for(int i=0; i<classProperties.getLength(); i++) {
                     if(classProperties.item(i).getNodeType() != Node.ELEMENT_NODE)
                         continue;
                     Element curr = (Element) classProperties.item(i);
+                    String trim = curr.getTextContent().trim();
                     switch(curr.getTagName()){
                         case "Name":
-                            name = curr.getTextContent().trim();
+                            name = trim;
                             break;
                         case "Description":
-                            description = curr.getTextContent().trim();
+                            description = trim;
                             break;
                         case "HP":
-                            hp = Integer.parseInt(curr.getTextContent().trim());
+                            hp = Integer.parseInt(trim);
+                            break;
+                        case "Languages":
+                            for (String s : trim.split(",")) {
+                                languages.add(Language.valueOf(s.trim()));
+                            }
+                            break;
+                        case "BonusLanguages":
+                            for (String s : trim.split(",")) {
+                                if(s.trim().equals("All")){
+                                    bonusLanguages.addAll(Arrays.asList(Language.getChooseable()));
+                                    break;
+                                }
+                                bonusLanguages.add(Language.valueOf(s.trim()));
+                            }
                             break;
                         case "Size":
-                            size = Size.valueOf(camelCaseWord(curr.getTextContent().trim()));
+                            size = Size.valueOf(camelCaseWord(trim));
                             break;
                         case "Speed":
-                            speed = Integer.parseInt(curr.getTextContent().trim());
+                            speed = Integer.parseInt(trim);
                             break;
                         case "AbilityBonuses":
-                            bonuses = curr.getTextContent().trim();
+                            bonuses = trim;
                             break;
                         case "AbilityPenalties":
-                            penalties = curr.getTextContent().trim();
+                            penalties = trim;
                         case "Feats":
                             NodeList[] nodeLists = {curr.getElementsByTagName("Ability"),curr.getElementsByTagName("AbilitySet")};
                             for (NodeList featNodes : nodeLists) {
@@ -110,10 +135,10 @@ public class FileLoader {
                     }
                 }
 
-                ancestries.add(new Ancestry(name, description, hp, size, speed, getAbilityMods(bonuses, penalties, Type.Ancestry), feats, heritages));
+                ancestries.add(new Ancestry(name, description, languages, bonusLanguages, hp, size, speed, getAbilityMods(bonuses, penalties, Type.Ancestry), feats, heritages));
             }
         }
-        return ancestries;
+        return Collections.unmodifiableList(ancestries);
     }
 
     private List<Background> getBack() {
@@ -162,7 +187,7 @@ public class FileLoader {
                 backgrounds.add(new Background(name, bonuses, desc, getAbilityMods(bonuses, "", Type.Background), skill, data));
             }
         }
-        return backgrounds;
+        return Collections.unmodifiableList(backgrounds);
     }
 
     private List<Class> getCls() {
@@ -184,18 +209,19 @@ public class FileLoader {
                     if(classProperties.item(i).getNodeType() != Node.ELEMENT_NODE)
                         continue;
                     Element curr = (Element) classProperties.item(i);
+                    String trim = curr.getTextContent().trim();
                     switch(curr.getTagName()){
                         case "Name":
-                            name = curr.getTextContent().trim();
+                            name = trim;
                             break;
                         case "Description":
-                            description = curr.getTextContent().trim();
+                            description = trim;
                             break;
                         case "HP":
-                            hp = Integer.parseInt(curr.getTextContent().trim());
+                            hp = Integer.parseInt(trim);
                             break;
                         case "SkillIncreases":
-                            skillIncreases = Integer.parseInt(curr.getTextContent().trim());
+                            skillIncreases = Integer.parseInt(trim);
                             break;
                         case "AbilityChoices":
                             if(curr.getElementsByTagName("AbilityScore").getLength() == 1) {
@@ -243,7 +269,7 @@ public class FileLoader {
                 classes.add(new Class(name, description, hp, skillIncreases, abilityMod, table, feats));
             }
         }
-        return classes;
+        return Collections.unmodifiableList(classes);
     }
 
     private List<Ability> makeAbilities(NodeList nodes) {
@@ -306,6 +332,8 @@ public class FileLoader {
                 return new Activity(cost, trigger, level, name, description, prerequisites);
             else if(activity)
                 return new Activity(cost, level, name, description, prerequisites);
+            else if(element.getAttribute("skillIncrease").equals("true"))
+                return new SkillIncrease(level, name, description, prerequisites);
             else
                 return new Ability(level, name, mods, description, prerequisites);
         }else if(element.getTagName().equals("AbilitySet")){
@@ -376,5 +404,223 @@ public class FileLoader {
 
     private String camelCaseWord(String str) {
         return str.substring(0,1).toUpperCase() + str.substring(1).toLowerCase();
+    }
+
+    private List<Weapon> getWeaps() {
+        if(weapons == null) {
+            weapons = new ArrayList<>();
+            Document doc = null;
+            try {
+                doc = builder.parse(new File("data/equipment/weapons.pfdyl"));
+            } catch (IOException | SAXException e) {
+                e.printStackTrace();
+            }
+            assert doc != null;
+            NodeList groupNodes = doc.getElementsByTagName("WeaponGroup");
+            for(int i=0; i<groupNodes.getLength(); i++) {
+                if(groupNodes.item(i).getNodeType() != Node.ELEMENT_NODE)
+                    continue;
+                Element curr = (Element) groupNodes.item(i);
+                String name = curr.getElementsByTagName("Name").item(0).getTextContent().trim();
+                String critEffect = curr.getElementsByTagName("CritEffect").item(0).getTextContent().trim();
+                weaponGroups.put(name.toLowerCase(), new WeaponGroup(critEffect, name));
+            }
+
+            NodeList traitNodes = doc.getElementsByTagName("WeaponTrait");
+            for(int i=0; i<traitNodes.getLength(); i++) {
+                if(traitNodes.item(i).getNodeType() != Node.ELEMENT_NODE)
+                    continue;
+                Element curr = (Element) traitNodes.item(i);
+                String name = curr.getElementsByTagName("Name").item(0).getTextContent().trim();
+                String desc = curr.getElementsByTagName("Description").item(0).getTextContent().trim();
+                weaponTraits.put(camelCase(name), new ItemTrait(name, desc));
+            }
+            NodeList weaponNodes = doc.getElementsByTagName("Weapon");
+            for(int i=0; i<weaponNodes.getLength(); i++) {
+                if(weaponNodes.item(i).getNodeType() != Node.ELEMENT_NODE)
+                    continue;
+                Element curr = (Element) weaponNodes.item(i);
+                weapons.add(getWeapon(curr));
+            }
+        }
+        return Collections.unmodifiableList(weapons);
+    }
+
+    private Weapon getWeapon(Element weapon) {
+        double weight=0; double value=0; String name=""; String description = ""; Rarity rarity=Rarity.Common; Dice damage=Dice.get(1,6); DamageType damageType = DamageType.Piercing; int hands = 1; WeaponGroup group = null; List<ItemTrait> traits = new ArrayList<>(); WeaponProficiency weaponProficiency; int range=0; int reload=0; boolean isRanged=false;
+        Node proficiencyNode= weapon.getParentNode();
+        Node rangeNode = proficiencyNode.getParentNode();
+        if(rangeNode.getNodeName().equals("Ranged"))
+            isRanged = true;
+
+        weaponProficiency = WeaponProficiency.valueOf(camelCase(proficiencyNode.getNodeName()));
+        NodeList nodeList = weapon.getChildNodes();
+        for(int i=0; i<nodeList.getLength(); i++) {
+            if(nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)
+                continue;
+            Element curr = (Element) nodeList.item(i);
+            String trim = curr.getTextContent().trim();
+            switch (curr.getTagName()) {
+                case "Name":
+                    name = trim;
+                    break;
+                case "Description":
+                    description = trim;
+                    break;
+                case "Price":
+                    String[] split = trim.split(" ");
+                    value = Double.parseDouble(split[0]);
+                    switch(split[1].toLowerCase()) {
+                        case "cp":
+                            value *= .1;
+                            break;
+                        case "gp":
+                            value *= 10;
+                            break;
+                        case "pp":
+                            value *= 100;
+                            break;
+                    }
+                    break;
+                case "Damage":
+                    split = trim.split(" ");
+                    String[] diceSplit = split[0].split("d");
+                    damage = Dice.get(Integer.parseInt(diceSplit[0]), Integer.parseInt(diceSplit[1]));
+                    switch(split[1].toUpperCase()) {
+                        case "B":
+                            damageType = DamageType.Bludgeoning;
+                            break;
+                        case "P":
+                            damageType = DamageType.Piercing;
+                            break;
+                        case "S":
+                            damageType = DamageType.Slashing;
+                            break;
+                    }
+                    break;
+                case "Range":
+                    range = Integer.parseInt(trim.split(" ")[0]);
+                    break;
+                case "Reload":
+                    reload = Integer.parseInt(trim);
+                    break;
+                case "Bulk":
+                    if (trim.toUpperCase().equals("L"))
+                        weight = .1;
+                    else
+                        weight = Double.parseDouble(trim);
+                    break;
+                case "Hands":
+                    hands = Integer.parseInt(trim);
+                    break;
+                case "Group":
+                    group = weaponGroups.get(trim.toLowerCase());
+                    break;
+                case "Traits":
+                    Arrays.stream(trim.split(",")).map((item)->weaponTraits.get(camelCase(item.trim().split(" ")[0]))).forEachOrdered(traits::add);
+                    break;
+            }
+        }
+        if(isRanged)
+            return new RangedWeapon(weight, value, name, description, rarity, damage, damageType, hands, group, traits, weaponProficiency, range, reload);
+        else
+            return new Weapon(weight, value, name, description, rarity, damage, damageType, hands, group, traits, weaponProficiency);
+    }
+
+    private List<Armor> getArmor() {
+        if(armorAndShields == null) {
+            armorAndShields = new ArrayList<>();
+            Document doc = null;
+            try {
+                doc = builder.parse(new File("data/equipment/armorAndShields.pfdyl"));
+            } catch (IOException | SAXException e) {
+                e.printStackTrace();
+            }
+            assert doc != null;
+
+            NodeList traitNodes = doc.getElementsByTagName("ArmorTrait");
+            for(int i=0; i<traitNodes.getLength(); i++) {
+                if(traitNodes.item(i).getNodeType() != Node.ELEMENT_NODE)
+                    continue;
+                Element curr = (Element) traitNodes.item(i);
+                String name = curr.getElementsByTagName("Name").item(0).getTextContent().trim();
+                String desc = curr.getElementsByTagName("Description").item(0).getTextContent().trim();
+                armorTraits.put(name, new ItemTrait(name, desc));
+            }
+
+            NodeList armorNodes = doc.getElementsByTagName("Armor");
+            for(int i=0; i<armorNodes.getLength(); i++) {
+                if(armorNodes.item(i).getNodeType() != Node.ELEMENT_NODE)
+                    continue;
+                Element curr = (Element) armorNodes.item(i);
+                armorAndShields.add(getArmor(curr));
+            }
+        }
+        return Collections.unmodifiableList(armorAndShields);
+    }
+
+    private Armor getArmor(Element armor) {
+        double weight=0; double value=0; String name=""; String description = ""; Rarity rarity=Rarity.Common; List<ItemTrait> traits = new ArrayList<>(); boolean isShield=false; int acMod=0; int tacMod=0; int maxDex=0; int acp=0; int speedPenalty=0;
+        Node proficiencyNode= armor.getParentNode();
+        if(proficiencyNode.getNodeName().trim().equals("Shield"))
+            isShield = true;
+        NodeList nodeList = armor.getChildNodes();
+        for(int i=0; i<nodeList.getLength(); i++) {
+            if(nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)
+                continue;
+            Element curr = (Element) nodeList.item(i);
+            String trim = curr.getTextContent().trim();
+            switch (curr.getTagName()) {
+                case "Name":
+                    name = trim;
+                    break;
+                case "Description":
+                    description = trim;
+                    break;
+                case "AC":
+                    acMod = Integer.parseInt(trim.replaceAll("\\+",""));
+                    break;
+                case "TAC":
+                    tacMod = Integer.parseInt(trim.replaceAll("\\+",""));
+                    break;
+                case "MaxDex":
+                    maxDex = Integer.parseInt(trim.replaceAll("\\+",""));
+                    break;
+                case "ACP":
+                    acp = Integer.parseInt(trim.replaceAll("\\+",""));
+                    break;
+                case "SpeedPenalty":
+                    speedPenalty = Integer.parseInt(trim.replaceAll("\\+",""));
+                    break;
+                case "Price":
+                    String[] split = trim.split(" ");
+                    value = Double.parseDouble(split[0]);
+                    switch(split[1].toLowerCase()) {
+                        case "cp":
+                            value *= .1;
+                            break;
+                        case "gp":
+                            value *= 10;
+                            break;
+                        case "pp":
+                            value *= 100;
+                            break;
+                    }
+                    break;
+                case "Bulk":
+                    if (trim.toUpperCase().equals("L"))
+                        weight = .1;
+                    else
+                        weight = Double.parseDouble(trim);
+                    break;
+                case "Traits":
+                    Arrays.stream(trim.split(",")).map((item)->armorTraits.get(camelCase(item.trim().split(" ")[0]))).forEachOrdered(traits::add);
+                    break;
+            }
+        }
+        if(isShield)
+            return new Shield(weight, value, name, description, rarity, acMod, tacMod, maxDex, acp, speedPenalty, traits);
+        else
+            return new Armor(weight, value, name, description, rarity, acMod, tacMod, maxDex, acp, speedPenalty, traits);
     }
 }

@@ -10,7 +10,6 @@ import java.util.Map;
 
 public class Class extends AC {
     private final int skillIncreases;
-    private int hp;
     private Map<Integer, List<AbilitySlot>> advancementTable;
 
     public Class(String name, String description, int hp, int skillIncreases, AbilityMod keyAbility, Map<Integer, List<AbilitySlot>> table, List<Ability> feats) {
@@ -23,11 +22,7 @@ public class Class extends AC {
         return Collections.unmodifiableList(advancementTable.get(level));
     }
 
-    public int getHP() {
-        return hp;
-    }
-
-    public int getSkillIncreases() {
+    public int getSkillIncrease() {
         return skillIncreases;
     }
 }

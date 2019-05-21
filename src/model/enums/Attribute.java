@@ -11,7 +11,9 @@ public enum Attribute {
 
     Fortitude(Con), Reflex(Dex), Will(Wis), Perception(Wis),
 
-    SimpleWeapons, MartialWeapons, LightArmor, MediumArmor, HeavyArmor, Shields;
+    SimpleWeapons, MartialWeapons, ExoticWeapons,
+
+    LightArmor, MediumArmor, HeavyArmor, Shields;
 
     private static Map<AbilityScore, List<Attribute>> skillsByScore = new HashMap<>();
 
@@ -42,6 +44,18 @@ public enum Attribute {
 
     public static List<Attribute> skillsByScore(AbilityScore score) {
         return Collections.unmodifiableList(skillsByScore.get(score));
+    }
+
+    public static Attribute valueOf(WeaponProficiency proficiency) {
+        switch(proficiency) {
+            case Simple:
+            default:
+                return SimpleWeapons;
+            case Martial:
+                return MartialWeapons;
+            case Exotic:
+                return ExoticWeapons;
+        }
     }
 
     public AbilityScore getKeyAbility() {

@@ -16,10 +16,12 @@ public class Main extends Application {
     }
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("fxml/home.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/ui/fxml/home.fxml"));
         primaryStage.setTitle("PF2Gen");
         primaryStage.getIcons().add(new Image("PF2Gen.png"));
         primaryStage.setScene(new Scene(root, 800, 450));
+        root.setStyle("-fx-base: rgba(45, 49, 50, 255);");
+        primaryStage.getScene().getStylesheets().add("style.css");
         primaryStage.show();
     }
 

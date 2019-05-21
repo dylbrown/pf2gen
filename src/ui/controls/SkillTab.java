@@ -1,4 +1,4 @@
-package ui.customControls;
+package ui.controls;
 
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;

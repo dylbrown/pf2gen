@@ -1,4 +1,4 @@
-package ui.customControls;
+package ui.controls;
 
 import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
@@ -52,13 +52,16 @@ public class FeatSelectionPane extends AnchorPane {
         AnchorPane.setTopAnchor(this, 0.0);
         AnchorPane.setBottomAnchor(this, 0.0);
         choices.getSelectionModel().selectedItemProperty().addListener((event)->{
-            double[] dividerPositions = splitPane.getDividerPositions();
-            desc.setText(choices.getSelectionModel().getSelectedItem().getDesc());
-            splitPane.setDividerPositions(dividerPositions);
+            Ability selectedItem = choices.getSelectionModel().getSelectedItem();
+            if(selectedItem != null)
+                desc.setText(selectedItem.getDesc());
         });
         select.setOnAction((event -> {
-            character.choose(slot, choices.getSelectionModel().getSelectedItem());
-            selectedLabel.setText("Selection: "+choices.getSelectionModel().getSelectedItem().toString());
+            Ability selectedItem = choices.getSelectionModel().getSelectedItem();
+            if(selectedItem != null) {
+                character.choose(slot, selectedItem);
+                selectedLabel.setText("Selection: " + selectedItem.toString());
+            }
         }));
         if(slot instanceof FeatSlot && ((FeatSlot) slot).getAllowedTypes().contains(Type.Ancestry)) {
             character.addAncestryObserver((observable, arg)->{

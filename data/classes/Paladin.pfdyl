@@ -6,6 +6,7 @@
         <AbilityScore>Str</AbilityScore>
     </AbilityChoices>
     <SkillIncreases>3</SkillIncreases>
+    <Description>You are a champion of justice, a holy servant of a good and lawful deity who takes up the mantle of a restrictive code to provide certainty and hope to the innocent. You have powerful defenses that you share freely with your allies and innocent bystanders, but when the time comes to punish the wicked, you use your holy power to end the threat of evil. Your devotion also attracts the attention of holy spirits who aid you on your journey. Others can count on you to adhere to your code of conduct, and they trust you at your word.</Description>
     <FeatureList level="1">
         <AbilitySlot state="filled" name="Initial Proficiencies">
             <Ability>
@@ -82,6 +83,39 @@
             </AbilitySet>
         </AbilitySlot>
         <!--deity and cause, paladin’s reaction.-->
+    </FeatureList>
+    <FeatureList level="2">
+        <AbilitySlot state="feat" type="Class Feat" name="Paladin Feat" />
+        <AbilitySlot state="feat" type="Skill Feat" name="Skill Feat" />
+    </FeatureList>
+    <FeatureList level="3">
+        <AbilitySlot state="feat" type="General Feat" name="General Feat" />
+        <AbilitySlot state="filled" name="Skill Increase">
+            <Ability skillIncrease="true"/>
+        </AbilitySlot>
+    </FeatureList>
+    <FeatureList level="4">
+        <AbilitySlot state="feat" type="Class Feat" name="Paladin Feat" />
+        <AbilitySlot state="feat" type="Skill Feat" name="Skill Feat" />
+    </FeatureList>
+    <FeatureList level="5">
+        <AbilitySlot state="filled" name="Ability Boosts">
+            <Ability abilityBoosts="4"/>
+        </AbilitySlot>
+        <AbilitySlot state="feat" type="Ancestry Feat" name="Ancestry Feat" />
+        <AbilitySlot state="filled" name="Skill Increase">
+            <Ability skillIncrease="true"/>
+        </AbilitySlot>
+        <AbilitySlot state="filled" name="Weapon Expertise">
+            <Ability>
+                <Description>
+                    Select a specific weapon group. Your proficiency rank for simple and martial weapons in that group increases to expert.
+                </Description>
+                <AttributeMod Proficiency="Expert" choice="WeaponGroup">
+                    Simple Weapons, Martial Weapons
+                </AttributeMod>
+            </Ability>
+        </AbilitySlot>
     </FeatureList>
     <Feats>
         <Ability name="Deity's Domain" level="1">
