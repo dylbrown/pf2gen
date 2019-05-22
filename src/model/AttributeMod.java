@@ -3,6 +3,8 @@ package model;
 import model.enums.Attribute;
 import model.enums.Proficiency;
 
+import java.util.Objects;
+
 public class AttributeMod {
     private String data;
     private final Attribute attr;
@@ -31,5 +33,20 @@ public class AttributeMod {
 
     public String toNiceAttributeString() {
         return (data != null) ? attr.toString()+" ("+data+")" : attr.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AttributeMod that = (AttributeMod) o;
+        return Objects.equals(data, that.data) &&
+                attr == that.attr &&
+                mod == that.mod;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(data, attr, mod);
     }
 }

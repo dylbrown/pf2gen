@@ -1,8 +1,8 @@
 package model.abilities.abilitySlots;
 
 import model.abilities.Ability;
+import model.data_managers.FeatsManager;
 import model.enums.Type;
-import model.xml_parsers.FeatsLoader;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,8 +12,6 @@ import static ui.Main.character;
 
 public class FeatSlot extends AbilitySlot implements Pickable {
     private final List<Type> allowedTypes;
-    private static FeatsLoader generalFeats = new FeatsLoader("data/feats/general.pfdyl");
-    private static FeatsLoader skillFeats = new FeatsLoader("data/feats/skill.pfdyl");
 
     public FeatSlot(String name, int level, List<Type> allowedTypes) {
         super(name, level);
@@ -42,10 +40,9 @@ public class FeatSlot extends AbilitySlot implements Pickable {
                         results.addAll(character.getAncestry().getHeritages());
                     break;
                 case General:
-                    results.addAll(generalFeats.parse());
-                    break;
+                    results.addAll(FeatsManager.getGeneralFeats());
                 case Skill:
-                    results.addAll(skillFeats.parse());
+                    results.addAll(FeatsManager.getSkillFeats());
                     break;
             }
         }

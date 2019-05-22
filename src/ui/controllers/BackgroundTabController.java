@@ -1,7 +1,6 @@
 package ui.controllers;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import model.abc.Background;
@@ -17,8 +16,6 @@ public class BackgroundTabController {
     @FXML
     private Label backgroundDesc;
     @FXML
-    private Button setBackground;
-    @FXML
     private Label skill;
     @FXML
     private Label feat;
@@ -31,10 +28,12 @@ public class BackgroundTabController {
             backgroundList.getItems().add(background);
         }
 
-        setBackground.setOnAction((event) -> {
-            Background selectedItem = backgroundList.getSelectionModel().getSelectedItem();
-            backgroundDisplay.setText(selectedItem.toString());
-            character.setBackground(selectedItem);
+        backgroundList.setOnMouseClicked((event) -> {
+            if(event.getClickCount() == 2) {
+                Background selectedItem = backgroundList.getSelectionModel().getSelectedItem();
+                backgroundDisplay.setText(selectedItem.toString());
+                character.setBackground(selectedItem);
+            }
         });
         backgroundList.getSelectionModel().selectedItemProperty().addListener((event)->{
             backgroundDesc.setText(backgroundList.getSelectionModel().getSelectedItem().getDesc());

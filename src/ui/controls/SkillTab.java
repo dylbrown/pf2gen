@@ -64,14 +64,14 @@ public class SkillTab extends AnchorPane {
             proficiencies.get(i).setStyle("-fx-border-color:black;-fx-padding: 5;");
         }
         character.addAbilityObserver((observable, arg)-> updateTab());
-        character.addProficiencyObserver((observable, arg)-> updateTab());
+        character.attributes().addObserver((observable, arg)-> updateTab());
         updateTab();
     }
 
     private void updateTab() {
         for(int i=0; i<skills.length; i++) {
             int abilityMod = character.getAbilityMod(skills[i].getKeyAbility());
-            int proficiencyMod = character.getProficiency(skills[i]).getValue().getMod();
+            int proficiencyMod = character.attributes().getProficiency(skills[i]).getValue().getMod();
             totals.get(i).setText(String.valueOf(abilityMod+proficiencyMod));
             abilities.get(i).setText(String.valueOf(abilityMod));
             proficiencies.get(i).setText(String.valueOf(proficiencyMod));

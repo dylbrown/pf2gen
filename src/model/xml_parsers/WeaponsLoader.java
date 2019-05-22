@@ -136,4 +136,9 @@ public class WeaponsLoader extends FileLoader<Weapon> {
         else
             return new Weapon(weight, value, name, description, rarity, damage, damageType, hands, group, traits, weaponProficiency);
     }
+
+    public Map<String, WeaponGroup> getWeaponsGroups() {
+        if(weapons == null) parse();
+        return Collections.unmodifiableMap(weaponGroups);
+    }
 }

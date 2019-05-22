@@ -9,6 +9,12 @@ public enum Proficiency {
         mod = modv;
     }
 
+    public static Proficiency max(Proficiency oldProf, Proficiency newProf) {
+        if(oldProf.getMod() > newProf.getMod())
+            return oldProf;
+        return newProf;
+    }
+
     public int getMod() {
         return mod;
     }

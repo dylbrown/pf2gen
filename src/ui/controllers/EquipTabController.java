@@ -13,11 +13,10 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import model.data_managers.EquipmentManager;
 import model.equipment.Armor;
 import model.equipment.Equipment;
 import model.equipment.Weapon;
-import model.xml_parsers.ArmorLoader;
-import model.xml_parsers.WeaponsLoader;
 import ui.Main;
 
 import java.util.Comparator;
@@ -48,11 +47,10 @@ public class EquipTabController {
 
     @FXML
     private void initialize() {
-        allItems.getItems().addAll(new WeaponsLoader().parse());
-        allItems.getItems().addAll(new ArmorLoader().parse());
-        money.setText(Main.character.getMoneyProperty().get()+" sp");
-        Main.character.getMoneyProperty().addListener((event)-> money.setText(Main.character.getMoneyProperty().get()+" sp"));
-        value = Main.character.getTotalValue();
+        allItems.getItems().addAll(EquipmentManager.getEquipment());
+        money.setText(Main.character.inventory().getMoneyProperty().get()+" sp");
+        Main.character.inventory().getMoneyProperty().addListener((event)-> money.setText(Main.character.inventory().getMoneyProperty().get()+" sp"));
+        value = Main.character.inventory().getTotalValue();
         totalValue.setText(value+" sp");
 
         FXCollections.sort(allItems.getItems(), Comparator.comparing(Equipment::toString));
@@ -134,7 +132,7 @@ public class EquipTabController {
     }
 
     private void tryToEquip(Equipment item) {
-        if(Main.character.equip(item, 1)) {
+        if(Main.character.inventory().equip(item, 1)) {
             if(!equipped.getItems().contains(item))
                 equipped.getItems().add(item);
         }
@@ -142,8 +140,8 @@ public class EquipTabController {
 
     private void tryToSell(Equipment item) {
 
-        if(Main.character.sell(item, 1)) {
-            if(Main.character.getCount(item) == 0) {
+        if(Main.character.inventory().sell(item, 1)) {
+            if(Main.character.inventory().getCount(item) == 0) {
                 unequipped.getItems().remove(item);
                 inventoryList.remove(item);
                 equipped.getItems().remove(item);
@@ -156,7 +154,7 @@ public class EquipTabController {
     }
 
     private void tryToBuy(Equipment item) {
-        if(Main.character.buy(item, 1)) {
+        if(Main.character.inventory().buy(item, 1)) {
             if(!unequipped.getItems().contains(item)) {
                 unequipped.getItems().add(item);
             }

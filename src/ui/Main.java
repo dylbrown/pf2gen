@@ -6,7 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import model.PC;
+import model.player.PC;
 
 public class Main extends Application {
     public static final PC character;

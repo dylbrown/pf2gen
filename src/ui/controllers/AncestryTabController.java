@@ -30,12 +30,17 @@ public class AncestryTabController {
     private Label ancestryDesc;
     @FXML
     private void initialize() {
-        ancestryList.getItems().addAll(FileLoader.getAncestries());
-
-        setAncestry.setOnAction((event) -> {
-            Ancestry selectedItem = ancestryList.getSelectionModel().getSelectedItem();
-            ancestryDisplay.setText(selectedItem.toString());
-            Main.character.setAncestry(selectedItem);
+        try{
+            ancestryList.getItems().addAll(new AncestriesLoader().parse());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        ancestryList.setOnMouseClicked((event) -> {
+            if(event.getClickCount() == 2) {
+                Ancestry selectedItem = ancestryList.getSelectionModel().getSelectedItem();
+                ancestryDisplay.setText(selectedItem.toString());
+                Main.character.setAncestry(selectedItem);
+            }
         });
         ancestryList.getSelectionModel().selectedItemProperty().addListener((event)->{
             Ancestry item = ancestryList.getSelectionModel().getSelectedItem();

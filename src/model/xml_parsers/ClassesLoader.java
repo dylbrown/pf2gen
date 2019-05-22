@@ -87,7 +87,7 @@ public class ClassesLoader extends FileLoader<Class> {
                             }
                             table.put(level, abilitySlots);
                             break;
-                        case "Feats":
+                        case "FeatsManager":
                             NodeList[] nodeLists = {curr.getElementsByTagName("Ability"),curr.getElementsByTagName("AbilitySet")};
                             for (NodeList featNodes : nodeLists) {
                                 for (int j = 0; j < featNodes.getLength(); j++) {

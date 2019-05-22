@@ -9,7 +9,11 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
+import model.abilities.Ability;
+import model.abilities.AbilitySet;
+import model.abilities.Activity;
 import model.ability_scores.AbilityScore;
+import model.enums.Action;
 import model.enums.Attribute;
 import model.enums.Proficiency;
 import model.equipment.Equipment;
@@ -98,7 +102,8 @@ public class Controller {
                         addSign(character.getTotalMod(Attribute.Will)),
                         character.getHP(),
                         character.getSpeed(),
-                        getWeaponAttacks()
+                        getWeaponAttacks(),
+                        getAbilities()
                 );
                 display.getEngine().loadContent(htmlContent);
             }
@@ -109,16 +114,16 @@ public class Controller {
     }
 
     private String getWeaponAttacks() {
-        ObservableMap<Equipment, Equipment> inventory = character.getInventory();
+        ObservableMap<Equipment, Equipment> inventory = character.inventory().getItems();
         List<String> items = new ArrayList<>();
         for (Map.Entry<Equipment, Equipment> entry : inventory.entrySet()) {
             if(entry.getKey() instanceof Weapon){
                 Weapon weapon = (Weapon) entry.getKey();
                 StringBuilder weaponBuilder = new StringBuilder();
                 if(weapon instanceof RangedWeapon)
-                    weaponBuilder.append("<b>Ranged</b> ");
+                    weaponBuilder.append("<b>① Ranged</b> ");
                 else
-                    weaponBuilder.append("<b>Melee</b> ");
+                    weaponBuilder.append("<b>① Melee</b> ");
                 int attackMod = character.getAttackMod(weapon);
                 if(attackMod >= 0)
                     weaponBuilder.append(weapon.getName()).append(" +").append(attackMod);
@@ -143,9 +148,58 @@ public class Controller {
         }
         return String.join("<br>", items);
     }
+    private String getAbilities() {
+        List<String> items = new ArrayList<>();
+        for (Ability ability : character.getAbilities()) {
+            if(ability instanceof Activity) {
+                items.add(getAbility(ability));
+            }else if(ability instanceof AbilitySet)
+                items.addAll(getAbilities(((AbilitySet) ability).getAbilities()));
+
+        }
+        return String.join("<br>", items);
+    }
+
+    private List<String> getAbilities(List<Ability> abilities) {
+        List<String> items = new ArrayList<>();
+        for (Ability ability: abilities) {
+            if(ability instanceof Activity)
+                items.add(getAbility(ability));
+            else if(ability instanceof AbilitySet)
+                items.addAll(getAbilities(((AbilitySet) ability).getAbilities()));
+
+        }
+        return items;
+    }
+
+    private String getAbility(Ability ability) {
+        StringBuilder abilityBuilder = new StringBuilder();
+        abilityBuilder.append("<b>");
+        switch (((Activity) ability).getCost()) {
+            case Free:
+                abilityBuilder.append("Ⓕ ");
+                break;
+            case Reaction:
+                abilityBuilder.append("Ⓡ ");
+                break;
+            case One:
+                abilityBuilder.append("① ");
+                break;
+            case Two:
+                abilityBuilder.append("② ");
+                break;
+            case Three:
+                abilityBuilder.append("③ ");
+                break;
+        }
+        abilityBuilder.append(ability.toString()).append("</b> ").append(ability.getDesc());
+        if(((Activity) ability).getCost() == Action.Reaction)
+            abilityBuilder.append(" <b>Trigger</b> ").append(((Activity) ability).getTrigger());
+        return abilityBuilder.toString();
+    }
 
     private String generateItemList() {
-        ObservableMap<Equipment, Equipment> inventory = character.getInventory();
+        ObservableMap<Equipment, Equipment> inventory = character.inventory().getItems();
         List<String> items = new ArrayList<>();
         for (Map.Entry<Equipment, Equipment> entry : inventory.entrySet()) {
             if(entry.getValue().getValue() > 1)
@@ -162,7 +216,7 @@ public class Controller {
 
     private String prettyPrintSkills() {
         StringBuilder builder = new StringBuilder();
-        for (Map.Entry<Attribute, ObservableValue<Proficiency>> entry : character.getProficiencies().entrySet()) {
+        for (Map.Entry<Attribute, ObservableValue<Proficiency>> entry : character.attributes().getProficiencies().entrySet()) {
             if(Arrays.asList(Attribute.getSkills()).contains(entry.getKey()) && entry.getValue().getValue() != Proficiency.Untrained)
                 builder.append(entry.getKey().name()).append(" ").append(addSign(character.getTotalMod(entry.getKey()))).append(", ");
         }

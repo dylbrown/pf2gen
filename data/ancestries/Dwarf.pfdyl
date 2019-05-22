@@ -29,7 +29,7 @@
         <Ability name="Unburdened Dwarf" type="Heritage">
             <Description>Your ancestors fought in ancient wars, generations after generations adapting to wearing massive suits of armor. If your Speed would be reduced by armor you wear or the encumbered condition, you ignore 5 feet of that reduction.</Description>
         </Ability>
-        <!--Regular Feats-->
+        <!--Regular FeatsManager-->
         <Ability name="Ancestral Hatred" level="1">
             <Description>You have shaped your hatred of ancestral dwarven foes into a powerful weapon. Choose two of the following creature traits: derro, duergar, giant, or orc. You gain a +1 circumstance bonus to damage rolls against creatures with one of the chosen traits. If a creature with a chosen trait critically succeeds at an attack against you, this bonus increases to +4 against that creature for 1 minute.
                 Special: Your GM can add appropriate creature traits to this list if your character is from a community that commonly fights other types of enemies.</Description>

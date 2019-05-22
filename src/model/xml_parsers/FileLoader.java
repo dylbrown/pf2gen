@@ -5,6 +5,10 @@ import model.abilities.Ability;
 import model.abilities.AbilitySet;
 import model.abilities.Activity;
 import model.abilities.SkillIncrease;
+import model.abilities.abilitySlots.AbilitySlot;
+import model.abilities.abilitySlots.ChoiceSlot;
+import model.abilities.abilitySlots.FeatSlot;
+import model.abilities.abilitySlots.FilledSlot;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
@@ -18,14 +22,20 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 abstract class FileLoader<T> {
     File path;
@@ -79,7 +89,7 @@ abstract class FileLoader<T> {
         return makeAbility(element, name, 1);
     }
     Ability makeAbility(Element element, String name, int level) {
-        boolean activity=false; Action cost = Action.One; String trigger = ""; List<String> prerequisites = new ArrayList<>();
+        boolean activity=false; Action cost = Action.One; String trigger = ""; List<String> prerequisites = new ArrayList<>(); List<AttributeMod> requiredAttrs = new ArrayList<>(); String customMod = ""; List<AbilitySlot> abilitySlots = new ArrayList<>();
         if(element.getTagName().equals("Ability")) {
             List<AttributeMod> mods = new ArrayList<>();
             String description = "";
@@ -110,26 +120,55 @@ abstract class FileLoader<T> {
                     case "Prerequisites":
                         prerequisites.addAll(Arrays.asList(trim.split(",")));
                         break;
+                    case "Requires":
+                        requiredAttrs.addAll(Arrays.stream(trim.split(",")).map((str)->{
+                            String[] split = str.split(" in ");
+                            Proficiency reqProf = Proficiency.valueOf(split[0].trim());
+                            if(camelCaseWord(split[1].trim().substring(0, 4)).equals("Lore")) {
+                                String data = camelCase(str.trim().substring(4).trim().replaceAll("[()]", ""));
+                                return new AttributeMod(Attribute.Lore, reqProf, data);
+                            }else{
+                                return new AttributeMod(Attribute.valueOf(camelCase(split[1].trim())), reqProf);
+                            }
+                        }).collect(Collectors.toCollection(ArrayList::new)));
+                        break;
+                    case "CustomMod":
+                        customMod = trim;
+                        break;
+                    case "AbilitySlot":
+                        String abilityName = propElem.getAttribute("name");
+                        switch(propElem.getAttribute("state").toLowerCase().trim()){
+                            case "filled":
+                                Element temp = (Element) propElem.getElementsByTagName("Ability").item(0);
+                                abilitySlots.add(new FilledSlot(abilityName, level, makeAbility(temp, abilityName, level)));
+                                break;
+                            case "feat":
+                                abilitySlots.add(new FeatSlot(abilityName, level, getTypes(propElem.getAttribute("type"))));
+                                break;
+                            case "choice":
+                                abilitySlots.add(new ChoiceSlot(abilityName, level, makeAbilities(propElem.getChildNodes())));
+                                break;
+                        }
                 }
             }
             if(cost == Action.Reaction)
-                return new Activity(cost, trigger, level, name, description, prerequisites);
+                return new Activity(cost, trigger, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots);
             else if(activity)
-                return new Activity(cost, level, name, description, prerequisites);
+                return new Activity(cost, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots);
             else if(element.getAttribute("skillIncrease").equals("true"))
-                return new SkillIncrease(level, name, description, prerequisites);
+                return new SkillIncrease(level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots);
             else if(!element.getAttribute("abilityBoosts").trim().equals("")) {
                 int count = Integer.parseInt(element.getAttribute("abilityBoosts"));
-                return new Ability(level, name, getBoosts(count, level), description);
+                return new Ability(level, name, getBoosts(count, level), description, requiredAttrs, customMod, abilitySlots);
             }else
-                return new Ability(level, name, mods, description, prerequisites);
+                return new Ability(level, name, mods, description, prerequisites, requiredAttrs, customMod, abilitySlots);
         }else if(element.getTagName().equals("AbilitySet")){
             String desc="";
             if(element.getElementsByTagName("Description").getLength() > 0)
                 desc = element.getElementsByTagName("Description").item(0).getTextContent().trim();
             if(element.getElementsByTagName("Prerequisites").getLength() > 0)
                 prerequisites.addAll(Arrays.asList(element.getElementsByTagName("Prerequisites").item(0).getTextContent().trim().split(",")));
-            return new AbilitySet(level, name, desc, makeAbilities(element.getElementsByTagName("Ability")),prerequisites);
+            return new AbilitySet(level, name, desc, makeAbilities(element.getElementsByTagName("Ability")),prerequisites, requiredAttrs, customMod, abilitySlots);
         }
         return null;
     }
@@ -145,9 +184,9 @@ abstract class FileLoader<T> {
         String[] split = textContent.split(",");
         for(String str: split) {
             if (!str.trim().equals("")) {
-                if(camelCaseWord(camelCase(str.trim()).replaceAll(" ", "")).substring(0, 4).equals("Lore")) {
+                if(camelCaseWord(str.trim()).substring(0, 4).equals("Lore")) {
                     Attribute skill = Attribute.Lore;
-                    String data = camelCaseWord(camelCase(str.trim()).replaceAll(" ", "")).substring(4).trim().replaceAll("[()]", "");
+                    String data = camelCase(str.trim().substring(4).trim().replaceAll("[()]", ""));
                     mods.add(new AttributeMod(skill, prof, data));
                 }else{
                     mods.add(new AttributeMod(Attribute.valueOf(camelCase(str.trim()).replaceAll(" ", "")), prof));
@@ -204,5 +243,15 @@ abstract class FileLoader<T> {
 
     String camelCaseWord(String str) {
         return str.substring(0,1).toUpperCase() + str.substring(1).toLowerCase();
+    }
+
+    void handleJavascript() {
+        ScriptEngineManager manager = new ScriptEngineManager();
+        ScriptEngine engine = manager.getEngineByName("javascript");
+        try {
+            engine.eval(new FileReader("baseScript.js"));
+        } catch (ScriptException | FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }

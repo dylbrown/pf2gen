@@ -8,5 +8,119 @@
     <Languages>Common, Free</Languages>
     <BonusLanguages>All</BonusLanguages>
     <Description>As unpredictable and varied as any the peoples on Golarion, humans have the exceptional drive and capacity to endure and expand. Though many civilizations thrived before humanity rose to prominence, humans have built some of the greatest and the most terrible societies throughout the course of history, and today they are the most populous people in the realms around the Inner Sea.</Description>
-    <Feats></Feats>
+    <Feats>
+		<!--Heritages-->
+        <Ability name="Half-Elf" type="Heritage">
+            <Description>Either one of your parents was an elf, or one or both were half-elves. You have pointed ears and other telltale signs of elf heritage. You gain the elf trait and low-light vision. In addition, you can select elf, half-elf, and human feats whenever you gain an ancestry feat.  hampers your connection to magic items. Reduce your total Resonance Points by 2 (minimum 0). For more information about Resonance Points, see page 376. </Description>
+        </Ability>
+        <Ability name="Half-Orc" type="Heritage">
+            <Description>Either one of your parents was an orc, or one or both were half-orcs. You have a green tinge to your skin and other indicators of orc heritage. You gain the orc trait and low-light vision. In addition, you can select orc, half-orc, and human feats whenever you gain an ancestry feat. </Description>
+        </Ability>
+        <Ability name="Skilled Heritage" type="Heritage">
+            <Description>Your ingenuity allows you to train in a wide variety of skills. You become trained in one skill of your choice. At 5th level, you become an expert in the chosen skill. For more about skills, see page 142.</Description>
+            <CustomMod>
+                if(typeof(skilled_heritage) === 'undefined'){
+                    var skilled_heritage = doPrompt("Skill");
+                }
+                skillProficiency(skilled_heritage, "Trained");
+                if(level >= 5){
+                    skillProficiency(skilled_heritage, "Expert");
+                }
+            </CustomMod>
+        </Ability>
+        <Ability name="Versatile Heritage" type="Heritage">
+            <Description>Versatility and ambition have fueled humanity’s ascendance to its position as the most common ancestry in most nations throughout the world. Select a general feat of your choice for which you meet the prerequisites. </Description>
+			<AbilitySlot state="feat" type="General Feat" name="General Feat" />
+        </Ability>
+		<!--Regular FeatsManager-->
+        <Ability name="Adapted Spell" level="1">
+            <Description>Study of multiple magical traditions reveals how to alter a spell to suit your spellcasting style. Choose one cantrip from a spell list other than your own. If you have a spell repertoire or spellbook, replace one of the cantrips you know or have in your spellbook with the chosen spell. If you prepare spells without a spellbook (if you’re a cleric or druid, for example), one of your cantrips must always be the chosen spell, and you prepare the rest normally.
+			If you swap or retrain this cantrip later, you can choose its replacement from the same alternate list or a different one. For more about magic and spells, see page 192.</Description>
+			<Prerequisites>TODO Spellcaster</Prerequisites>
+        </Ability>
+        <Ability name="Clever Improviser" level="1">
+            <Description>You’ve learned how to handle situations when you’re out of your depth. You gain a +1 circumstance bonus to skill checks in which you’re untrained.</Description>
+        </Ability>
+        <Ability name="Cooperative Nature" level="1">
+            <Description>A short human life span lends perspective and has taught you from a young age to set aside differences and work together to achieve greatness. You gain a +2 circumstance bonus to your check when you use the Aid reaction or Assist action (see page 307).</Description>
+        </Ability>
+        <Ability name="General Training" level="1">
+            <Description>Your adaptability manifests in your mastery of a range of useful abilities. You gain a 1st-level general feat.
+			Special You can select this feat multiple times, choosing a different feat each time.</Description>
+			<AbilitySlot state="feat" type="General Feat" name="General Feat" />
+        </Ability>
+        <Ability name="Haughty Obstinacy" level="1">
+            <Description>Your powerful ego makes it harder for others to order you around. If you succeed at a saving throw against a mental effect that attempts to directly control your actions, you critically succeed instead.
+			If a creature fails to Coerce you using the Intimidation skill (see page 150), it treats the result as a critical failure instead (so it can’t try to Coerce you again for 1 week).</Description>
+		</Ability>
+        <Ability name="Natural Ambition" level="1">
+            <Description>You were raised to be ambitious and always reach for the stars, causing you to progress quickly in your chosen field. You gain a 1st-level class feat for your class.</Description>
+			<AbilitySlot state="feat" type="Class Feat" name="Ranger Feat"/>
+        </Ability>
+        <Ability name="Skilled" level="1">
+            <Description>Your ingenuity allows you to train in a wide variety of skills. You become trained in two skills of your choice. For more about skills, see page 142.</Description>
+            <AbilitySlot state="filled" name="Skill Increase">
+                <Ability skillIncrease="true"/>
+            </AbilitySlot>
+            <AbilitySlot state="filled" name="Skill Increase">
+                <Ability skillIncrease="true"/>
+            </AbilitySlot>
+        </Ability>
+        <Ability name="Unconventional Weaponry" level="1">
+            <Description>You’ve familiarized yourself with a weapon from another ancestry or culture. You gain access to an uncommon weapon with an ancestry trait of your choice. This doesn’t change your proficiency for that weapon. For more about weapons, see page 178.</Description>
+        </Ability>
+        <Ability name="Incredible Improviser" level="9">
+            <Description>You can improvise almost anything with unbelievable skill. You gain a +3 circumstance bonus to skill checks in which you’re untrained. You can attempt a skill check that would normally require you to be trained even if you’re untrained, but in that case, you don’t gain the +3 circumstance bonus.</Description>
+            <Prerequisites>Clever Improviser</Prerequisites>
+        </Ability>
+        <Ability name="Multitalented" level="9">
+            <Description>You gain a 2nd-level multiclass dedication feat (see multiclass archetypes starting on page 279), even if you don’t meet the ability score prerequisites and even if you normally couldn’t take another dedication feat until you take more feats from your current archetype.</Description>
+        </Ability>
+        <Ability name="Unconventional Expertise" level="9">
+            <Description>You become an expert in the weapon you chose for the Unconventional Weaponry feat.</Description>
+			<Prerequisites>Unconventional Weaponry</Prerequisites>
+        </Ability>
+		<!--Half-Elf Specific Ancestry FeatsManager-->
+		<Ability name="Inspire Imitation" level="5">
+			<Description>You can improvise almost anything with unbelievable skill. You gain a +3 circumstance bonus to skill checks in which you’re untrained. You can attempt a skill check that would normally require you to be trained even if you’re untrained, but in that case, you don’t gain the +3 circumstance bonus.</Description>
+			<Prerequisites>Half-Elf</Prerequisites>
+        </Ability>
+		<Ability name="Supernatural charm" level="5">
+			<Description>The elven magic in your blood manifests as magic that makes you more appealing or alluring. You can cast 1st-level charm as an innate arcane spell once per day. For more about magic and spells, see page 192.</Description>
+			<Prerequisites>Half-Elf</Prerequisites>
+        </Ability>
+		<!--Half-Orc Specific Ancestry FeatsManager-->
+		<Ability name="Orc Ferocity" level="1" cost="reaction">
+            <Trigger>You’re reduced to 0 Hit Points.</Trigger>
+			<Description>Fierceness in battle runs through your blood, and you refuse to fall from your injuries. When this feat is triggered, you avoid being knocked out and remain at 1 Hit Point.
+			Frequency: Once per day</Description>
+			<Prerequisites>Half-Orc</Prerequisites>
+        </Ability>
+		<Ability name="Orc Sight" level="5" >
+			<Description>Your orc blood is strong enough to grant you the keen vision of your orc forebears. You gain low-light vision, allowing you to see in dim light just as well as you can in bright light. If you have low-light vision (from the Half-Orc feat), you instead gain darkvision, allowing you to see in darkness and dim light just as well as you can in bright light. Your vision in darkness is in black and white.</Description>
+			<Prerequisites>Half-Orc</Prerequisites>
+        </Ability>
+		<Ability name="Orc Weapon Carnage" level="5" >
+			<Description>You are brutally efficient with the weapons of your orc ancestors.  Whenever you critically hit using a two-handed weapon of the axe or sword group, or with an orc weapon, you apply the weapon’s critical specialization effect.</Description>
+			<Prerequisites>Orc Weapon Familiarity</Prerequisites>
+			<Prerequisites>Half-Orc</Prerequisites>
+        </Ability>
+		<Ability name="Orc Weapon Familiarity" level="1" >
+			<Description>You favor the brutal weapons of your orc ancestors. You are trained with the greataxe and falchion. In addition, you gain access to all uncommon orc weapons. For the purpose of proficiencies, you treat martial orc weapons as simple weapons and exotic orc weapons as martial weapons. For more about weapons, see page 178.</Description>
+			<Prerequisites>Half-Orc</Prerequisites>
+        </Ability>
+		<Ability name="Superstition" level="1" cost="1">
+			<Description>Orcs have a distrust of magic, and you have picked up these misgivings. You seek inner strength from your superstitions, granting you a +1 circumstance bonus to saves against spells and other magical effects until the start of your next turn.</Description>
+			<Prerequisites>Half-Orc</Prerequisites>
+        </Ability>	
+		<Ability name="Reactive Superstition" level="9" cost="reaction">
+            <Trigger>You attempt a save against a spell or magical effect and you aren’t benefiting from Superstition</Trigger>
+			<Description>You instinctively react to magic by drawing on your superstitions. You gain the benefit of Superstition against the triggering spell or magical effect.</Description>
+			<Prerequisites>Superstition, Half-Orc</Prerequisites>
+        </Ability>
+		<Ability name="Weapon Expertise (Orc)" level="13">
+            <Description>You become an expert in falchions, greataxes, and all orc weapons in which you are trained.</Description>
+			<Prerequisites>Weapon Familiarity (Orc), Half-Orc</Prerequisites>
+        </Ability>
+	</Feats>
 </ancestry>

@@ -13,7 +13,9 @@ public enum Attribute {
 
     SimpleWeapons, MartialWeapons, ExoticWeapons,
 
-    LightArmor, MediumArmor, HeavyArmor, Shields;
+    LightArmor, MediumArmor, HeavyArmor, Shields,
+
+    None;
 
     private static final Map<AbilityScore, List<Attribute>> skillsByScore = new HashMap<>();
 
@@ -39,7 +41,7 @@ public enum Attribute {
     }
 
     Attribute() {
-        this.keyAbility = None;
+        this.keyAbility = AbilityScore.None;
     }
 
     public static List<Attribute> skillsByScore(AbilityScore score) {

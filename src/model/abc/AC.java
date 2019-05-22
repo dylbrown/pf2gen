@@ -1,6 +1,6 @@
 package model.abc;
 
-import model.PC;
+import model.player.PC;
 import model.abilities.Ability;
 import model.ability_scores.AbilityMod;
 
@@ -26,7 +26,6 @@ public class AC extends ABC {
     }
 
     public List<Ability> getFeats(int level) {
-        System.out.println(level);
         return Collections.unmodifiableList(feats.get(level));
     }
 }

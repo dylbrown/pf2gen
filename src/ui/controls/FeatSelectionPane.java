@@ -1,8 +1,10 @@
 package ui.controls;
 
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
@@ -15,13 +17,17 @@ import model.abilities.abilitySlots.FeatSlot;
 import model.abilities.abilitySlots.Pickable;
 import model.enums.Type;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import static ui.Main.character;
 
 
 public class FeatSelectionPane extends AnchorPane {
     private AbilitySlot slot;
+    private List<Ability> unmetAndTaken = new ArrayList<>();
+    ObservableList<Ability> items = FXCollections.observableArrayList();
 
     public FeatSelectionPane(AbilitySlot slot) {
 
@@ -31,13 +37,44 @@ public class FeatSelectionPane extends AnchorPane {
         Label desc = new Label();
         desc.setWrapText(true);
         ListView<Ability> choices = new ListView<>();
-        choices.getItems().addAll(((Pickable)slot).getAbilities(slot.getLevel()));
-        FXCollections.sort(choices.getItems(), Comparator.comparing(Ability::toString));
-        Button select = new Button("Select");
-        select.setStyle("size:100px");
+        choices.setItems(new SortedList<>(items, Comparator.comparing(Ability::toString)));
+        items.addAll(((Pickable)slot).getAbilities(slot.getLevel()));
+        items.removeIf((item)->{
+            if(!character.meetsPrerequisites(item) || character.getAbilities().contains(item)){
+                unmetAndTaken.add(item);
+                return true;
+            }
+            return false;
+        });
+        character.getAbilities().addListener((ListChangeListener<Ability>) (event)->{
+            while(event.next()) {
+                if (event.wasAdded()) {
+                    items.removeAll(event.getAddedSubList());
+                    unmetAndTaken.removeIf((item) -> {
+                        if (character.meetsPrerequisites(item) && !character.getAbilities().contains(item)) {
+                            items.add(item);
+                            return true;
+                        }
+                        return false;
+                    });
+                    unmetAndTaken.addAll(event.getAddedSubList());
+                }
+                if (event.wasRemoved()) {
+                    unmetAndTaken.removeAll(event.getRemoved());
+                    items.addAll(event.getRemoved());
+                    items.removeIf((item) -> {
+                        if (!character.meetsPrerequisites(item) || character.getAbilities().contains(item)) {
+                            unmetAndTaken.add(item);
+                            return true;
+                        }
+                        return false;
+                    });
+                }
+            }
+        });
         Label selectedLabel = new Label("Selection: ");
-        selectedLabel.setStyle("size:100px");
-        HBox selectRow = new HBox(select, selectedLabel);
+        selectedLabel.setStyle("-fx-font-size: 20px");
+        HBox selectRow = new HBox(selectedLabel);
         selectRow.setAlignment(Pos.CENTER);
         side.setTop(desc);
         side.setBottom(selectRow);
@@ -56,17 +93,19 @@ public class FeatSelectionPane extends AnchorPane {
             if(selectedItem != null)
                 desc.setText(selectedItem.getDesc());
         });
-        select.setOnAction((event -> {
-            Ability selectedItem = choices.getSelectionModel().getSelectedItem();
-            if(selectedItem != null) {
-                character.choose(slot, selectedItem);
-                selectedLabel.setText("Selection: " + selectedItem.toString());
+        choices.setOnMouseClicked((event) -> {
+            if(event.getClickCount() == 2) {
+                Ability selectedItem = choices.getSelectionModel().getSelectedItem();
+                if(selectedItem != null) {
+                    character.choose(slot, selectedItem);
+                    selectedLabel.setText("Selection: " + selectedItem.toString());
+                }
             }
-        }));
+        });
         if(slot instanceof FeatSlot && ((FeatSlot) slot).getAllowedTypes().contains(Type.Ancestry)) {
             character.addAncestryObserver((observable, arg)->{
-                choices.getItems().setAll(((Pickable)slot).getAbilities(slot.getLevel()));
-                FXCollections.sort(choices.getItems(), Comparator.comparing(Ability::toString));
+                items.setAll(((Pickable)slot).getAbilities(slot.getLevel()));
+                FXCollections.sort(items, Comparator.comparing(Ability::toString));
             });
         }
     }

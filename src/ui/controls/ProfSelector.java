@@ -26,8 +26,8 @@ public class ProfSelector extends HBox {
         }
 
 
-        character.getProficiency(skill).addListener((event)->updateSelector());
-        character.addProficiencyObserver((observable, event)->updateSelector());
+        character.attributes().getProficiency(skill).addListener((event)->updateSelector());
+        character.attributes().addObserver((observable, event)->updateSelector());
         for (int i=0; i<checkBoxes.length;i++) {
             int finalI = i;
             checkBoxes[i].setOnAction((event)->handleClick(finalI));
@@ -37,24 +37,24 @@ public class ProfSelector extends HBox {
 
     private void handleClick(int i) {
         if(checkBoxes[i].isSelected()){
-            if(!character.advanceSkill(skill))
+            if(!character.attributes().advanceSkill(skill))
                 updateSelector();
         }else{
-            if(!character.regressSkill(skill))
+            if(!character.attributes().regressSkill(skill))
                 updateSelector();
         }
     }
 
     private void updateSelector() {
-        int value = character.getProficiency(skill).getValue().getMod();
+        int value = character.attributes().getProficiency(skill).getValue().getMod();
         boolean ticked = true;
         for(int i=0; i<checkBoxes.length;i++) {
             checkBoxes[i].setDisable(true);
             if(ticked && value < profs[i].getMod()) {
                 ticked = false;
-                if(character.canAdvanceSkill(skill))
+                if(character.attributes().canAdvanceSkill(skill))
                     checkBoxes[i].setDisable(false);
-                if(character.canRegressSkill(skill))
+                if(character.attributes().canRegressSkill(skill))
                     checkBoxes[i-1].setDisable(false);
             }
             checkBoxes[i].setSelected(ticked);
