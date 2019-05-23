@@ -3,6 +3,7 @@ package model.player;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import model.AttributeMod;
+import model.AttributeModChoice;
 import model.WeaponGroupMod;
 import model.enums.Attribute;
 import model.enums.Proficiency;
@@ -15,8 +16,14 @@ public class AttributeManager {
     private final Map<Attribute, Map<Proficiency, List<AttributeMod>>> proficienciesTracker = new HashMap<>();
     private final SortedMap<Integer, Set<Attribute>> skillChoices = new TreeMap<>(); //Map from level to selected skills
     private final SortedMap<Integer, Integer> skillIncreases = new TreeMap<>(); // Maps from level to number of increases
+    private final PC character;
     private Map<WeaponGroup, Proficiency> groupProficiencies = new HashMap<>();
     private final Eyeball proficiencyChange = new Eyeball();
+    private List<AttributeModChoice> choices = new ArrayList<>();
+
+    AttributeManager(PC character){
+        this.character = character;
+    }
 
     void updateSkillCount(int numSkills) {
         skillIncreases.put(1,numSkills);
@@ -24,23 +31,43 @@ public class AttributeManager {
     }
 
     void apply(AttributeMod mod) {
+        if(mod.getAttr() == null) return;
+        if(mod instanceof AttributeModChoice) {
+            character.addDecision((AttributeModChoice)mod);
+            if(!choices.contains(mod)) {
+                choices.add((AttributeModChoice) mod);
+                ((AttributeModChoice) mod).getChoiceProperty().addListener((observable, oldVal, newVal)->{
+                    remove(new AttributeMod(oldVal, mod.getMod()));
+                    apply(new AttributeMod(newVal, mod.getMod()));
+                });
+            }
+            return;
+        }
         ReadOnlyObjectWrapper<Proficiency> proficiency = proficiencies.get(mod.getAttr());
-        proficienciesTracker.computeIfAbsent(mod.getAttr(), (key)->new HashMap<>()).computeIfAbsent(mod.getMod(), (key)->new ArrayList<>()).add(mod);
-        if(proficiency == null) {
+        proficienciesTracker.computeIfAbsent(mod.getAttr(), (key) -> new HashMap<>()).computeIfAbsent(mod.getMod(), (key) -> new ArrayList<>()).add(mod);
+        if (proficiency == null) {
             proficiencies.put(mod.getAttr(), new ReadOnlyObjectWrapper<>(mod.getMod()));
-        }else if(proficiency.getValue() == null || proficiency.getValue().getMod() < mod.getMod().getMod()) {
+        } else if (proficiency.getValue() == null || proficiency.getValue().getMod() < mod.getMod().getMod()) {
             proficiency.set(mod.getMod());
         }
         proficiencyChange.wink();
     }
 
     void remove(AttributeMod mod) {
+        if(mod.getAttr() == null) return;
+        if(mod instanceof AttributeModChoice) {
+            character.removeDecision((AttributeModChoice)mod);
+            Attribute choice = ((AttributeModChoice) mod).getChoice();
+            if(choice != null)
+                remove(new AttributeMod(choice, mod.getMod()));
+            return;
+        }
         ReadOnlyObjectWrapper<Proficiency> proficiency = proficiencies.get(mod.getAttr());
         Map<Proficiency, List<AttributeMod>> proficiencyListMap = proficienciesTracker.computeIfAbsent(mod.getAttr(), (key) -> new HashMap<>());
         List<AttributeMod> attributeMods = proficiencyListMap.computeIfAbsent(mod.getMod(), (key) -> new ArrayList<>());
         attributeMods.remove(mod);
-        if(proficiency.get().getMod() == mod.getMod().getMod() && attributeMods.size() == 0) {
-            boolean doLoop=true;
+        if (proficiency.get().getMod() == mod.getMod().getMod() && attributeMods.size() == 0) {
+            boolean doLoop = true;
             Proficiency temp = proficiency.get();
             while (doLoop) {
                 switch (temp) {
@@ -58,7 +85,7 @@ public class AttributeManager {
                         temp = Proficiency.Master;
                         break;
                 }
-                if(doLoop)
+                if (doLoop)
                     doLoop = removeHelper(proficiencyListMap, temp);
             }
             proficiency.set(temp);
@@ -164,19 +191,19 @@ public class AttributeManager {
         proficiencyChange.wink();
     }
 
-    public void removeSkillIncrease(int level) {
+    void removeSkillIncrease(int level) {
         skillIncreases.put(level, skillIncreases.computeIfAbsent(level, (key) -> 1) - 1);
         proficiencyChange.wink();
     }
 
-    public void apply(WeaponGroupMod weaponGroupMod) {
+    void apply(WeaponGroupMod weaponGroupMod) {
         groupProficiencies.merge(weaponGroupMod.getGroup(), weaponGroupMod.getProficiency(), Proficiency::max);
     }
-    public void remove(WeaponGroupMod weaponGroupMod) {
+    void remove(WeaponGroupMod weaponGroupMod) {
         groupProficiencies.put(weaponGroupMod.getGroup(), null);
     }
 
-    public Proficiency getProficiency(Attribute attr, WeaponGroup group) {
+    Proficiency getProficiency(Attribute attr, WeaponGroup group) {
         return Proficiency.max(getProficiency(attr).getValue(), groupProficiencies.getOrDefault(group, Proficiency.Untrained));
     }
 }

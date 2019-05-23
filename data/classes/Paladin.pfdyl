@@ -11,7 +11,7 @@
         <AbilitySlot state="filled" name="Initial Proficiencies">
             <Ability>
                 <AttributeMods Proficiency="Trained">
-                    Religion, Perception, Reflex, Simple Weapons, Martial Weapons, Light Armor, Medium Armor, Heavy Armor, Shields
+                    Religion or Crafting, Perception, Reflex, Simple Weapons, Martial Weapons, Light Armor, Medium Armor, Heavy Armor, Shields
                 </AttributeMods>
                 <AttributeMods Proficiency="Expert">
                     Fortitude, Will

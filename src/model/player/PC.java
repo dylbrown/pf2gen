@@ -40,7 +40,7 @@ public class PC {
     private String name;
     private final List<Language> languages = new ArrayList<>();
     private InventoryManager inventory = new InventoryManager();
-    private AttributeManager attributes = new AttributeManager();
+    private AttributeManager attributes = new AttributeManager(this);
     private ModManager modManager;
 
     {

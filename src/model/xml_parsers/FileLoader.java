@@ -1,6 +1,7 @@
 package model.xml_parsers;
 
 import model.AttributeMod;
+import model.AttributeModChoice;
 import model.abilities.Ability;
 import model.abilities.AbilitySet;
 import model.abilities.Activity;
@@ -22,15 +23,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -184,12 +180,18 @@ abstract class FileLoader<T> {
         String[] split = textContent.split(",");
         for(String str: split) {
             if (!str.trim().equals("")) {
-                if(camelCaseWord(str.trim()).substring(0, 4).equals("Lore")) {
-                    Attribute skill = Attribute.Lore;
-                    String data = camelCase(str.trim().substring(4).trim().replaceAll("[()]", ""));
-                    mods.add(new AttributeMod(skill, prof, data));
-                }else{
-                    mods.add(new AttributeMod(Attribute.valueOf(camelCase(str.trim()).replaceAll(" ", "")), prof));
+                String[] orCheck = str.trim().split(" or ");
+                if(orCheck.length > 1) {
+                    mods.add(new AttributeModChoice(Attribute.valueOf(camelCase(orCheck[0]).replaceAll(" ", "")),
+                            Attribute.valueOf(camelCase(orCheck[1]).replaceAll(" ", "")), prof));
+                }else {
+                    if (camelCaseWord(str.trim()).substring(0, 4).equals("Lore")) {
+                        Attribute skill = Attribute.Lore;
+                        String data = camelCase(str.trim().substring(4).trim().replaceAll("[()]", ""));
+                        mods.add(new AttributeMod(skill, prof, data));
+                    } else {
+                        mods.add(new AttributeMod(Attribute.valueOf(camelCase(str.trim()).replaceAll(" ", "")), prof));
+                    }
                 }
             }
         }
@@ -243,15 +245,5 @@ abstract class FileLoader<T> {
 
     String camelCaseWord(String str) {
         return str.substring(0,1).toUpperCase() + str.substring(1).toLowerCase();
-    }
-
-    void handleJavascript() {
-        ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine engine = manager.getEngineByName("javascript");
-        try {
-            engine.eval(new FileReader("baseScript.js"));
-        } catch (ScriptException | FileNotFoundException e) {
-            e.printStackTrace();
-        }
     }
 }
