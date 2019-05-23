@@ -71,16 +71,16 @@ public class AncestriesLoader extends FileLoader<Ancestry> {
                         case "AbilityPenalties":
                             penalties = trim;
                         case "Feats":
-                            NodeList[] nodeLists = {curr.getElementsByTagName("Ability"),curr.getElementsByTagName("AbilitySet")};
-                            for (NodeList featNodes : nodeLists) {
-                                for (int j = 0; j < featNodes.getLength(); j++) {
+                            NodeList featNodes = curr.getChildNodes();
+                            for (int j = 0; j < featNodes.getLength(); j++) {
+                                if(featNodes.item(j) instanceof Element)
                                     if (((Element) featNodes.item(j)).getAttribute("type").trim().toLowerCase().equals("heritage")) {
                                         heritages.add(makeAbility((Element) featNodes.item(j), ((Element) featNodes.item(j)).getAttribute("name")));
                                     } else {
                                         feats.add(makeAbility((Element) featNodes.item(j), ((Element) featNodes.item(j)).getAttribute("name")));
                                     }
-                                }
                             }
+                            break;
                     }
                 }
 

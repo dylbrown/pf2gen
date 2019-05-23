@@ -88,12 +88,12 @@ public class ClassesLoader extends FileLoader<Class> {
                             table.put(level, abilitySlots);
                             break;
                         case "Feats":
-                            NodeList[] nodeLists = {curr.getElementsByTagName("Ability"),curr.getElementsByTagName("AbilitySet")};
-                            for (NodeList featNodes : nodeLists) {
-                                for (int j = 0; j < featNodes.getLength(); j++) {
+                            NodeList featNodes = curr.getChildNodes();
+                            for (int j = 0; j < featNodes.getLength(); j++) {
+                                if(featNodes.item(j) instanceof Element)
                                     feats.add(makeAbility((Element) featNodes.item(j), ((Element) featNodes.item(j)).getAttribute("name")));
-                                }
                             }
+                            break;
                     }
                 }
                 classes.add(new Class(name, description, hp, skillIncreases, abilityMod, table, feats));
