@@ -19,13 +19,13 @@
         <Ability name="Skilled Heritage" type="Heritage">
             <Description>Your ingenuity allows you to train in a wide variety of skills. You become trained in one skill of your choice. At 5th level, you become an expert in the chosen skill. For more about skills, see page 142.</Description>
             <CustomMod>
-                if(typeof(skilled_heritage) === 'undefined'){
-                    var skilled_heritage = doPrompt("Skill");
+                var skilled_heritage_proficiency = function(skillChoice, unused) {
+                    skillProficiency(skillChoice, "Trained");
+                    if(level >= 5){
+                        skillProficiency(skillChoice, "Expert");
+                    }
                 }
-                skillProficiency(skilled_heritage, "Trained");
-                if(level >= 5){
-                    skillProficiency(skilled_heritage, "Expert");
-                }
+                choose("Skill", "Skilled Heritage Choice", skilled_heritage_proficiency, "");
             </CustomMod>
         </Ability>
         <Ability name="Versatile Heritage" type="Heritage">

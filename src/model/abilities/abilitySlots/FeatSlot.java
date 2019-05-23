@@ -10,7 +10,7 @@ import java.util.List;
 
 import static ui.Main.character;
 
-public class FeatSlot extends AbilitySlot implements Pickable {
+public class FeatSlot extends AbilitySlot implements Choice<Ability> {
     private final List<Type> allowedTypes;
 
     public FeatSlot(String name, int level, List<Type> allowedTypes) {
@@ -22,8 +22,7 @@ public class FeatSlot extends AbilitySlot implements Pickable {
         return Collections.unmodifiableList(allowedTypes);
     }
 
-    @Override
-    public List<Ability> getAbilities(int level) {
+    private List<Ability> getOptions(int level) {
         List<Ability> results = new ArrayList<>();
         for (Type allowedType : allowedTypes) {
             switch(allowedType) {
@@ -50,8 +49,23 @@ public class FeatSlot extends AbilitySlot implements Pickable {
     }
 
     @Override
+    public List<Ability> getOptions() {
+        return getOptions(getLevel());
+    }
+
+    @Override
     public void fill(Ability choice) {
         currentAbility = choice;
+    }
+
+    @Override
+    public Ability getChoice() {
+        return currentAbility;
+    }
+
+    @Override
+    public void empty() {
+        currentAbility =null;
     }
 
 }

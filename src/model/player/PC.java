@@ -12,13 +12,14 @@ import model.abilities.SkillIncrease;
 import model.abilities.abilitySlots.AbilitySlot;
 import model.abilities.abilitySlots.ChoiceSlot;
 import model.abilities.abilitySlots.FeatSlot;
-import model.abilities.abilitySlots.Pickable;
+import model.abilities.abilitySlots.Choice;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
 import model.enums.*;
 import model.equipment.*;
 
+import javax.script.ScriptException;
 import java.util.*;
 
 import static model.ability_scores.AbilityScore.*;
@@ -30,7 +31,7 @@ public class PC {
     private Class pClass;
     private final ReadOnlyObjectWrapper<Integer> level = new ReadOnlyObjectWrapper<>(0);
     private final ObservableList<Ability> abilities = FXCollections.observableArrayList();
-    private final ObservableList<AbilitySlot> decisions = FXCollections.observableArrayList();
+    private final ObservableList<Choice> decisions = FXCollections.observableArrayList();
     private final Map<AbilityScore, ObservableList<AbilityMod>> abilityScores = new HashMap<>();
     private final Map<Type, List<AbilityMod>> abilityScoresByType = new HashMap<>();
     private final Eyeball abilityScoreChange = new Eyeball();
@@ -40,7 +41,15 @@ public class PC {
     private final List<Language> languages = new ArrayList<>();
     private InventoryManager inventory = new InventoryManager();
     private AttributeManager attributes = new AttributeManager();
-    private ModManager modManager = new ModManager(attributes, level.getReadOnlyProperty());
+    private ModManager modManager;
+
+    {
+        try {
+            modManager = new ModManager(this, level.getReadOnlyProperty());
+        } catch (ScriptException e) {
+            e.printStackTrace();
+        }
+    }
 
     public PC() {
         abilityScores.computeIfAbsent(Int, (key)-> FXCollections.observableArrayList()).addListener((ListChangeListener<? super AbilityMod>) (event)->{
@@ -122,8 +131,8 @@ public class PC {
     }
 
     private void addSlot(AbilitySlot slot) {
-        if(slot instanceof FeatSlot || slot instanceof ChoiceSlot)
-            decisions.add(slot);
+        if(slot instanceof Choice)
+            decisions.add((Choice) slot);
         if(slot.isPreSet()) {
             abilities.add(slot.getCurrentAbility());
             apply(slot);
@@ -245,15 +254,17 @@ public class PC {
         return level.getReadOnlyProperty();
     }
 
-    public ObservableList<AbilitySlot> getDecisions() {
+    public ObservableList<Choice> getDecisions() {
         return FXCollections.unmodifiableObservableList(decisions);
     }
 
-    public void choose(AbilitySlot slot, Ability selectedItem) {
-        if(slot instanceof Pickable && meetsPrerequisites(selectedItem)) {
-            remove(slot);
-            ((Pickable) slot).fill(selectedItem);
-            apply(slot);
+    public <U , T extends Choice<U>> void choose(T slot, U selectedItem) {
+        if(slot instanceof AbilitySlot && selectedItem instanceof Ability && meetsPrerequisites((Ability) selectedItem)) {
+            remove((AbilitySlot) slot);
+            slot.fill(selectedItem);
+            apply((AbilitySlot) slot);
+        }else{
+            slot.fill(selectedItem);
         }
     }
 
@@ -351,5 +362,13 @@ public class PC {
 
     public AttributeManager attributes() {
         return attributes;
+    }
+
+    public void addDecision(Choice choice) {
+        decisions.add(choice);
+    }
+    public void removeDecision(Choice choice) {
+        decisions.remove(choice);
+        choice.empty();
     }
 }

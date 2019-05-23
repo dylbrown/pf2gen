@@ -2,9 +2,9 @@ package model.player;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
-import javafx.scene.control.TextInputDialog;
+import jdk.nashorn.api.scripting.AbstractJSObject;
+import jdk.nashorn.api.scripting.JSObject;
 import model.AttributeMod;
 import model.WeaponGroupMod;
 import model.data_managers.EquipmentManager;
@@ -17,65 +17,98 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 
 class ModManager {
     private ScriptEngine engine;
     private ObservableMap<String, Integer> mods = FXCollections.observableHashMap();
     private List<String> jsStrings = new ArrayList<>();
-    private Map<String, List<String>> variables = new HashMap<>();
+    private final Map<String, String> choices = new HashMap<>();
     private String currentlyChanging = "";
     private ObservableBindings bindings = new ObservableBindings();
 
-    ModManager(AttributeManager attributes, ReadOnlyObjectProperty<Integer> levelProperty) {
+    @FunctionalInterface
+    public interface QuadConsumer<T, U, V, W> {
+        void apply(T t, U u, V v, W w);
+    }
+
+    private class SpecialFunction extends AbstractJSObject {
+
+        private final BiConsumer<Object, Object> consumer;
+
+        public SpecialFunction(BiConsumer<Object, Object> consumer) {
+            this.consumer = consumer;
+        }
+
+        @Override
+        public Object call(Object thiz, Object... args) {
+            consumer.accept(args[0], args[1]);
+            return null;
+        }
+
+        @Override
+        public boolean isFunction() {
+            return true;
+        }
+    }
+
+    ModManager(PC character, ReadOnlyObjectProperty<Integer> levelProperty) throws ScriptException {
         ScriptEngineManager manager = new ScriptEngineManager();
         engine = manager.getEngineByName("js");
         engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
-        bindings.getMap().addListener((MapChangeListener<String, Object>) change -> {
-            if(change.wasAdded() && !currentlyChanging.equals("")) {
-                variables.computeIfAbsent(currentlyChanging, (key)->new ArrayList<>()).add(change.getKey());
+        engine.put("add",
+                new SpecialFunction((str, num) -> mods.merge((String)str, ((Number)num).intValue(), Integer::sum)));
+        engine.put("subtract",
+                new SpecialFunction((str, num) -> mods.merge((String)str, ((Number)num).intValue(), (oldInt, newInt)->oldInt-newInt)));
+        engine.put("addChoose", (QuadConsumer<String, String, JSObject, String>)
+            (things, name, callback, secondParam)->{
+                List<String> selections = Collections.emptyList();
+                switch (things.toLowerCase()){
+                    case "weapongroup":
+                        selections = new ArrayList<>(EquipmentManager.getWeaponGroups().keySet());
+                        break;
+                    case "skill":
+                        selections = Arrays.stream(Attribute.getSkills()).map(
+                                Enum::toString).collect(Collectors.toCollection(ArrayList::new));
+                        break;
+                }
+                ArbitraryChoice choice = new ArbitraryChoice(name, selections, (response) -> {
+                    choices.put(name, response);
+                    callback.call(null, response, secondParam);
+                });
+                character.addDecision(choice);
+                if(choices.get(name) != null)
+                    choice.fill(choices.get(name));
             }
-        });
-        BiConsumer<String, Number> add = (str, num) -> mods.merge(str, num.intValue(), Integer::sum);
-        engine.put("add", add);
-        BiConsumer<String, Number> subtract = (str, num) -> mods.merge(str, num.intValue(), (oldInt, newInt)->oldInt-newInt);
-        engine.put("subtract", subtract);
-        engine.put("doPrompt", (Function<String, String>)(type) -> {
-            TextInputDialog dialog = new TextInputDialog();
-            switch(type.toLowerCase()) {
-                case "skill":
-                    dialog.setContentText("Type in a Skill Name");
-                    while (true) {
-                        Optional<String> s = dialog.showAndWait();
-                        if (s.isPresent()) {
-                            try {
-                                if (Arrays.asList(Attribute.getSkills()).contains(Attribute.valueOf(s.get())))
-                                    return s.get();
-                            } catch (Exception ignored) {}
-                        }
+        );
+        engine.put("removeChoose", (QuadConsumer<String, String, JSObject, String>)
+                (things, name, callback, secondParam)->{
+                    List<String> selections = Collections.emptyList();
+                    switch (things.toLowerCase()){
+                        case "weapongroup":
+                            selections = new ArrayList<>(EquipmentManager.getWeaponGroups().keySet());
+                            break;
+                        case "skill":
+                            selections = Arrays.stream(Attribute.getSkills()).map(
+                                    Enum::toString).collect(Collectors.toCollection(ArrayList::new));
+                            break;
                     }
-                case "weapongroup":
-                    dialog.setContentText("Type in a Weapon Group");
-                    while (true) {
-                        Optional<String> s = dialog.showAndWait();
-                        if (s.isPresent()) {
-                            try {
-                                if (EquipmentManager.getWeaponGroups().get(s.get().toLowerCase()) != null)
-                                    return s.get();
-                            } catch (Exception ignored) {}
-                        }
-                    }
-            }
-            return "";
-        });
-        BiConsumer<String, String> applySkillProf = (attr, prof)-> attributes.apply(new AttributeMod(Attribute.valueOf(attr), Proficiency.valueOf(prof)));
-        engine.put("applySkillProf", applySkillProf);
-        BiConsumer<String, String> removeSkillProf = (attr, prof)-> attributes.remove(new AttributeMod(Attribute.valueOf(attr), Proficiency.valueOf(prof)));
-        engine.put("removeSkillProf", removeSkillProf);
-        BiConsumer<String, String> applyGroupProf = (group, prof)-> attributes.apply(new WeaponGroupMod(EquipmentManager.getWeaponGroups().get(group.toLowerCase()), Proficiency.valueOf(prof)));
-        engine.put("applyGroupProf", applyGroupProf);
-        BiConsumer<String, String> removeGroupProf = (group, prof)-> attributes.remove(new WeaponGroupMod(EquipmentManager.getWeaponGroups().get(group.toLowerCase()), Proficiency.valueOf(prof)));
-        engine.put("removeGroupProf", removeGroupProf);
+                    character.removeDecision(new ArbitraryChoice(name, selections, (response)-> {
+                        callback.call(null, response, secondParam);
+                    }));
+                }
+        );
+        AttributeManager attributes = character.attributes();
+        engine.put("applySkillProf", new SpecialFunction((attr, prof)->
+                attributes.apply(new AttributeMod(Attribute.valueOf((String)attr), Proficiency.valueOf((String)prof)))));
+        engine.put("removeSkillProf", new SpecialFunction((attr, prof)->
+                attributes.remove(new AttributeMod(Attribute.valueOf((String)attr), Proficiency.valueOf((String)prof)))));
+        engine.put("applyGroupProf", new SpecialFunction((group, prof)->
+                attributes.apply(new WeaponGroupMod(EquipmentManager.getWeaponGroups().get(((String)group).toLowerCase()),
+                        Proficiency.valueOf((String)prof)))));
+        engine.put("removeGroupProf", new SpecialFunction((group, prof)->
+                attributes.remove(new WeaponGroupMod(EquipmentManager.getWeaponGroups().get(((String)group).toLowerCase()),
+                        Proficiency.valueOf((String)prof)))));
         engine.put("level", levelProperty.getValue());
         levelProperty.addListener((event)-> {
             for (String jsString : jsStrings) {
@@ -88,10 +121,8 @@ class ModManager {
         });
     }
     void jsApply(String jsString) {
-        currentlyChanging = jsString;
         jsStrings.add(jsString);
         apply(jsString);
-        currentlyChanging = "";
     }
 
     private void apply(String jsString){
@@ -99,6 +130,7 @@ class ModManager {
             engine.eval("bonus = add;");
             engine.eval("skillProficiency = applySkillProf;");
             engine.eval("weaponGroupProficiency = applyGroupProf;");
+            engine.eval("choose = addChoose;");
             engine.eval(jsString.trim());
         } catch (ScriptException e) {
             e.printStackTrace();
@@ -108,16 +140,13 @@ class ModManager {
     void jsRemove(String jsString) {
         remove(jsString);
         jsStrings.remove(jsString);
-        for (String s : variables.getOrDefault(jsString, Collections.emptyList())) {
-            bindings.remove(s);
-        }
-        variables.remove(jsString);
     }
     private void remove(String jsString) {
         try {
             engine.eval("bonus = subtract;");
-            engine.eval("proficiency = removeProf;");
+            engine.eval("proficiency = removeSkillProf;");
             engine.eval("weaponGroupProficiency = removeGroupProf;");
+            engine.eval("choose = removeChoose;");
             engine.eval(jsString.trim());
         } catch (ScriptException e) {
             e.printStackTrace();

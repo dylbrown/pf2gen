@@ -70,7 +70,7 @@ public class AncestriesLoader extends FileLoader<Ancestry> {
                             break;
                         case "AbilityPenalties":
                             penalties = trim;
-                        case "FeatsManager":
+                        case "Feats":
                             NodeList[] nodeLists = {curr.getElementsByTagName("Ability"),curr.getElementsByTagName("AbilitySet")};
                             for (NodeList featNodes : nodeLists) {
                                 for (int j = 0; j < featNodes.getLength(); j++) {

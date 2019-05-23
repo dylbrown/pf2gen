@@ -5,7 +5,7 @@ import model.abilities.Ability;
 import java.util.Collections;
 import java.util.List;
 
-public class ChoiceSlot extends AbilitySlot implements Pickable {
+public class ChoiceSlot extends AbilitySlot implements Choice<Ability> {
     private final List<Ability> choices;
 
     public ChoiceSlot(String abilityName, int level, List<Ability> choices) {
@@ -13,13 +13,14 @@ public class ChoiceSlot extends AbilitySlot implements Pickable {
         this.choices = choices;
     }
 
-    @Override
-    public List<Ability> getAbilities(int level) {
-        return getAbilities();
-    }
 
     private List<Ability> getAbilities() {
         return Collections.unmodifiableList(choices);
+    }
+
+    @Override
+    public List<Ability> getOptions() {
+        return getAbilities();
     }
 
     @Override
@@ -27,4 +28,15 @@ public class ChoiceSlot extends AbilitySlot implements Pickable {
         if(choices.contains(choice))
             currentAbility = choice;
     }
+
+    @Override
+    public Ability getChoice() {
+        return currentAbility;
+    }
+
+    @Override
+    public void empty() {
+        currentAbility =null;
+    }
+
 }

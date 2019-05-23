@@ -10,6 +10,7 @@
 	<Description> For some rangers, civilization is so corrupt it wears down the soul, yet so beneficial it needs protecting from wild things that stalk the hinterlands. For others, nature needs to be protected from the greedy hands of civilized people wishing to tame its beauty and plunder its treasures. You could champion either goal, or straddle the line of both. You might be a scout, tracker, or hunter of fugitives or beasts, haunting the edge of civilization or exploring the wilds. Living off the land, you are skilled at spotting and taking down both opportune prey and hated enemies. </Description>
 	<FeatureList level="1">
 		<AbilitySlot state="feat" type="Ancestry Feat" name="Ancestry Feat"/>
+        <AbilitySlot state="feat" type="Heritage Feat" name="Heritage"/>
 		<AbilitySlot state="filled" name="Hunt Target">
             <Ability>
                 <Description>
@@ -57,10 +58,7 @@
 			<Ability>
                 <Description>Your proficiency rank increases to expert for the simple and martial weapons of that group (Axes). You gain access to the critical specialization effects of all simple and martial weapons in that group.</Description>
                 <CustomMod>
-                    if(typeof(weapon_expertise) === 'undefined'){
-                        var weapon_expertise = doPrompt("WeaponGroup");
-                    }
-                    weaponGroupProficiency(weapon_expertise, "Expert");
+                    choose("WeaponGroup", "Weapon Expertise Choice", weaponGroupProficiency, "Expert");
                 </CustomMod>
 			</Ability>
 		</AbilitySlot>
