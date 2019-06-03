@@ -1,6 +1,5 @@
 package ui.controllers;
 
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -13,8 +12,6 @@ import model.abilities.Ability;
 import model.abilities.AbilitySet;
 import model.abilities.Activity;
 import model.enums.Action;
-import model.enums.Attribute;
-import model.enums.Proficiency;
 import model.equipment.Equipment;
 import model.equipment.ItemTrait;
 import model.equipment.RangedWeapon;
@@ -24,7 +21,10 @@ import ui.TemplateFiller;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static ui.Main.character;
@@ -188,19 +188,6 @@ public class Controller {
 
     private String prettyPrintLanguages() {
         return character.getLanguages().stream().map(Enum::toString).collect(Collectors.joining(", "));
-    }
-
-    private String prettyPrintSkills() {
-        StringBuilder builder = new StringBuilder();
-        for (Map.Entry<Attribute, ObservableValue<Proficiency>> entry : character.attributes().getProficiencies().entrySet()) {
-            if(Arrays.asList(Attribute.getSkills()).contains(entry.getKey()) && entry.getValue().getValue() != Proficiency.Untrained)
-                builder.append(entry.getKey().name()).append(" ").append(addSign(character.getTotalMod(entry.getKey()))).append(", ");
-        }
-        if(builder.length() > 0)
-            builder.deleteCharAt(builder.length()-1);
-        if(builder.length() > 0)
-            builder.deleteCharAt(builder.length()-1);
-        return builder.toString();
     }
 
     private String addSign(int mod) {

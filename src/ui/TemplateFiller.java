@@ -1,24 +1,55 @@
 package ui;
 
+import freemarker.core.*;
 import freemarker.template.*;
+import javafx.beans.value.ObservableValue;
 import model.ability_scores.AbilityScore;
 import model.enums.Attribute;
+import model.enums.Proficiency;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static ui.Main.character;
+class SignedTemplateNumberFormatFactory extends TemplateNumberFormatFactory {
+    static final SignedTemplateNumberFormatFactory INSTANCE = new SignedTemplateNumberFormatFactory();
+    private SignedTemplateNumberFormatFactory(){};
+    @Override
+    public TemplateNumberFormat get(String s, Locale locale, Environment environment) throws TemplateValueFormatException {
+        return SignedTemplateNumberFormat.INSTANCE;
+    }
+    private static class SignedTemplateNumberFormat extends TemplateNumberFormat {
+        private static final SignedTemplateNumberFormat INSTANCE = new SignedTemplateNumberFormat();
+        @Override
+        public String formatToPlainText(TemplateNumberModel numberModel) throws TemplateValueFormatException, TemplateModelException {
+            Number number = TemplateFormatUtil.getNonNullNumber(numberModel);
+            if(number.intValue() < 0)
+                return number.toString();
+            else
+                return "+"+number.toString();
+        }
 
+        @Override
+        public boolean isLocaleBound() {
+            return false;
+        }
+
+        @Override
+        public String getDescription() {
+            return "Adds sign of integer to front.";
+        }
+    }
+}
 public class TemplateFiller {
     private static final Configuration cfg;
     private static final TemplateFiller instance;
+
 
     static{
         cfg = new Configuration(Configuration.VERSION_2_3_28);
@@ -45,7 +76,9 @@ public class TemplateFiller {
         });
 
         cfg.setObjectWrapper(owb.build());
-
+        Map<String, TemplateNumberFormatFactory> customNumberFormats = new HashMap<>();
+        customNumberFormats.put("s", SignedTemplateNumberFormatFactory.INSTANCE);
+        cfg.setCustomNumberFormats(customNumberFormats);
         instance = new TemplateFiller();
     }
     private Map<String, Object> root;
@@ -79,14 +112,14 @@ public class TemplateFiller {
         root.put("character", character);
         root.computeIfAbsent("attributes", (key)->
                 new FunctionalInterfaceHash((s)->
-                        character.attributes().getProficiency(Attribute.valueOf(s.substring(0,1).toUpperCase() + s.substring(1).toLowerCase())).getValue().toString(),
+                        character.getTotalMod(Attribute.valueOf(s.substring(0,1).toUpperCase() + s.substring(1).toLowerCase())),
                         ()->false));
         root.computeIfAbsent("abilityMod", (key)->
                 new FunctionalInterfaceHash((s)->
-                        character.getAbilityMod(AbilityScore.valueOf(s.substring(0,1).toUpperCase() + s.substring(1).toLowerCase())).toString(),
+                        character.getAbilityScore(AbilityScore.valueOf(s.substring(0,1).toUpperCase() + s.substring(1).toLowerCase())),
                         ()->false));
         root.computeIfAbsent("items", (key)-> character.inventory().getItems().values());
-
+        root.put("skills", getSkills());
     }
 
     private class FunctionalInterfaceHash implements TemplateHashModel {
@@ -107,6 +140,33 @@ public class TemplateFiller {
         @Override
         public boolean isEmpty() {
             return empty.get();
+        }
+    }
+
+    private List<SkillEntry> getSkills() {
+        List<SkillEntry> entries = new ArrayList<>();
+        for (Map.Entry<Attribute, ObservableValue<Proficiency>> entry : character.attributes().getProficiencies().entrySet()) {
+            if(Arrays.asList(Attribute.getSkills()).contains(entry.getKey()) && entry.getValue().getValue() != Proficiency.Untrained)
+                entries.add(new SkillEntry(entry.getKey(), character.getTotalMod(entry.getKey())));
+        }
+        return entries;
+    }
+
+    public class SkillEntry {
+        private Attribute name;
+        private int mod;
+
+        private SkillEntry(Attribute name, int mod) {
+            this.name = name;
+            this.mod = mod;
+        }
+
+        public Attribute getName() {
+            return name;
+        }
+
+        public int getMod() {
+            return mod;
         }
     }
 }
