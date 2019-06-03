@@ -12,7 +12,6 @@ import javafx.stage.FileChooser;
 import model.abilities.Ability;
 import model.abilities.AbilitySet;
 import model.abilities.Activity;
-import model.ability_scores.AbilityScore;
 import model.enums.Action;
 import model.enums.Attribute;
 import model.enums.Proficiency;
@@ -20,12 +19,11 @@ import model.equipment.Equipment;
 import model.equipment.ItemTrait;
 import model.equipment.RangedWeapon;
 import model.equipment.Weapon;
+import ui.TemplateFiller;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,9 +42,8 @@ public class Controller {
     private Label level;
     @FXML
     private Button levelUp;
-
-    private static final String htmlTemplate;
     private String htmlContent;
+
 
     @FXML
     private void initialize(){
@@ -83,33 +80,12 @@ public class Controller {
         characterName.textProperty().addListener((observable, oldValue, newValue) -> character.setName(newValue));
         displayTab.setOnSelectionChanged((event) -> {
             if(displayTab.isSelected()) {
-                htmlContent = String.format(htmlTemplate, character.getName(),
-                        (character.currentClass()==null)?"No Class":character.currentClass().toString(),
-                        character.getLevel().get(),
-                        addSign(character.getTotalMod(Attribute.Perception)),
-                        prettyPrintLanguages(),
-                        prettyPrintSkills(),
-                        addSign(character.getAbilityMod(AbilityScore.Str)),
-                        addSign(character.getAbilityMod(AbilityScore.Dex)),
-                        addSign(character.getAbilityMod(AbilityScore.Con)),
-                        addSign(character.getAbilityMod(AbilityScore.Int)),
-                        addSign(character.getAbilityMod(AbilityScore.Wis)),
-                        addSign(character.getAbilityMod(AbilityScore.Cha)),
-                        generateItemList(),
-                        character.getAC(), character.getTAC(),
-                        addSign(character.getTotalMod(Attribute.Fortitude)),
-                        addSign(character.getTotalMod(Attribute.Reflex)),
-                        addSign(character.getTotalMod(Attribute.Will)),
-                        character.getHP(),
-                        character.getSpeed(),
-                        getWeaponAttacks(),
-                        getAbilities()
-                );
+                htmlContent = TemplateFiller.getStatBlock();
                 display.getEngine().loadContent(htmlContent);
             }
         });
         level.setText("0");
-        character.getLevel().addListener((event)-> level.setText(character.getLevel().get().toString()));
+        character.getLevelProperty().addListener((event)-> level.setText(character.getLevelProperty().get().toString()));
         levelUp.setOnAction((event -> character.levelUp()));
     }
 
@@ -225,17 +201,6 @@ public class Controller {
         if(builder.length() > 0)
             builder.deleteCharAt(builder.length()-1);
         return builder.toString();
-    }
-
-    static{
-        String diskData;
-        try {
-            diskData = new String(Files.readAllBytes(new File("data/output.html").toPath()));
-        } catch (IOException e) {
-            e.printStackTrace();
-            diskData = "";
-        }
-        htmlTemplate = diskData;
     }
 
     private String addSign(int mod) {

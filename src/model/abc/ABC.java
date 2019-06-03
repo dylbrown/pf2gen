@@ -21,6 +21,8 @@ public class ABC {
         return this.name;
     }
 
+    public String getName() {return this.name;}
+
     public List<AbilityMod> getAbilityMods() {
         return Collections.unmodifiableList(abilityMods);
     }

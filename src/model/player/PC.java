@@ -72,7 +72,7 @@ public class PC {
     }
 
     public String getName() {
-        return name;
+        return (name != null) ? name : "Unnamed";
     }
 
     public void levelUp(){
@@ -191,7 +191,7 @@ public class PC {
         return ((ancestry != null) ? ancestry.getHP() : 0) + (((pClass != null) ? pClass.getHP() : 0) + getAbilityMod(Con)) * level.get() + modManager.get("hp");
     }
 
-    public int getAbilityMod(AbilityScore ability) {
+    public Integer getAbilityMod(AbilityScore ability) {
         return getAbilityScore(ability) / 2  - 5;
     }
 
@@ -250,8 +250,12 @@ public class PC {
         }
     }
 
-    public ReadOnlyObjectProperty<Integer> getLevel() {
+    public ReadOnlyObjectProperty<Integer> getLevelProperty() {
         return level.getReadOnlyProperty();
+    }
+
+    public int getLevel(){
+        return level.get();
     }
 
     public ObservableList<Choice> getDecisions() {
@@ -351,7 +355,7 @@ public class PC {
     }
 
     public Class getPClass() {
-        return pClass;
+        return (pClass != null) ? pClass : Class.NO_CLASS;
     }
 
     public ObservableList<Ability> getAbilities() {
