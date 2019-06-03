@@ -58,4 +58,8 @@ public class Weapon extends Equipment {
     public Weapon copy() {
         return new Weapon(getWeight(),getValue(),getName(),getDescription(),getRarity(),getDamage(),getDamageType(),getHands(),getGroup(),getTraits(),getProficiency());
     }
+
+    public boolean isRanged(){
+        return false;
+    }
 }

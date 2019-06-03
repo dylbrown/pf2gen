@@ -134,7 +134,6 @@ public class PC {
         if(slot instanceof Choice)
             decisions.add((Choice) slot);
         if(slot.isPreSet()) {
-            abilities.add(slot.getCurrentAbility());
             apply(slot);
         }
     }
@@ -143,7 +142,6 @@ public class PC {
         if(slot instanceof FeatSlot || slot instanceof ChoiceSlot)
             decisions.remove(slot);
         if(slot.getCurrentAbility() != null) {
-            abilities.remove(slot.getCurrentAbility());
             remove(slot);
         }
     }

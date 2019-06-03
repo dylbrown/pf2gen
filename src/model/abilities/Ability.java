@@ -64,6 +64,8 @@ public class Ability {
         return name;
     }
 
+    public String getName() {return name;}
+
     public int getLevel() {
         return level;
     }

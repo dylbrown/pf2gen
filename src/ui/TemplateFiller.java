@@ -3,9 +3,13 @@ package ui;
 import freemarker.core.*;
 import freemarker.template.*;
 import javafx.beans.value.ObservableValue;
+import model.abilities.Ability;
+import model.abilities.AbilitySet;
+import model.abilities.Activity;
 import model.ability_scores.AbilityScore;
 import model.enums.Attribute;
 import model.enums.Proficiency;
+import model.equipment.Weapon;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -120,27 +124,48 @@ public class TemplateFiller {
                         ()->false));
         root.computeIfAbsent("items", (key)-> character.inventory().getItems().values());
         root.put("skills", getSkills());
+        root.computeIfAbsent("classes", (key)->getClasses());
+        List<Ability> abilities = flattenAbilities(character.getAbilities());
+        abilities.sort(((o1, o2) -> {
+            if (o1 instanceof Activity && !(o2 instanceof Activity)) return -1;
+            if (o2 instanceof Activity && !(o1 instanceof Activity)) return 1;
+            return o1.toString().compareTo(o2.toString());
+        }));
+        root.put("abilities", abilities);
+    }
+
+    private List<Ability> flattenAbilities(List<Ability> abilities) {
+        List<Ability> items = new ArrayList<>();
+        for (Ability ability: abilities) {
+            if(!(ability instanceof AbilitySet))
+                items.add(ability);
+            else
+                items.addAll(flattenAbilities(((AbilitySet) ability).getAbilities()));
+
+        }
+        return items;
+    }
+
+    private Map<String, Class> getClasses() {
+        HashMap<String, Class> map = new HashMap<>();
+        map.put("weapon", Weapon.class);
+        map.put("ability", Ability.class);
+        map.put("abilitySet", AbilitySet.class);
+        map.put("activity", Activity.class);
+        return map;
     }
 
     private class FunctionalInterfaceHash implements TemplateHashModel {
         private Function<String, Object> getter;
         private Supplier<Boolean> empty;
-
         private FunctionalInterfaceHash(Function<String, Object> getter, Supplier<Boolean> empty){
             this.getter = getter;
             this.empty = empty;
         }
-
-
         @Override
-        public TemplateModel get(String s) throws TemplateModelException {
-            return cfg.getObjectWrapper().wrap(getter.apply(s));
-        }
-
+        public TemplateModel get(String s) throws TemplateModelException { return cfg.getObjectWrapper().wrap(getter.apply(s)); }
         @Override
-        public boolean isEmpty() {
-            return empty.get();
-        }
+        public boolean isEmpty() { return empty.get(); }
     }
 
     private List<SkillEntry> getSkills() {
@@ -161,12 +186,8 @@ public class TemplateFiller {
             this.mod = mod;
         }
 
-        public Attribute getName() {
-            return name;
-        }
+        public Attribute getName() { return name; }
 
-        public int getMod() {
-            return mod;
-        }
+        public int getMod() {return mod;}
     }
 }

@@ -15,4 +15,9 @@ public class RangedWeapon extends Weapon {
         this.range = range;
         this.reload = reload;
     }
+
+    @Override
+    public boolean isRanged(){
+        return true;
+    }
 }
