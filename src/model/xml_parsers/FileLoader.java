@@ -22,6 +22,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import sun.misc.IOUtils;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -29,9 +30,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 abstract class FileLoader<T> {
@@ -68,6 +71,27 @@ abstract class FileLoader<T> {
         }
         assert doc != null;
         return doc;
+    }
+
+    List<Document> getDocs(File path) {
+        List<Document> results = new ArrayList<>();
+        if(path.exists()) {
+            for (File file : Objects.requireNonNull(path.listFiles())) {
+                results.add(getDoc(file));
+            }
+
+        }else{
+            try {
+                URL index = new URL("https://dylbrown.github.io/pf2gen_data/"+path.toString().replaceAll("\\\\", "/")+"/index.txt");
+                String s = new String(IOUtils.readFully(index.openStream(), -1, true), StandardCharsets.UTF_8);
+                for (String name : s.split("\\n")) {
+                    results.add(getDoc(new File(path.toString()+"\\"+name+".pfdyl")));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return results;
     }
 
 

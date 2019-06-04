@@ -29,8 +29,7 @@ public class ClassesLoader extends FileLoader<Class> {
     public List<Class> parse() {
         if(classes == null) {
             classes = new ArrayList<>();
-            for (File file : Objects.requireNonNull(path.listFiles())) {
-                Document doc = getDoc(file);
+            for (Document doc : getDocs(path)) {
                 NodeList classProperties = doc.getElementsByTagName("class").item(0).getChildNodes();
 
                 String name = ""; int hp = 0; int skillIncreases = 0; AbilityMod abilityMod = null; Map<Integer, List<AbilitySlot>> table = new HashMap<>(); List<Ability> feats = new ArrayList<>(); String description="";

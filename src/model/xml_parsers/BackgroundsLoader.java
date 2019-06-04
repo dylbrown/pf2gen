@@ -12,7 +12,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 public class BackgroundsLoader extends FileLoader<Background> {
     private List<Background> backgrounds;
@@ -25,8 +24,7 @@ public class BackgroundsLoader extends FileLoader<Background> {
     public List<Background> parse() {
         if(backgrounds == null) {
             backgrounds = new ArrayList<>();
-            for (File file : Objects.requireNonNull(path.listFiles())) {
-                Document doc = getDoc(file);
+            for (Document doc : getDocs(path)) {
                 NodeList classProperties = doc.getElementsByTagName("background").item(0).getChildNodes();
 
                 String name = "";
