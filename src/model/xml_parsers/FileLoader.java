@@ -28,6 +28,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,10 +51,20 @@ abstract class FileLoader<T> {
 
     Document getDoc(File path) {
         Document doc = null;
-        try {
-            doc = builder.parse(path);
-        } catch (IOException | SAXException e) {
-            e.printStackTrace();
+        if(path.exists()) {
+            try {
+                doc = builder.parse(path);
+            } catch (IOException | SAXException e) {
+                e.printStackTrace();
+            }
+        }else{
+            try {
+                URL url = new URL("https://dylbrown.github.io/pf2gen_data/"+path.toString().replaceAll("\\\\", "/"));
+                System.out.println("Could not find "+path.getName()+" on disk, loading from repository.");
+                doc=builder.parse(url.openStream());
+            } catch (SAXException | IOException e) {
+                e.printStackTrace();
+            }
         }
         assert doc != null;
         return doc;
