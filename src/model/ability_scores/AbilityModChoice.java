@@ -2,12 +2,13 @@ package model.ability_scores;
 
 import model.enums.Type;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class AbilityModChoice extends AbilityMod {
+public class AbilityModChoice extends AbilityMod implements Serializable {
     private static int counter = 0;
     private final int id;
     private final List<AbilityScore> choices;
@@ -29,7 +30,7 @@ public class AbilityModChoice extends AbilityMod {
 
     public boolean pick(AbilityScore target) {
         if(choices.contains(target)){
-            this.target = target;
+            this.target.set(target);
             return true;
         }else{
             return false;
@@ -44,8 +45,21 @@ public class AbilityModChoice extends AbilityMod {
         return id == that.id;
     }
 
+    public boolean matches(AbilityModChoice other) {
+        return this.choices.equals(other.choices) && this.getSource().equals(other.getSource());
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "AbilityModChoice{" +
+                "id=" + id +
+                ", choices=" + choices +
+                ", target=" + target +
+                '}';
     }
 }

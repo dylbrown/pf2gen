@@ -2,7 +2,9 @@ package model.player;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import model.AttributeMod;
 import model.abc.Ancestry;
 import model.abc.Background;
@@ -10,14 +12,20 @@ import model.abc.Class;
 import model.abilities.Ability;
 import model.abilities.SkillIncrease;
 import model.abilities.abilitySlots.AbilitySlot;
+import model.abilities.abilitySlots.Choice;
 import model.abilities.abilitySlots.ChoiceSlot;
 import model.abilities.abilitySlots.FeatSlot;
-import model.abilities.abilitySlots.Choice;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
-import model.enums.*;
-import model.equipment.*;
+import model.enums.Attribute;
+import model.enums.Language;
+import model.enums.Slot;
+import model.enums.Type;
+import model.equipment.Armor;
+import model.equipment.ItemTrait;
+import model.equipment.RangedWeapon;
+import model.equipment.Weapon;
 
 import javax.script.ScriptException;
 import java.util.*;
@@ -372,5 +380,9 @@ public class PC {
     public void removeDecision(Choice choice) {
         decisions.remove(choice);
         choice.empty();
+    }
+
+    public Background getBackground() {
+        return background;
     }
 }

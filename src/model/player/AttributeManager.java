@@ -206,4 +206,8 @@ public class AttributeManager {
     Proficiency getProficiency(Attribute attr, WeaponGroup group) {
         return Proficiency.max(getProficiency(attr).getValue(), groupProficiencies.getOrDefault(group, Proficiency.Untrained));
     }
+
+    public SortedMap<Integer, Set<Attribute>> getSkillChoices() {
+        return Collections.unmodifiableSortedMap(skillChoices);
+    }
 }
