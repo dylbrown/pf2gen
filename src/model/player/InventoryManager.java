@@ -90,4 +90,11 @@ public class InventoryManager {
     public ObservableMap<Equipment, Equipment> getItems() {
         return FXCollections.unmodifiableObservableMap(inventory);
     }
+
+    public void reset() {
+        for (Equipment item : inventory.values()) {
+            sell(item, item.getCount());
+        }
+
+    }
 }

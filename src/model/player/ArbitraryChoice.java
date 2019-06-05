@@ -1,5 +1,7 @@
 package model.player;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import model.abilities.abilitySlots.Choice;
 
 import java.util.Collections;
@@ -11,7 +13,7 @@ public class ArbitraryChoice implements Choice<String> {
     private final List<String> choices;
     private final Consumer<String> fillFunction;
     private final String name;
-    private String choice;
+    private ReadOnlyObjectWrapper<String> choice = new ReadOnlyObjectWrapper<>();
 
     public ArbitraryChoice(String name, List<String> choices, Consumer<String> fillFunction) {
         this.name = name;
@@ -25,19 +27,24 @@ public class ArbitraryChoice implements Choice<String> {
 
     @Override
     public void fill(String choice) {
-        this.choice = choice;
+        this.choice.set(choice);
         fillFunction.accept(choice);
     }
 
     @Override
     public String getChoice() {
-        return choice;
+        return choice.get();
+    }
+
+    @Override
+    public ReadOnlyObjectProperty<String> getChoiceProperty(){
+        return choice.getReadOnlyProperty();
     }
 
     @Override
     public void empty() {
         if(choice != null)
-            fillFunction.accept(choice);
+            fillFunction.accept(choice.get());
     }
 
     @Override

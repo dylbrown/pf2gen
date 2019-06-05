@@ -34,9 +34,9 @@ import static model.ability_scores.AbilityScore.*;
 
 public class PC {
     public static final int MAX_LEVEL = 20;
-    private Ancestry ancestry;
-    private Background background;
-    private Class pClass;
+    private ReadOnlyObjectWrapper<Ancestry> ancestry = new ReadOnlyObjectWrapper<>();
+    private ReadOnlyObjectWrapper<Background> background = new ReadOnlyObjectWrapper<>();
+    private ReadOnlyObjectWrapper<Class> pClass = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<Integer> level = new ReadOnlyObjectWrapper<>(0);
     private final ObservableList<Ability> abilities = FXCollections.observableArrayList();
     private final ObservableList<Choice> decisions = FXCollections.observableArrayList();
@@ -61,8 +61,8 @@ public class PC {
 
     public PC() {
         abilityScores.computeIfAbsent(Int, (key)-> FXCollections.observableArrayList()).addListener((ListChangeListener<? super AbilityMod>) (event)->{
-            if(pClass != null) {
-                attributes.updateSkillCount(pClass.getSkillIncrease() + getAbilityMod(Int));
+            if(getPClass() != null) {
+                attributes.updateSkillCount(getPClass().getSkillIncrease() + getAbilityMod(Int));
             }
         });
         List<AbilityModChoice> choices = Arrays.asList(
@@ -87,38 +87,39 @@ public class PC {
         if(level.get() == 0)
             return;
         level.set(level.get()+1);
-        applyLevel(pClass.getLevel(level.get()));
+        applyLevel(getPClass().getLevel(level.get()));
     }
 
     public void setAncestry(Ancestry ancestry) {
-        if(this.ancestry != null) {
-            remove(this.ancestry.getAbilityMods());
+        if(getAncestry() != null) {
+            remove(getAncestry().getAbilityMods());
             languages.removeAll(ancestry.getLanguages());
         }
-        this.ancestry = ancestry;
+        this.ancestry.set(ancestry);
         apply(ancestry.getAbilityMods());
         languages.addAll(ancestry.getLanguages());
         ancestryWatcher.wink();
     }
 
     public void setBackground(Background background) {
-        if(this.background != null)
-            remove(this.background.getAbilityMods());
-        this.background = background;
+        if(getBackground() != null)
+            remove(getBackground().getAbilityMods());
+        this.background.set(background);
         apply(background.getAbilityMods());
         attributes.apply(background.getMod());
     }
 
     public void setClass(Class newClass) {
-        if(this.pClass != null) {
-            remove(this.pClass.getAbilityMods());
-            removeLevel(pClass.getLevel(1));
+        if(!(getPClass().equals(Class.NO_CLASS))) {
+            remove(getPClass().getAbilityMods());
+            for(int i=getLevel(); i>0; i--)
+                removeLevel(getPClass().getLevel(i));
         }
-        pClass = newClass;
+        pClass.set(newClass);
         apply(newClass.getAbilityMods());
         level.set(1);
-        applyLevel(pClass.getLevel(1));
-        attributes.updateSkillCount(pClass.getSkillIncrease() + getAbilityMod(Int));
+        applyLevel(getPClass().getLevel(1));
+        attributes.updateSkillCount(getPClass().getSkillIncrease() + getAbilityMod(Int));
     }
 
     private void removeLevel(List<AbilitySlot> level) {
@@ -194,7 +195,7 @@ public class PC {
     }
 
     public int getHP() {
-        return ((ancestry != null) ? ancestry.getHP() : 0) + (((pClass != null) ? pClass.getHP() : 0) + getAbilityMod(Con)) * level.get() + modManager.get("hp");
+        return ((getAncestry() != null) ? getAncestry().getHP() : 0) + (((getPClass() != null) ? getPClass().getHP() : 0) + getAbilityMod(Con)) * level.get() + modManager.get("hp");
     }
 
     public Integer getAbilityMod(AbilityScore ability) {
@@ -315,7 +316,7 @@ public class PC {
     }
 
     public int getSpeed() {
-        return (ancestry != null) ? ancestry.getSpeed() : 0;
+        return (getAncestry() != null) ? getAncestry().getSpeed() : 0;
     }
 
     public List<AbilityMod> getAbilityMods(Type type) {
@@ -327,7 +328,7 @@ public class PC {
     }
 
     public Class currentClass() {
-        return pClass;
+        return pClass.get();
     }
 
     public List<Language> getLanguages() {
@@ -357,11 +358,11 @@ public class PC {
     }
 
     public Ancestry getAncestry() {
-        return ancestry;
+        return ancestry.get();
     }
 
     public Class getPClass() {
-        return (pClass != null) ? pClass : Class.NO_CLASS;
+        return (pClass.get() != null) ? pClass.get() : Class.NO_CLASS;
     }
 
     public ObservableList<Ability> getAbilities() {
@@ -383,6 +384,18 @@ public class PC {
     }
 
     public Background getBackground() {
-        return background;
+        return background.get();
+    }
+
+    public ReadOnlyObjectProperty<Ancestry> getAncestryProperty() {
+        return ancestry.getReadOnlyProperty();
+    }
+
+    public ReadOnlyObjectProperty<Background> getBackgroundProperty() {
+        return background.getReadOnlyProperty();
+    }
+
+    public ReadOnlyObjectProperty<Class> getPClassProperty() {
+        return pClass.getReadOnlyProperty();
     }
 }

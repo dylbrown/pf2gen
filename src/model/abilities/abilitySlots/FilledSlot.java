@@ -5,7 +5,7 @@ import model.abilities.Ability;
 public class FilledSlot extends AbilitySlot {
     public FilledSlot(String name, int level, Ability currentAbility) {
         super(name, level);
-        this.currentAbility = currentAbility;
+        this.currentAbility.set(currentAbility);
         preSet = true;
     }
 }

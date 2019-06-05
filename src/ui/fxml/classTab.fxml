@@ -31,7 +31,7 @@
                       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   </rowConstraints>
                  <children>
-                  <HBox GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.rowIndex="1">
+                  <HBox alignment="CENTER_LEFT" GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.rowIndex="1">
                      <children>
                            <Label text="Class:">
                            <font>

@@ -47,9 +47,11 @@ public class SelectionPane<T> extends AnchorPane {
                 T selectedItem = choices.getSelectionModel().getSelectedItem();
                 if(selectedItem != null) {
                     character.choose(slot, selectedItem);
-                    selectedLabel.setText("Selection: " + selectedItem.toString());
                 }
             }
         });
+        if(slot.getChoice() != null)
+            selectedLabel.setText("Selection: " + slot.getChoice().toString());
+        slot.getChoiceProperty().addListener((o, oldVal, newVal)->selectedLabel.setText("Selection: " + newVal.toString()));
     }
 }

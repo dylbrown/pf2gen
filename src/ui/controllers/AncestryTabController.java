@@ -38,9 +38,11 @@ public class AncestryTabController {
         ancestryList.setOnMouseClicked((event) -> {
             if(event.getClickCount() == 2) {
                 Ancestry selectedItem = ancestryList.getSelectionModel().getSelectedItem();
-                ancestryDisplay.setText(selectedItem.toString());
                 Main.character.setAncestry(selectedItem);
             }
+        });
+        Main.character.getAncestryProperty().addListener((o, oldVal, newVal)->{
+            ancestryDisplay.setText(newVal.getName());
         });
         ancestryList.getSelectionModel().selectedItemProperty().addListener((event)->{
             Ancestry item = ancestryList.getSelectionModel().getSelectedItem();

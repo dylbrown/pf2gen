@@ -44,14 +44,20 @@ public class SelectionsTab extends AnchorPane {
                 }
             }
         });
-        box.setOnAction((event)-> container.getChildren().set(0, panes.computeIfAbsent(box.getValue(), (choice)->{
-            if(choice instanceof FeatSlot) {
-                return new FeatSelectionPane((FeatSlot)choice);
-            }else if(choice instanceof ChoiceSlot){
-                return new FeatSelectionPane((ChoiceSlot)choice);
-            }else{
-                return new SelectionPane<Object>(choice);
+        box.setOnAction((event)-> {
+            if(box.getValue() != null)
+                container.getChildren().set(0, panes.computeIfAbsent(box.getValue(), (choice)->{
+                if(choice instanceof FeatSlot) {
+                    return new FeatSelectionPane((FeatSlot)choice);
+                }else if(choice instanceof ChoiceSlot){
+                    return new FeatSelectionPane((ChoiceSlot)choice);
+                }else{
+                    return new SelectionPane<Object>(choice);
+                }}));
+            else {
+                container.getChildren().clear();
+                container.getChildren().add(new Label());
             }
-        })));
+        });
     }
 }

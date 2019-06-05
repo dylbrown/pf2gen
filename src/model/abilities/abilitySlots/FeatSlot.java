@@ -1,5 +1,6 @@
 package model.abilities.abilitySlots;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
 import model.abilities.Ability;
 import model.data_managers.FeatsManager;
 import model.enums.Type;
@@ -55,12 +56,17 @@ public class FeatSlot extends AbilitySlot implements Choice<Ability> {
 
     @Override
     public void fill(Ability choice) {
-        currentAbility = choice;
+        currentAbility.set(choice);
     }
 
     @Override
     public Ability getChoice() {
-        return currentAbility;
+        return currentAbility.get();
+    }
+
+    @Override
+    public ReadOnlyObjectProperty<Ability> getChoiceProperty() {
+        return currentAbility.getReadOnlyProperty();
     }
 
     @Override

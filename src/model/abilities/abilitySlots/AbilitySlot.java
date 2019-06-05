@@ -1,11 +1,12 @@
 package model.abilities.abilitySlots;
 
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import model.abilities.Ability;
 
 public abstract class AbilitySlot {
     private final String name;
 
-    Ability currentAbility;
+    ReadOnlyObjectWrapper<Ability> currentAbility = new ReadOnlyObjectWrapper<>();
     boolean preSet = false;
     private int level;
 
@@ -23,7 +24,7 @@ public abstract class AbilitySlot {
     }
 
     public Ability getCurrentAbility() {
-        return currentAbility;
+        return currentAbility.get();
     }
 
     @Override

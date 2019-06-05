@@ -31,10 +31,10 @@ public class BackgroundTabController {
         backgroundList.setOnMouseClicked((event) -> {
             if(event.getClickCount() == 2) {
                 Background selectedItem = backgroundList.getSelectionModel().getSelectedItem();
-                backgroundDisplay.setText(selectedItem.toString());
                 character.setBackground(selectedItem);
             }
         });
+        character.getBackgroundProperty().addListener((o, oldVal, newVal)-> backgroundDisplay.setText(newVal.getName()));
         backgroundList.getSelectionModel().selectedItemProperty().addListener((event)->{
             backgroundDesc.setText(backgroundList.getSelectionModel().getSelectedItem().getDesc());
             skill.setText(backgroundList.getSelectionModel().getSelectedItem().getMod().toNiceAttributeString());

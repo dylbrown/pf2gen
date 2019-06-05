@@ -167,13 +167,13 @@ public class Controller {
                 if(choice != null){
                     for (Object option : decision.getOptions()) {
                         if(option.toString().equals(choice)){
-                            decision.fill(option);
+                            character.choose(decision, option);
                             break;
                         }
                     }
                 }
             }
-
+            character.attributes().resetSkills();
             //Skill Increase Choices
             SortedMap<Integer, Set<Attribute>> skillChoices = (SortedMap<Integer, Set<Attribute>>) map.get("skillChoices");
             for (Set<Attribute> choices : skillChoices.values()) {
@@ -183,6 +183,7 @@ public class Controller {
             }
 
             //Items
+            character.inventory().reset();
             HashMap<String, Integer> items = (HashMap<String, Integer>) map.get("inventory");
             for (Equipment equipment : EquipmentManager.getEquipment()) {
                 if (items.get(equipment.getName()) != null)

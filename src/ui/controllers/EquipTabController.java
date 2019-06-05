@@ -129,6 +129,22 @@ public class EquipTabController {
         itemInfoRow.getChildren().setAll(simpleItemRow);
 
         inventory.setItems(new SortedList<>(inventoryList, Comparator.comparing(Equipment::toString)));
+
+        Main.character.inventory().addInventoryListener(change -> {
+            if(change.wasRemoved()) {
+                inventoryList.remove(change.getKey());
+                unequipped.getItems().remove(change.getKey());
+                value -= change.getKey().getValue();
+                totalValue.setText(value+" sp");
+            }
+            if(change.wasAdded()) {
+                inventoryList.add(change.getKey());
+                unequipped.getItems().add(change.getKey());
+                value += change.getKey().getValue();
+                totalValue.setText(value+" sp");
+                equipped.getItems().remove(change.getKey());
+            }
+        });
     }
 
     private void tryToEquip(Equipment item) {
@@ -140,30 +156,13 @@ public class EquipTabController {
 
     private void tryToSell(Equipment item) {
 
-        if(Main.character.inventory().sell(item, 1)) {
-            if(Main.character.inventory().getCount(item) == 0) {
-                unequipped.getItems().remove(item);
-                inventoryList.remove(item);
-                equipped.getItems().remove(item);
-            }
-            value -= item.getValue();
-            totalValue.setText(value+" sp");
-        }else{
+        if (!Main.character.inventory().sell(item, 1)) {
             new Alert(Alert.AlertType.INFORMATION, "Not Enough Items!").showAndWait();
         }
     }
 
     private void tryToBuy(Equipment item) {
-        if(Main.character.inventory().buy(item, 1)) {
-            if(!unequipped.getItems().contains(item)) {
-                unequipped.getItems().add(item);
-            }
-            if(!inventoryList.contains(item)){
-                inventoryList.add(item);
-            }
-            value += item.getValue();
-            totalValue.setText(value+" sp");
-        }else{
+        if (!Main.character.inventory().buy(item, 1)) {
             new Alert(Alert.AlertType.INFORMATION, "Not Enough Money!").showAndWait();
         }
     }

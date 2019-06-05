@@ -210,4 +210,14 @@ public class AttributeManager {
     public SortedMap<Integer, Set<Attribute>> getSkillChoices() {
         return Collections.unmodifiableSortedMap(skillChoices);
     }
+
+    public void resetSkills() {
+        for(int i=character.getLevel(); i>0; i--) {
+            Set<Attribute> attributes = skillChoices.get(i);
+            if (attributes != null) {
+                while(attributes.size() > 0)
+                    regressSkill(attributes.iterator().next());
+            }
+        }
+    }
 }

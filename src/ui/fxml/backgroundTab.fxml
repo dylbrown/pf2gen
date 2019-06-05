@@ -33,15 +33,15 @@
                     <Insets left="10.0" right="10.0" />
                 </padding>
             </Label>
-         <HBox GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.rowIndex="2">
+         <HBox alignment="CENTER_LEFT" GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.rowIndex="2">
             <children>
                   <Label text="Background:">
                   <font>
-                     <Font name="System Bold" size="36.0" />
+                     <Font name="System Bold" size="24.0" />
                   </font></Label>
                   <Label fx:id="backgroundDisplay">
                   <font>
-                     <Font name="System Bold" size="36.0" />
+                     <Font name="System Bold" size="24.0" />
                   </font></Label>
             </children>
          </HBox>
