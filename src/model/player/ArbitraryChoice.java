@@ -2,14 +2,14 @@ package model.player;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import model.abilities.abilitySlots.Choice;
+import model.abilities.abilitySlots.ChoiceList;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-public class ArbitraryChoice implements Choice<String> {
+public class ArbitraryChoice implements ChoiceList<String> {
     private final List<String> choices;
     private final Consumer<String> fillFunction;
     private final String name;
@@ -20,6 +20,7 @@ public class ArbitraryChoice implements Choice<String> {
         this.choices = choices;
         this.fillFunction = fillFunction;
     }
+
     @Override
     public List<String> getOptions() {
         return Collections.unmodifiableList(choices);

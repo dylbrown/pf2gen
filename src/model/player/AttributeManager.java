@@ -1,5 +1,6 @@
 package model.player;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import model.AttributeMod;
@@ -16,13 +17,15 @@ public class AttributeManager {
     private final Map<Attribute, Map<Proficiency, List<AttributeMod>>> proficienciesTracker = new HashMap<>();
     private final SortedMap<Integer, Set<Attribute>> skillChoices = new TreeMap<>(); //Map from level to selected skills
     private final SortedMap<Integer, Integer> skillIncreases = new TreeMap<>(); // Maps from level to number of increases
-    private final PC character;
+    private final ReadOnlyObjectProperty<Integer> level;
+    private DecisionManager decisions;
     private Map<WeaponGroup, Proficiency> groupProficiencies = new HashMap<>();
     private final Eyeball proficiencyChange = new Eyeball();
     private List<AttributeModChoice> choices = new ArrayList<>();
 
-    AttributeManager(PC character){
-        this.character = character;
+    AttributeManager(ReadOnlyObjectProperty<Integer> level, DecisionManager decisions){
+        this.level = level;
+        this.decisions = decisions;
     }
 
     void updateSkillCount(int numSkills) {
@@ -33,7 +36,7 @@ public class AttributeManager {
     void apply(AttributeMod mod) {
         if(mod.getAttr() == null) return;
         if(mod instanceof AttributeModChoice) {
-            character.addDecision((AttributeModChoice)mod);
+            decisions.add((AttributeModChoice)mod);
             if(!choices.contains(mod)) {
                 choices.add((AttributeModChoice) mod);
                 ((AttributeModChoice) mod).getChoiceProperty().addListener((observable, oldVal, newVal)->{
@@ -56,7 +59,7 @@ public class AttributeManager {
     void remove(AttributeMod mod) {
         if(mod.getAttr() == null) return;
         if(mod instanceof AttributeModChoice) {
-            character.removeDecision((AttributeModChoice)mod);
+            decisions.remove((AttributeModChoice)mod);
             Attribute choice = ((AttributeModChoice) mod).getChoice();
             if(choice != null)
                 remove(new AttributeMod(choice, mod.getMod()));
@@ -212,7 +215,7 @@ public class AttributeManager {
     }
 
     public void resetSkills() {
-        for(int i=character.getLevel(); i>0; i--) {
+        for(int i=level.get(); i>0; i--) {
             Set<Attribute> attributes = skillChoices.get(i);
             if (attributes != null) {
                 while(attributes.size() > 0)

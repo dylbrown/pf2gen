@@ -11,6 +11,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import model.abilities.abilitySlots.Choice;
+import model.abilities.abilitySlots.ChoiceList;
 
 import java.util.Comparator;
 
@@ -18,14 +19,18 @@ import static ui.Main.character;
 
 
 public class SelectionPane<T> extends AnchorPane {
-    private Choice<T> slot;
     ObservableList<T> items = FXCollections.observableArrayList();
     ListView<T> choices = new ListView<>();
     BorderPane side = new BorderPane();
-    public SelectionPane(Choice<T> slot) {
-        this.slot = slot;
-        choices.setItems(new SortedList<>(items, Comparator.comparing(Object::toString)));
+    SelectionPane(ChoiceList<T> slot) {
+        init(slot);
         items.addAll(slot.getOptions());
+    }
+
+    SelectionPane() {}
+
+    void init(Choice<T> slot) {
+        choices.setItems(new SortedList<>(items, Comparator.comparing(Object::toString)));
         Label selectedLabel = new Label("Selection: ");
         selectedLabel.setStyle("-fx-font-size: 20px");
         HBox selectRow = new HBox(selectedLabel);

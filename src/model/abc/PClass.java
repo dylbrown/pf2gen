@@ -10,12 +10,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class Class extends AC {
-    public static final Class NO_CLASS = new Class("No Class", "", 0, 0, new AbilityMod(AbilityScore.None, true, Type.Initial), Collections.emptyMap(), Collections.emptyList());
+public class PClass extends AC {
+    public static final PClass NO_CLASS = new PClass("No PClass", "", 0, 0, new AbilityMod(AbilityScore.None, true, Type.Initial), Collections.emptyMap(), Collections.emptyList());
     private final int skillIncreases;
     private final Map<Integer, List<AbilitySlot>> advancementTable;
 
-    public Class(String name, String description, int hp, int skillIncreases, AbilityMod keyAbility, Map<Integer, List<AbilitySlot>> table, List<Ability> feats) {
+    public PClass(String name, String description, int hp, int skillIncreases, AbilityMod keyAbility, Map<Integer, List<AbilitySlot>> table, List<Ability> feats) {
         super(name, description, Collections.singletonList(keyAbility),hp,feats);
         this.skillIncreases = skillIncreases;
         advancementTable = table;

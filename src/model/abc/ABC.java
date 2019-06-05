@@ -5,7 +5,7 @@ import model.ability_scores.AbilityMod;
 import java.util.Collections;
 import java.util.List;
 
-public class ABC {
+public abstract class ABC {
     private final String name;
     private final List<AbilityMod> abilityMods;
     private final String description;

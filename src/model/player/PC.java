@@ -8,13 +8,11 @@ import javafx.collections.ObservableList;
 import model.AttributeMod;
 import model.abc.Ancestry;
 import model.abc.Background;
-import model.abc.Class;
+import model.abc.PClass;
 import model.abilities.Ability;
 import model.abilities.SkillIncrease;
 import model.abilities.abilitySlots.AbilitySlot;
 import model.abilities.abilitySlots.Choice;
-import model.abilities.abilitySlots.ChoiceSlot;
-import model.abilities.abilitySlots.FeatSlot;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
@@ -36,10 +34,8 @@ public class PC {
     public static final int MAX_LEVEL = 20;
     private ReadOnlyObjectWrapper<Ancestry> ancestry = new ReadOnlyObjectWrapper<>();
     private ReadOnlyObjectWrapper<Background> background = new ReadOnlyObjectWrapper<>();
-    private ReadOnlyObjectWrapper<Class> pClass = new ReadOnlyObjectWrapper<>();
+    private ReadOnlyObjectWrapper<PClass> pClass = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<Integer> level = new ReadOnlyObjectWrapper<>(0);
-    private final ObservableList<Ability> abilities = FXCollections.observableArrayList();
-    private final ObservableList<Choice> decisions = FXCollections.observableArrayList();
     private final Map<AbilityScore, ObservableList<AbilityMod>> abilityScores = new HashMap<>();
     private final Map<Type, List<AbilityMod>> abilityScoresByType = new HashMap<>();
     private final Eyeball abilityScoreChange = new Eyeball();
@@ -48,8 +44,10 @@ public class PC {
     private String name;
     private final List<Language> languages = new ArrayList<>();
     private InventoryManager inventory = new InventoryManager();
-    private AttributeManager attributes = new AttributeManager(this);
     private ModManager modManager;
+    private DecisionManager decisions = new DecisionManager();
+    private AbilityManager abilities = new AbilityManager(ancestry.getReadOnlyProperty(), pClass.getReadOnlyProperty(), decisions);
+    private AttributeManager attributes = new AttributeManager(level.getReadOnlyProperty(), decisions);
 
     {
         try {
@@ -109,14 +107,14 @@ public class PC {
         attributes.apply(background.getMod());
     }
 
-    public void setClass(Class newClass) {
-        if(!(getPClass().equals(Class.NO_CLASS))) {
+    public void setClass(PClass newPClass) {
+        if(!(getPClass().equals(PClass.NO_CLASS))) {
             remove(getPClass().getAbilityMods());
             for(int i=getLevel(); i>0; i--)
                 removeLevel(getPClass().getLevel(i));
         }
-        pClass.set(newClass);
-        apply(newClass.getAbilityMods());
+        pClass.set(newPClass);
+        apply(newPClass.getAbilityMods());
         level.set(1);
         applyLevel(getPClass().getLevel(1));
         attributes.updateSkillCount(getPClass().getSkillIncrease() + getAbilityMod(Int));
@@ -124,12 +122,7 @@ public class PC {
 
     private void removeLevel(List<AbilitySlot> level) {
         for(AbilitySlot slot: level) {
-            abilities.remove(slot.getCurrentAbility());
-            if(slot instanceof FeatSlot || slot instanceof ChoiceSlot)
-                decisions.remove(slot);
-            if(slot.isPreSet()) {
-                remove(slot);
-            }
+            abilities.remove(slot);
         }
     }
 
@@ -141,15 +134,14 @@ public class PC {
 
     private void addSlot(AbilitySlot slot) {
         if(slot instanceof Choice)
-            decisions.add((Choice) slot);
+            abilities.addDecision((Choice) slot);
         if(slot.isPreSet()) {
             apply(slot);
         }
     }
 
     private void removeSlot(AbilitySlot slot) {
-        if(slot instanceof FeatSlot || slot instanceof ChoiceSlot)
-            decisions.remove(slot);
+        abilities.remove(slot);
         if(slot.getCurrentAbility() != null) {
             remove(slot);
         }
@@ -170,7 +162,7 @@ public class PC {
             apply(slot.getCurrentAbility().getAbilityMods());
             if(!slot.getCurrentAbility().getCustomMod().equals(""))
                 modManager.jsApply(slot.getCurrentAbility().getCustomMod());
-            abilities.add(slot.getCurrentAbility());
+            abilities.add(slot);
         }
     }
 
@@ -190,7 +182,6 @@ public class PC {
             remove(slot.getCurrentAbility().getAbilityMods());
             if(!slot.getCurrentAbility().getCustomMod().equals(""))
                 modManager.jsRemove(slot.getCurrentAbility().getCustomMod());
-            abilities.remove(slot.getCurrentAbility());
         }
     }
 
@@ -265,10 +256,6 @@ public class PC {
         return level.get();
     }
 
-    public ObservableList<Choice> getDecisions() {
-        return FXCollections.unmodifiableObservableList(decisions);
-    }
-
     public <U , T extends Choice<U>> void choose(T slot, U selectedItem) {
         if(slot instanceof AbilitySlot && selectedItem instanceof Ability && meetsPrerequisites((Ability) selectedItem)) {
             remove((AbilitySlot) slot);
@@ -277,24 +264,6 @@ public class PC {
         }else{
             slot.fill(selectedItem);
         }
-    }
-
-    public boolean meetsPrerequisites(Ability ability) {
-        for (AttributeMod requiredAttr : ability.getRequiredAttrs()) {
-            if(attributes.getProficiency(requiredAttr.getAttr()).getValue().getMod() < requiredAttr.getMod().getMod())
-                return false;
-        }
-        for (String s : ability.getPrerequisites()) {
-            boolean found=false;
-            for (Ability charAbility : abilities) {
-                if(charAbility != null && charAbility.toString().toLowerCase().trim().equals(s.toLowerCase().trim())) {
-                    found=true;
-                    break;
-                }
-            }
-            if(!found) return false;
-        }
-        return true;
     }
 
     public int getAC() {
@@ -327,7 +296,7 @@ public class PC {
         return Collections.unmodifiableList(abilityScoreChoices);
     }
 
-    public Class currentClass() {
+    public PClass currentClass() {
         return pClass.get();
     }
 
@@ -357,16 +326,30 @@ public class PC {
             return getAbilityMod(Str);
     }
 
+    public boolean meetsPrerequisites(Ability ability) {
+        for (AttributeMod requiredAttr : ability.getRequiredAttrs()) {
+            if(attributes.getProficiency(requiredAttr.getAttr()).getValue().getMod() < requiredAttr.getMod().getMod())
+                return false;
+        }
+        for (String s : ability.getPrerequisites()) {
+            boolean found=false;
+            for (Ability charAbility : abilities.getAbilities()) {
+                if(charAbility != null && charAbility.toString().toLowerCase().trim().equals(s.toLowerCase().trim())) {
+                    found=true;
+                    break;
+                }
+            }
+            if(!found) return false;
+        }
+        return true;
+    }
+
     public Ancestry getAncestry() {
         return ancestry.get();
     }
 
-    public Class getPClass() {
-        return (pClass.get() != null) ? pClass.get() : Class.NO_CLASS;
-    }
-
-    public ObservableList<Ability> getAbilities() {
-        return FXCollections.unmodifiableObservableList(abilities);
+    public PClass getPClass() {
+        return (pClass.get() != null) ? pClass.get() : PClass.NO_CLASS;
     }
 
     public InventoryManager inventory() {return inventory;}
@@ -375,12 +358,8 @@ public class PC {
         return attributes;
     }
 
-    public void addDecision(Choice choice) {
-        decisions.add(choice);
-    }
-    public void removeDecision(Choice choice) {
-        decisions.remove(choice);
-        choice.empty();
+    public AbilityManager abilities() {
+        return abilities;
     }
 
     public Background getBackground() {
@@ -395,7 +374,11 @@ public class PC {
         return background.getReadOnlyProperty();
     }
 
-    public ReadOnlyObjectProperty<Class> getPClassProperty() {
+    public ReadOnlyObjectProperty<PClass> getPClassProperty() {
         return pClass.getReadOnlyProperty();
+    }
+
+    public DecisionManager decisions() {
+        return decisions;
     }
 }

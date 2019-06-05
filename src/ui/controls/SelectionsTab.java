@@ -8,6 +8,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import model.abilities.abilitySlots.Choice;
+import model.abilities.abilitySlots.ChoiceList;
 import model.abilities.abilitySlots.ChoiceSlot;
 import model.abilities.abilitySlots.FeatSlot;
 
@@ -34,7 +35,7 @@ public class SelectionsTab extends AnchorPane {
         GridPane.setHgrow(container, Priority.ALWAYS);
         GridPane.setVgrow(container, Priority.ALWAYS);
         container.getChildren().add(new Label());
-        decisions = character.getDecisions();
+        decisions = character.decisions().getDecisions();
         decisions.addListener((ListChangeListener<Choice>) (change)->{
             while(change.next()) {
                 box.getItems().addAll(change.getAddedSubList());
@@ -51,9 +52,12 @@ public class SelectionsTab extends AnchorPane {
                     return new FeatSelectionPane((FeatSlot)choice);
                 }else if(choice instanceof ChoiceSlot){
                     return new FeatSelectionPane((ChoiceSlot)choice);
+                }else if(choice instanceof ChoiceList){
+                    return new SelectionPane<Object>((ChoiceList<Object>) choice);
                 }else{
-                    return new SelectionPane<Object>(choice);
-                }}));
+                    return new AnchorPane();
+                }
+                }));
             else {
                 container.getChildren().clear();
                 container.getChildren().add(new Label());

@@ -76,7 +76,7 @@ class ModManager {
                     choices.put(name, response);
                     callback.call(null, response, secondParam);
                 });
-                character.addDecision(choice);
+                character.abilities().addDecision(choice);
                 if(choices.get(name) != null)
                     choice.fill(choices.get(name));
             }
@@ -93,7 +93,7 @@ class ModManager {
                                     Enum::toString).collect(Collectors.toCollection(ArrayList::new));
                             break;
                     }
-                    character.removeDecision(new ArbitraryChoice(name, selections, (response)-> {
+                    character.abilities().removeDecision(new ArbitraryChoice(name, selections, (response)-> {
                         callback.call(null, response, secondParam);
                     }));
                 }

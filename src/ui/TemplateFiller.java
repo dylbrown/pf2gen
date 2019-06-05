@@ -1,5 +1,9 @@
 package ui;
 
+import freemarker.cache.TemplateLookupContext;
+import freemarker.cache.TemplateLookupResult;
+import freemarker.cache.TemplateLookupStrategy;
+import freemarker.cache.URLTemplateLoader;
 import freemarker.core.*;
 import freemarker.template.*;
 import javafx.beans.value.ObservableValue;
@@ -16,6 +20,8 @@ import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -57,11 +63,32 @@ public class TemplateFiller {
 
     static{
         cfg = new Configuration(Configuration.VERSION_2_3_28);
-        try {
-            cfg.setDirectoryForTemplateLoading(new File("data/"));
-        } catch (IOException e) {
-            e.printStackTrace();
+        File file = new File("data/");
+        if(file.exists()) {
+            try {
+                cfg.setDirectoryForTemplateLoading(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }else{
+            cfg.setTemplateLoader(new URLTemplateLoader() {
+                @Override
+                protected URL getURL(String s) {
+                    try {
+                        return new URL("https://dylbrown.github.io/pf2gen_data/data/"+s);
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+            });
         }
+        cfg.setTemplateLookupStrategy(new TemplateLookupStrategy() {
+            @Override
+            public TemplateLookupResult lookup(TemplateLookupContext ctx) throws IOException {
+                return ctx.lookupWithAcquisitionStrategy(ctx.getTemplateName());
+            }
+        });
         cfg.setDefaultEncoding("UTF-8");
         cfg.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
         cfg.setLogTemplateExceptions(false);
@@ -125,7 +152,7 @@ public class TemplateFiller {
         root.computeIfAbsent("items", (key)-> character.inventory().getItems().values());
         root.put("skills", getSkills());
         root.computeIfAbsent("classes", (key)->getClasses());
-        List<Ability> abilities = flattenAbilities(character.getAbilities());
+        List<Ability> abilities = flattenAbilities(character.abilities().getAbilities());
         abilities.sort(((o1, o2) -> {
             if (o1 instanceof Activity && !(o2 instanceof Activity)) return -1;
             if (o2 instanceof Activity && !(o1 instanceof Activity)) return 1;

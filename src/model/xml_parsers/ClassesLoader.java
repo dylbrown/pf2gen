@@ -1,6 +1,6 @@
 package model.xml_parsers;
 
-import model.abc.Class;
+import model.abc.PClass;
 import model.abilities.Ability;
 import model.abilities.abilitySlots.AbilitySlot;
 import model.abilities.abilitySlots.ChoiceSlot;
@@ -18,17 +18,17 @@ import org.w3c.dom.NodeList;
 import java.io.File;
 import java.util.*;
 
-public class ClassesLoader extends FileLoader<Class> {
+public class ClassesLoader extends FileLoader<PClass> {
 
-    private List<Class> classes;
+    private List<PClass> PClasses;
     public ClassesLoader() {
         path = new File("data/classes");
     }
 
     @Override
-    public List<Class> parse() {
-        if(classes == null) {
-            classes = new ArrayList<>();
+    public List<PClass> parse() {
+        if(PClasses == null) {
+            PClasses = new ArrayList<>();
             for (Document doc : getDocs(path)) {
                 NodeList classProperties = doc.getElementsByTagName("class").item(0).getChildNodes();
 
@@ -95,9 +95,9 @@ public class ClassesLoader extends FileLoader<Class> {
                             break;
                     }
                 }
-                classes.add(new Class(name, description, hp, skillIncreases, abilityMod, table, feats));
+                PClasses.add(new PClass(name, description, hp, skillIncreases, abilityMod, table, feats));
             }
         }
-        return Collections.unmodifiableList(classes);
+        return Collections.unmodifiableList(PClasses);
     }
 }

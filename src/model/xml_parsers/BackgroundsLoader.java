@@ -32,6 +32,7 @@ public class BackgroundsLoader extends FileLoader<Background> {
                 Attribute skill=null;
                 String data="";
                 String bonuses="";
+                String bonusFeat="";
 
                 for(int i=0; i<classProperties.getLength(); i++) {
                     if(classProperties.item(i).getNodeType() != Node.ELEMENT_NODE)
@@ -57,7 +58,7 @@ public class BackgroundsLoader extends FileLoader<Background> {
                             break;
                     }
                 }
-                backgrounds.add(new Background(name, bonuses, desc, getAbilityMods(bonuses, "", Type.Background), skill, data));
+                backgrounds.add(new Background(name, bonuses, bonusFeat, desc, getAbilityMods(bonuses, "", Type.Background), skill, data));
             }
         }
         return Collections.unmodifiableList(backgrounds);

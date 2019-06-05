@@ -6,7 +6,7 @@ import model.abilities.Ability;
 import java.util.Collections;
 import java.util.List;
 
-public class ChoiceSlot extends AbilitySlot implements Choice<Ability> {
+public class ChoiceSlot extends AbilitySlot implements ChoiceList<Ability> {
     private final List<Ability> choices;
 
     public ChoiceSlot(String abilityName, int level, List<Ability> choices) {
@@ -14,14 +14,9 @@ public class ChoiceSlot extends AbilitySlot implements Choice<Ability> {
         this.choices = choices;
     }
 
-
-    private List<Ability> getAbilities() {
-        return Collections.unmodifiableList(choices);
-    }
-
     @Override
     public List<Ability> getOptions() {
-        return getAbilities();
+        return Collections.unmodifiableList(choices);
     }
 
     @Override

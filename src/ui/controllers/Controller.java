@@ -9,8 +9,10 @@ import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import model.abc.Ancestry;
 import model.abc.Background;
-import model.abc.Class;
+import model.abc.PClass;
 import model.abilities.abilitySlots.Choice;
+import model.abilities.abilitySlots.ChoiceList;
+import model.abilities.abilitySlots.FeatSlot;
 import model.ability_scores.AbilityModChoice;
 import model.data_managers.EquipmentManager;
 import model.enums.Attribute;
@@ -130,11 +132,11 @@ public class Controller {
                     break;
                 }
             }
-            //Class
+            //PClass
             String cla = (String) map.get("class");
-            for (Class aClass : new ClassesLoader().parse()) {
-                if(aClass.getName().equals(cla)){
-                    character.setClass(aClass);
+            for (PClass pClass : new ClassesLoader().parse()) {
+                if(pClass.getName().equals(cla)){
+                    character.setClass(pClass);
                     break;
                 }
             }
@@ -162,10 +164,16 @@ public class Controller {
                 String[] split = s.split(";");
                 decisionStringMap.put(split[0], split[1]);
             }
-            for (Choice decision : character.getDecisions()) {
+            for (Choice decision : character.decisions().getDecisions()) {
                 String choice = decisionStringMap.get(decision.toString());
                 if(choice != null){
-                    for (Object option : decision.getOptions()) {
+                    List options;
+                    if(decision instanceof ChoiceList)
+                        options = ((ChoiceList) decision).getOptions();
+                    else if(decision instanceof FeatSlot)
+                        options = character.abilities().getOptions((FeatSlot)decision);
+                    else options = Collections.emptyList();
+                    for (Object option : options) {
                         if(option.toString().equals(choice)){
                             character.choose(decision, option);
                             break;
@@ -202,7 +210,7 @@ public class Controller {
         map.put("class", character.getPClass().getName());
         map.put("level", character.getLevel());
         map.put("abilityChoices", character.getAbilityScoreChoices());
-        map.put("decisions", character.getDecisions().stream().filter(
+        map.put("decisions", character.decisions().getDecisions().stream().filter(
                 choice -> choice.getChoice()!=null).map(
                 (choice -> choice.toString()+";"+choice.getChoice().toString())).collect(
                         Collectors.toList()));

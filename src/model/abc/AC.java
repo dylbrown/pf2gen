@@ -6,7 +6,7 @@ import model.ability_scores.AbilityMod;
 
 import java.util.*;
 
-public class AC extends ABC {
+public abstract class AC extends ABC {
     private final int HP;
     private final Map<Integer, List<Ability>> feats = new HashMap<>();
 

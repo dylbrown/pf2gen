@@ -24,8 +24,6 @@ import java.util.Comparator;
 public class EquipTabController {
 
     @FXML
-    public Label TotalMoney;
-    @FXML
     private Label itemName, itemWeight, itemCost, itemRarity, itemDesc, itemDamage, itemHands, itemGroup;
     @FXML
     private ListView<Equipment> inventory, allItems, unequipped;
