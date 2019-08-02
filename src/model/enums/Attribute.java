@@ -11,9 +11,9 @@ public enum Attribute {
 
     Fortitude(Con), Reflex(Dex), Will(Wis), Perception(Wis),
 
-    SimpleWeapons, MartialWeapons, ExoticWeapons,
+    SimpleWeapons, MartialWeapons, AdvancedWeapons, Unarmed,
 
-    LightArmor, MediumArmor, HeavyArmor, Shields,
+    LightArmor, MediumArmor, HeavyArmor, Unarmored, Shields,
 
     None;
 
@@ -55,8 +55,8 @@ public enum Attribute {
                 return SimpleWeapons;
             case Martial:
                 return MartialWeapons;
-            case Exotic:
-                return ExoticWeapons;
+            case Advanced:
+                return AdvancedWeapons;
         }
     }
 

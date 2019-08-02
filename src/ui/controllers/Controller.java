@@ -30,7 +30,11 @@ import static ui.Main.character;
 
 public class Controller {
     @FXML
-    private ListView<Class> classList;
+    private Button save;
+    @FXML
+    private Button load;
+    @FXML
+    private Button export;
     @FXML
     private TextField characterName;
     @FXML
@@ -70,11 +74,6 @@ public class Controller {
                 }
             }
         }));
-
-
-
-
-        classList.getItems().addAll(FileLoader.getClasses());
 
         characterName.textProperty().addListener((observable, oldValue, newValue) -> character.setName(newValue));
         displayTab.setOnSelectionChanged((event) -> {

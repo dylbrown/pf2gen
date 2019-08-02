@@ -7,7 +7,7 @@ import model.ability_scores.AbilityMod;
 import java.util.Collections;
 import java.util.List;
 
-public class Ability {
+public class Ability implements Comparable<Ability> {
     private final List<String> prerequisites;
     private final List<AttributeMod> requiredAttrs;
     private final String customMod;
@@ -84,5 +84,10 @@ public class Ability {
 
     public List<AbilitySlot> getAbilitySlots() {
         return Collections.unmodifiableList(abilitySlots);
+    }
+
+    @Override
+    public int compareTo(Ability o) {
+        return this.toString().compareTo(o.toString());
     }
 }

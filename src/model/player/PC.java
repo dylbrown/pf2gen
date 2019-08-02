@@ -281,7 +281,7 @@ public class PC {
     }
 
     public int getTotalMod(Attribute attribute) {
-        return level.get()+getAbilityMod(attribute.getKeyAbility())+attributes.getProficiency(attribute).getValue().getMod();
+        return getAbilityMod(attribute.getKeyAbility())+attributes.getProficiency(attribute).getValue().getMod(level.get());
     }
 
     public int getSpeed() {
@@ -305,8 +305,7 @@ public class PC {
     }
 
     public int getAttackMod(Weapon weapon) {
-        int mod = attributes.getProficiency(Attribute.valueOf(weapon.getProficiency()), weapon.getGroup()).getMod()
-                +level.get();
+        int mod = attributes.getProficiency(Attribute.valueOf(weapon.getProficiency()), weapon.getGroup()).getMod(level.get());
         if(weapon.getTraits().contains(new ItemTrait("Finesse")))
             return mod+Math.max(getAbilityMod(Str), getAbilityMod(Dex));
         else if(weapon instanceof RangedWeapon)

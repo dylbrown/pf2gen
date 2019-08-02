@@ -1,7 +1,7 @@
 package model.enums;
 
 public enum Proficiency {
-    Untrained(-4), Trained(0), Expert(1), Master(2), Legendary(3);
+    Untrained(0), Trained(2), Expert(4), Master(6), Legendary(8);
 
     private final int mod;
 
@@ -10,12 +10,18 @@ public enum Proficiency {
     }
 
     public static Proficiency max(Proficiency oldProf, Proficiency newProf) {
-        if(oldProf.getMod() > newProf.getMod())
+        if(oldProf.getMod(0) > newProf.getMod(0))
             return oldProf;
         return newProf;
     }
 
-    public int getMod() {
+    public int getMod(){
         return mod;
+    }
+
+    public int getMod(int level){
+        if(this == Untrained)
+            return mod;
+        return level + mod;
     }
 }

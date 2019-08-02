@@ -1,7 +1,7 @@
 package model.enums;
 
 public enum Type {
-    Initial, Ancestry, Background, Class, Feat, Heritage, General, Skill,
+    Initial, Ancestry, Background, Class, Feat, Heritage, General, Skill, Dedication,
 
     Five,Ten,Fifteen,Twenty;
 

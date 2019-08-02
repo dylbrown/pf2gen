@@ -71,7 +71,7 @@ public class SkillTab extends AnchorPane {
     private void updateTab() {
         for(int i=0; i<skills.length; i++) {
             int abilityMod = character.getAbilityMod(skills[i].getKeyAbility());
-            int proficiencyMod = character.attributes().getProficiency(skills[i]).getValue().getMod();
+            int proficiencyMod = character.attributes().getProficiency(skills[i]).getValue().getMod(character.getLevel());
             totals.get(i).setText(String.valueOf(abilityMod+proficiencyMod));
             abilities.get(i).setText(String.valueOf(abilityMod));
             proficiencies.get(i).setText(String.valueOf(proficiencyMod));

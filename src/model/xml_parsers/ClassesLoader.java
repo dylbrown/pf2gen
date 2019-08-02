@@ -2,10 +2,8 @@ package model.xml_parsers;
 
 import model.abc.PClass;
 import model.abilities.Ability;
-import model.abilities.abilitySlots.AbilitySlot;
-import model.abilities.abilitySlots.ChoiceSlot;
-import model.abilities.abilitySlots.FeatSlot;
-import model.abilities.abilitySlots.FilledSlot;
+import model.abilities.abilitySlots.*;
+import model.abilities.abilitySlots.DynamicFilledSlot;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
@@ -73,8 +71,13 @@ public class ClassesLoader extends FileLoader<PClass> {
                                 String abilityName = slotNode.getAttribute("name");
                                 switch(slotNode.getAttribute("state").toLowerCase().trim()){
                                     case "filled":
-                                        Element temp = (Element) slotNode.getElementsByTagName("Ability").item(0);
-                                        abilitySlots.add(new FilledSlot(abilityName, level, makeAbility(temp, abilityName, level)));
+                                        NodeList ability = slotNode.getElementsByTagName("Ability");
+                                        if(ability.getLength() > 0) {
+                                            Element temp = (Element) ability.item(0);
+                                            abilitySlots.add(new FilledSlot(abilityName, level, makeAbility(temp, abilityName, level)));
+                                        }else{
+                                            abilitySlots.add(new DynamicFilledSlot(abilityName, level, slotNode.getAttribute("contents")));
+                                        }
                                         break;
                                     case "feat":
                                         abilitySlots.add(new FeatSlot(abilityName, level, getTypes(slotNode.getAttribute("type"))));

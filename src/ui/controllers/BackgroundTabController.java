@@ -24,8 +24,10 @@ public class BackgroundTabController {
 
     @FXML
     private void initialize() {
-        for(Background background: FileLoader.getBackgrounds()) {
-            backgroundList.getItems().add(background);
+        try{
+            backgroundList.getItems().addAll(new BackgroundsLoader().parse());
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
         backgroundList.setOnMouseClicked((event) -> {

@@ -6,10 +6,8 @@ import model.abilities.Ability;
 import model.abilities.AbilitySet;
 import model.abilities.Activity;
 import model.abilities.SkillIncrease;
-import model.abilities.abilitySlots.AbilitySlot;
-import model.abilities.abilitySlots.ChoiceSlot;
-import model.abilities.abilitySlots.FeatSlot;
-import model.abilities.abilitySlots.FilledSlot;
+import model.abilities.abilitySlots.*;
+import model.abilities.abilitySlots.DynamicFilledSlot;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
@@ -30,6 +28,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,8 +81,11 @@ abstract class FileLoader<T> {
 
         }else{
             try {
-                URL index = new URL("https://dylbrown.github.io/pf2gen_data/"+path.toString().replaceAll("\\\\", "/")+"/index.txt");
-                String s = new String(IOUtils.readFully(index.openStream(), -1, true), StandardCharsets.UTF_8);
+                URL index = new URL("https://dylbrown.github.io/pf2gen_data/"+path.toString().replaceAll("\\\\", "/")+"/index.txt"+ "?_=" + System.currentTimeMillis() );
+                URLConnection urlConnection = index.openConnection();
+                urlConnection.setDefaultUseCaches(false);
+                urlConnection.setUseCaches(false);
+                String s = new String(IOUtils.readFully(urlConnection.getInputStream(), -1, true), StandardCharsets.UTF_8);
                 for (String name : s.split("\\n")) {
                     results.add(getDoc(new File(path.toString()+"\\"+name+".pfdyl")));
                 }
@@ -170,8 +172,13 @@ abstract class FileLoader<T> {
                         String abilityName = propElem.getAttribute("name");
                         switch(propElem.getAttribute("state").toLowerCase().trim()){
                             case "filled":
-                                Element temp = (Element) propElem.getElementsByTagName("Ability").item(0);
-                                abilitySlots.add(new FilledSlot(abilityName, level, makeAbility(temp, abilityName, level)));
+                                NodeList ability = propElem.getElementsByTagName("Ability");
+                                if(ability.getLength() > 0) {
+                                    Element temp = (Element) ability.item(0);
+                                    abilitySlots.add(new FilledSlot(abilityName, level, makeAbility(temp, abilityName, level)));
+                                }else{
+                                    abilitySlots.add(new DynamicFilledSlot(abilityName, level, propElem.getAttribute("contents")));
+                                }
                                 break;
                             case "feat":
                                 abilitySlots.add(new FeatSlot(abilityName, level, getTypes(propElem.getAttribute("type"))));
@@ -182,7 +189,7 @@ abstract class FileLoader<T> {
                         }
                 }
             }
-            if(cost == Action.Reaction)
+            if(cost == Action.Reaction || cost == Action.Free)
                 return new Activity(cost, trigger, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots);
             else if(activity)
                 return new Activity(cost, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots);
