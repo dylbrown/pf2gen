@@ -1,11 +1,12 @@
 package model.player;
 
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import model.abc.Ancestry;
-import model.abc.PClass;
+import javafx.collections.transformation.SortedList;
+import model.AttributeMod;
 import model.abilities.Ability;
+import model.abilities.AbilitySet;
+import model.abilities.SkillIncrease;
 import model.abilities.abilitySlots.AbilitySlot;
 import model.abilities.abilitySlots.Choice;
 import model.abilities.abilitySlots.FeatSlot;
@@ -18,14 +19,23 @@ import java.util.List;
 
 public class AbilityManager {
     private final ObservableList<Ability> abilities = FXCollections.observableArrayList();
-    private final ReadOnlyObjectProperty<Ancestry> ancestry;
-    private final ReadOnlyObjectProperty<PClass> pClass;
+    private final SortedList<Ability> sortedAbilities;
+    private final ObservableList<AbilitySet> abilitySets = FXCollections.observableArrayList();
+    private final PC pc;
     private final DecisionManager decisions;
 
-    public AbilityManager(ReadOnlyObjectProperty<Ancestry> ancestry, ReadOnlyObjectProperty<PClass> pClass, DecisionManager decisions) {
-        this.ancestry = ancestry;
-        this.pClass = pClass;
-        this.decisions = decisions;
+    AbilityManager(PC pc) {
+        this.pc = pc;
+        this.decisions = pc.decisions();
+        sortedAbilities = new SortedList<>(abilities);
+
+        pc.getLevelProperty().addListener((observable -> {
+            for (AbilitySet abilitySet : abilitySets) {
+                remove(abilitySet);
+                apply(abilitySet);
+            }
+
+        }));
     }
 
     public List<Ability> getOptions(Choice<Ability> choice) {
@@ -34,16 +44,16 @@ public class AbilityManager {
             for (Type allowedType : ((FeatSlot) choice).getAllowedTypes()) {
                 switch (allowedType) {
                     case Class:
-                        if (pClass.get() != null)
-                            results.addAll(pClass.get().getFeats(((FeatSlot) choice).getLevel()));
+                        if (pc.getPClass() != null)
+                            results.addAll(pc.getPClass().getFeats(((FeatSlot) choice).getLevel()));
                         break;
                     case Ancestry:
-                        if (ancestry.get() != null)
-                            results.addAll(ancestry.get().getFeats(((FeatSlot) choice).getLevel()));
+                        if (pc.getAncestry() != null)
+                            results.addAll(pc.getAncestry().getFeats(((FeatSlot) choice).getLevel()));
                         break;
                     case Heritage:
-                        if (ancestry.get() != null)
-                            results.addAll(ancestry.get().getHeritages());
+                        if (pc.getAncestry() != null)
+                            results.addAll(pc.getAncestry().getHeritages());
                         break;
                     case General:
                         results.addAll(FeatsManager.getGeneralFeats());
@@ -57,26 +67,83 @@ public class AbilityManager {
         return Collections.emptyList();
     }
 
-    public void add(AbilitySlot slot) {
-        abilities.add(slot.getCurrentAbility());
+    void apply(AbilitySlot slot) {
+        if(slot instanceof Choice)
+            decisions.add((Choice) slot);
+
+        Ability ability = slot.getCurrentAbility();
+
+        apply(ability);
     }
 
-    public void remove(AbilitySlot slot) {
-        abilities.remove(slot.getCurrentAbility());
-        if(slot instanceof Choice)
-            decisions.remove((Choice) slot);
-        if(slot.isPreSet()) {
-            remove(slot);
+    private void apply(Ability ability) {
+        if(ability != null) {
+            if(ability instanceof AbilitySet) {
+                abilitySets.add((AbilitySet) ability);
+                List<Ability> subAbilities = ((AbilitySet) ability).getAbilities();
+                int level = pc.getLevel();
+                for (Ability subAbility : subAbilities) {
+                    if(subAbility.getLevel() <= level)
+                        apply(subAbility);
+                }
+            }else {
+                if (ability instanceof SkillIncrease) {
+                    pc.attributes().addSkillIncrease(ability.getLevel());
+                }
+
+                for (AttributeMod mod : ability.getModifiers()) {
+                    pc.attributes().apply(mod);
+                }
+                for (AbilitySlot subSlot : ability.getAbilitySlots()) {
+                    apply(subSlot);
+                }
+                pc.scores().apply(ability.getAbilityMods());
+                if (!ability.getCustomMod().equals(""))
+                    pc.mods().jsApply(ability.getCustomMod());
+                abilities.add(ability);
+            }
         }
     }
 
-    public void addDecision(Choice slot) {
-        decisions.add(slot);
+    void remove(AbilitySlot slot) {
+
+        if(slot instanceof Choice){
+            decisions.remove((Choice) slot);
+            ((Choice) slot).empty();
+        }
+
+        Ability ability = slot.getCurrentAbility();
+        remove(ability);
     }
 
-    public void removeDecision(Choice slot) {
-        decisions.remove(slot);
-        slot.empty();
+    private void remove(Ability ability) {
+        if(ability != null) {
+            if(ability instanceof AbilitySet){
+                abilitySets.remove(ability);
+                List<Ability> subAbilities = ((AbilitySet) ability).getAbilities();
+                for (Ability subAbility : subAbilities) {
+                    if(sortedAbilities.contains(subAbility))
+                        apply(subAbility);
+                }
+            }else{
+                abilities.remove(ability);
+
+                if (ability instanceof SkillIncrease) {
+                    pc.attributes().removeSkillIncrease(ability.getLevel());
+                }
+
+                for (AttributeMod mod : ability.getModifiers()) {
+                    pc.attributes().remove(mod);
+                }
+                for(AbilitySlot subSlot: ability.getAbilitySlots()) {
+                    remove(subSlot);
+                }
+
+                pc.scores().remove(ability.getAbilityMods());
+                if(!ability.getCustomMod().equals(""))
+                    pc.mods().jsRemove(ability.getCustomMod());
+            }
+        }
     }
 
     public ObservableList<Ability> getAbilities() {

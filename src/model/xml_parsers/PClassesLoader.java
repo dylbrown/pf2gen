@@ -16,11 +16,19 @@ import org.w3c.dom.NodeList;
 import java.io.File;
 import java.util.*;
 
-public class ClassesLoader extends FileLoader<PClass> {
+public class PClassesLoader extends FileLoader<PClass> {
 
     private List<PClass> PClasses;
-    public ClassesLoader() {
+
+    private static PClassesLoader instance;
+    static{instance = new PClassesLoader();}
+
+    private PClassesLoader() {
         path = new File("data/classes");
+    }
+
+    public static PClassesLoader instance() {
+        return instance;
     }
 
     @Override
@@ -31,6 +39,7 @@ public class ClassesLoader extends FileLoader<PClass> {
                 NodeList classProperties = doc.getElementsByTagName("class").item(0).getChildNodes();
 
                 String name = ""; int hp = 0; int skillIncreases = 0; AbilityMod abilityMod = null; Map<Integer, List<AbilitySlot>> table = new HashMap<>(); List<Ability> feats = new ArrayList<>(); String description="";
+                List<DynamicFilledSlot> dynSlots = new ArrayList<>();
 
                 for(int i=0; i<classProperties.getLength(); i++) {
                     if(classProperties.item(i).getNodeType() != Node.ELEMENT_NODE)
@@ -76,7 +85,13 @@ public class ClassesLoader extends FileLoader<PClass> {
                                             Element temp = (Element) ability.item(0);
                                             abilitySlots.add(new FilledSlot(abilityName, level, makeAbility(temp, abilityName, level)));
                                         }else{
-                                            abilitySlots.add(new DynamicFilledSlot(abilityName, level, slotNode.getAttribute("contents")));
+                                            String type = slotNode.getAttribute("type");
+                                            if(type.equals("")) type = "General";
+                                            DynamicFilledSlot dynamicFilledSlot = new DynamicFilledSlot(abilityName, level,
+                                                    slotNode.getAttribute("contents"),
+                                                    getDynamicType(type), true);
+                                            abilitySlots.add(dynamicFilledSlot);
+                                            dynSlots.add(dynamicFilledSlot);
                                         }
                                         break;
                                     case "feat":
@@ -98,7 +113,12 @@ public class ClassesLoader extends FileLoader<PClass> {
                             break;
                     }
                 }
-                PClasses.add(new PClass(name, description, hp, skillIncreases, abilityMod, table, feats));
+                PClass pClass = new PClass(name, description, hp, skillIncreases, abilityMod, table, feats);
+                PClasses.add(pClass);
+                for (DynamicFilledSlot dynSlot : dynSlots) {
+                    dynSlot.setpClass(pClass);
+                }
+
             }
         }
         return Collections.unmodifiableList(PClasses);

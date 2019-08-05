@@ -36,7 +36,7 @@ class ModManager {
 
         private final BiConsumer<Object, Object> consumer;
 
-        public SpecialFunction(BiConsumer<Object, Object> consumer) {
+        SpecialFunction(BiConsumer<Object, Object> consumer) {
             this.consumer = consumer;
         }
 
@@ -52,7 +52,7 @@ class ModManager {
         }
     }
 
-    ModManager(PC character, ReadOnlyObjectProperty<Integer> levelProperty) throws ScriptException {
+    ModManager(PC character, ReadOnlyObjectProperty<Integer> levelProperty) {
         ScriptEngineManager manager = new ScriptEngineManager();
         engine = manager.getEngineByName("js");
         engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
@@ -63,7 +63,8 @@ class ModManager {
         engine.put("addChoose", (QuadConsumer<String, String, JSObject, String>)
             (things, name, callback, secondParam)->{
                 List<String> selections = Collections.emptyList();
-                switch (things.toLowerCase()){
+                String[] split = things.toLowerCase().replaceAll(":", "").split("[, ]+");
+                switch (split[0]){
                     case "weapongroup":
                         selections = new ArrayList<>(EquipmentManager.getWeaponGroups().keySet());
                         break;
@@ -71,12 +72,15 @@ class ModManager {
                         selections = Arrays.stream(Attribute.getSkills()).map(
                                 Enum::toString).collect(Collectors.toCollection(ArrayList::new));
                         break;
+                    case "attributes":
+                        selections = new ArrayList<>(Arrays.asList(split).subList(1, split.length));
+                        break;
                 }
                 ArbitraryChoice choice = new ArbitraryChoice(name, selections, (response) -> {
                     choices.put(name, response);
                     callback.call(null, response, secondParam);
                 });
-                character.abilities().addDecision(choice);
+                character.decisions().add(choice);
                 if(choices.get(name) != null)
                     choice.fill(choices.get(name));
             }
@@ -93,15 +97,13 @@ class ModManager {
                                     Enum::toString).collect(Collectors.toCollection(ArrayList::new));
                             break;
                     }
-                    character.abilities().removeDecision(new ArbitraryChoice(name, selections, (response)-> {
-                        callback.call(null, response, secondParam);
-                    }));
+                    character.decisions().add(new ArbitraryChoice(name, selections, (response)-> callback.call(null, response, secondParam)));
                 }
         );
         AttributeManager attributes = character.attributes();
-        engine.put("applySkillProf", new SpecialFunction((attr, prof)->
+        engine.put("applyProf", new SpecialFunction((attr, prof)->
                 attributes.apply(new AttributeMod(Attribute.valueOf((String)attr), Proficiency.valueOf((String)prof)))));
-        engine.put("removeSkillProf", new SpecialFunction((attr, prof)->
+        engine.put("removeProf", new SpecialFunction((attr, prof)->
                 attributes.remove(new AttributeMod(Attribute.valueOf((String)attr), Proficiency.valueOf((String)prof)))));
         engine.put("applyGroupProf", new SpecialFunction((group, prof)->
                 attributes.apply(new WeaponGroupMod(EquipmentManager.getWeaponGroups().get(((String)group).toLowerCase()),
@@ -128,7 +130,7 @@ class ModManager {
     private void apply(String jsString){
         try {
             engine.eval("bonus = add;");
-            engine.eval("skillProficiency = applySkillProf;");
+            engine.eval("proficiency = applyProf;");
             engine.eval("weaponGroupProficiency = applyGroupProf;");
             engine.eval("choose = addChoose;");
             engine.eval(jsString.trim());
@@ -144,7 +146,7 @@ class ModManager {
     private void remove(String jsString) {
         try {
             engine.eval("bonus = subtract;");
-            engine.eval("proficiency = removeSkillProf;");
+            engine.eval("proficiency = removeProf;");
             engine.eval("weaponGroupProficiency = removeGroupProf;");
             engine.eval("choose = removeChoose;");
             engine.eval(jsString.trim());

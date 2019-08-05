@@ -4,7 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import model.abc.PClass;
-import model.xml_parsers.ClassesLoader;
+import model.xml_parsers.PClassesLoader;
 
 import static ui.Main.character;
 
@@ -19,7 +19,7 @@ public class ClassTabController {
     @FXML
     private void initialize() {
         try{
-        classList.getItems().addAll(new ClassesLoader().parse());
+        classList.getItems().addAll(PClassesLoader.instance().parse());
         }catch (Exception e){
             e.printStackTrace();
         }

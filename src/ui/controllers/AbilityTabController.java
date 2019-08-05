@@ -21,13 +21,13 @@ public class AbilityTabController {
     @FXML
     private void initialize() {
         updateTable();
-        Main.character.addAbilityObserver((observable, arg)->updateTable());
+        Main.character.scores().addAbilityObserver((observable, arg)->updateTable());
     }
 
     private void updateTable() {
         List<AbilityModChoice> removals = new ArrayList<>();
         for (AbilityModChoice abilityModChoice : tracker.keySet()) {
-            if(!Main.character.getAbilityScoreChoices().contains(abilityModChoice)) {
+            if(!Main.character.scores().getAbilityScoreChoices().contains(abilityModChoice)) {
                 removals.add(abilityModChoice);
             }
         }
@@ -43,7 +43,7 @@ public class AbilityTabController {
 
             choices.remove(removal);
         }
-        for (AbilityModChoice choice : Main.character.getAbilityScoreChoices()) {
+        for (AbilityModChoice choice : Main.character.scores().getAbilityScoreChoices()) {
             boolean contains = false;
             for (AbilityModChoice abilityModChoice : choices) {
                 if (abilityModChoice == choice) {
@@ -56,7 +56,7 @@ public class AbilityTabController {
                 Label label;
                 ComboBox<AbilityScore> dropdown = new ComboBox<>();
                 dropdown.getItems().addAll(choice.getChoices());
-                dropdown.setOnAction((event -> Main.character.choose(choice, dropdown.getValue())));
+                dropdown.setOnAction((event -> Main.character.scores().choose(choice, dropdown.getValue())));
                 if(choice.getChoices().size() == 6)
                     label = new Label("Source: "+choice.getSource().name()+" (Free Boost)");
                 else
@@ -64,9 +64,7 @@ public class AbilityTabController {
                 abilitiesGrid.addRow(choices.size(), label, dropdown);
                 tracker.put(choice, Arrays.asList(label, dropdown));
 
-                choice.getTargetProperty().addListener((o, oldVal, newVal)->{
-                    dropdown.getSelectionModel().select(newVal);
-                });
+                choice.getTargetProperty().addListener((o, oldVal, newVal)-> dropdown.getSelectionModel().select(newVal));
             }
         }
     }

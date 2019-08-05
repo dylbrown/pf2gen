@@ -31,7 +31,7 @@ public class AbilityDisplayController {
                 boxes.add((Label) node);
         }
         updateTable();
-        character.addAbilityObserver((observable, arg)->updateTable());
+        character.scores().addAbilityObserver((observable, arg)->updateTable());
     }
     private final boolean[] added = {false, false, false, false, false, false, false, false};
     private void updateTable() {
@@ -41,7 +41,7 @@ public class AbilityDisplayController {
         for (int i=0; i<added.length; i++) {
             if(added[i])
                 continue;
-            if(character.getAbilityMods(relevantTypes[i]).size() > 0){
+            if(character.scores().getAbilityMods(relevantTypes[i]).size() > 0){
                 added[i] = true;
                 List<Label> list = Arrays.asList(new Label(), new Label(), new Label(), new Label(), new Label(), new Label());
                 for (Label label : list) {
@@ -58,10 +58,10 @@ public class AbilityDisplayController {
             Integer col = GridPane.getColumnIndex(label);
             switch(row) {
                 case 1: // Scores
-                    label.setText(String.valueOf(character.getAbilityScore(AbilityScore.scores()[col-1])));
+                    label.setText(String.valueOf(character.scores().getScore(AbilityScore.scores()[col-1])));
                     break;
                 case 2: // Modifiers
-                    int abilityMod = character.getAbilityMod(AbilityScore.scores()[col - 1]);
+                    int abilityMod = character.scores().getMod(AbilityScore.scores()[col - 1]);
                     if (abilityMod > 0)
                         label.setText("+" + abilityMod);
                     else
@@ -70,7 +70,7 @@ public class AbilityDisplayController {
                 default:
                     label.setText("");
                     int checker=0;
-                    for (AbilityMod mod : character.getAbilityMods(relevantTypes[row - 3])) {
+                    for (AbilityMod mod : character.scores().getAbilityMods(relevantTypes[row - 3])) {
                         if(mod.getTarget().equals(AbilityScore.scores()[col - 1])){
                             if(mod.isPositive()) {
                                 if(checker == 2)

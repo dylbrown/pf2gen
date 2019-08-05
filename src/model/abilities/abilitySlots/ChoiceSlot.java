@@ -1,6 +1,7 @@
 package model.abilities.abilitySlots;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import model.abilities.Ability;
 
 import java.util.Collections;
@@ -21,8 +22,12 @@ public class ChoiceSlot extends AbilitySlot implements ChoiceList<Ability> {
 
     @Override
     public void fill(Ability choice) {
-        if(choices.contains(choice))
-            currentAbility.set(choice);
+        if(choices.contains(choice)){
+            if(currentAbility == null)
+                currentAbility = new ReadOnlyObjectWrapper<>(choice);
+            else
+                currentAbility.set(choice);
+        }
     }
 
     @Override

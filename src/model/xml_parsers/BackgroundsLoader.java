@@ -16,8 +16,15 @@ import java.util.List;
 public class BackgroundsLoader extends FileLoader<Background> {
     private List<Background> backgrounds;
 
-    public BackgroundsLoader() {
+    private static BackgroundsLoader instance;
+    static{instance = new BackgroundsLoader();}
+
+    private BackgroundsLoader() {
         this.path = new File("data/backgrounds");
+    }
+
+    public static BackgroundsLoader instance() {
+        return instance;
     }
 
     @Override
@@ -25,40 +32,54 @@ public class BackgroundsLoader extends FileLoader<Background> {
         if(backgrounds == null) {
             backgrounds = new ArrayList<>();
             for (Document doc : getDocs(path)) {
-                NodeList classProperties = doc.getElementsByTagName("background").item(0).getChildNodes();
+                NodeList backgroundNodes = doc.getElementsByTagName("background");
+                for(int b=0; b<backgroundNodes.getLength(); b++) {
+                    NodeList classProperties = backgroundNodes.item(b).getChildNodes();
 
-                String name = "";
-                String desc = "";
-                Attribute skill=null;
-                String data="";
-                String bonuses="";
-                String bonusFeat="";
+                    String name = "";
+                    String desc = "";
+                    Attribute skill1 = null; Attribute skill2 = null;
+                    String data1 = ""; String data2 = "";
+                    String bonuses = "";
+                    String bonusFeat = "";
 
-                for(int i=0; i<classProperties.getLength(); i++) {
-                    if(classProperties.item(i).getNodeType() != Node.ELEMENT_NODE)
-                        continue;
-                    Element curr = (Element) classProperties.item(i);
-                    switch(curr.getTagName()){
-                        case "Name":
-                            name = curr.getTextContent().trim();
-                            break;
-                        case "Description":
-                            desc = curr.getTextContent().trim();
-                            break;
-                        case "Skill":
-                            if(camelCaseWord(curr.getTextContent().trim()).substring(0, 4).equals("Lore")) {
-                                skill = Attribute.Lore;
-                                data = camelCaseWord(curr.getTextContent().trim()).substring(4).trim().replaceAll("[()]", "");
-                            }else{
-                                skill = Attribute.valueOf(camelCaseWord(curr.getTextContent().trim()));
-                            }
-                            break;
-                        case "AbilityBonuses":
-                            bonuses = curr.getTextContent().trim();
-                            break;
+                    for (int i = 0; i < classProperties.getLength(); i++) {
+                        if (classProperties.item(i).getNodeType() != Node.ELEMENT_NODE)
+                            continue;
+                        Element curr = (Element) classProperties.item(i);
+                        String trim = curr.getTextContent().trim();
+                        switch (curr.getTagName()) {
+                            case "Name":
+                                name = trim;
+                                break;
+                            case "Description":
+                                desc = trim;
+                                break;
+                            case "Feat":
+                                bonusFeat = trim;
+                                break;
+                            case "Skill":
+                                String[] split = camelCase(trim).split(", +");
+                                if (split[0].substring(0, 4).equals("Lore")) {
+                                    skill1 = Attribute.Lore;
+                                    data1 = camelCase(split[0].substring(4).trim().replaceAll("[()]", ""));
+                                } else {
+                                    skill1 = Attribute.valueOf(camelCaseWord(split[0]));
+                                }
+                                if (split[1].substring(0, 4).equals("Lore")) {
+                                    skill2 = Attribute.Lore;
+                                    data2 = camelCase(split[1].substring(4).trim().replaceAll("[()]", ""));
+                                } else {
+                                    skill2 = Attribute.valueOf(camelCaseWord(split[1]));
+                                }
+                                break;
+                            case "AbilityBonuses":
+                                bonuses = trim;
+                                break;
+                        }
                     }
+                    backgrounds.add(new Background(name, bonuses, bonusFeat, desc, getAbilityMods(bonuses, "", Type.Background), skill1, skill2, data1, data2));
                 }
-                backgrounds.add(new Background(name, bonuses, bonusFeat, desc, getAbilityMods(bonuses, "", Type.Background), skill, data));
             }
         }
         return Collections.unmodifiableList(backgrounds);

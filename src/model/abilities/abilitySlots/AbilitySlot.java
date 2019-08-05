@@ -6,13 +6,14 @@ import model.abilities.Ability;
 public abstract class AbilitySlot {
     private final String name;
 
-    ReadOnlyObjectWrapper<Ability> currentAbility = new ReadOnlyObjectWrapper<>();
+    ReadOnlyObjectWrapper<Ability> currentAbility;
     boolean preSet = false;
     private int level;
 
     AbilitySlot(String name, int level) {
         this.name = name;
         this.level = level;
+        currentAbility = new ReadOnlyObjectWrapper<>(null);
     }
 
     public String getName() {
@@ -24,6 +25,7 @@ public abstract class AbilitySlot {
     }
 
     public Ability getCurrentAbility() {
+        if(currentAbility == null) return null;
         return currentAbility.get();
     }
 

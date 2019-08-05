@@ -29,9 +29,9 @@ import java.util.function.Supplier;
 import static ui.Main.character;
 class SignedTemplateNumberFormatFactory extends TemplateNumberFormatFactory {
     static final SignedTemplateNumberFormatFactory INSTANCE = new SignedTemplateNumberFormatFactory();
-    private SignedTemplateNumberFormatFactory(){};
+    private SignedTemplateNumberFormatFactory(){}
     @Override
-    public TemplateNumberFormat get(String s, Locale locale, Environment environment) throws TemplateValueFormatException {
+    public TemplateNumberFormat get(String s, Locale locale, Environment environment) {
         return SignedTemplateNumberFormat.INSTANCE;
     }
     private static class SignedTemplateNumberFormat extends TemplateNumberFormat {
@@ -147,7 +147,7 @@ public class TemplateFiller {
                         ()->false));
         root.computeIfAbsent("abilityMod", (key)->
                 new FunctionalInterfaceHash((s)->
-                        character.getAbilityScore(AbilityScore.valueOf(s.substring(0,1).toUpperCase() + s.substring(1).toLowerCase())),
+                        character.scores().getScore(AbilityScore.valueOf(s.substring(0,1).toUpperCase() + s.substring(1).toLowerCase())),
                         ()->false));
         root.computeIfAbsent("items", (key)-> character.inventory().getItems().values());
         root.put("skills", getSkills());

@@ -31,7 +31,7 @@ public class AncestryTabController {
     @FXML
     private void initialize() {
         try{
-            ancestryList.getItems().addAll(new AncestriesLoader().parse());
+            ancestryList.getItems().addAll(AncestriesLoader.instance().parse());
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -41,9 +41,7 @@ public class AncestryTabController {
                 Main.character.setAncestry(selectedItem);
             }
         });
-        Main.character.getAncestryProperty().addListener((o, oldVal, newVal)->{
-            ancestryDisplay.setText(newVal.getName());
-        });
+        Main.character.getAncestryProperty().addListener((o, oldVal, newVal)-> ancestryDisplay.setText(newVal.getName()));
         ancestryList.getSelectionModel().selectedItemProperty().addListener((event)->{
             Ancestry item = ancestryList.getSelectionModel().getSelectedItem();
             ancestryDesc.setText(item.getDesc());

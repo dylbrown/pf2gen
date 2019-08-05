@@ -6,7 +6,7 @@ import java.util.*;
 
 import static model.ability_scores.AbilityScore.*;
 
-public enum Attribute {
+    public enum Attribute {
     Acrobatics(Dex), Arcana(Int), Athletics(Str), Crafting(Int), Deception(Cha), Diplomacy(Cha), Intimidation(Cha), Lore(Int), Medicine(Wis), Nature(Wis), Occultism(Int), Performance(Cha), Religion(Wis), Society(Int), Stealth(Dex), Survival(Wis), Thievery(Dex),
 
     Fortitude(Con), Reflex(Dex), Will(Wis), Perception(Wis),
@@ -14,6 +14,8 @@ public enum Attribute {
     SimpleWeapons, MartialWeapons, AdvancedWeapons, Unarmed,
 
     LightArmor, MediumArmor, HeavyArmor, Unarmored, Shields,
+
+    SpellAttacks, SpellDcs,
 
     None;
 

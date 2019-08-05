@@ -11,14 +11,23 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class AncestriesLoader extends FileLoader<Ancestry> {
 
-    public AncestriesLoader() {
+    private static AncestriesLoader instance;
+    static{instance = new AncestriesLoader();}
+    private AncestriesLoader() {
         path = new File("data/ancestries");
     }
     private List<Ancestry> ancestries;
+
+    public static AncestriesLoader instance() {
+        return instance;
+    }
 
     @Override
     public List<Ancestry> parse() {

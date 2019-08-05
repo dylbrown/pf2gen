@@ -16,7 +16,10 @@ public class BackgroundTabController {
     @FXML
     private Label backgroundDesc;
     @FXML
-    private Label skill;
+    private Label skill1;
+
+    @FXML
+    private Label skill2;
     @FXML
     private Label feat;
     @FXML
@@ -25,7 +28,7 @@ public class BackgroundTabController {
     @FXML
     private void initialize() {
         try{
-            backgroundList.getItems().addAll(new BackgroundsLoader().parse());
+            backgroundList.getItems().addAll(BackgroundsLoader.instance().parse());
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -38,9 +41,12 @@ public class BackgroundTabController {
         });
         character.getBackgroundProperty().addListener((o, oldVal, newVal)-> backgroundDisplay.setText(newVal.getName()));
         backgroundList.getSelectionModel().selectedItemProperty().addListener((event)->{
-            backgroundDesc.setText(backgroundList.getSelectionModel().getSelectedItem().getDesc());
-            skill.setText(backgroundList.getSelectionModel().getSelectedItem().getMod().toNiceAttributeString());
-            mods.setText(backgroundList.getSelectionModel().getSelectedItem().getModString());
+            Background item = backgroundList.getSelectionModel().getSelectedItem();
+            backgroundDesc.setText(item.getDesc());
+            skill1.setText(item.getMods().get(0).toNiceAttributeString());
+            skill2.setText(item.getMods().get(1).toNiceAttributeString());
+            mods.setText(item.getModString());
+            feat.setText(item.getFreeFeat().getCurrentAbility().toString());
         });
     }
 }

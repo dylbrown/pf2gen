@@ -19,7 +19,7 @@ import model.enums.Attribute;
 import model.equipment.Equipment;
 import model.xml_parsers.AncestriesLoader;
 import model.xml_parsers.BackgroundsLoader;
-import model.xml_parsers.ClassesLoader;
+import model.xml_parsers.PClassesLoader;
 import ui.TemplateFiller;
 
 import java.io.*;
@@ -115,9 +115,10 @@ public class Controller {
             }
             //Name
             character.setName((String) map.get("name"));
+            characterName.setText(character.getName());
             //Ancestry
             String anc = (String) map.get("ancestry");
-            for (Ancestry ancestry : new AncestriesLoader().parse()) {
+            for (Ancestry ancestry : AncestriesLoader.instance().parse()) {
                 if(ancestry.getName().equals(anc)){
                     character.setAncestry(ancestry);
                     break;
@@ -125,7 +126,7 @@ public class Controller {
             }
             //Background
             String bac = (String) map.get("background");
-            for (Background background : new BackgroundsLoader().parse()) {
+            for (Background background : BackgroundsLoader.instance().parse()) {
                 if(background.getName().equals(bac)){
                     character.setBackground(background);
                     break;
@@ -133,7 +134,7 @@ public class Controller {
             }
             //PClass
             String cla = (String) map.get("class");
-            for (PClass pClass : new ClassesLoader().parse()) {
+            for (PClass pClass : PClassesLoader.instance().parse()) {
                 if(pClass.getName().equals(cla)){
                     character.setClass(pClass);
                     break;
@@ -145,12 +146,12 @@ public class Controller {
                 character.levelUp();
             //Ability Score Choices
             List<AbilityModChoice> mods = new ArrayList<>((List<AbilityModChoice>) map.get("abilityChoices"));
-            for (AbilityModChoice modChoice : character.getAbilityScoreChoices()) {
+            for (AbilityModChoice modChoice : character.scores().getAbilityScoreChoices()) {
                 Iterator<AbilityModChoice> iterator = mods.iterator();
                 while(iterator.hasNext()){
                     AbilityModChoice next = iterator.next();
                     if(next.matches(modChoice)){
-                        character.choose(modChoice, next.getTarget());
+                        character.scores().choose(modChoice, next.getTarget());
                         iterator.remove();
                         break;
                     }
@@ -208,7 +209,7 @@ public class Controller {
         map.put("background", character.getBackground().getName());
         map.put("class", character.getPClass().getName());
         map.put("level", character.getLevel());
-        map.put("abilityChoices", character.getAbilityScoreChoices());
+        map.put("abilityChoices", character.scores().getAbilityScoreChoices());
         map.put("decisions", character.decisions().getDecisions().stream().filter(
                 choice -> choice.getChoice()!=null).map(
                 (choice -> choice.toString()+";"+choice.getChoice().toString())).collect(

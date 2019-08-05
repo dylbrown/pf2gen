@@ -76,7 +76,8 @@ abstract class FileLoader<T> {
         List<Document> results = new ArrayList<>();
         if(path.exists()) {
             for (File file : Objects.requireNonNull(path.listFiles())) {
-                results.add(getDoc(file));
+                if(file.getName().substring(file.getName().length()-5).equals("pfdyl"))
+                    results.add(getDoc(file));
             }
 
         }else{
@@ -177,7 +178,11 @@ abstract class FileLoader<T> {
                                     Element temp = (Element) ability.item(0);
                                     abilitySlots.add(new FilledSlot(abilityName, level, makeAbility(temp, abilityName, level)));
                                 }else{
-                                    abilitySlots.add(new DynamicFilledSlot(abilityName, level, propElem.getAttribute("contents")));
+                                    String type = propElem.getAttribute("type");
+                                    if(type.equals("")) type = "General";
+                                    abilitySlots.add(new DynamicFilledSlot(abilityName, level,
+                                            propElem.getAttribute("contents"),
+                                            getDynamicType(type), false));
                                 }
                                 break;
                             case "feat":
@@ -209,6 +214,10 @@ abstract class FileLoader<T> {
             return new AbilitySet(level, name, desc, makeAbilities(element.getElementsByTagName("Ability")),prerequisites, requiredAttrs, customMod, abilitySlots);
         }
         return null;
+    }
+
+    Type getDynamicType(String type) {
+        return Type.valueOf(type.trim().replaceAll(" [fF]eat", ""));
     }
 
     private List<AbilityMod> getBoosts(int count, int level) {
