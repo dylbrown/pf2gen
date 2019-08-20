@@ -63,8 +63,8 @@ class ModManager {
         engine.put("addChoose", (QuadConsumer<String, String, JSObject, String>)
             (things, name, callback, secondParam)->{
                 List<String> selections = Collections.emptyList();
-                String[] split = things.toLowerCase().replaceAll(":", "").split("[, ]+");
-                switch (split[0]){
+                String[] split = things.replaceAll(":", "").split("[, ]+");
+                switch (split[0].toLowerCase()){
                     case "weapongroup":
                         selections = new ArrayList<>(EquipmentManager.getWeaponGroups().keySet());
                         break;

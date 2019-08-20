@@ -23,16 +23,18 @@ public class FeatSlot extends AbilitySlot implements AbilityChoice {
     @Override
     public void fill(Ability choice) {
         if(currentAbility == null) currentAbility = new ReadOnlyObjectWrapper<>(choice);
-        else currentAbility.set(choice);
+        else if(currentAbility.get() != choice)
+            currentAbility.set(choice);
     }
 
     @Override
     public Ability getChoice() {
-        return currentAbility.get();
+        return (currentAbility == null) ? null : currentAbility.get();
     }
 
     @Override
     public ReadOnlyObjectProperty<Ability> getChoiceProperty() {
+        if(currentAbility == null) currentAbility = new ReadOnlyObjectWrapper<>(null);
         return currentAbility.getReadOnlyProperty();
     }
 

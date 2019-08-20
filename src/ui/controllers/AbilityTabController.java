@@ -58,9 +58,9 @@ public class AbilityTabController {
                 dropdown.getItems().addAll(choice.getChoices());
                 dropdown.setOnAction((event -> Main.character.scores().choose(choice, dropdown.getValue())));
                 if(choice.getChoices().size() == 6)
-                    label = new Label("Source: "+choice.getSource().name()+" (Free Boost)");
+                    label = new Label("Type: "+choice.getType().name()+" (Free Boost)");
                 else
-                    label = new Label("Source: "+choice.getSource().name()+" (Boost Choice)");
+                    label = new Label("Type: "+choice.getType().name()+" (Boost Choice)");
                 abilitiesGrid.addRow(choices.size(), label, dropdown);
                 tracker.put(choice, Arrays.asList(label, dropdown));
 

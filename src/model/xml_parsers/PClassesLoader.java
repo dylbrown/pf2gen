@@ -123,4 +123,9 @@ public class PClassesLoader extends FileLoader<PClass> {
         }
         return Collections.unmodifiableList(PClasses);
     }
+
+    @Override
+    protected Type getSource() {
+        return Type.Class;
+    }
 }

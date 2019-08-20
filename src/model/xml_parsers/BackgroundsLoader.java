@@ -84,4 +84,9 @@ public class BackgroundsLoader extends FileLoader<Background> {
         }
         return Collections.unmodifiableList(backgrounds);
     }
+
+    @Override
+    protected Type getSource() {
+        return Type.Background;
+    }
 }

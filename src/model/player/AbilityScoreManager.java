@@ -44,9 +44,9 @@ public class AbilityScoreManager {
         int score = 10;
         List<Type> stackingCheck = new ArrayList<>();
         for(AbilityMod mod: abilityScores.computeIfAbsent(ability, (key)-> FXCollections.observableArrayList())) {
-            if(mod.isPositive() && !stackingCheck.contains(mod.getSource())) {
+            if(mod.isPositive() && !stackingCheck.contains(mod.getType())) {
                 score += (score < 18) ? 2 : 1;
-                stackingCheck.add(mod.getSource());
+                stackingCheck.add(mod.getType());
             }else if(!mod.isPositive()){
                 score -= 2;
             }
@@ -57,7 +57,7 @@ public class AbilityScoreManager {
     void apply(List<AbilityMod> abilityMods) {
         for(AbilityMod mod: abilityMods) {
             abilityScores.computeIfAbsent(mod.getTarget(), (key)-> FXCollections.observableArrayList()).add(mod);
-            abilityScoresByType.computeIfAbsent(mod.getSource(), (key)->new ArrayList<>()).add(mod);
+            abilityScoresByType.computeIfAbsent(mod.getType(), (key)->new ArrayList<>()).add(mod);
             if(mod instanceof AbilityModChoice)
                 abilityScoreChoices.add((AbilityModChoice) mod);
         }
@@ -68,7 +68,7 @@ public class AbilityScoreManager {
         for(AbilityMod mod: abilityMods) {
             List<AbilityMod> mods = abilityScores.get(mod.getTarget());
             mods.remove(mod);
-            abilityScoresByType.get(mod.getSource()).remove(mod);
+            abilityScoresByType.get(mod.getType()).remove(mod);
             if(mod instanceof AbilityModChoice)
                 abilityScoreChoices.remove(mod);
         }

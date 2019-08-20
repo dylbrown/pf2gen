@@ -12,6 +12,7 @@ import model.abilities.abilitySlots.Choice;
 import model.enums.Attribute;
 import model.enums.Language;
 import model.enums.Slot;
+import model.enums.Type;
 import model.equipment.Armor;
 import model.equipment.ItemTrait;
 import model.equipment.RangedWeapon;
@@ -67,10 +68,18 @@ public class PC {
         applyLevel(getPClass().getLevel(level.get()));
     }
 
+    public void levelDown(){
+        if(level.get() == 1)
+            return;
+        removeLevel(getPClass().getLevel(level.get()));
+        level.set(level.get()-1);
+    }
+
     public void setAncestry(Ancestry ancestry) {
         if(getAncestry() != null) {
             scores.remove(getAncestry().getAbilityMods());
             languages.removeAll(ancestry.getLanguages());
+            abilities.removeAll(Type.Ancestry);
         }
         this.ancestry.set(ancestry);
         scores.apply(ancestry.getAbilityMods());
@@ -79,11 +88,12 @@ public class PC {
     }
 
     public void setBackground(Background background) {
+        if (background == null) return;
         if(getBackground() != null){
             scores.remove(getBackground().getAbilityMods());
             attributes.remove(background.getMods().get(0));
             attributes.remove(background.getMods().get(1));
-            abilities.remove(background.getFreeFeat());
+            abilities.removeAll(Type.Background);
         }
         this.background.set(background);
         scores.apply(background.getAbilityMods());
@@ -97,6 +107,7 @@ public class PC {
             scores.remove(getPClass().getAbilityMods());
             for(int i=getLevel(); i>0; i--)
                 removeLevel(getPClass().getLevel(i));
+            abilities.removeAll(Type.Class);
         }
         pClass.set(newPClass);
         scores.apply(newPClass.getAbilityMods());
@@ -134,9 +145,7 @@ public class PC {
 
     public <U , T extends Choice<U>> void choose(T slot, U selectedItem) {
         if(slot instanceof AbilitySlot && selectedItem instanceof Ability && meetsPrerequisites((Ability) selectedItem)) {
-            abilities.remove((AbilitySlot) slot);
-            slot.fill(selectedItem);
-            abilities.apply((AbilitySlot) slot);
+            abilities.changeSlot((AbilitySlot) slot, (Ability) selectedItem);
         }else{
             slot.fill(selectedItem);
         }
@@ -255,5 +264,9 @@ public class PC {
 
     public AbilityScoreManager scores() {
         return scores;
+    }
+
+    public void reset() {
+
     }
 }

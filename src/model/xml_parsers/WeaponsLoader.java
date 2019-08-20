@@ -2,6 +2,7 @@ package model.xml_parsers;
 
 import model.enums.DamageType;
 import model.enums.Rarity;
+import model.enums.Type;
 import model.enums.WeaponProficiency;
 import model.equipment.*;
 import org.w3c.dom.Document;
@@ -11,6 +12,8 @@ import org.w3c.dom.NodeList;
 
 import java.io.File;
 import java.util.*;
+
+import static model.enums.Type.None;
 
 public class WeaponsLoader extends FileLoader<Weapon> {
 
@@ -54,6 +57,11 @@ public class WeaponsLoader extends FileLoader<Weapon> {
             }
         }
         return Collections.unmodifiableList(weapons);
+    }
+
+    @Override
+    protected Type getSource() {
+        return None;
     }
 
     private Weapon getWeapon(Element weapon) {

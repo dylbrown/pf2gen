@@ -1,7 +1,9 @@
 package ui.controls;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
@@ -12,19 +14,23 @@ import model.abilities.abilitySlots.ChoiceList;
 import model.abilities.abilitySlots.ChoiceSlot;
 import model.abilities.abilitySlots.FeatSlot;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.ToIntFunction;
 
 import static ui.Main.character;
 
 public class SelectionsTab extends AnchorPane {
     private final ComboBox<Choice> box = new ComboBox<>();
+    private final ObservableList<Choice> boxItems = FXCollections.observableArrayList();
     private final AnchorPane container = new AnchorPane();
     private final Map<Choice, AnchorPane> panes = new HashMap<>();
     private ObservableList<Choice> decisions;
     public SelectionsTab(){
         GridPane grid = new GridPane();
         this.getChildren().add(grid);
+        box.setItems(new SortedList<>(boxItems, (Comparator.comparingInt((ToIntFunction<Choice>) Choice::getLevel).thenComparing(Object::toString))));
         AnchorPane.setLeftAnchor(grid, 15.0);
         AnchorPane.setRightAnchor(grid, 15.0);
         AnchorPane.setTopAnchor(grid, 0.0);
@@ -38,9 +44,9 @@ public class SelectionsTab extends AnchorPane {
         decisions = character.decisions().getDecisions();
         decisions.addListener((ListChangeListener<Choice>) (change)->{
             while(change.next()) {
-                box.getItems().addAll(change.getAddedSubList());
+                boxItems.addAll(change.getAddedSubList());
                 for (Choice choice : change.getRemoved()) {
-                    box.getItems().remove(choice);
+                    boxItems.remove(choice);
                     panes.remove(choice);
                 }
             }

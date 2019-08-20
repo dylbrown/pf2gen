@@ -12,14 +12,14 @@ public class AbilityModChoice extends AbilityMod implements Serializable {
     private static int counter = 0;
     private final int id;
     private final List<AbilityScore> choices;
-    public AbilityModChoice(List<AbilityScore> choices, Type source) {
-        super(AbilityScore.Free, true, source);
+    public AbilityModChoice(List<AbilityScore> choices, Type type) {
+        super(AbilityScore.Free, true, type);
         this.choices = choices;
         this.id=counter++;
     }
 
-    public AbilityModChoice(Type source) {
-        super(AbilityScore.Free, true, source);
+    public AbilityModChoice(Type type) {
+        super(AbilityScore.Free, true, type);
         this.choices = Arrays.asList(AbilityScore.scores());
         this.id=counter++;
     }
@@ -46,7 +46,7 @@ public class AbilityModChoice extends AbilityMod implements Serializable {
     }
 
     public boolean matches(AbilityModChoice other) {
-        return this.choices.equals(other.choices) && this.getSource().equals(other.getSource());
+        return this.choices.equals(other.choices) && this.getType().equals(other.getType());
     }
 
     @Override

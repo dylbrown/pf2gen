@@ -51,6 +51,8 @@ abstract class FileLoader<T> {
 
     public abstract List<T> parse();
 
+    protected abstract Type getSource();
+
     Document getDoc(File path) {
         Document doc = null;
         if(path.exists()) {
@@ -195,23 +197,23 @@ abstract class FileLoader<T> {
                 }
             }
             if(cost == Action.Reaction || cost == Action.Free)
-                return new Activity(cost, trigger, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots);
+                return new Activity(cost, trigger, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, getSource());
             else if(activity)
-                return new Activity(cost, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots);
+                return new Activity(cost, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, getSource());
             else if(element.getAttribute("skillIncrease").equals("true"))
                 return new SkillIncrease(level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots);
             else if(!element.getAttribute("abilityBoosts").trim().equals("")) {
                 int count = Integer.parseInt(element.getAttribute("abilityBoosts"));
-                return new Ability(level, name, getBoosts(count, level), description, requiredAttrs, customMod, abilitySlots);
+                return new Ability(level, name, getBoosts(count, level), description, requiredAttrs, customMod, abilitySlots, getSource());
             }else
-                return new Ability(level, name, mods, description, prerequisites, requiredAttrs, customMod, abilitySlots);
+                return new Ability(level, name, mods, description, prerequisites, requiredAttrs, customMod, abilitySlots, getSource());
         }else if(element.getTagName().equals("AbilitySet")){
             String desc="";
             if(element.getElementsByTagName("Description").getLength() > 0)
                 desc = element.getElementsByTagName("Description").item(0).getTextContent().trim();
             if(element.getElementsByTagName("Prerequisites").getLength() > 0)
                 prerequisites.addAll(Arrays.asList(element.getElementsByTagName("Prerequisites").item(0).getTextContent().trim().split(",")));
-            return new AbilitySet(level, name, desc, makeAbilities(element.getElementsByTagName("Ability")),prerequisites, requiredAttrs, customMod, abilitySlots);
+            return new AbilitySet(level, name, desc, makeAbilities(element.getElementsByTagName("Ability")),prerequisites, requiredAttrs, customMod, abilitySlots, getSource());
         }
         return null;
     }

@@ -15,7 +15,7 @@ import static model.ability_scores.AbilityScore.*;
 
     LightArmor, MediumArmor, HeavyArmor, Unarmored, Shields,
 
-    SpellAttacks, SpellDcs,
+    SpellAttacks, SpellDcs, ClassDc,
 
     None;
 

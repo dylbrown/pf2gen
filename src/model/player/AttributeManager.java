@@ -114,7 +114,7 @@ public class AttributeManager {
     public boolean advanceSkill(Attribute skill) {
         if(!Arrays.asList(Attribute.getSkills()).contains(skill))
             return false;
-        ReadOnlyObjectWrapper<Proficiency> prof = proficiencies.get(skill);
+        ReadOnlyObjectWrapper<Proficiency> prof = proficiencies.computeIfAbsent(skill, (key)->new ReadOnlyObjectWrapper<>(Proficiency.Untrained));
         if(prof.getValue() == Proficiency.Legendary) return false;
         for (Map.Entry<Integer, Integer> entry : skillIncreases.entrySet()) {
             if(prof.getValue() == Proficiency.Expert && entry.getKey() < 7)

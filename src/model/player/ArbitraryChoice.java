@@ -43,6 +43,11 @@ public class ArbitraryChoice implements ChoiceList<String> {
     }
 
     @Override
+    public int getLevel() {
+        return 0;
+    }
+
+    @Override
     public void empty() {
         if(choice != null)
             fillFunction.accept(choice.get());

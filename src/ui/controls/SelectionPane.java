@@ -22,6 +22,8 @@ public class SelectionPane<T> extends AnchorPane {
     ObservableList<T> items = FXCollections.observableArrayList();
     ListView<T> choices = new ListView<>();
     BorderPane side = new BorderPane();
+    Choice<T> slot;
+
     SelectionPane(ChoiceList<T> slot) {
         init(slot);
         items.addAll(slot.getOptions());
@@ -30,6 +32,7 @@ public class SelectionPane<T> extends AnchorPane {
     SelectionPane() {}
 
     void init(Choice<T> slot) {
+        this.slot = slot;
         choices.setItems(new SortedList<>(items, Comparator.comparing(Object::toString)));
         Label selectedLabel = new Label("Selection: ");
         selectedLabel.setStyle("-fx-font-size: 20px");
@@ -47,6 +50,13 @@ public class SelectionPane<T> extends AnchorPane {
         AnchorPane.setTopAnchor(this, 0.0);
         AnchorPane.setBottomAnchor(this, 0.0);
 
+        setupChoicesListener();
+        if(slot.getChoice() != null)
+            selectedLabel.setText("Selection: " + slot.getChoice().toString());
+        slot.getChoiceProperty().addListener((o, oldVal, newVal)->selectedLabel.setText("Selection: " + newVal.toString()));
+    }
+
+    void setupChoicesListener() {
         choices.setOnMouseClicked((event) -> {
             if(event.getClickCount() == 2) {
                 T selectedItem = choices.getSelectionModel().getSelectedItem();
@@ -55,8 +65,5 @@ public class SelectionPane<T> extends AnchorPane {
                 }
             }
         });
-        if(slot.getChoice() != null)
-            selectedLabel.setText("Selection: " + slot.getChoice().toString());
-        slot.getChoiceProperty().addListener((o, oldVal, newVal)->selectedLabel.setText("Selection: " + newVal.toString()));
     }
 }

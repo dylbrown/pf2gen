@@ -1,6 +1,7 @@
 package model.xml_parsers;
 
 import model.enums.Rarity;
+import model.enums.Type;
 import model.equipment.Armor;
 import model.equipment.ItemTrait;
 import model.equipment.Shield;
@@ -11,6 +12,8 @@ import org.w3c.dom.NodeList;
 
 import java.io.File;
 import java.util.*;
+
+import static model.enums.Type.None;
 
 public class ArmorLoader extends FileLoader<Armor> {
 
@@ -45,6 +48,11 @@ public class ArmorLoader extends FileLoader<Armor> {
             }
         }
         return Collections.unmodifiableList(armorAndShields);
+    }
+
+    @Override
+    protected Type getSource() {
+        return None;
     }
 
     private Armor getArmor(Element armor) {

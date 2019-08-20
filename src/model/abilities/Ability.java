@@ -3,6 +3,7 @@ package model.abilities;
 import model.AttributeMod;
 import model.abilities.abilitySlots.AbilitySlot;
 import model.ability_scores.AbilityMod;
+import model.enums.Type;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,13 +13,14 @@ public class Ability implements Comparable<Ability> {
     private final List<AttributeMod> requiredAttrs;
     private final String customMod;
     private final List<AbilitySlot> abilitySlots;
+    private final Type type;
     List<AttributeMod> modifiers;
     private List<AbilityMod> abilityMods;
     private final String name;
     private final String description;
     private final int level;
 
-    private Ability(String name, int level, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots) {
+    private Ability(String name, int level, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type) {
         this.name = name;
         this.description = description;
         this.prerequisites = prerequisites;
@@ -30,20 +32,21 @@ public class Ability implements Comparable<Ability> {
         abilityMods = Collections.emptyList();
         this.customMod = customMod;
         this.abilitySlots = abilitySlots;
+        this.type = type;
     }
 
-    Ability(int level, String name, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots) {
-        this(name, level, description, prerequisites, requiredAttrs, customMod, abilitySlots);
+    Ability(int level, String name, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type) {
+        this(name, level, description, prerequisites, requiredAttrs, customMod, abilitySlots, type);
         this.modifiers= Collections.emptyList();
     }
 
-    public Ability(int level, String name, List<AttributeMod> mods, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots) {
-        this(name, level, description, prerequisites, requiredAttrs, customMod, abilitySlots);
+    public Ability(int level, String name, List<AttributeMod> mods, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type) {
+        this(name, level, description, prerequisites, requiredAttrs, customMod, abilitySlots, type);
         this.modifiers = mods;
     }
 
-    public Ability(int level, String name, List<AbilityMod> boosts, String description, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots) {
-        this(level, name, description, Collections.emptyList(), requiredAttrs, customMod, abilitySlots);
+    public Ability(int level, String name, List<AbilityMod> boosts, String description, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type) {
+        this(level, name, description, Collections.emptyList(), requiredAttrs, customMod, abilitySlots, type);
         this.abilityMods = boosts;
     }
 
@@ -89,5 +92,9 @@ public class Ability implements Comparable<Ability> {
     @Override
     public int compareTo(Ability o) {
         return this.toString().compareTo(o.toString());
+    }
+
+    public Type getType() {
+        return type;
     }
 }

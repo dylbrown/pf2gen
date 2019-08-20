@@ -7,20 +7,20 @@ import model.AttributeMod;
 import model.abilities.Ability;
 import model.abilities.AbilitySet;
 import model.abilities.SkillIncrease;
+import model.abilities.abilitySlots.AbilityChoice;
 import model.abilities.abilitySlots.AbilitySlot;
 import model.abilities.abilitySlots.Choice;
 import model.abilities.abilitySlots.FeatSlot;
 import model.data_managers.FeatsManager;
 import model.enums.Type;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class AbilityManager {
     private final ObservableList<Ability> abilities = FXCollections.observableArrayList();
     private final SortedList<Ability> sortedAbilities;
     private final ObservableList<AbilitySet> abilitySets = FXCollections.observableArrayList();
+    private final Map<Type, Set<Ability>> abcTracker = new HashMap<>();
     private final PC pc;
     private final DecisionManager decisions;
 
@@ -78,6 +78,8 @@ public class AbilityManager {
 
     private void apply(Ability ability) {
         if(ability != null) {
+            if(ability.getType() != Type.None)
+                abcTracker.computeIfAbsent(ability.getType(), (key)->new HashSet<>()).add(ability);
             if(ability instanceof AbilitySet) {
                 abilitySets.add((AbilitySet) ability);
                 List<Ability> subAbilities = ((AbilitySet) ability).getAbilities();
@@ -118,6 +120,8 @@ public class AbilityManager {
 
     private void remove(Ability ability) {
         if(ability != null) {
+            if(ability.getType() != Type.None)
+                abcTracker.computeIfAbsent(ability.getType(), (key)->new HashSet<>()).remove(ability);
             if(ability instanceof AbilitySet){
                 abilitySets.remove(ability);
                 List<Ability> subAbilities = ((AbilitySet) ability).getAbilities();
@@ -148,5 +152,26 @@ public class AbilityManager {
 
     public ObservableList<Ability> getAbilities() {
         return FXCollections.unmodifiableObservableList(abilities);
+    }
+
+    public void removeAll(Type type) {
+        if(abcTracker.get(type) != null) {
+            Iterator<Ability> iterator = abcTracker.get(type).iterator();
+
+            while(iterator.hasNext()){
+                Ability ability = iterator.next();
+                iterator.remove();
+                remove(ability);
+            }
+        }
+    }
+
+    public void changeSlot(AbilitySlot slot, Ability selectedItem) {
+        Ability oldItem = slot.getCurrentAbility();
+        if(oldItem != null)
+            remove(oldItem);
+        if(slot instanceof AbilityChoice)
+            ((AbilityChoice) slot).fill(selectedItem);
+        apply(selectedItem);
     }
 }

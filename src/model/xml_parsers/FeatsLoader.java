@@ -1,6 +1,7 @@
 package model.xml_parsers;
 
 import model.abilities.Ability;
+import model.enums.Type;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -30,5 +31,10 @@ public class FeatsLoader extends FileLoader<Ability> {
             }
         }
         return Collections.unmodifiableList(feats);
+    }
+
+    @Override
+    protected Type getSource() {
+        return Type.General;
     }
 }

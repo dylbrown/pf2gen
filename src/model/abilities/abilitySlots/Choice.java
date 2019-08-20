@@ -7,4 +7,5 @@ public interface Choice<T> {
     T getChoice();
     void empty();
     ReadOnlyObjectProperty<T> getChoiceProperty();
+    int getLevel();
 }

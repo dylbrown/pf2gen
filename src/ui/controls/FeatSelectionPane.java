@@ -15,7 +15,7 @@ import java.util.List;
 import static ui.Main.character;
 
 public class FeatSelectionPane extends SelectionPane<Ability> {
-    private List<Ability> unmetAndTaken = new ArrayList<>();
+    private List<Ability> unmetPrereqs = new ArrayList<>();
 
     public FeatSelectionPane(Choice<Ability> slot) {
         AbilityManager abilities = character.abilities();
@@ -28,8 +28,8 @@ public class FeatSelectionPane extends SelectionPane<Ability> {
         desc.setWrapText(true);
         side.setTop(desc);
         items.removeIf((item)->{
-            if(!character.meetsPrerequisites(item) || abilities.getAbilities().contains(item)){
-                unmetAndTaken.add(item);
+            if(!character.meetsPrerequisites(item)){
+                unmetPrereqs.add(item);
                 return true;
             }
             return false;
@@ -37,22 +37,21 @@ public class FeatSelectionPane extends SelectionPane<Ability> {
         abilities.getAbilities().addListener((ListChangeListener<Ability>) (event)->{
             while(event.next()) {
                 if (event.wasAdded()) {
-                    items.removeAll(event.getAddedSubList());
-                    unmetAndTaken.removeIf((item) -> {
-                        if (character.meetsPrerequisites(item) && !abilities.getAbilities().contains(item)) {
+                    unmetPrereqs.removeIf((item) -> {
+                        if (character.meetsPrerequisites(item)) {
                             items.add(item);
                             return true;
                         }
                         return false;
                     });
-                    unmetAndTaken.addAll(event.getAddedSubList());
+                    unmetPrereqs.addAll(event.getAddedSubList());
                 }
                 if (event.wasRemoved()) {
-                    unmetAndTaken.removeAll(event.getRemoved());
+                    unmetPrereqs.removeAll(event.getRemoved());
                     for (Ability item : event.getRemoved()) {
                         if(abilities.getOptions(slot).contains(item)){
-                            if (!character.meetsPrerequisites(item) || abilities.getAbilities().contains(item)) {
-                                unmetAndTaken.add(item);
+                            if (!character.meetsPrerequisites(item)) {
+                                unmetPrereqs.add(item);
                             }else items.add(item);
                         }
                     }
@@ -71,5 +70,17 @@ public class FeatSelectionPane extends SelectionPane<Ability> {
                 character.addAncestryObserver((observable, arg) -> items.setAll(abilities.getOptions(slot)));
             }
         }
+    }
+
+    @Override
+    void setupChoicesListener() {
+        choices.setOnMouseClicked((event) -> {
+            if(event.getClickCount() == 2) {
+                Ability selectedItem = choices.getSelectionModel().getSelectedItem();
+                if(selectedItem != null && character.meetsPrerequisites(selectedItem) && !character.abilities().getAbilities().contains(selectedItem)) {
+                    character.choose(slot, selectedItem);
+                }
+            }
+        });
     }
 }

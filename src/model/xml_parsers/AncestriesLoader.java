@@ -97,4 +97,9 @@ public class AncestriesLoader extends FileLoader<Ancestry> {
         }
         return Collections.unmodifiableList(ancestries);
     }
+
+    @Override
+    protected Type getSource() {
+        return Type.Ancestry;
+    }
 }

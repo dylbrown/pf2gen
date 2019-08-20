@@ -3,6 +3,7 @@ package model.abilities;
 import model.AttributeMod;
 import model.abilities.abilitySlots.AbilitySlot;
 import model.enums.Action;
+import model.enums.Type;
 
 import java.util.List;
 
@@ -10,13 +11,13 @@ public class Activity extends Ability {
     private final Action cost;
     private String trigger = "";
 
-    public Activity(Action cost, int level, String name, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots) {
-        super(level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots);
+    public Activity(Action cost, int level, String name, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type) {
+        super(level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, type);
         this.cost = cost;
     }
 
-    public Activity(Action cost, String trigger, int level, String name, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots) {
-        this(cost, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots);
+    public Activity(Action cost, String trigger, int level, String name, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type) {
+        this(cost, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, type);
         this.trigger = trigger;
     }
 

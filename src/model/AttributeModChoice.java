@@ -39,6 +39,11 @@ public class AttributeModChoice extends AttributeMod implements ChoiceList<Attri
     }
 
     @Override
+    public int getLevel() {
+        return 0;
+    }
+
+    @Override
     public void empty() {
         choiceProperty.set(null);
     }
@@ -47,4 +52,6 @@ public class AttributeModChoice extends AttributeMod implements ChoiceList<Attri
     public String toString() {
         return "Skill Choice";
     }
+
+
 }

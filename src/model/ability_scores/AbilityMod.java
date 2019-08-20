@@ -14,17 +14,17 @@ public class AbilityMod implements Serializable {
     ReadOnlyObjectWrapper<AbilityScore> target;
     private boolean positive;
 
-    public Type getSource() {
-        return source;
+    public Type getType() {
+        return type;
     }
 
-    private Type source;
+    private Type type;
     private final int level = 1;
 
-    public AbilityMod(AbilityScore target, boolean positive, Type source) {
+    public AbilityMod(AbilityScore target, boolean positive, Type type) {
         this.target = new ReadOnlyObjectWrapper<>(target);
         this.positive = positive;
-        this.source = source;
+        this.type = type;
     }
 
     public boolean isPositive() {
@@ -47,25 +47,25 @@ public class AbilityMod implements Serializable {
         return positive == that.positive &&
                 level == that.level &&
                 target == that.target &&
-                source == that.source;
+                type == that.type;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(target, positive, source, level);
+        return Objects.hash(target, positive, type, level);
     }
 
     private void readObject(ObjectInputStream aInputStream) throws ClassNotFoundException, IOException
     {
         target = new ReadOnlyObjectWrapper<>((AbilityScore) aInputStream.readObject());
         positive = aInputStream.readBoolean();
-        source = (Type) aInputStream.readObject();
+        type = (Type) aInputStream.readObject();
     }
 
     private void writeObject(ObjectOutputStream aOutputStream) throws IOException
     {
         aOutputStream.writeObject(target.get());
         aOutputStream.writeBoolean(positive);
-        aOutputStream.writeObject(source);
+        aOutputStream.writeObject(type);
     }
 }
