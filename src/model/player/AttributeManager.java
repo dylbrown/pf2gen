@@ -117,6 +117,8 @@ public class AttributeManager {
         ReadOnlyObjectWrapper<Proficiency> prof = proficiencies.computeIfAbsent(skill, (key)->new ReadOnlyObjectWrapper<>(Proficiency.Untrained));
         if(prof.getValue() == Proficiency.Legendary) return false;
         for (Map.Entry<Integer, Integer> entry : skillIncreases.entrySet()) {
+            if(prof.getValue() == Proficiency.Trained && entry.getKey() == 1)
+                continue;
             if(prof.getValue() == Proficiency.Expert && entry.getKey() < 7)
                 continue;
             if(prof.getValue() == Proficiency.Master && entry.getKey() < 15)
@@ -140,6 +142,8 @@ public class AttributeManager {
         ReadOnlyObjectWrapper<Proficiency> prof = proficiencies.get(skill);
         if(prof.getValue() == Proficiency.Legendary) return false;
         for (Map.Entry<Integer, Integer> entry : skillIncreases.entrySet()) {
+            if(prof.getValue() == Proficiency.Trained && entry.getKey() == 1)
+                continue;
             if(prof.getValue() == Proficiency.Expert && entry.getKey() < 7)
                 continue;
             if(prof.getValue() == Proficiency.Master && entry.getKey() < 15)
