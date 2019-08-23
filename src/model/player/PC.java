@@ -158,13 +158,6 @@ public class PC {
         return 10 + level.get() + scores.getMod(Dex);
     }
 
-    public int getTAC() {
-        Armor armor = (Armor) inventory.getEquipped(Slot.Armor);
-        if(armor != null)
-            return 10 + level.get() + armor.getTAC() + Math.max(scores.getMod(Dex), armor.getMaxDex());
-        return 10 + level.get() + scores.getMod(Dex);
-    }
-
     public int getTotalMod(Attribute attribute) {
         return scores.getMod(attribute.getKeyAbility())+attributes.getProficiency(attribute).getValue().getMod(level.get());
     }

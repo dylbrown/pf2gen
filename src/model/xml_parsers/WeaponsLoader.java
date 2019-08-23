@@ -65,11 +65,15 @@ public class WeaponsLoader extends FileLoader<Weapon> {
     }
 
     private Weapon getWeapon(Element weapon) {
-        double weight=0; double value=0; String name=""; String description = ""; Rarity rarity=Rarity.Common; Dice damage=Dice.get(1,6); DamageType damageType = DamageType.Piercing; int hands = 1; WeaponGroup group = null; List<ItemTrait> traits = new ArrayList<>(); WeaponProficiency weaponProficiency; int range=0; int reload=0; boolean isRanged=false;
+        double weight=0; double value=0; String name=""; String description = ""; Rarity rarity=Rarity.Common; Dice damage=Dice.get(1,6); DamageType damageType = DamageType.Piercing; int hands = 1; WeaponGroup group = null; List<ItemTrait> traits = new ArrayList<>(); WeaponProficiency weaponProficiency; int range=0; int reload=0; boolean isRanged=false; boolean uncommon=false;
         Node proficiencyNode= weapon.getParentNode();
         Node rangeNode = proficiencyNode.getParentNode();
         if(rangeNode.getNodeName().equals("Ranged"))
             isRanged = true;
+
+
+        if(weapon.hasAttribute("Uncommon"))
+            uncommon = true;
 
         weaponProficiency = WeaponProficiency.valueOf(camelCase(proficiencyNode.getNodeName()));
         NodeList nodeList = weapon.getChildNodes();
@@ -135,14 +139,20 @@ public class WeaponsLoader extends FileLoader<Weapon> {
                     group = weaponGroups.get(trim.toLowerCase());
                     break;
                 case "Traits":
-                    Arrays.stream(trim.split(",")).map((item)->weaponTraits.get(camelCase(item.trim().split(" ")[0]))).forEachOrdered(traits::add);
+                    Arrays.stream(trim.split(",")).map((item)->{
+                        String[] s = item.trim().split(" ", 2);
+                        if(s.length == 1)
+                            return weaponTraits.get(camelCase(s[0]));
+                        else
+                            return new SpecialItemTrait(weaponTraits.get(camelCase(s[0])), s[1]);
+                    }).forEachOrdered(traits::add);
                     break;
             }
         }
         if(isRanged)
-            return new RangedWeapon(weight, value, name, description, rarity, damage, damageType, hands, group, traits, weaponProficiency, range, reload);
+            return new RangedWeapon(weight, value, name, description, rarity, damage, damageType, hands, group, traits, weaponProficiency, range, reload, uncommon);
         else
-            return new Weapon(weight, value, name, description, rarity, damage, damageType, hands, group, traits, weaponProficiency);
+            return new Weapon(weight, value, name, description, rarity, damage, damageType, hands, group, traits, weaponProficiency, uncommon);
     }
 
     public Map<String, WeaponGroup> getWeaponsGroups() {

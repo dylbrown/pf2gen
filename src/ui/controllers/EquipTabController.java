@@ -32,7 +32,7 @@ public class EquipTabController {
     @FXML
     public GridPane itemGrid;
     @FXML
-    private Label itemAC, itemTAC, itemMaxDex, itemACP, itemSpeedPenalty, money, totalValue;
+    private Label itemAC, itemMaxDex, itemACP, itemSpeedPenalty, money, totalValue;
     @FXML
     private HBox itemInfoRow;
     private double value = 0;
@@ -55,9 +55,9 @@ public class EquipTabController {
         int i=0;
         ObservableList<Node> nodes = itemInfoRow.getChildren();
         for (Node node : nodes) {
-            if(i > 2 && i <= 7) {
+            if(i > 2 && i <= 6) {
                 armorRow.add(node);
-            }else if(i > 7) {
+            }else if(i > 6) {
                 weaponRow.add(node);
             }else{
                 armorRow.add(node);
@@ -89,7 +89,6 @@ public class EquipTabController {
                 itemInfoRow.getChildren().setAll(weaponRow);
             }else if (selectedItem instanceof Armor){
                 itemAC.setText(String.valueOf(((Armor) selectedItem).getAC()));
-                itemTAC.setText(String.valueOf(((Armor) selectedItem).getTAC()));
                 itemMaxDex.setText(String.valueOf(((Armor) selectedItem).getMaxDex()));
                 itemACP.setText(String.valueOf(((Armor) selectedItem).getACP()));
                 itemSpeedPenalty.setText(((Armor) selectedItem).getSpeedPenalty() +" ft.");

@@ -1,10 +1,11 @@
 package model.equipment;
 
-public class WeaponGroup {
+public class ArmorGroup {
     private final String effect;
     private final String name;
+    public static final ArmorGroup None = new ArmorGroup("","—");
 
-    public WeaponGroup(String effect, String name) {
+    public ArmorGroup(String effect, String name) {
         this.effect = effect;
         this.name = name;
     }

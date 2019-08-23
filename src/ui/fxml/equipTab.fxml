@@ -15,107 +15,81 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<TabPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
-         fx:controller="ui.controllers.EquipTabController">
+<TabPane xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.EquipTabController">
     <Tab closable="false" text="Purchase">
         <AnchorPane minWidth="600.0">
-            <SplitPane dividerPositions="0.3" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <SplitPane dividerPositions="0.3" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                 <VBox>
-                    <ListView fx:id="allItems"/>
+                    <ListView fx:id="allItems" />
                 </VBox>
                 <SplitPane dividerPositions="0.5" orientation="VERTICAL">
                     <AnchorPane minHeight="0.0" minWidth="0.0">
-                        <ListView fx:id="inventory" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                  AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+                        <ListView fx:id="inventory" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                     </AnchorPane>
                     <GridPane fx:id="itemGrid" alignment="CENTER">
                         <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
                         </columnConstraints>
                         <rowConstraints>
-                            <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
-                            <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
-                            <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
-                            <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+                            <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
                         </rowConstraints>
-                        <Label fx:id="itemName" alignment="CENTER" GridPane.columnSpan="2147483647"
-                               GridPane.hgrow="SOMETIMES"/>
-                        <HBox fx:id="itemInfoRow" alignment="CENTER" GridPane.columnSpan="2147483647"
-                              GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.vgrow="SOMETIMES">
+                        <Label fx:id="itemName" alignment="CENTER" GridPane.columnSpan="2147483647" GridPane.hgrow="SOMETIMES" />
+                        <HBox fx:id="itemInfoRow" alignment="CENTER" GridPane.columnSpan="2147483647" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.vgrow="SOMETIMES">
                             <VBox alignment="CENTER" HBox.hgrow="SOMETIMES">
-                                <Label alignment="CENTER" contentDisplay="CENTER" text="Cost"/>
-                                <Label fx:id="itemCost" alignment="CENTER" contentDisplay="CENTER"
-                                       HBox.hgrow="SOMETIMES"/>
+                                <Label alignment="CENTER" contentDisplay="CENTER" text="Cost" />
+                                <Label fx:id="itemCost" alignment="CENTER" contentDisplay="CENTER" HBox.hgrow="SOMETIMES" />
                             </VBox>
                             <VBox alignment="CENTER" HBox.hgrow="SOMETIMES">
-                                <Label alignment="CENTER" contentDisplay="CENTER" text="Weight"/>
-                                <Label fx:id="itemWeight" alignment="CENTER" contentDisplay="CENTER"
-                                       HBox.hgrow="SOMETIMES"/>
+                                <Label alignment="CENTER" contentDisplay="CENTER" text="Weight" />
+                                <Label fx:id="itemWeight" alignment="CENTER" contentDisplay="CENTER" HBox.hgrow="SOMETIMES" />
                             </VBox>
                             <VBox alignment="CENTER" HBox.hgrow="SOMETIMES">
-                                <Label alignment="CENTER" contentDisplay="CENTER" text="Rarity"/>
-                                <Label fx:id="itemRarity" alignment="CENTER" contentDisplay="CENTER"
-                                       HBox.hgrow="SOMETIMES"/>
+                                <Label alignment="CENTER" contentDisplay="CENTER" text="Rarity" />
+                                <Label fx:id="itemRarity" alignment="CENTER" contentDisplay="CENTER" HBox.hgrow="SOMETIMES" />
                             </VBox>
                             <VBox alignment="CENTER" HBox.hgrow="SOMETIMES">
-                                <Label alignment="CENTER" contentDisplay="CENTER" text="AC"/>
-                                <Label fx:id="itemAC" alignment="CENTER" contentDisplay="CENTER"
-                                       HBox.hgrow="SOMETIMES"/>
+                                <Label alignment="CENTER" contentDisplay="CENTER" text="AC" />
+                                <Label fx:id="itemAC" alignment="CENTER" contentDisplay="CENTER" HBox.hgrow="SOMETIMES" />
                             </VBox>
                             <VBox alignment="CENTER" HBox.hgrow="SOMETIMES">
-                                <Label alignment="CENTER" contentDisplay="CENTER" text="TAC"
-                                       HBox.hgrow="SOMETIMES"/>
-                                <Label fx:id="itemTAC" alignment="CENTER" contentDisplay="CENTER"
-                                       HBox.hgrow="SOMETIMES"/>
+                                <Label alignment="CENTER" contentDisplay="CENTER" text="Max Dex" />
+                                <Label fx:id="itemMaxDex" alignment="CENTER" contentDisplay="CENTER" HBox.hgrow="SOMETIMES" />
                             </VBox>
                             <VBox alignment="CENTER" HBox.hgrow="SOMETIMES">
-                                <Label alignment="CENTER" contentDisplay="CENTER" text="Max Dex"/>
-                                <Label fx:id="itemMaxDex" alignment="CENTER" contentDisplay="CENTER"
-                                       HBox.hgrow="SOMETIMES"/>
+                                <Label alignment="CENTER" contentDisplay="CENTER" text="ACP" />
+                                <Label fx:id="itemACP" alignment="CENTER" contentDisplay="CENTER" HBox.hgrow="SOMETIMES" />
                             </VBox>
                             <VBox alignment="CENTER" HBox.hgrow="SOMETIMES">
-                                <Label alignment="CENTER" contentDisplay="CENTER" text="ACP"/>
-                                <Label fx:id="itemACP" alignment="CENTER" contentDisplay="CENTER"
-                                       HBox.hgrow="SOMETIMES"/>
+                                <Label alignment="CENTER" contentDisplay="CENTER" text="Speed Penalty" />
+                                <Label fx:id="itemSpeedPenalty" alignment="CENTER" contentDisplay="CENTER" HBox.hgrow="SOMETIMES" />
                             </VBox>
                             <VBox alignment="CENTER" HBox.hgrow="SOMETIMES">
-                                <Label alignment="CENTER" contentDisplay="CENTER" text="Speed Penalty"/>
-                                <Label fx:id="itemSpeedPenalty" alignment="CENTER"
-                                       contentDisplay="CENTER" HBox.hgrow="SOMETIMES"/>
+                                <Label alignment="CENTER" contentDisplay="CENTER" text="Damage" />
+                                <Label fx:id="itemDamage" alignment="CENTER" contentDisplay="CENTER" HBox.hgrow="SOMETIMES" />
                             </VBox>
                             <VBox alignment="CENTER" HBox.hgrow="SOMETIMES">
-                                <Label alignment="CENTER" contentDisplay="CENTER" text="Damage"/>
-                                <Label fx:id="itemDamage" alignment="CENTER" contentDisplay="CENTER"
-                                       HBox.hgrow="SOMETIMES"/>
+                                <Label alignment="CENTER" contentDisplay="CENTER" text="Hands" />
+                                <Label fx:id="itemHands" alignment="CENTER" contentDisplay="CENTER" HBox.hgrow="SOMETIMES" />
                             </VBox>
                             <VBox alignment="CENTER" HBox.hgrow="SOMETIMES">
-                                <Label alignment="CENTER" contentDisplay="CENTER" text="Hands"/>
-                                <Label fx:id="itemHands" alignment="CENTER" contentDisplay="CENTER"
-                                       HBox.hgrow="SOMETIMES"/>
-                            </VBox>
-                            <VBox alignment="CENTER" HBox.hgrow="SOMETIMES">
-                                <Label alignment="CENTER" contentDisplay="CENTER" text="Group"/>
-                                <Label fx:id="itemGroup" alignment="CENTER" contentDisplay="CENTER"
-                                       HBox.hgrow="SOMETIMES"/>
+                                <Label alignment="CENTER" contentDisplay="CENTER" text="Group" />
+                                <Label fx:id="itemGroup" alignment="CENTER" contentDisplay="CENTER" HBox.hgrow="SOMETIMES" />
                             </VBox>
                         </HBox>
-                        <Label fx:id="itemDesc" GridPane.columnSpan="2147483647" GridPane.rowIndex="2"/>
+                        <Label fx:id="itemDesc" GridPane.columnSpan="2147483647" GridPane.rowIndex="2" />
                         <VBox alignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="3">
-                            <Label alignment="CENTER" contentDisplay="CENTER" text="Money"
-                                   VBox.vgrow="SOMETIMES"/>
-                            <Label fx:id="money" alignment="CENTER" contentDisplay="CENTER"
-                                   VBox.vgrow="SOMETIMES"/>
+                            <Label alignment="CENTER" contentDisplay="CENTER" text="Money" VBox.vgrow="SOMETIMES" />
+                            <Label fx:id="money" alignment="CENTER" contentDisplay="CENTER" VBox.vgrow="SOMETIMES" />
                         </VBox>
-                        <VBox alignment="CENTER" layoutX="201.0" layoutY="190.0" GridPane.columnIndex="3"
-                              GridPane.rowIndex="3">
-                            <Label alignment="CENTER" contentDisplay="CENTER" text="Total Value"
-                                   wrapText="true" VBox.vgrow="SOMETIMES"/>
-                            <Label fx:id="totalValue" alignment="CENTER" contentDisplay="CENTER"
-                                   VBox.vgrow="SOMETIMES"/>
+                        <VBox alignment="CENTER" layoutX="201.0" layoutY="190.0" GridPane.columnIndex="3" GridPane.rowIndex="3">
+                            <Label alignment="CENTER" contentDisplay="CENTER" text="Total Value" wrapText="true" VBox.vgrow="SOMETIMES" />
+                            <Label fx:id="totalValue" alignment="CENTER" contentDisplay="CENTER" VBox.vgrow="SOMETIMES" />
                         </VBox>
                     </GridPane>
                 </SplitPane>
@@ -124,39 +98,31 @@
     </Tab>
     <Tab closable="false" text="Equip">
         <AnchorPane minHeight="0.0" minWidth="0.0">
-            <SplitPane dividerPositions="0.5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <SplitPane dividerPositions="0.5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                 <AnchorPane minHeight="0.0" minWidth="0.0">
-                    <ListView fx:id="unequipped" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+                    <ListView fx:id="unequipped" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                 </AnchorPane>
                 <AnchorPane minHeight="0.0" minWidth="0.0">
-                    <TableView fx:id="equipped" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                               AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <TableView fx:id="equipped" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                         <columns>
-                            <TableColumn editable="false" maxWidth="1.7976931348623157E308"
-                                         prefWidth="122.3333740234375" resizable="false" sortable="false"
-                                         text="Item">
+                            <TableColumn editable="false" maxWidth="1.7976931348623157E308" prefWidth="122.3333740234375" resizable="false" sortable="false" text="Item">
                                 <cellValueFactory>
-                                    <PropertyValueFactory property="name"/>
+                                    <PropertyValueFactory property="name" />
                                 </cellValueFactory>
                             </TableColumn>
-                            <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="0.0"
-                                         prefWidth="59.0" resizable="false" sortable="false" text="Slot">
+                            <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="0.0" prefWidth="59.0" resizable="false" sortable="false" text="Slot">
                                 <cellValueFactory>
-                                    <PropertyValueFactory property="slot"/>
+                                    <PropertyValueFactory property="slot" />
                                 </cellValueFactory>
                             </TableColumn>
-                            <TableColumn editable="false" maxWidth="1.7976931348623157E308" prefWidth="70.0"
-                                         resizable="false" sortable="false" text="Weight">
+                            <TableColumn editable="false" maxWidth="1.7976931348623157E308" prefWidth="70.0" resizable="false" sortable="false" text="Weight">
                                 <cellValueFactory>
-                                    <PropertyValueFactory property="weight"/>
+                                    <PropertyValueFactory property="weight" />
                                 </cellValueFactory>
                             </TableColumn>
-                            <TableColumn editable="false" maxWidth="1.7976931348623157E308" prefWidth="65.0"
-                                         resizable="false" sortable="false" text="Quantity">
+                            <TableColumn editable="false" maxWidth="1.7976931348623157E308" prefWidth="65.0" resizable="false" sortable="false" text="Quantity">
                                 <cellValueFactory>
-                                    <PropertyValueFactory property="count"/>
+                                    <PropertyValueFactory property="count" />
                                 </cellValueFactory>
                             </TableColumn>
                         </columns>
