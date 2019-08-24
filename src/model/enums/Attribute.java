@@ -52,8 +52,9 @@ import static model.ability_scores.AbilityScore.*;
 
     public static Attribute valueOf(WeaponProficiency proficiency) {
         switch(proficiency) {
-            case Simple:
             default:
+                return Unarmed;
+            case Simple:
                 return SimpleWeapons;
             case Martial:
                 return MartialWeapons;
@@ -61,6 +62,21 @@ import static model.ability_scores.AbilityScore.*;
                 return AdvancedWeapons;
         }
     }
+
+        public static Attribute valueOf(ArmorProficiency proficiency) {
+            switch(proficiency) {
+                default:
+                    return Unarmored;
+                case Light:
+                    return LightArmor;
+                case Medium:
+                    return MediumArmor;
+                case Heavy:
+                    return HeavyArmor;
+                case Shield:
+                    return Shields;
+            }
+        }
 
     public AbilityScore getKeyAbility() {
         return keyAbility;

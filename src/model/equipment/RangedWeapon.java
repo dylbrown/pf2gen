@@ -20,4 +20,12 @@ public class RangedWeapon extends Weapon {
     public boolean isRanged(){
         return true;
     }
+
+    public int getRange() {
+        return range;
+    }
+
+    public int getReload() {
+        return reload;
+    }
 }

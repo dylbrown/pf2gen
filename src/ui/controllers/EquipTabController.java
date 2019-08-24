@@ -12,19 +12,17 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.web.WebView;
 import model.data_managers.EquipmentManager;
-import model.equipment.Armor;
-import model.equipment.Equipment;
-import model.equipment.Weapon;
+import model.enums.ArmorProficiency;
+import model.equipment.*;
 import ui.Main;
 
 import java.util.Comparator;
+import java.util.stream.Collectors;
 
 public class EquipTabController {
 
-    @FXML
-    private Label itemName, itemWeight, itemCost, itemRarity, itemDesc, itemDamage, itemHands, itemGroup;
     @FXML
     private ListView<Equipment> inventory, allItems, unequipped;
     @FXML
@@ -32,9 +30,10 @@ public class EquipTabController {
     @FXML
     public GridPane itemGrid;
     @FXML
-    private Label itemAC, itemMaxDex, itemACP, itemSpeedPenalty, money, totalValue;
+    private Label money, totalValue;
+
     @FXML
-    private HBox itemInfoRow;
+    private WebView item;
     private double value = 0;
     private final ReadOnlyObjectWrapper<Boolean> weaponShowing = new ReadOnlyObjectWrapper<>(true);
     private final ReadOnlyObjectWrapper<Boolean> armorShowing = new ReadOnlyObjectWrapper<>(true);
@@ -52,54 +51,13 @@ public class EquipTabController {
         totalValue.setText(value+" sp");
 
         FXCollections.sort(allItems.getItems(), Comparator.comparing(Equipment::toString));
-        int i=0;
-        ObservableList<Node> nodes = itemInfoRow.getChildren();
-        for (Node node : nodes) {
-            if(i > 2 && i <= 6) {
-                armorRow.add(node);
-            }else if(i > 6) {
-                weaponRow.add(node);
-            }else{
-                armorRow.add(node);
-                weaponRow.add(node);
-                simpleItemRow.add(node);
-            }
-            i++;
-        }
 
 
         ChangeListener<Equipment> displayItem = (obs, oldVal, selectedItem) ->{
-            if(selectedItem == null) return;
-            itemName.setText(selectedItem.getName());
-            itemWeight.setText(selectedItem.getPrettyWeight());
-            double value = selectedItem.getValue();
-            long round = Math.round(value);
-            if(value-round == 0)
-                itemCost.setText(round+" sp");
-            else
-                itemCost.setText(value+" sp");
-            itemRarity.setText(selectedItem.getRarity().toString());
-            itemDesc.setText(selectedItem.getDesc());
-            if(selectedItem instanceof Weapon) {
-                itemDamage.setText(((Weapon) selectedItem).getDamage().toString());
-                itemHands.setText(String.valueOf(((Weapon) selectedItem).getHands()));
-                itemGroup.setText(((Weapon) selectedItem).getGroup().getName());
-                armorShowing.set(false);
-                weaponShowing.set(true);
-                itemInfoRow.getChildren().setAll(weaponRow);
-            }else if (selectedItem instanceof Armor){
-                itemAC.setText(String.valueOf(((Armor) selectedItem).getAC()));
-                itemMaxDex.setText(String.valueOf(((Armor) selectedItem).getMaxDex()));
-                itemACP.setText(String.valueOf(((Armor) selectedItem).getACP()));
-                itemSpeedPenalty.setText(((Armor) selectedItem).getSpeedPenalty() +" ft.");
-                armorShowing.set(true);
-                weaponShowing.set(false);
-                itemInfoRow.getChildren().setAll(armorRow);
-            }else {
-                armorShowing.set(false);
-                weaponShowing.set(false);
-                itemInfoRow.getChildren().setAll(simpleItemRow);
-            }
+            if(selectedItem instanceof Weapon)
+                item.getEngine().loadContent(generateWeaponText((Weapon)selectedItem));
+            else if(selectedItem instanceof Armor)
+                item.getEngine().loadContent(generateArmorText((Armor) selectedItem));
         };
         allItems.getSelectionModel().selectedItemProperty().addListener(displayItem);
         inventory.getSelectionModel().selectedItemProperty().addListener(displayItem);
@@ -121,9 +79,6 @@ public class EquipTabController {
                 tryToEquip(item);
             }
         });
-        armorShowing.set(false);
-        weaponShowing.set(false);
-        itemInfoRow.getChildren().setAll(simpleItemRow);
 
         inventory.setItems(new SortedList<>(inventoryList, Comparator.comparing(Equipment::toString)));
 
@@ -142,6 +97,75 @@ public class EquipTabController {
                 equipped.getItems().remove(change.getKey());
             }
         });
+    }
+
+    private String generateArmorText(Armor armor) {
+        StringBuilder text = new StringBuilder();
+        text.append("<p><h3 style='display:inline;'>").append(armor.getName()).append("</h3><br>");
+        if(armor.getProficiency() != ArmorProficiency.Shield)
+            text.append(armor.getProficiency()).append(" Armor<br><b>Cost</b> ");
+        else
+            text.append("Shield<br><b>Cost</b> ");
+        text.append(generateCostString(armor.getValue())).append("; <b>Bulk</b> ");
+        text.append(armor.getPrettyWeight()).append("<br><b>AC Bonus</b> ");
+        if(armor.getAC() >= 0)
+            text.append("+");
+        text.append(armor.getAC());
+        if(armor instanceof Shield) {
+            text.append("; <b>Speed Penalty</b> ");
+            if (armor.getSpeedPenalty() < 0)
+                text.append(Math.abs(armor.getSpeedPenalty())).append(" ft.");
+            else
+                text.append("—");
+            text.append("<br><b>Hardness</b> ").append(((Shield) armor).getHardness());
+            text.append("; <b>HP(BT)</b> ").append(((Shield) armor).getHP()).append("(");
+            text.append(((Shield) armor).getBT()).append(")");
+        }else{
+            text.append("; <b>Dex Cap</b> +").append(armor.getMaxDex()).append("<br><b>ACP</b> ");
+            if (armor.getACP() < 0)
+                text.append(armor.getACP());
+            else
+                text.append("—");
+            text.append("; <b>Speed Penalty</b> ");
+            if (armor.getSpeedPenalty() < 0)
+                text.append(Math.abs(armor.getSpeedPenalty())).append(" ft.");
+            else
+                text.append("—");
+            text.append("<br><b>Strength</b> ");
+            if (armor.getStrength() > 0)
+                text.append(armor.getStrength());
+            else
+                text.append("—");
+            text.append("; <b>Group</b> ").append(armor.getGroup().getName());
+        }
+        if(armor.getTraits().size() > 0)
+            text.append("<br><b>Traits</b> ").append(armor.getTraits().stream().map(ItemTrait::getName).collect(Collectors.joining(", ")));
+        return text.toString();
+    }
+
+    private String generateWeaponText(Weapon weapon) {
+        StringBuilder text = new StringBuilder();
+        text.append("<p><h3 style='display:inline;'>").append(weapon.getName()).append("</h3><br>");
+        text.append(weapon.getProficiency().toString()).append(" Weapon<br><b>Cost</b> ");
+        text.append(generateCostString(weapon.getValue())).append("; <b>Bulk</b> ");
+        text.append(weapon.getPrettyWeight()).append("; <b>Hands</b> ").append(weapon.getHands());
+        text.append("<br><b>Damage</b> ").append(weapon.getDamage()).append(" ").append(weapon.getDamageType().toString(), 0, 1).append("; <b>Group</b> ").append(weapon.getGroup().getName());
+        if(weapon instanceof RangedWeapon){
+            text.append("<br><b>Range</b> ").append(((RangedWeapon) weapon).getRange());
+            text.append("; <b>Reload</b> ").append(((RangedWeapon) weapon).getReload());
+        }
+        if(weapon.getTraits().size() > 0)
+            text.append("<br><b>Traits</b> ").append(weapon.getTraits().stream().map(ItemTrait::getName).collect(Collectors.joining(", ")));
+        return text.toString();
+    }
+
+    private String generateCostString(double cost) {
+        if(Math.floor(cost) != cost)
+            return cost * 10 + " cp";
+        else if(Math.floor(cost/10) != cost/10)
+            return cost + " sp";
+        else
+            return cost / 10 + " gp";
     }
 
     private void tryToEquip(Equipment item) {
