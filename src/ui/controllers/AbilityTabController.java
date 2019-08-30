@@ -60,7 +60,7 @@ public class AbilityTabController {
                 if(choice.getChoices().size() == 6)
                     label = new Label("Type: "+choice.getType().name()+" (Free Boost)");
                 else
-                    label = new Label("Type: "+choice.getType().name()+" (Boost Choice)");
+                    label = new Label("Type: "+choice.getType().name()+" (Boost SingleChoice)");
                 abilitiesGrid.addRow(choices.size(), label, dropdown);
                 tracker.put(choice, Arrays.asList(label, dropdown));
 

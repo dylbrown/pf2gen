@@ -9,6 +9,7 @@ import model.abc.PClass;
 import model.abilities.Ability;
 import model.abilities.abilitySlots.AbilitySlot;
 import model.abilities.abilitySlots.Choice;
+import model.abilities.abilitySlots.SingleChoice;
 import model.enums.Attribute;
 import model.enums.Language;
 import model.enums.Slot;
@@ -109,11 +110,11 @@ public class PC {
                 removeLevel(getPClass().getLevel(i));
             abilities.removeAll(Type.Class);
         }
-        pClass.set(newPClass);
         scores.apply(newPClass.getAbilityMods());
+        applyLevel(newPClass.getLevel(1));
+        attributes.updateSkillCount(newPClass.getSkillIncrease() + scores.getMod(Int));
+        pClass.set(newPClass);
         level.set(1);
-        applyLevel(getPClass().getLevel(1));
-        attributes.updateSkillCount(getPClass().getSkillIncrease() + scores.getMod(Int));
     }
 
     private void removeLevel(List<AbilitySlot> level) {
@@ -143,12 +144,28 @@ public class PC {
         return level.get();
     }
 
-    public <U , T extends Choice<U>> void choose(T slot, U selectedItem) {
-        if(slot instanceof AbilitySlot && selectedItem instanceof Ability && meetsPrerequisites((Ability) selectedItem)) {
+    public <U , T extends SingleChoice<U>> void choose(T slot, U selectedItem) {
+        if(slot instanceof AbilitySlot && (selectedItem instanceof Ability && meetsPrerequisites((Ability) selectedItem)|| selectedItem == null)) {
             abilities.changeSlot((AbilitySlot) slot, (Ability) selectedItem);
         }else{
             slot.fill(selectedItem);
         }
+    }
+
+
+
+    public <U , T extends Choice<U>> void addSelection(T slot, U selectedItem) {
+        if(slot instanceof SingleChoice){
+            if(slot instanceof AbilitySlot && (selectedItem instanceof Ability && meetsPrerequisites((Ability) selectedItem)|| selectedItem == null))
+                abilities.changeSlot((AbilitySlot) slot, (Ability) selectedItem);
+        }else{
+            if(slot.getSelections().size() >= slot.getNumSelections()) return;
+            slot.add(selectedItem);
+        }
+    }
+
+    public <U , T extends Choice<U>> void removeSelection(T slot, U selectedItem) {
+        slot.remove(selectedItem);
     }
 
     public int getAC() {
@@ -214,7 +231,7 @@ public class PC {
     }
 
     public Ancestry getAncestry() {
-        return ancestry.get();
+        return (ancestry.get() != null) ? ancestry.get() : Ancestry.NO_ANCESTRY;
     }
 
     public PClass getPClass() {

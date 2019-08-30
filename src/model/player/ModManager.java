@@ -23,13 +23,14 @@ class ModManager {
     private ScriptEngine engine;
     private ObservableMap<String, Integer> mods = FXCollections.observableHashMap();
     private List<String> jsStrings = new ArrayList<>();
-    private final Map<String, String> choices = new HashMap<>();
+    private final Map<String, List<String>> choices = new HashMap<>();
+    private Map<String, ArbitraryChoice> arbitraryChoices = new HashMap<>();
     private String currentlyChanging = "";
     private ObservableBindings bindings = new ObservableBindings();
 
     @FunctionalInterface
-    public interface QuadConsumer<T, U, V, W> {
-        void apply(T t, U u, V v, W w);
+    public interface QuinConsumer<T, U, V, W, X> {
+        void apply(T t, U u, V v, W w, X x);
     }
 
     private class SpecialFunction extends AbstractJSObject {
@@ -60,8 +61,8 @@ class ModManager {
                 new SpecialFunction((str, num) -> mods.merge((String)str, ((Number)num).intValue(), Integer::sum)));
         engine.put("subtract",
                 new SpecialFunction((str, num) -> mods.merge((String)str, ((Number)num).intValue(), (oldInt, newInt)->oldInt-newInt)));
-        engine.put("addChoose", (QuadConsumer<String, String, JSObject, String>)
-            (things, name, callback, secondParam)->{
+        engine.put("addChoose", (QuinConsumer<String, String, JSObject, String, Integer>)
+            (things, name, callback, secondParam, numSelections)->{
                 List<String> selections = Collections.emptyList();
                 String[] split = things.replaceAll(":", "").split("[, ]+");
                 switch (split[0].toLowerCase()){
@@ -77,27 +78,33 @@ class ModManager {
                         break;
                 }
                 ArbitraryChoice choice = new ArbitraryChoice(name, selections, (response) -> {
-                    choices.put(name, response);
-                    callback.call(null, response, secondParam);
-                });
+                    choices.computeIfAbsent(name, (key)->new ArrayList<>()).add(response);
+                    try {
+                        setAdd();
+                        callback.call(null, response, secondParam);
+                    } catch (ScriptException e) {
+                        e.printStackTrace();
+                    }
+                },(response) -> {
+                    choices.computeIfAbsent(name, (key)->new ArrayList<>()).remove(response);
+                    try {
+                        setRemove();
+                        callback.call(null, response, secondParam);
+                    } catch (ScriptException e) {
+                        e.printStackTrace();
+                    }
+                }, numSelections);
+                arbitraryChoices.put(name, choice);
                 character.decisions().add(choice);
                 if(choices.get(name) != null)
-                    choice.fill(choices.get(name));
+                    for(String selection: choices.get(name))
+                        choice.add(selection);
             }
         );
-        engine.put("removeChoose", (QuadConsumer<String, String, JSObject, String>)
-                (things, name, callback, secondParam)->{
-                    List<String> selections = Collections.emptyList();
-                    switch (things.toLowerCase()){
-                        case "weapongroup":
-                            selections = new ArrayList<>(EquipmentManager.getWeaponGroups().keySet());
-                            break;
-                        case "skill":
-                            selections = Arrays.stream(Attribute.getSkills()).map(
-                                    Enum::toString).collect(Collectors.toCollection(ArrayList::new));
-                            break;
-                    }
-                    character.decisions().add(new ArbitraryChoice(name, selections, (response)-> callback.call(null, response, secondParam)));
+        engine.put("removeChoose", (QuinConsumer<String, String, JSObject, String, Integer>)
+                (things, name, callback, secondParam, numSelections)->{
+                    character.decisions().remove(arbitraryChoices.get(name));
+                    arbitraryChoices.remove(name);
                 }
         );
         AttributeManager attributes = character.attributes();
@@ -129,10 +136,7 @@ class ModManager {
 
     private void apply(String jsString){
         try {
-            engine.eval("bonus = add;");
-            engine.eval("proficiency = applyProf;");
-            engine.eval("weaponGroupProficiency = applyGroupProf;");
-            engine.eval("choose = addChoose;");
+            setAdd();
             engine.eval(jsString.trim());
         } catch (ScriptException e) {
             e.printStackTrace();
@@ -145,14 +149,25 @@ class ModManager {
     }
     private void remove(String jsString) {
         try {
-            engine.eval("bonus = subtract;");
-            engine.eval("proficiency = removeProf;");
-            engine.eval("weaponGroupProficiency = removeGroupProf;");
-            engine.eval("choose = removeChoose;");
+            setRemove();
             engine.eval(jsString.trim());
         } catch (ScriptException e) {
             e.printStackTrace();
         }
+    }
+
+    private void setAdd() throws ScriptException {
+        engine.eval("bonus = add;");
+        engine.eval("proficiency = applyProf;");
+        engine.eval("weaponGroupProficiency = applyGroupProf;");
+        engine.eval("choose = addChoose;");
+    }
+
+    private void setRemove() throws ScriptException {
+        engine.eval("bonus = subtract;");
+        engine.eval("proficiency = removeProf;");
+        engine.eval("weaponGroupProficiency = removeGroupProf;");
+        engine.eval("choose = removeChoose;");
     }
 
     public int get(String variable) {

@@ -2,7 +2,7 @@ package model;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import model.abilities.abilitySlots.ChoiceList;
+import model.abilities.abilitySlots.SingleChoiceList;
 import model.enums.Attribute;
 import model.enums.Proficiency;
 
@@ -10,11 +10,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class AttributeModChoice extends AttributeMod implements ChoiceList<Attribute> {
+public class AttributeModSingleChoice extends AttributeMod implements SingleChoiceList<Attribute> {
     private final List<Attribute> choices = new ArrayList<>();
     private ReadOnlyObjectWrapper<Attribute> choiceProperty = new ReadOnlyObjectWrapper<>();
 
-    public AttributeModChoice(Attribute first, Attribute second, Proficiency prof) {
+    public AttributeModSingleChoice(Attribute first, Attribute second, Proficiency prof) {
         super(first,prof);
         this.choices.add(first);
         this.choices.add(second);

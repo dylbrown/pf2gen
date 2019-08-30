@@ -1,16 +1,12 @@
 package ui.controllers;
 
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.web.WebView;
 import model.data_managers.EquipmentManager;
@@ -34,23 +30,40 @@ public class EquipTabController {
 
     @FXML
     private WebView item;
+    @FXML
+    private CheckMenuItem armorFilter, weaponFilter;
+    @FXML
+    private RadioMenuItem nameSort, priceSort, ascSort, descSort;
+    ToggleGroup sortBy = new ToggleGroup(); ToggleGroup direction = new ToggleGroup();
     private double value = 0;
-    private final ReadOnlyObjectWrapper<Boolean> weaponShowing = new ReadOnlyObjectWrapper<>(true);
-    private final ReadOnlyObjectWrapper<Boolean> armorShowing = new ReadOnlyObjectWrapper<>(true);
-    private final ObservableList<Node> simpleItemRow = FXCollections.observableArrayList();
-    private final ObservableList<Node> weaponRow = FXCollections.observableArrayList();
-    private final ObservableList<Node> armorRow = FXCollections.observableArrayList();
+    private final ObservableList<Equipment> items = FXCollections.observableArrayList();
+    private final FilteredList<Equipment> filter = new FilteredList<>(items);
+    private final SortedList<Equipment> sort = new SortedList<>(filter);
     private final ObservableList<Equipment> inventoryList = FXCollections.observableArrayList();
+    private final ObservableList<Equipment> unequipList = FXCollections.observableArrayList();
+    private final ObservableList<Equipment> equipList = FXCollections.observableArrayList();
 
     @FXML
     private void initialize() {
-        allItems.getItems().addAll(EquipmentManager.getEquipment());
+        items.addAll(EquipmentManager.getEquipment());
         money.setText(Main.character.inventory().getMoneyProperty().get()+" sp");
         Main.character.inventory().getMoneyProperty().addListener((event)-> money.setText(Main.character.inventory().getMoneyProperty().get()+" sp"));
         value = Main.character.inventory().getTotalValue();
         totalValue.setText(value+" sp");
 
-        FXCollections.sort(allItems.getItems(), Comparator.comparing(Equipment::toString));
+        allItems.setItems(sort);
+
+        //Set Up Filter Toggles
+        armorFilter.selectedProperty().addListener((change)->filterStore());
+        weaponFilter.selectedProperty().addListener((change)->filterStore());
+
+        //Set up sort options
+        sortBy.getToggles().addAll(nameSort, priceSort);
+        direction.getToggles().addAll(ascSort,descSort);
+        sortBy.selectToggle(nameSort);
+        sortBy.selectedToggleProperty().addListener((change)->sortStore());
+        direction.selectedToggleProperty().addListener((change)->sortStore());
+        direction.selectToggle(ascSort);
 
 
         ChangeListener<Equipment> displayItem = (obs, oldVal, selectedItem) ->{
@@ -80,21 +93,30 @@ public class EquipTabController {
             }
         });
 
+        equipped.setOnMouseClicked(event -> {
+            if(event.getClickCount() == 2) {
+                Equipment item = equipped.getSelectionModel().getSelectedItem();
+                tryToUnequip(item);
+            }
+        });
+
         inventory.setItems(new SortedList<>(inventoryList, Comparator.comparing(Equipment::toString)));
+        unequipped.setItems(new SortedList<>(unequipList, Comparator.comparing(Equipment::toString)));
+        equipped.setItems(new SortedList<>(equipList, Comparator.comparing(Equipment::toString)));
 
         Main.character.inventory().addInventoryListener(change -> {
             if(change.wasRemoved()) {
                 inventoryList.remove(change.getKey());
-                unequipped.getItems().remove(change.getKey());
+                unequipList.remove(change.getKey());
                 value -= change.getKey().getValue();
                 totalValue.setText(value+" sp");
+                equipList.remove(change.getKey());
             }
             if(change.wasAdded()) {
                 inventoryList.add(change.getKey());
-                unequipped.getItems().add(change.getKey());
+                unequipList.add(change.getKey());
                 value += change.getKey().getValue();
                 totalValue.setText(value+" sp");
-                equipped.getItems().remove(change.getKey());
             }
         });
     }
@@ -170,8 +192,17 @@ public class EquipTabController {
 
     private void tryToEquip(Equipment item) {
         if(Main.character.inventory().equip(item, 1)) {
-            if(!equipped.getItems().contains(item))
-                equipped.getItems().add(item);
+            if(!equipList.contains(item))
+                equipList.add(item);
+            unequipList.remove(item);
+        }
+    }
+
+    private void tryToUnequip(Equipment item) {
+        if(Main.character.inventory().unequip(item, 1)) {
+            if(!unequipList.contains(item))
+                unequipList.add(item);
+            equipList.remove(item);
         }
     }
 
@@ -186,5 +217,20 @@ public class EquipTabController {
         if (!Main.character.inventory().buy(item, 1)) {
             new Alert(Alert.AlertType.INFORMATION, "Not Enough Money!").showAndWait();
         }
+    }
+
+    private void filterStore(){
+        filter.setPredicate((item)-> (armorFilter.isSelected() && item instanceof Armor) || (weaponFilter.isSelected() && item instanceof Weapon));
+    }
+
+    private void sortStore() {
+        Comparator<Equipment> comparator;
+        if(sortBy.getSelectedToggle() == nameSort)
+            comparator = Comparator.comparing(Equipment::toString);
+        else
+            comparator = Comparator.comparing(Equipment::getValue);
+        if(direction.getSelectedToggle() == descSort)
+            comparator = comparator.reversed();
+        sort.setComparator(comparator);
     }
 }

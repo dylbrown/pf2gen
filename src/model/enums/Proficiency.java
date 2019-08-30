@@ -24,4 +24,15 @@ public enum Proficiency {
             return mod;
         return level + mod;
     }
+
+    public static int getMinLevel(Proficiency proficiency) {
+        switch(proficiency){
+            case Untrained:
+            case Trained:
+            default: return 1;
+            case Expert: return 2;
+            case Master: return 7;
+            case Legendary: return 15;
+        }
+    }
 }

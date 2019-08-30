@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Ancestry extends AC {
+    public static final Ancestry NO_ANCESTRY = new Ancestry("No Ancestry", "", Collections.emptyList(), Collections.emptyList(), 0, Size.Medium, 0, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     private final Size size;
     private final int speed;
     private final List<Ability> heritages;

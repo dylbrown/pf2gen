@@ -1,7 +1,7 @@
 package model.xml_parsers;
 
 import model.AttributeMod;
-import model.AttributeModChoice;
+import model.AttributeModSingleChoice;
 import model.abilities.Ability;
 import model.abilities.AbilitySet;
 import model.abilities.Activity;
@@ -191,7 +191,7 @@ abstract class FileLoader<T> {
                                 abilitySlots.add(new FeatSlot(abilityName, level, getTypes(propElem.getAttribute("type"))));
                                 break;
                             case "choice":
-                                abilitySlots.add(new ChoiceSlot(abilityName, level, makeAbilities(propElem.getChildNodes())));
+                                abilitySlots.add(new SingleChoiceSlot(abilityName, level, makeAbilities(propElem.getChildNodes())));
                                 break;
                         }
                 }
@@ -235,7 +235,7 @@ abstract class FileLoader<T> {
             if (!str.trim().equals("")) {
                 String[] orCheck = str.trim().split(" or ");
                 if(orCheck.length > 1) {
-                    mods.add(new AttributeModChoice(Attribute.valueOf(camelCase(orCheck[0]).replaceAll(" ", "")),
+                    mods.add(new AttributeModSingleChoice(Attribute.valueOf(camelCase(orCheck[0]).replaceAll(" ", "")),
                             Attribute.valueOf(camelCase(orCheck[1]).replaceAll(" ", "")), prof));
                 }else {
                     if (camelCaseWord(str.trim()).substring(0, 4).equals("Lore")) {
@@ -257,17 +257,7 @@ abstract class FileLoader<T> {
         for(int i=0;i<split.length;i++) {
             split[i] = split[i].trim();
             if(split[i].equals("")) continue;
-            String[] eachScore = split[i].split("or");
-            if(eachScore.length == 1) {
-                AbilityScore abilityScore = AbilityScore.valueOf(camelCaseWord(split[i]));
-                if(abilityScore != AbilityScore.Free)
-                    abilityMods.add(new AbilityMod(abilityScore, true, type));
-                else
-                    abilityMods.add(new AbilityModChoice(type));
-            }else{
-                abilityMods.add(new AbilityModChoice(Arrays.asList(parseChoices(eachScore)), type));
-            }
-
+            abilityMods.add(getAbilityBonus(split[i], type));
         }
 
         split = penalties.split(",");
@@ -278,6 +268,19 @@ abstract class FileLoader<T> {
         }
 
         return abilityMods;
+    }
+
+    AbilityMod getAbilityBonus(String abilityString, Type type) {
+        String[] eachScore = abilityString.split("or|,");
+        if(eachScore.length == 1) {
+            AbilityScore abilityScore = AbilityScore.valueOf(camelCaseWord(abilityString));
+            if(abilityScore == AbilityScore.Free)
+                return new AbilityModChoice(type);
+            else
+                return new AbilityMod(abilityScore, true, type);
+        }else{
+            return new AbilityModChoice(Arrays.asList(parseChoices(eachScore)), type);
+        }
     }
 
     private AbilityScore[] parseChoices(String[] eachScore) {

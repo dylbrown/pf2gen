@@ -3,10 +3,7 @@ package model.xml_parsers;
 import model.abc.PClass;
 import model.abilities.Ability;
 import model.abilities.abilitySlots.*;
-import model.abilities.abilitySlots.DynamicFilledSlot;
 import model.ability_scores.AbilityMod;
-import model.ability_scores.AbilityModChoice;
-import model.ability_scores.AbilityScore;
 import model.enums.Type;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -60,15 +57,7 @@ public class PClassesLoader extends FileLoader<PClass> {
                             skillIncreases = Integer.parseInt(trim);
                             break;
                         case "AbilityChoices":
-                            if(curr.getElementsByTagName("AbilityScore").getLength() == 1) {
-                                abilityMod = new AbilityMod(AbilityScore.valueOf(camelCaseWord(curr.getElementsByTagName("AbilityScore").item(0).getTextContent())), true, Type.Class);
-                            }else{
-                                List<AbilityScore> scores = new ArrayList<>();
-                                for(int j=0; j<curr.getElementsByTagName("AbilityScore").getLength(); j++) {
-                                    scores.add(AbilityScore.valueOf(camelCaseWord(curr.getElementsByTagName("AbilityScore").item(j).getTextContent())));
-                                }
-                                abilityMod = new AbilityModChoice(scores, Type.Class);
-                            }
+                            abilityMod = getAbilityBonus(trim, Type.Class);
                             break;
                         case "FeatureList":
                             int level = Integer.parseInt(curr.getAttribute("level"));
@@ -98,7 +87,7 @@ public class PClassesLoader extends FileLoader<PClass> {
                                         abilitySlots.add(new FeatSlot(abilityName, level, getTypes(slotNode.getAttribute("type"))));
                                         break;
                                     case "choice":
-                                        abilitySlots.add(new ChoiceSlot(abilityName, level, makeAbilities(slotNode.getChildNodes())));
+                                        abilitySlots.add(new SingleChoiceSlot(abilityName, level, makeAbilities(slotNode.getChildNodes())));
                                         break;
                                 }
                             }

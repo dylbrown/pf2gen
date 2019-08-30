@@ -9,10 +9,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import model.abilities.abilitySlots.Choice;
-import model.abilities.abilitySlots.ChoiceList;
-import model.abilities.abilitySlots.ChoiceSlot;
-import model.abilities.abilitySlots.FeatSlot;
+import model.abilities.abilitySlots.*;
+import model.player.ArbitraryChoice;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -28,9 +26,16 @@ public class SelectionsTab extends AnchorPane {
     private final Map<Choice, AnchorPane> panes = new HashMap<>();
     private ObservableList<Choice> decisions;
     public SelectionsTab(){
+        box.setVisible(false);
         GridPane grid = new GridPane();
         this.getChildren().add(grid);
         box.setItems(new SortedList<>(boxItems, (Comparator.comparingInt((ToIntFunction<Choice>) Choice::getLevel).thenComparing(Object::toString))));
+        box.getItems().addListener((ListChangeListener<Choice>) (change)->{
+            if(box.getItems().size() > 0)
+                box.setVisible(true);
+            else
+                box.setVisible(false);
+        });
         AnchorPane.setLeftAnchor(grid, 15.0);
         AnchorPane.setRightAnchor(grid, 15.0);
         AnchorPane.setTopAnchor(grid, 0.0);
@@ -56,10 +61,12 @@ public class SelectionsTab extends AnchorPane {
                 container.getChildren().set(0, panes.computeIfAbsent(box.getValue(), (choice)->{
                 if(choice instanceof FeatSlot) {
                     return new FeatSelectionPane((FeatSlot)choice);
-                }else if(choice instanceof ChoiceSlot){
-                    return new FeatSelectionPane((ChoiceSlot)choice);
-                }else if(choice instanceof ChoiceList){
-                    return new SelectionPane<Object>((ChoiceList<Object>) choice);
+                }else if(choice instanceof SingleChoiceSlot){
+                    return new FeatSelectionPane((SingleChoiceSlot)choice);
+                }else if(choice instanceof SingleChoiceList){
+                    return new SingleSelectionPane<>((SingleChoiceList<?>) choice);
+                }else if (choice instanceof ArbitraryChoice) {
+                    return new SelectionPane<>((ArbitraryChoice) choice);
                 }else{
                     return new AnchorPane();
                 }

@@ -1,8 +1,11 @@
 package ui.controls;
 
+import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableMap;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import model.enums.Attribute;
+import model.enums.Proficiency;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,13 +19,24 @@ public class SkillTab extends AnchorPane {
     private final List<Label> abilities = new ArrayList<>(Arrays.asList(new Label[18]));
     private final List<Label> proficiencies = new ArrayList<>(Arrays.asList(new Label[18]));
     private final Attribute[] skills = {Acrobatics, Arcana, Athletics, Crafting, Deception, Diplomacy, Intimidation, Lore, Lore, Medicine, Nature, Occultism, Performance, Religion, Society, Stealth, Survival, Thievery};
+    private Label remainingIncreases = new Label("T:0, E:0, M:0, L:0");
 
     public SkillTab() {
+        BorderPane border = new BorderPane();
         GridPane grid = new GridPane();
-        this.getChildren().add(grid);
-        AnchorPane.setLeftAnchor(grid, 15.0);
-        AnchorPane.setRightAnchor(grid, 15.0);
-        AnchorPane.setTopAnchor(grid, 0.0);
+        this.getChildren().add(border);
+        border.setCenter(grid);
+        border.setBottom(remainingIncreases);
+
+        character.attributes().getSkillIncreases().addListener((MapChangeListener<Integer,Integer>) change -> updateLabel());
+        character.getLevelProperty().addListener(change -> updateLabel());
+        character.getPClassProperty().addListener(change -> updateLabel());
+        character.scores().addAbilityObserver((o, arg)->updateLabel());
+        updateLabel();
+
+        AnchorPane.setLeftAnchor(border, 15.0);
+        AnchorPane.setRightAnchor(border, 15.0);
+        AnchorPane.setTopAnchor(border, 0.0);
         grid.setStyle("-fx-hgap: 10;-fx-alignment:center;");
         ColumnConstraints grow = new ColumnConstraints();
         grow.setHgrow(Priority.SOMETIMES);
@@ -76,5 +90,21 @@ public class SkillTab extends AnchorPane {
             abilities.get(i).setText(String.valueOf(abilityMod));
             proficiencies.get(i).setText(String.valueOf(proficiencyMod));
         }
+    }
+
+    private void updateLabel() {
+        ObservableMap<Integer, Integer> skillIncreases = character.attributes().getSkillIncreases();
+        int[] increases = new int[4];
+        increases[0] = skillIncreases.getOrDefault(1,0);
+        for(int i=2; i<=character.getLevel(); i++) {
+            if(i < Proficiency.getMinLevel(Proficiency.Master)){
+                increases[1]++;
+            }else if (i < Proficiency.getMinLevel(Proficiency.Legendary)){
+                increases[2]++;
+            }else{
+                increases[3]++;
+            }
+        }
+        remainingIncreases.setText("T:"+increases[0]+", E:"+increases[1]+", M:"+increases[2]+", L:"+increases[3]);
     }
 }

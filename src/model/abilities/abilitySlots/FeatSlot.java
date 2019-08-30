@@ -8,7 +8,7 @@ import model.enums.Type;
 import java.util.Collections;
 import java.util.List;
 
-public class FeatSlot extends AbilitySlot implements AbilityChoice {
+public class FeatSlot extends AbilitySlot implements AbilitySingleChoice {
     private final List<Type> allowedTypes;
 
     public FeatSlot(String name, int level, List<Type> allowedTypes) {
@@ -36,6 +36,11 @@ public class FeatSlot extends AbilitySlot implements AbilityChoice {
     public ReadOnlyObjectProperty<Ability> getChoiceProperty() {
         if(currentAbility == null) currentAbility = new ReadOnlyObjectWrapper<>(null);
         return currentAbility.getReadOnlyProperty();
+    }
+
+    @Override
+    public String toString() {
+        return getName()+" "+getLevel();
     }
 
     @Override

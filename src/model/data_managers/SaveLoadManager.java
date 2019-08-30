@@ -29,8 +29,15 @@ public class SaveLoadManager {
         map.put("level", character.getLevel());
         map.put("abilityChoices", character.scores().getAbilityScoreChoices());
         map.put("decisions", character.decisions().getDecisions().stream().filter(
-                choice -> choice.getChoice()!=null).map(
-                (choice -> choice.toString()+";"+choice.getChoice().toString())).collect(
+                choice -> choice.getSelections().size()>0).map(
+                (choice)->{
+                    StringBuilder builder = new StringBuilder();
+                    builder.append(choice.toString());
+                    for (Object selection : choice.getSelections()) {
+                        builder.append(selection.toString());
+                    }
+                    return builder.toString();
+                }).collect(
                 Collectors.toList()));
         map.put("skillChoices", character.attributes().getSkillChoices());
         HashMap<String, Integer> items = new HashMap<>();
@@ -116,8 +123,8 @@ public class SaveLoadManager {
             while(decisions.size() > 0){
                 int successes = 0;
                 for(Choice decision: decisions) {
-                    String choice = decisionStringMap.get(decision.toString());
-                    if(choice != null){
+                    List<String> selections = Arrays.asList(decisionStringMap.get(decision.toString()).split("@"));
+                    if(selections.size() > 0){
                         List options;
                         if(decision instanceof ChoiceList)
                             options = ((ChoiceList) decision).getOptions();
@@ -125,8 +132,8 @@ public class SaveLoadManager {
                             options = character.abilities().getOptions((FeatSlot)decision);
                         else options = Collections.emptyList();
                         for (Object option : options) {
-                            if(option.toString().equals(choice)){
-                                character.choose(decision, option);
+                            if(selections.contains(option.toString())){
+                                character.addSelection(decision, option);
                                 successes++;
                                 break;
                             }

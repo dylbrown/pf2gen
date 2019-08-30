@@ -7,9 +7,9 @@ import model.AttributeMod;
 import model.abilities.Ability;
 import model.abilities.AbilitySet;
 import model.abilities.SkillIncrease;
-import model.abilities.abilitySlots.AbilityChoice;
+import model.abilities.abilitySlots.AbilitySingleChoice;
 import model.abilities.abilitySlots.AbilitySlot;
-import model.abilities.abilitySlots.Choice;
+import model.abilities.abilitySlots.SingleChoice;
 import model.abilities.abilitySlots.FeatSlot;
 import model.data_managers.FeatsManager;
 import model.enums.Type;
@@ -38,7 +38,7 @@ public class AbilityManager {
         }));
     }
 
-    public List<Ability> getOptions(Choice<Ability> choice) {
+    public List<Ability> getOptions(SingleChoice<Ability> choice) {
         if (choice instanceof FeatSlot){
             List<Ability> results = new ArrayList<>();
             for (Type allowedType : ((FeatSlot) choice).getAllowedTypes()) {
@@ -68,8 +68,8 @@ public class AbilityManager {
     }
 
     void apply(AbilitySlot slot) {
-        if(slot instanceof Choice)
-            decisions.add((Choice) slot);
+        if(slot instanceof SingleChoice)
+            decisions.add((SingleChoice) slot);
 
         Ability ability = slot.getCurrentAbility();
 
@@ -109,9 +109,9 @@ public class AbilityManager {
 
     void remove(AbilitySlot slot) {
 
-        if(slot instanceof Choice){
-            decisions.remove((Choice) slot);
-            ((Choice) slot).empty();
+        if(slot instanceof SingleChoice){
+            decisions.remove((SingleChoice) slot);
+            ((SingleChoice) slot).empty();
         }
 
         Ability ability = slot.getCurrentAbility();
@@ -127,7 +127,7 @@ public class AbilityManager {
                 List<Ability> subAbilities = ((AbilitySet) ability).getAbilities();
                 for (Ability subAbility : subAbilities) {
                     if(sortedAbilities.contains(subAbility))
-                        apply(subAbility);
+                        remove(subAbility);
                 }
             }else{
                 abilities.remove(ability);
@@ -170,8 +170,8 @@ public class AbilityManager {
         Ability oldItem = slot.getCurrentAbility();
         if(oldItem != null)
             remove(oldItem);
-        if(slot instanceof AbilityChoice)
-            ((AbilityChoice) slot).fill(selectedItem);
+        if(slot instanceof AbilitySingleChoice)
+            ((AbilitySingleChoice) slot).fill(selectedItem);
         apply(selectedItem);
     }
 }

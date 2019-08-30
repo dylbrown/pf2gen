@@ -31,7 +31,7 @@ public abstract class AbilitySlot {
 
     @Override
     public String toString() {
-        return name+" "+level;
+        return name;
     }
 
     public int getLevel(){

@@ -74,7 +74,7 @@ public class InventoryManager {
         }else return false;
     }
 
-    private boolean unequip(Equipment item, int count) {
+    public boolean unequip(Equipment item, int count) {
         Slot slot = item.getSlot();
         Equipment slotContents = equipped.get(slot);
         if(slotContents != null && slotContents.equals(item) && slotContents.getCount() >= count) {

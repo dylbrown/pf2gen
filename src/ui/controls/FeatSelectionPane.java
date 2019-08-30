@@ -2,8 +2,9 @@ package ui.controls;
 
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
 import model.abilities.Ability;
-import model.abilities.abilitySlots.Choice;
+import model.abilities.abilitySlots.SingleChoice;
 import model.abilities.abilitySlots.ChoiceList;
 import model.abilities.abilitySlots.FeatSlot;
 import model.enums.Type;
@@ -14,10 +15,10 @@ import java.util.List;
 
 import static ui.Main.character;
 
-public class FeatSelectionPane extends SelectionPane<Ability> {
+public class FeatSelectionPane extends SingleSelectionPane<Ability> {
     private List<Ability> unmetPrereqs = new ArrayList<>();
 
-    public FeatSelectionPane(Choice<Ability> slot) {
+    public FeatSelectionPane(SingleChoice<Ability> slot) {
         AbilityManager abilities = character.abilities();
         init(slot);
         if(slot instanceof ChoiceList)
@@ -26,7 +27,12 @@ public class FeatSelectionPane extends SelectionPane<Ability> {
             items.addAll(abilities.getOptions(slot));
         Label desc = new Label();
         desc.setWrapText(true);
-        side.setTop(desc);
+        AnchorPane.setLeftAnchor(desc, 0.0);
+        AnchorPane.setRightAnchor(desc, 0.0);
+        AnchorPane.setTopAnchor(desc, 0.0);
+        AnchorPane.setBottomAnchor(desc, 0.0);
+        side.getItems().add(new AnchorPane(desc));
+        side.setDividerPositions(.25);
         items.removeIf((item)->{
             if(!character.meetsPrerequisites(item)){
                 unmetPrereqs.add(item);
@@ -39,12 +45,13 @@ public class FeatSelectionPane extends SelectionPane<Ability> {
                 if (event.wasAdded()) {
                     unmetPrereqs.removeIf((item) -> {
                         if (character.meetsPrerequisites(item)) {
-                            items.add(item);
+                            if(!items.contains(item))
+                                items.add(item);
                             return true;
                         }
                         return false;
                     });
-                    unmetPrereqs.addAll(event.getAddedSubList());
+                    //unmetPrereqs.addAll(event.getAddedSubList());
                 }
                 if (event.wasRemoved()) {
                     unmetPrereqs.removeAll(event.getRemoved());

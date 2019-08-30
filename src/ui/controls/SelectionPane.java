@@ -3,13 +3,12 @@ package ui.controls;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
-import javafx.geometry.Pos;
+import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import model.abilities.abilitySlots.Choice;
 import model.abilities.abilitySlots.ChoiceList;
 
@@ -20,25 +19,30 @@ import static ui.Main.character;
 
 public class SelectionPane<T> extends AnchorPane {
     ObservableList<T> items = FXCollections.observableArrayList();
+    ObservableList<T> selections = FXCollections.observableArrayList();
     ListView<T> choices = new ListView<>();
-    BorderPane side = new BorderPane();
-    Choice<T> slot;
+    ListView<T> chosen = new ListView<>();
+    SplitPane side = new SplitPane();
+    private Choice<T> slot;
 
     SelectionPane(ChoiceList<T> slot) {
         init(slot);
         items.addAll(slot.getOptions());
     }
 
-    SelectionPane() {}
+    SelectionPane() {
+    }
 
     void init(Choice<T> slot) {
         this.slot = slot;
         choices.setItems(new SortedList<>(items, Comparator.comparing(Object::toString)));
-        Label selectedLabel = new Label("Selection: ");
-        selectedLabel.setStyle("-fx-font-size: 20px");
-        HBox selectRow = new HBox(selectedLabel);
-        selectRow.setAlignment(Pos.CENTER);
-        side.setBottom(selectRow);
+        chosen.setItems(new SortedList<>(selections, Comparator.comparing(Object::toString)));
+        BorderPane chosenPane = new BorderPane();
+        chosenPane.setCenter(chosen);
+        chosenPane.setTop(new Label("Selection(s)"));
+        side.getItems().add(chosenPane);
+        side.setOrientation(Orientation.VERTICAL);
+        side.setDividerPositions(.25);
         SplitPane splitPane = new SplitPane(choices, side);
         getChildren().add(splitPane);
         AnchorPane.setLeftAnchor(splitPane, 0.0);
@@ -51,18 +55,26 @@ public class SelectionPane<T> extends AnchorPane {
         AnchorPane.setBottomAnchor(this, 0.0);
 
         setupChoicesListener();
-        if(slot.getChoice() != null)
-            selectedLabel.setText("Selection: " + slot.getChoice().toString());
-        slot.getChoiceProperty().addListener((o, oldVal, newVal)->selectedLabel.setText("Selection: " + newVal.toString()));
+        setupChosenListener();
     }
 
     void setupChoicesListener() {
         choices.setOnMouseClicked((event) -> {
             if(event.getClickCount() == 2) {
                 T selectedItem = choices.getSelectionModel().getSelectedItem();
-                if(selectedItem != null) {
-                    character.choose(slot, selectedItem);
+                if(selectedItem != null && slot.getNumSelections() > slot.getSelections().size()) {
+                    character.addSelection(slot, selectedItem);
+                    selections.add(selectedItem);
                 }
+            }
+        });
+    }
+    void setupChosenListener() {
+        chosen.setOnMouseClicked((event) -> {
+            if(event.getClickCount() == 2) {
+                T selectedItem = chosen.getSelectionModel().getSelectedItem();
+                character.removeSelection(slot, selectedItem);
+                selections.remove(selectedItem);
             }
         });
     }

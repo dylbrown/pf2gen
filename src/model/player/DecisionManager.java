@@ -29,7 +29,7 @@ public class DecisionManager {
     public Choice getNextUnmadeDecision() {
         for (Map.Entry<Integer, SortedMap<String, Choice>> levelEntry : decisionMap.entrySet()) {
             for(Map.Entry<String, Choice> entry: levelEntry.getValue().entrySet()) {
-                if(entry.getValue().getChoice() == null)
+                if(entry.getValue().getSelections().size() < entry.getValue().getNumSelections())
                     return entry.getValue();
             }
         }
@@ -40,7 +40,7 @@ public class DecisionManager {
         List<Choice> choices = new ArrayList<>();
         for (Map.Entry<Integer, SortedMap<String, Choice>> levelEntry : decisionMap.entrySet()) {
             for(Map.Entry<String, Choice> entry: levelEntry.getValue().entrySet()) {
-                if(entry.getValue().getChoice() == null)
+                if(entry.getValue().getSelections().size() < entry.getValue().getNumSelections())
                     choices.add(entry.getValue());
             }
         }

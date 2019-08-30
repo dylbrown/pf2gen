@@ -32,7 +32,8 @@ public class AttributeMod {
     }
 
     public String toNiceAttributeString() {
-        return (!data.equals("")) ? attr.toString()+" ("+data+")" : attr.toString();
+        if(attr == null) return "";
+        return (data != null && !data.equals("")) ? attr.toString()+" ("+data+")" : attr.toString();
     }
 
     @Override

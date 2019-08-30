@@ -1,7 +1,7 @@
 package model.player;
 
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import model.abilities.abilitySlots.ChoiceList;
 
 import java.util.Collections;
@@ -12,13 +12,17 @@ import java.util.function.Consumer;
 public class ArbitraryChoice implements ChoiceList<String> {
     private final List<String> choices;
     private final Consumer<String> fillFunction;
+    private final Consumer<String> emptyFunction;
     private final String name;
-    private ReadOnlyObjectWrapper<String> choice = new ReadOnlyObjectWrapper<>();
+    private final ObservableList<String> selections = FXCollections.observableArrayList();
+    private final int numSelections;
 
-    public ArbitraryChoice(String name, List<String> choices, Consumer<String> fillFunction) {
+    public ArbitraryChoice(String name, List<String> choices, Consumer<String> fillFunction, Consumer<String> emptyFunction, int numSelections) {
         this.name = name;
         this.choices = choices;
         this.fillFunction = fillFunction;
+        this.emptyFunction = emptyFunction;
+        this.numSelections = numSelections;
     }
 
     @Override
@@ -27,19 +31,25 @@ public class ArbitraryChoice implements ChoiceList<String> {
     }
 
     @Override
-    public void fill(String choice) {
-        this.choice.set(choice);
+    public void add(String choice) {
+        this.selections.add(choice);
         fillFunction.accept(choice);
     }
 
     @Override
-    public String getChoice() {
-        return choice.get();
+    public void remove(String choice) {
+        this.selections.remove(choice);
+        emptyFunction.accept(choice);
     }
 
     @Override
-    public ReadOnlyObjectProperty<String> getChoiceProperty(){
-        return choice.getReadOnlyProperty();
+    public int getNumSelections() {
+        return numSelections;
+    }
+
+    @Override
+    public List<String> getSelections() {
+        return Collections.unmodifiableList(selections);
     }
 
     @Override
@@ -49,8 +59,10 @@ public class ArbitraryChoice implements ChoiceList<String> {
 
     @Override
     public void empty() {
-        if(choice != null)
-            fillFunction.accept(choice.get());
+        for (String selection : selections) {
+            emptyFunction.accept(selection);
+        }
+
     }
 
     @Override

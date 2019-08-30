@@ -1,11 +1,12 @@
 package model.abilities.abilitySlots;
 
-import javafx.beans.property.ReadOnlyObjectProperty;
+import java.util.List;
 
 public interface Choice<T> {
-    void fill(T choice);
-    T getChoice();
+    void add(T choice);
+    void remove(T choice);
     void empty();
-    ReadOnlyObjectProperty<T> getChoiceProperty();
+    int getNumSelections();
+    List<T> getSelections();
     int getLevel();
 }

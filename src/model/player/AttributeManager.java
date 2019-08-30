@@ -3,8 +3,10 @@ package model.player;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 import model.AttributeMod;
-import model.AttributeModChoice;
+import model.AttributeModSingleChoice;
 import model.WeaponGroupMod;
 import model.enums.Attribute;
 import model.enums.Proficiency;
@@ -16,12 +18,13 @@ public class AttributeManager {
     private final Map<Attribute, ReadOnlyObjectWrapper<Proficiency>> proficiencies = new HashMap<>();
     private final Map<Attribute, Map<Proficiency, List<AttributeMod>>> proficienciesTracker = new HashMap<>();
     private final SortedMap<Integer, Set<Attribute>> skillChoices = new TreeMap<>(); //Map from level to selected skills
-    private final SortedMap<Integer, Integer> skillIncreases = new TreeMap<>(); // Maps from level to number of increases
+    private final SortedMap<Integer, Integer> innerSkillIncreases = new TreeMap<>(); // Maps from level to number of increases
+    private final ObservableMap<Integer, Integer> skillIncreases = FXCollections.observableMap(innerSkillIncreases); // Maps from level to number of increases
     private final ReadOnlyObjectProperty<Integer> level;
     private DecisionManager decisions;
     private Map<WeaponGroup, Proficiency> groupProficiencies = new HashMap<>();
     private final Eyeball proficiencyChange = new Eyeball();
-    private List<AttributeModChoice> choices = new ArrayList<>();
+    private List<AttributeModSingleChoice> choices = new ArrayList<>();
 
     AttributeManager(ReadOnlyObjectProperty<Integer> level, DecisionManager decisions){
         this.level = level;
@@ -35,11 +38,11 @@ public class AttributeManager {
 
     void apply(AttributeMod mod) {
         if(mod.getAttr() == null) return;
-        if(mod instanceof AttributeModChoice) {
-            decisions.add((AttributeModChoice)mod);
+        if(mod instanceof AttributeModSingleChoice) {
+            decisions.add((AttributeModSingleChoice)mod);
             if(!choices.contains(mod)) {
-                choices.add((AttributeModChoice) mod);
-                ((AttributeModChoice) mod).getChoiceProperty().addListener((observable, oldVal, newVal)->{
+                choices.add((AttributeModSingleChoice) mod);
+                ((AttributeModSingleChoice) mod).getChoiceProperty().addListener((observable, oldVal, newVal)->{
                     remove(new AttributeMod(oldVal, mod.getMod()));
                     apply(new AttributeMod(newVal, mod.getMod()));
                 });
@@ -58,9 +61,9 @@ public class AttributeManager {
 
     void remove(AttributeMod mod) {
         if(mod.getAttr() == null) return;
-        if(mod instanceof AttributeModChoice) {
-            decisions.remove((AttributeModChoice)mod);
-            Attribute choice = ((AttributeModChoice) mod).getChoice();
+        if(mod instanceof AttributeModSingleChoice) {
+            decisions.remove((AttributeModSingleChoice)mod);
+            Attribute choice = ((AttributeModSingleChoice) mod).getChoice();
             if(choice != null)
                 remove(new AttributeMod(choice, mod.getMod()));
             return;
@@ -117,11 +120,11 @@ public class AttributeManager {
         ReadOnlyObjectWrapper<Proficiency> prof = proficiencies.computeIfAbsent(skill, (key)->new ReadOnlyObjectWrapper<>(Proficiency.Untrained));
         if(prof.getValue() == Proficiency.Legendary) return false;
         for (Map.Entry<Integer, Integer> entry : skillIncreases.entrySet()) {
-            if(prof.getValue() == Proficiency.Trained && entry.getKey() == 1)
+            if(prof.getValue() == Proficiency.Trained && entry.getKey() < Proficiency.getMinLevel(Proficiency.Expert))
                 continue;
-            if(prof.getValue() == Proficiency.Expert && entry.getKey() < 7)
+            if(prof.getValue() == Proficiency.Expert && entry.getKey() < Proficiency.getMinLevel(Proficiency.Master))
                 continue;
-            if(prof.getValue() == Proficiency.Master && entry.getKey() < 15)
+            if(prof.getValue() == Proficiency.Master && entry.getKey() < Proficiency.getMinLevel(Proficiency.Legendary))
                 continue;
             Set<Attribute> choices = skillChoices.computeIfAbsent(entry.getKey(), (key) -> new HashSet<>());
             if(entry.getValue() - choices.size() <= 0)
@@ -142,11 +145,11 @@ public class AttributeManager {
         ReadOnlyObjectWrapper<Proficiency> prof = proficiencies.get(skill);
         if(prof.getValue() == Proficiency.Legendary) return false;
         for (Map.Entry<Integer, Integer> entry : skillIncreases.entrySet()) {
-            if(prof.getValue() == Proficiency.Trained && entry.getKey() == 1)
+            if(prof.getValue() == Proficiency.Trained && entry.getKey() < Proficiency.getMinLevel(Proficiency.Expert))
                 continue;
-            if(prof.getValue() == Proficiency.Expert && entry.getKey() < 7)
+            if(prof.getValue() == Proficiency.Expert && entry.getKey() < Proficiency.getMinLevel(Proficiency.Master))
                 continue;
-            if(prof.getValue() == Proficiency.Master && entry.getKey() < 15)
+            if(prof.getValue() == Proficiency.Master && entry.getKey() < Proficiency.getMinLevel(Proficiency.Legendary))
                 continue;
             Set<Attribute> choices = skillChoices.computeIfAbsent(entry.getKey(), (key) -> new HashSet<>());
             if(entry.getValue() - choices.size() <= 0)
@@ -226,5 +229,9 @@ public class AttributeManager {
                     regressSkill(attributes.iterator().next());
             }
         }
+    }
+
+    public ObservableMap<Integer, Integer> getSkillIncreases() {
+        return FXCollections.unmodifiableObservableMap(skillIncreases);
     }
 }

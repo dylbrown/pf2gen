@@ -26,7 +26,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("/ui/fxml/home.fxml"));
         primaryStage.setTitle("PF2Gen");
-        scene.setValue(new Scene(root, 800, 450));
+        scene.setValue(new Scene(root, 800, 500));
         primaryStage.getIcons().add(new Image("PF2Gen.png"));
         primaryStage.setScene(scene.getValue());
         root.setStyle("-fx-base: rgba(45, 49, 50, 255);");
