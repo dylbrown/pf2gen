@@ -1,6 +1,7 @@
 package ui.controls;
 
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import javafx.geometry.Orientation;
@@ -26,8 +27,16 @@ public class SelectionPane<T> extends AnchorPane {
     private Choice<T> slot;
 
     SelectionPane(ChoiceList<T> slot) {
+        selections = slot.getSelections();
         init(slot);
         items.addAll(slot.getOptions());
+        if(slot.getOptions() instanceof ObservableList)
+            ((ObservableList<T>) slot.getOptions()).addListener((ListChangeListener<T>)change->{
+                while(change.next()){
+                    items.addAll(change.getAddedSubList());
+                    items.removeAll(change.getRemoved());
+                }
+            });
     }
 
     SelectionPane() {
@@ -64,7 +73,6 @@ public class SelectionPane<T> extends AnchorPane {
                 T selectedItem = choices.getSelectionModel().getSelectedItem();
                 if(selectedItem != null && slot.getNumSelections() > slot.getSelections().size()) {
                     character.addSelection(slot, selectedItem);
-                    selections.add(selectedItem);
                 }
             }
         });
@@ -74,7 +82,6 @@ public class SelectionPane<T> extends AnchorPane {
             if(event.getClickCount() == 2) {
                 T selectedItem = chosen.getSelectionModel().getSelectedItem();
                 character.removeSelection(slot, selectedItem);
-                selections.remove(selectedItem);
             }
         });
     }

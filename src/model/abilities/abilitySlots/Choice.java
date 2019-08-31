@@ -1,12 +1,12 @@
 package model.abilities.abilitySlots;
 
-import java.util.List;
+import javafx.collections.ObservableList;
 
 public interface Choice<T> {
     void add(T choice);
     void remove(T choice);
     void empty();
     int getNumSelections();
-    List<T> getSelections();
+    ObservableList<T> getSelections();
     int getLevel();
 }

@@ -5,5 +5,7 @@ public enum Trait {
 
     Flourish, Open, Press,
 
+    Healing,
+
     Oath
 }

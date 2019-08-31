@@ -59,7 +59,8 @@ public class FeatSelectionPane extends SingleSelectionPane<Ability> {
                         if(abilities.getOptions(slot).contains(item)){
                             if (!character.meetsPrerequisites(item)) {
                                 unmetPrereqs.add(item);
-                            }else items.add(item);
+                            }else if(!items.contains(item))
+                                items.add(item);
                         }
                     }
                 }
@@ -84,7 +85,8 @@ public class FeatSelectionPane extends SingleSelectionPane<Ability> {
         choices.setOnMouseClicked((event) -> {
             if(event.getClickCount() == 2) {
                 Ability selectedItem = choices.getSelectionModel().getSelectedItem();
-                if(selectedItem != null && character.meetsPrerequisites(selectedItem) && !character.abilities().getAbilities().contains(selectedItem)) {
+                if(selectedItem != null && character.meetsPrerequisites(selectedItem) &&
+                        (selectedItem.isMultiple() || !character.abilities().haveAbility(selectedItem))) {
                     character.choose(slot, selectedItem);
                 }
             }

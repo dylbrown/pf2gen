@@ -11,13 +11,13 @@ public class Activity extends Ability {
     private final Action cost;
     private String trigger = "";
 
-    public Activity(Action cost, int level, String name, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type) {
-        super(level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, type);
+    public Activity(Action cost, int level, String name, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type, boolean multiple) {
+        super(level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, type, multiple);
         this.cost = cost;
     }
 
-    public Activity(Action cost, String trigger, int level, String name, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type) {
-        this(cost, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, type);
+    public Activity(Action cost, String trigger, int level, String name, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type, boolean multiple) {
+        this(cost, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, type, multiple);
         this.trigger = trigger;
     }
 

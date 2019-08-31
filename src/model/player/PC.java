@@ -145,8 +145,10 @@ public class PC {
     }
 
     public <U , T extends SingleChoice<U>> void choose(T slot, U selectedItem) {
-        if(slot instanceof AbilitySlot && (selectedItem instanceof Ability && meetsPrerequisites((Ability) selectedItem)|| selectedItem == null)) {
-            abilities.changeSlot((AbilitySlot) slot, (Ability) selectedItem);
+        if(slot instanceof AbilitySlot && (selectedItem == null || selectedItem instanceof Ability)) {
+            if(selectedItem == null || (meetsPrerequisites((Ability) selectedItem) &&
+                    ((Ability) selectedItem).isMultiple() || !abilities().haveAbility((Ability) selectedItem)))
+                abilities.changeSlot((AbilitySlot) slot, (Ability) selectedItem);
         }else{
             slot.fill(selectedItem);
         }
@@ -156,8 +158,7 @@ public class PC {
 
     public <U , T extends Choice<U>> void addSelection(T slot, U selectedItem) {
         if(slot instanceof SingleChoice){
-            if(slot instanceof AbilitySlot && (selectedItem instanceof Ability && meetsPrerequisites((Ability) selectedItem)|| selectedItem == null))
-                abilities.changeSlot((AbilitySlot) slot, (Ability) selectedItem);
+            choose((SingleChoice<? super U>) slot, selectedItem);
         }else{
             if(slot.getSelections().size() >= slot.getNumSelections()) return;
             slot.add(selectedItem);

@@ -1,10 +1,12 @@
 package model.player;
 
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import model.abilities.abilitySlots.ChoiceList;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -15,7 +17,7 @@ public class ArbitraryChoice implements ChoiceList<String> {
     private final Consumer<String> emptyFunction;
     private final String name;
     private final ObservableList<String> selections = FXCollections.observableArrayList();
-    private final int numSelections;
+    private int numSelections;
 
     public ArbitraryChoice(String name, List<String> choices, Consumer<String> fillFunction, Consumer<String> emptyFunction, int numSelections) {
         this.name = name;
@@ -23,10 +25,17 @@ public class ArbitraryChoice implements ChoiceList<String> {
         this.fillFunction = fillFunction;
         this.emptyFunction = emptyFunction;
         this.numSelections = numSelections;
+        if(choices instanceof ObservableList)
+            ((ObservableList<String>) choices).addListener((ListChangeListener<String>) change->{
+                while(change.next())
+                    selections.removeAll(change.getRemoved());
+            });
     }
 
     @Override
     public List<String> getOptions() {
+        if(choices instanceof ObservableList)
+            return FXCollections.unmodifiableObservableList((ObservableList<String>) choices);
         return Collections.unmodifiableList(choices);
     }
 
@@ -48,8 +57,8 @@ public class ArbitraryChoice implements ChoiceList<String> {
     }
 
     @Override
-    public List<String> getSelections() {
-        return Collections.unmodifiableList(selections);
+    public ObservableList<String> getSelections() {
+        return FXCollections.unmodifiableObservableList(selections);
     }
 
     @Override
@@ -81,5 +90,22 @@ public class ArbitraryChoice implements ChoiceList<String> {
     @Override
     public int hashCode() {
         return Objects.hash(name);
+    }
+
+    public void increaseChoices(int amount) {
+        numSelections += amount;
+    }
+
+    public void decreaseChoices(int amount) {
+        numSelections = Math.max(0, numSelections-amount);
+        Iterator<String> iterator = selections.iterator();
+        while(selections.size() > numSelections && iterator.hasNext()){
+            iterator.next();
+            iterator.remove();
+        }
+    }
+
+    public void addAll(List<String> strings) {
+        selections.addAll(strings);
     }
 }

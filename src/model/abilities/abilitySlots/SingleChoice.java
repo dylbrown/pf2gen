@@ -1,9 +1,7 @@
 package model.abilities.abilitySlots;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
-
-import java.util.Collections;
-import java.util.List;
+import javafx.collections.ObservableList;
 
 public interface SingleChoice<T> extends Choice<T> {
     void fill(T choice);
@@ -20,11 +18,8 @@ public interface SingleChoice<T> extends Choice<T> {
     T getChoice();
 
     @Override
-    default List<T> getSelections(){
-        if(getChoice() == null)
-            return Collections.emptyList();
-        else
-            return Collections.singletonList(getChoice());
+    default ObservableList<T> getSelections(){
+        throw new UnsupportedOperationException();
     }
 
     ReadOnlyObjectProperty<T> getChoiceProperty();

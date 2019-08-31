@@ -125,7 +125,7 @@ abstract class FileLoader<T> {
         return makeAbility(element, name, 1);
     }
     Ability makeAbility(Element element, String name, int level) {
-        boolean activity=false; Action cost = Action.One; String trigger = ""; List<String> prerequisites = new ArrayList<>(); List<AttributeMod> requiredAttrs = new ArrayList<>(); String customMod = ""; List<AbilitySlot> abilitySlots = new ArrayList<>();
+        boolean activity=false; boolean multiple = false; Action cost = Action.One; String trigger = ""; List<String> prerequisites = new ArrayList<>(); List<AttributeMod> requiredAttrs = new ArrayList<>(); String customMod = ""; List<AbilitySlot> abilitySlots = new ArrayList<>();
         if(element.getTagName().equals("Ability")) {
             List<AttributeMod> mods = new ArrayList<>();
             String description = "";
@@ -136,6 +136,8 @@ abstract class FileLoader<T> {
             if(!element.getAttribute("level").equals("")) {
                 level=Integer.parseInt(element.getAttribute("level"));
             }
+            if(element.getAttribute("multiple").equals("true"))
+                multiple = true;
             for (int i = 0; i < element.getChildNodes().getLength(); i++) {
                 Node item = element.getChildNodes().item(i);
                 if (item.getNodeType() != Node.ELEMENT_NODE)
@@ -157,8 +159,10 @@ abstract class FileLoader<T> {
                         prerequisites.addAll(Arrays.asList(trim.split(",")));
                         break;
                     case "Requires":
+                        if(trim.matches(".*\\d.*"))
+                            break;
                         requiredAttrs.addAll(Arrays.stream(trim.split(",")).map((str)->{
-                            String[] split = str.split(" in ");
+                            String[] split = str.split(" [iI]n ");
                             Proficiency reqProf = Proficiency.valueOf(split[0].trim());
                             if(camelCaseWord(split[1].trim().substring(0, 4)).equals("Lore")) {
                                 String data = camelCase(str.trim().substring(4).trim().replaceAll("[()]", ""));
@@ -197,23 +201,25 @@ abstract class FileLoader<T> {
                 }
             }
             if(cost == Action.Reaction || cost == Action.Free)
-                return new Activity(cost, trigger, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, getSource());
+                return new Activity(cost, trigger, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, getSource(), multiple);
             else if(activity)
-                return new Activity(cost, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, getSource());
+                return new Activity(cost, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, getSource(), multiple);
             else if(element.getAttribute("skillIncrease").equals("true"))
-                return new SkillIncrease(level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots);
+                return new SkillIncrease(level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, multiple);
             else if(!element.getAttribute("abilityBoosts").trim().equals("")) {
                 int count = Integer.parseInt(element.getAttribute("abilityBoosts"));
-                return new Ability(level, name, getBoosts(count, level), description, requiredAttrs, customMod, abilitySlots, getSource());
+                return new Ability(level, name, getBoosts(count, level), description, requiredAttrs, customMod, abilitySlots, getSource(), multiple);
             }else
-                return new Ability(level, name, mods, description, prerequisites, requiredAttrs, customMod, abilitySlots, getSource());
+                return new Ability(level, name, mods, description, prerequisites, requiredAttrs, customMod, abilitySlots, getSource(), multiple);
         }else if(element.getTagName().equals("AbilitySet")){
             String desc="";
             if(element.getElementsByTagName("Description").getLength() > 0)
                 desc = element.getElementsByTagName("Description").item(0).getTextContent().trim();
             if(element.getElementsByTagName("Prerequisites").getLength() > 0)
                 prerequisites.addAll(Arrays.asList(element.getElementsByTagName("Prerequisites").item(0).getTextContent().trim().split(",")));
-            return new AbilitySet(level, name, desc, makeAbilities(element.getElementsByTagName("Ability")),prerequisites, requiredAttrs, customMod, abilitySlots, getSource());
+            if(element.getAttribute("multiple").equals("true"))
+                multiple = true;
+            return new AbilitySet(level, name, desc, makeAbilities(element.getElementsByTagName("Ability")),prerequisites, requiredAttrs, customMod, abilitySlots, getSource(), multiple);
         }
         return null;
     }

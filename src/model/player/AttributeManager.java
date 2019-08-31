@@ -4,10 +4,12 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import model.AttributeMod;
 import model.AttributeModSingleChoice;
 import model.WeaponGroupMod;
+import model.abilities.MinimumProficiencyList;
 import model.enums.Attribute;
 import model.enums.Proficiency;
 import model.equipment.WeaponGroup;
@@ -20,6 +22,7 @@ public class AttributeManager {
     private final SortedMap<Integer, Set<Attribute>> skillChoices = new TreeMap<>(); //Map from level to selected skills
     private final SortedMap<Integer, Integer> innerSkillIncreases = new TreeMap<>(); // Maps from level to number of increases
     private final ObservableMap<Integer, Integer> skillIncreases = FXCollections.observableMap(innerSkillIncreases); // Maps from level to number of increases
+    private final Map<Proficiency, MinimumProficiencyList> minLists = new HashMap<>();
     private final ReadOnlyObjectProperty<Integer> level;
     private DecisionManager decisions;
     private Map<WeaponGroup, Proficiency> groupProficiencies = new HashMap<>();
@@ -29,6 +32,18 @@ public class AttributeManager {
     AttributeManager(ReadOnlyObjectProperty<Integer> level, DecisionManager decisions){
         this.level = level;
         this.decisions = decisions;
+        for (Attribute skill : Attribute.getSkills()) {
+            proficiencies.put(skill, new ReadOnlyObjectWrapper<>(Proficiency.Untrained));
+        }
+
+        minLists.put(Proficiency.Trained, new MinimumProficiencyList(Collections.unmodifiableMap(proficiencies),
+                Proficiency.Trained));
+        minLists.put(Proficiency.Expert, new MinimumProficiencyList(Collections.unmodifiableMap(proficiencies),
+                Proficiency.Expert));
+        minLists.put(Proficiency.Master, new MinimumProficiencyList(Collections.unmodifiableMap(proficiencies),
+                Proficiency.Master));
+        minLists.put(Proficiency.Legendary, new MinimumProficiencyList(Collections.unmodifiableMap(proficiencies),
+                Proficiency.Legendary));
     }
 
     void updateSkillCount(int numSkills) {
@@ -233,5 +248,9 @@ public class AttributeManager {
 
     public ObservableMap<Integer, Integer> getSkillIncreases() {
         return FXCollections.unmodifiableObservableMap(skillIncreases);
+    }
+
+    public ObservableList<String> getMinList(Proficiency min) {
+        return minLists.get(min);
     }
 }

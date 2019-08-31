@@ -72,7 +72,7 @@ public class WeaponsLoader extends FileLoader<Weapon> {
             isRanged = true;
 
 
-        if(weapon.hasAttribute("Uncommon"))
+        if(weapon.hasAttribute("Uncommon") || weapon.hasAttribute("uncommon"))
             uncommon = true;
 
         weaponProficiency = WeaponProficiency.valueOf(camelCase(proficiencyNode.getNodeName()));

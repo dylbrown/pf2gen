@@ -63,18 +63,29 @@ class ModManager {
                 new SpecialFunction((str, num) -> mods.merge((String)str, ((Number)num).intValue(), (oldInt, newInt)->oldInt-newInt)));
         engine.put("addChoose", (QuinConsumer<String, String, JSObject, String, Integer>)
             (things, name, callback, secondParam, numSelections)->{
+                if(arbitraryChoices.get(name) != null){
+                    add(arbitraryChoices.get(name), numSelections);
+                    return;
+                }
                 List<String> selections = Collections.emptyList();
-                String[] split = things.replaceAll(":", "").split("[, ]+");
-                switch (split[0].toLowerCase()){
+                String[] listSplit = things.split(":");
+                String[] words = listSplit[0].split(" ");
+                switch (words[0].toLowerCase()){
                     case "weapongroup":
                         selections = new ArrayList<>(EquipmentManager.getWeaponGroups().keySet());
                         break;
                     case "skill":
-                        selections = Arrays.stream(Attribute.getSkills()).map(
+                        if(words.length > 1){
+                            Proficiency min = Proficiency.valueOf(words[1].replaceAll("[()]", ""));
+                            selections = character.attributes().getMinList(min);
+
+                        }else
+                            selections = Arrays.stream(Attribute.getSkills()).map(
                                 Enum::toString).collect(Collectors.toCollection(ArrayList::new));
                         break;
                     case "attributes":
-                        selections = new ArrayList<>(Arrays.asList(split).subList(1, split.length));
+                        String[] items = listSplit[1].split("[, ]+");
+                        selections = new ArrayList<>(Arrays.asList(items));
                         break;
                 }
                 ArbitraryChoice choice = new ArbitraryChoice(name, selections, (response) -> {
@@ -97,12 +108,15 @@ class ModManager {
                 arbitraryChoices.put(name, choice);
                 character.decisions().add(choice);
                 if(choices.get(name) != null)
-                    for(String selection: choices.get(name))
-                        choice.add(selection);
+                        choice.addAll(choices.get(name));
             }
         );
         engine.put("removeChoose", (QuinConsumer<String, String, JSObject, String, Integer>)
                 (things, name, callback, secondParam, numSelections)->{
+                    if(arbitraryChoices.get(name).getNumSelections() > numSelections){
+                        subtract(arbitraryChoices.get(name), numSelections);
+                        return;
+                    }
                     character.decisions().remove(arbitraryChoices.get(name));
                     arbitraryChoices.remove(name);
                 }
@@ -128,6 +142,14 @@ class ModManager {
                 apply(jsString);
             }
         });
+    }
+
+    private void add(ArbitraryChoice arbitraryChoice, int amount) {
+        arbitraryChoice.increaseChoices(amount);
+    }
+
+    private void subtract(ArbitraryChoice arbitraryChoice, int amount) {
+        arbitraryChoice.decreaseChoices(amount);
     }
     void jsApply(String jsString) {
         jsStrings.add(jsString);

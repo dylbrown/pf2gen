@@ -174,4 +174,8 @@ public class AbilityManager {
             ((AbilitySingleChoice) slot).fill(selectedItem);
         apply(selectedItem);
     }
+
+    public boolean haveAbility(Ability ability) {
+        return sortedAbilities.contains(ability);
+    }
 }

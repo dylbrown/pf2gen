@@ -10,8 +10,8 @@ import java.util.List;
 
 public class AbilitySet extends Ability {
     private final List<Ability> abilities;
-    public AbilitySet(int level, String name, String desc, List<Ability> abilities, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type) {
-        super(level, name, desc, prerequisites, requiredAttrs, customMod, abilitySlots, type);
+    public AbilitySet(int level, String name, String desc, List<Ability> abilities, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type, boolean multiple) {
+        super(level, name, desc, prerequisites, requiredAttrs, customMod, abilitySlots, type, multiple);
         this.abilities = abilities;
         modifiers = new ArrayList<>();
         for(Ability ability: abilities) {
