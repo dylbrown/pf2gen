@@ -109,26 +109,26 @@ public class EquipTabController {
             if(selectedItem != null) setDisplay(selectedItem.stats());
         });
         allItems.setOnMouseClicked((event) -> {
-            if(event.getClickCount() == 2) {
+            if(event.getClickCount() % 2 == 0) {
                 Equipment item = allItems.getSelectionModel().getSelectedItem();
                 tryToBuy(item);
             }
         });
         inventory.setOnMouseClicked((event) -> {
-            if(event.getClickCount() == 2) {
+            if(event.getClickCount() % 2 == 0) {
                 ItemCount item = inventory.getSelectionModel().getSelectedItem();
                 tryToSell(item);
             }
         });
         unequipped.setOnMouseClicked((event) -> {
-            if(event.getClickCount() == 2) {
+            if(event.getClickCount() % 2 == 0) {
                 ItemCount item = unequipped.getSelectionModel().getSelectedItem();
                 tryToEquip(item);
             }
         });
 
         equipped.setOnMouseClicked(event -> {
-            if(event.getClickCount() == 2) {
+            if(event.getClickCount() % 2 == 0) {
                 OPair<ItemCount, Slot> item = equipped.getSelectionModel().getSelectedItem();
                 tryToUnequip(item.first.get(), item.second.get());
             }
@@ -165,13 +165,13 @@ public class EquipTabController {
                 ItemCount unequippedItem = new ItemCount(valueAdded.stats(), valueAdded.getCount());
                 unequipList.add(unequippedItem);
                 valueAdded.countProperty().addListener((o,oldVal,newVal)->{
-                    if (newVal - oldVal > 0) {
+                    if (newVal > oldVal) {
                         unequippedItem.add(newVal - oldVal);
-                    }else if (oldVal - newVal > 0){
-                        if(unequippedItem.getCount() > oldVal - newVal + 1)
+                    }else if (oldVal  > newVal){
+                        if(unequippedItem.getCount() >= oldVal - newVal)
                             unequippedItem.remove(oldVal - newVal);
                         else {
-                            ItemCount equipCount = find(equipped.getItems(), valueAdded.stats(), opair -> opair.first.get());
+                            ItemCount equipCount = find(equipSort, valueAdded.stats(), opair -> opair.first.get());
                             if(equipCount != null) {
                                 equipCount.remove(oldVal - newVal);
                             }
@@ -304,7 +304,7 @@ public class EquipTabController {
     private void updateFromEquip(ItemCount unequippedItem, Slot slot) {
         boolean alreadyEquipped = false;
         for (OPair<ItemCount, Slot> pair : equipList) {
-            if(pair.first.get().stats() == unequippedItem.stats() && pair.second.get() == slot) {
+            if(pair.first.get().stats() == unequippedItem.stats() && pair.second.get() == slot && pair.first.get().getCount() > 0) {
                 alreadyEquipped = true;
                 break;
             }

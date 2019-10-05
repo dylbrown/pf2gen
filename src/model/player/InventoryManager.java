@@ -45,7 +45,15 @@ public class InventoryManager {
         if(remaining <= 0) return false;
         money.set(money.get() + equipment.getValue() * count);
         item.remove(count);
-        unequip(equipment, count);
+        int totalEquipped = 0;
+        Slot slot = equipment.getSlot();
+        if(equipped.get(slot) != null && equipped.get(slot).stats() == equipment) totalEquipped += equipped.get(slot).getCount();
+        if(slot == Slot.OneHand){
+            if(equipped.get(Slot.PrimaryHand) != null && equipped.get(Slot.PrimaryHand).stats() == equipment) totalEquipped += equipped.get(Slot.PrimaryHand).getCount();
+            if(equipped.get(Slot.OffHand) != null && equipped.get(Slot.OffHand).stats() == equipment) totalEquipped += equipped.get(Slot.OffHand).getCount();
+        }
+        if(totalEquipped > item.getCount())
+            unequip(equipment, totalEquipped - item.getCount());
         remaining -= count;
         if(remaining <= 0) {
             inventory.remove(equipment);
