@@ -36,7 +36,7 @@ public class PC {
     private String name;
     private String player;
     private final List<Language> languages = new ArrayList<>();
-    private InventoryManager inventory = new InventoryManager();
+    private final InventoryManager inventory = new InventoryManager();
     private ModManager modManager;
     private DecisionManager decisions = new DecisionManager();
     private AbilityManager abilities = new AbilityManager(this);
@@ -287,6 +287,6 @@ public class PC {
     }
 
     public void reset() {
-
+        while(getLevel() > 1) levelDown();
     }
 }

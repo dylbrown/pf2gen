@@ -10,6 +10,7 @@ import model.abilities.abilitySlots.FeatSlot;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
 import model.enums.Attribute;
+import model.enums.Slot;
 import model.enums.Type;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
@@ -201,6 +202,25 @@ public class SaveLoadManager {
                 if (!tailSet.isEmpty()) {
                     if(tailSet.first().getName().equals(split[1]))
                         character.inventory().buy(tailSet.first(), Integer.valueOf(split[0]));
+                }
+            }
+
+            //Equipping
+            lines.second++; // Skip Section Header
+            while(true) {
+                String s;
+                try { s = nextLine(lines); }
+                catch(RuntimeException e) { break; }
+                if(!s.startsWith(" - ")) {
+                    lines.second--;
+                    break;
+                }
+                String[] slotSplit = s.substring(3).split(" ?: ?", 2);
+                String[] split = slotSplit[1].split(" ", 2);
+                SortedSet<Equipment> tailSet = EquipmentManager.getEquipment().tailSet(new SearchItem(split[1]));
+                if (!tailSet.isEmpty()) {
+                    if(tailSet.first().getName().equals(split[1]))
+                        character.inventory().equip(tailSet.first(),Slot.valueOf(slotSplit[0]),  Integer.valueOf(split[0]));
                 }
             }
 

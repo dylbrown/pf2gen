@@ -9,13 +9,14 @@ import model.enums.Slot;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.TreeMap;
 
 public class InventoryManager {
     private final ReadOnlyObjectWrapper<Double> money= new ReadOnlyObjectWrapper<>(150.0);
     private final ObservableMap<Equipment, ItemCount> inventory = FXCollections.observableHashMap();
-    private final Map<Slot, ItemCount> equipped = new HashMap<>();
-    private final SortedMap<Equipment, ItemCount> carried = new TreeMap<>(Comparator.comparing(Equipment::getName));
+    private final ObservableMap<Slot, ItemCount> equipped = FXCollections.observableHashMap();
+    private final ObservableMap<Equipment, ItemCount> carried = FXCollections.observableMap(new TreeMap<>(Comparator.comparing(Equipment::getName)));
 
     public ItemCount getEquipped(Slot slot) {
         return equipped.get(slot);
@@ -127,14 +128,6 @@ public class InventoryManager {
                 carried.remove(item);
             return true;
         }
-        if(slot == Slot.Carried) {
-            ItemCount carriedCount = carried.get(item);
-            if(carriedCount != null && carriedCount.getCount() >= count) {
-                carriedCount.remove(count);
-                if(carriedCount.getCount() == 0) carried.remove(item);
-                return true;
-            }
-        }
         return false;
     }
 
@@ -142,10 +135,22 @@ public class InventoryManager {
         return FXCollections.unmodifiableObservableMap(inventory);
     }
 
+    public ObservableMap<Slot, ItemCount> getEquipped() {
+        return FXCollections.unmodifiableObservableMap(equipped);
+    }
+
+    public ObservableMap<Equipment, ItemCount> getCarried() {
+        return FXCollections.unmodifiableObservableMap(carried);
+    }
+
     public void reset() {
         for (ItemCount item : inventory.values()) {
             sell(item.stats(), item.getCount());
         }
 
+    }
+
+    public void addEquippedListener(MapChangeListener<Slot, ItemCount> listener) {
+        equipped.addListener(listener);
     }
 }

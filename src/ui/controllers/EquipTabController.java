@@ -1,6 +1,8 @@
 package ui.controllers;
 
+import javafx.beans.Observable;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -48,17 +50,24 @@ public class EquipTabController {
     private RadioMenuItem nameSort, priceSort, ascSort, descSort;
     private ToggleGroup sortBy = new ToggleGroup(); private ToggleGroup direction = new ToggleGroup();
     private double value = 0;
+
+    //All Items
     private final ObservableList<Equipment> itemList = FXCollections.observableArrayList();
-    private final ObservableList<ItemCount> inventoryList = FXCollections.observableArrayList();
-    private final ObservableList<ItemCount> unequipList = FXCollections.observableArrayList();
-    private final ObservableList<OPair<ItemCount, Slot>> equipList = FXCollections.observableArrayList();
-    //Filters
     private final FilteredList<Equipment> itemsFilter = new FilteredList<>(itemList);
-    private final FilteredList<ItemCount> unequipFilter = new FilteredList<>(unequipList);
-    private final FilteredList<OPair<ItemCount, Slot>> equipFilter = new FilteredList<>(equipList);
-    //Sorters
     private final SortedList<Equipment> itemsSort = new SortedList<>(itemsFilter);
+
+    //Inventory List
+    private final ObservableList<ItemCount> inventoryList = FXCollections.observableArrayList(count -> new Observable[]{count.countProperty()});
+
+    //Unequipped List
+    private final ObservableList<ItemCount> unequipList = FXCollections.observableArrayList(count -> new Observable[]{count.countProperty()});
+    private final FilteredList<ItemCount> unequipFilter = new FilteredList<>(unequipList);
     private final SortedList<ItemCount> unequipSort = new SortedList<>(unequipFilter, Comparator.comparing(o -> o.stats().getName()));
+    private final Map<Equipment, ItemCount> unequipMap = new HashMap<>();
+
+    //Equipped List
+    private final ObservableList<OPair<ItemCount, Slot>> equipList = FXCollections.observableArrayList(pair -> new Observable[]{pair.first.get().countProperty()});
+    private final FilteredList<OPair<ItemCount, Slot>> equipFilter = new FilteredList<>(equipList);
     private final SortedList<OPair<ItemCount, Slot>> equipSort = new SortedList<>(equipFilter, (o1, o2) -> {
         int i = o1.second.get().compareTo(o1.second.get());
         if(i == 0) i = o1.first.get().stats().compareTo(o2.first.get().stats());
@@ -125,6 +134,20 @@ public class EquipTabController {
             }
         });
 
+        unequipList.addListener((ListChangeListener<ItemCount>) c -> {
+            while(c.next()) {
+                for (ItemCount itemCount : c.getAddedSubList()) {
+                    unequipMap.put(itemCount.stats(), itemCount);
+                }
+                for (ItemCount itemCount : c.getRemoved()) {
+                    unequipMap.remove(itemCount.stats());
+                }
+            }
+        });
+
+        unequipFilter.setPredicate(item -> item.getCount() > 0);
+        equipFilter.setPredicate(pair -> pair.first.get().getCount() > 0);
+
         inventory.setItems(new SortedList<>(inventoryList, Comparator.comparing(o -> o.stats().toString())));
         unequipped.setItems(unequipSort);
         equipped.setItems(equipSort);
@@ -139,12 +162,32 @@ public class EquipTabController {
             if(change.wasAdded()) {
                 ItemCount valueAdded = change.getValueAdded();
                 inventoryList.add(valueAdded);
-                unequipList.add(new ItemCount(valueAdded.stats(), 0));
+                ItemCount unequippedItem = new ItemCount(valueAdded.stats(), valueAdded.getCount());
+                unequipList.add(unequippedItem);
+                valueAdded.countProperty().addListener((o,oldVal,newVal)->{
+                    if (newVal - oldVal > 0) {
+                        unequippedItem.add(newVal - oldVal);
+                    }else if (oldVal - newVal > 0){
+                        if(unequippedItem.getCount() > oldVal - newVal + 1)
+                            unequippedItem.remove(oldVal - newVal);
+                        else {
+                            ItemCount equipCount = find(equipped.getItems(), valueAdded.stats(), opair -> opair.first.get());
+                            if(equipCount != null) {
+                                equipCount.remove(oldVal - newVal);
+                            }
+                        }
+                    }
+                });
             }
             refreshTotalValue();
-            inventory.refresh();
-            unequipped.refresh();
-            equipped.refresh();
+        });
+
+        Main.character.inventory().addEquippedListener(change -> {
+            if(change.wasAdded() && !controllerOp) {
+                ItemCount unequippedItem = unequipMap.get(change.getValueAdded().stats());
+                if(unequippedItem != null)
+                    updateFromEquip(unequippedItem, change.getKey());
+            }
         });
     }
 
@@ -232,48 +275,56 @@ public class EquipTabController {
             return (int)(cost / 10) + " gp";
     }
 
+    private boolean controllerOp = false;
     private void tryToEquip(ItemCount unequippedItem) {
-        Slot slot = unequippedItem.stats().getSlot(); List<Slot> choices;
+        controllerOp = true;
+        Slot slot = unequippedItem.stats().getSlot();
         if(slot == Slot.OneHand) {
-            choices = new ArrayList<>(Arrays.asList(Slot.PrimaryHand, Slot.OffHand, Slot.Carried));
-        }else{
-            choices = new ArrayList<>(Arrays.asList(slot, Slot.Carried));
+            List<Slot> choices = new ArrayList<>(Arrays.asList(Slot.PrimaryHand, Slot.OffHand, Slot.Carried));
+
+            ChoiceDialog<Slot> dialog = new ChoiceDialog<>(Slot.PrimaryHand, choices);
+            dialog.setTitle("Slot Choice");
+            dialog.setHeaderText("Choose a Slot");
+            dialog.setContentText("");
+
+            Optional<Slot> result = dialog.showAndWait();
+            if (!result.isPresent()) {
+                controllerOp = false;
+                return;
+            }
+            slot = result.get();
         }
 
-        ChoiceDialog<Slot> dialog = new ChoiceDialog<>(Slot.PrimaryHand, choices);
-        dialog.setTitle("Slot Choice");
-        dialog.setHeaderText("Choose a Slot");
-        dialog.setContentText("");
-
-        Optional<Slot> result = dialog.showAndWait();
-        if (!result.isPresent()) return;
-        slot = result.get();
         if(Main.character.inventory().equip(unequippedItem.stats(), slot, 1)) {
-            boolean alreadyEquipped = false;
-            for (OPair<ItemCount, Slot> pair : equipList) {
-                if(pair.first.get().stats() == unequippedItem.stats() && pair.second.get() == slot) {
-                    alreadyEquipped = true;
-                    break;
-                }
-            }
-            if(!alreadyEquipped) {
-                OPair<ItemCount, Slot> pair = new OPair<>(new ItemCount(unequippedItem.stats(), 1), slot);
-                equipList.add(pair);
-            } else {
-                ItemCount equippedItem = find(equipSort, unequippedItem.stats(), opair->opair.first.get());
-                if (equippedItem != null) {
-                    equippedItem.add(1);
-                }
-            }
-            unequippedItem.remove(1);
+            updateFromEquip(unequippedItem, slot);
         }
-        unequipped.refresh();
+        controllerOp = false;
+    }
+
+    private void updateFromEquip(ItemCount unequippedItem, Slot slot) {
+        boolean alreadyEquipped = false;
+        for (OPair<ItemCount, Slot> pair : equipList) {
+            if(pair.first.get().stats() == unequippedItem.stats() && pair.second.get() == slot) {
+                alreadyEquipped = true;
+                break;
+            }
+        }
+        if(!alreadyEquipped) {
+            OPair<ItemCount, Slot> pair = new OPair<>(new ItemCount(unequippedItem.stats(), 1), slot);
+            equipList.add(pair);
+        } else {
+            ItemCount equippedItem = find(equipSort, unequippedItem.stats(), opair->opair.first.get());
+            if (equippedItem != null) {
+                equippedItem.add(1);
+            }
+        }
+        unequippedItem.remove(1);
     }
 
     private void tryToUnequip(ItemCount equippedItem, Slot slot) {
         if(Main.character.inventory().unequip(equippedItem.stats(), slot,1)) {
             equippedItem.remove(1);
-            ItemCount unequippedItem = find(unequipSort, equippedItem.stats(), item -> item);
+            ItemCount unequippedItem = unequipMap.get(equippedItem.stats());
             if(unequippedItem != null)
                 unequippedItem.add(1);
             if(equippedItem.getCount() == 0)
@@ -283,24 +334,8 @@ public class EquipTabController {
     }
 
     private void tryToSell(ItemCount item) {
-
         if (!Main.character.inventory().sell(item.stats(), 1)) {
             new Alert(Alert.AlertType.INFORMATION, "Not Enough Items!").showAndWait();
-        }else{
-            ItemCount unequipCount = find(unequipSort, item.stats(), itemCount -> itemCount);
-            if(unequipCount != null) {
-                if(unequipCount.getCount() > 0)
-                    unequipCount.remove(1);
-                else {
-                    ItemCount equipCount = find(equipped.getItems(), item.stats(), opair -> opair.first.get());
-                    if(equipCount != null) {
-                        equipCount.remove(1);
-                    }
-                }
-            }
-            inventory.refresh();
-            unequipped.refresh();
-            equipped.refresh();
         }
     }
 
@@ -310,7 +345,7 @@ public class EquipTabController {
             ItemCount count = converter.apply(list.get((first + last) / 2));
             if(count.stats().compareTo(stats) == 0)
                 return count;
-            else if(count.stats().compareTo(stats) < 0)
+            else if(count.stats().compareTo(stats) > 0)
                 last = (first + last) / 2;
             else
                 first = (first + last) / 2 + 1;
@@ -322,9 +357,6 @@ public class EquipTabController {
         if (!Main.character.inventory().buy(item, 1)) {
             new Alert(Alert.AlertType.INFORMATION, "Not Enough Money!").showAndWait();
         }else{
-            ItemCount unequippedItem = find(unequipSort, item, u -> u);
-            if(unequippedItem != null)
-                unequippedItem.add(1);
             inventory.refresh();
             unequipped.refresh();
             equipped.refresh();
@@ -333,8 +365,6 @@ public class EquipTabController {
 
     private void filterStore(){
         itemsFilter.setPredicate((item)-> (armorFilter.isSelected() && item instanceof Armor) || (weaponFilter.isSelected() && item instanceof Weapon));
-        unequipFilter.setPredicate(itemCount -> itemCount.getCount() > 0);
-        equipFilter.setPredicate(pair -> pair.first.get().getCount() > 0);
     }
 
     private void sortStore() {
