@@ -1,8 +1,12 @@
 package model.xml_parsers;
 
+import model.AttributeMod;
+import model.AttributeModSingleChoice;
 import model.abc.Background;
 import model.enums.Attribute;
+import model.enums.Proficiency;
 import model.enums.Type;
+import model.util.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -41,8 +45,7 @@ public class BackgroundsLoader extends FileLoader<Background> {
 
                     String name = "";
                     String desc = "";
-                    Attribute skill1 = null; Attribute skill2 = null;
-                    String data1 = ""; String data2 = "";
+                    AttributeMod[] mods = {null, null};
                     String bonuses = "";
                     String bonusFeat = "";
 
@@ -62,18 +65,24 @@ public class BackgroundsLoader extends FileLoader<Background> {
                                 bonusFeat = trim;
                                 break;
                             case "Skill":
-                                String[] split = camelCase(trim).split(", +");
-                                if (split[0].substring(0, 4).equals("Lore")) {
-                                    skill1 = Attribute.Lore;
-                                    data1 = camelCase(split[0].substring(4).trim().replaceAll("[()]", ""));
-                                } else {
-                                    skill1 = Attribute.valueOf(camelCaseWord(split[0]));
+                                String[] split = camelCase(trim).split(",");
+                                for (String s : split) {
+                                    System.out.println(s);
                                 }
-                                if (split[1].substring(0, 4).equals("Lore")) {
-                                    skill2 = Attribute.Lore;
-                                    data2 = camelCase(split[1].substring(4).trim().replaceAll("[()]", ""));
-                                } else {
-                                    skill2 = Attribute.valueOf(camelCaseWord(split[1]));
+
+                                for(int k=0; k<2; k++){
+                                    String[] orCheck = split[k].trim().split(" [oO]r ");
+                                    if(orCheck.length > 1) {
+                                        Attribute[] attributes = new Attribute[orCheck.length];
+                                        for (int l=0; l<orCheck.length; l++) {
+                                            attributes[l] = makeAttribute(orCheck[l]).first;
+                                        }
+
+                                        mods[k] = new AttributeModSingleChoice(attributes, Proficiency.Trained);
+                                    }else{
+                                        Pair<Attribute, String> pair = makeAttribute(split[k]);
+                                        mods[k] = new AttributeMod(pair.first, Proficiency.Trained, pair.second);
+                                    }
                                 }
                                 break;
                             case "AbilityBonuses":
@@ -81,7 +90,7 @@ public class BackgroundsLoader extends FileLoader<Background> {
                                 break;
                         }
                     }
-                    backgrounds.add(new Background(name, bonuses, bonusFeat, desc, getAbilityMods(bonuses, "", Type.Background), skill1, skill2, data1, data2));
+                    backgrounds.add(new Background(name, bonuses, bonusFeat, desc, getAbilityMods(bonuses, "", Type.Background), mods[0], mods[1]));
                 }
             }
         }
@@ -91,5 +100,11 @@ public class BackgroundsLoader extends FileLoader<Background> {
     @Override
     protected Type getSource() {
         return Type.Background;
+    }
+
+    private Pair<Attribute, String> makeAttribute(String source) {
+        if (source.contains("Lore")) {
+            return new Pair<>(Attribute.Lore, source.replaceFirst("Lore ?\\(", "").replaceAll("\\).*", ""));
+        }else return new Pair<>(Attribute.valueOf(camelCaseWord(source.trim())), "");
     }
 }

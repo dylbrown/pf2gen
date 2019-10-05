@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static model.util.StringUtils.camelCase;
+
 public class FeatListParser {
     private StringBuilder currentFeat = new StringBuilder();
     private BufferedWriter skill;

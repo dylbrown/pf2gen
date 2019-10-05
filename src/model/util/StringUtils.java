@@ -12,6 +12,8 @@ public class StringUtils {
     }
 
     public static String camelCaseWord(String str) {
-        return str.substring(0,1).toUpperCase() + str.substring(1).toLowerCase();
+        int i = 0;
+        while(i < str.length()-1 && !str.substring(i, i+1).matches("\\w")) i++;
+        return str.substring(0, i) + str.substring(i,i+1).toUpperCase() + str.substring(i+1).toLowerCase();
     }
 }

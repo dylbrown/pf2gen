@@ -7,6 +7,7 @@ import model.enums.Attribute;
 import model.enums.Proficiency;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -15,9 +16,14 @@ public class AttributeModSingleChoice extends AttributeMod implements SingleChoi
     private ReadOnlyObjectWrapper<Attribute> choiceProperty = new ReadOnlyObjectWrapper<>();
 
     public AttributeModSingleChoice(Attribute first, Attribute second, Proficiency prof) {
-        super(first,prof);
+        super(Attribute.None,prof);
         this.choices.add(first);
         this.choices.add(second);
+    }
+
+    public AttributeModSingleChoice(Attribute[] options, Proficiency prof) {
+        super(Attribute.None,prof);
+        this.choices.addAll(Arrays.asList(options));
     }
 
     public List<Attribute> getOptions() {
