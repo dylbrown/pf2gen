@@ -34,6 +34,7 @@ public class PC {
     private final ReadOnlyObjectWrapper<Integer> level = new ReadOnlyObjectWrapper<>(0);
     private final Eyeball ancestryWatcher = new Eyeball();
     private String name;
+    private String player;
     private final List<Language> languages = new ArrayList<>();
     private InventoryManager inventory = new InventoryManager();
     private ModManager modManager;
@@ -60,6 +61,14 @@ public class PC {
 
     public String getName() {
         return (name != null) ? name : "Unnamed";
+    }
+
+    public void setPlayer(String name) {
+        this.player = name;
+    }
+
+    public String getPlayer() {
+        return (player != null) ? player : "Unknown";
     }
 
     public void levelUp(){
@@ -156,21 +165,21 @@ public class PC {
 
 
 
-    public <U , T extends Choice<U>> void addSelection(T slot, U selectedItem) {
+    public <T> void addSelection(Choice<T> slot, T selectedItem) {
         if(slot instanceof SingleChoice){
-            choose((SingleChoice<? super U>) slot, selectedItem);
+            choose((SingleChoice<T>) slot, selectedItem);
         }else{
             if(slot.getSelections().size() >= slot.getNumSelections()) return;
             slot.add(selectedItem);
         }
     }
 
-    public <U , T extends Choice<U>> void removeSelection(T slot, U selectedItem) {
+    public <T> void removeSelection(Choice<T> slot, T selectedItem) {
         slot.remove(selectedItem);
     }
 
     public int getAC() {
-        Armor armor = (Armor) inventory.getEquipped(Slot.Armor);
+        Armor armor = (Armor) inventory.getEquipped(Slot.Armor).stats();
         if(armor != null)
             return 10 + level.get() + armor.getAC() + Math.max(scores.getMod(Dex), armor.getMaxDex());
         return 10 + level.get() + scores.getMod(Dex);

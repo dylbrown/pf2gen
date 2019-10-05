@@ -38,7 +38,7 @@
                 <Label text="Character Name" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                 <Label text="Player" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                 <TextField fx:id="characterName" prefWidth="300.0" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="1" />
-                <TextField GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="2" />
+                <TextField fx:id="playerName" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="2" />
                 <Label text="Dylan's Character Generator" GridPane.columnSpan="2147483647" />
                 <Label text="Level" GridPane.rowIndex="3" />
                 <Label fx:id="level" text="0" GridPane.columnIndex="1" GridPane.rowIndex="3" />

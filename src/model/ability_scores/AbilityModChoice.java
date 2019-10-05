@@ -3,7 +3,6 @@ package model.ability_scores;
 import model.enums.Type;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -20,7 +19,7 @@ public class AbilityModChoice extends AbilityMod implements Serializable {
 
     public AbilityModChoice(Type type) {
         super(AbilityScore.Free, true, type);
-        this.choices = Arrays.asList(AbilityScore.scores());
+        this.choices = AbilityScore.scores();
         this.id=counter++;
     }
 
@@ -45,8 +44,8 @@ public class AbilityModChoice extends AbilityMod implements Serializable {
         return id == that.id;
     }
 
-    public boolean matches(AbilityModChoice other) {
-        return this.choices.equals(other.choices) && this.getType().equals(other.getType());
+    public boolean matches(Type type, List<AbilityScore> choices) {
+        return this.choices.equals(choices) && this.getType().equals(type);
     }
 
     @Override

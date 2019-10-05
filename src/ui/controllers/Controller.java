@@ -25,7 +25,7 @@ public class Controller {
     @FXML
     private Button export;
     @FXML
-    private TextField characterName;
+    private TextField characterName, playerName;
     @FXML
     private Tab displayTab;
     @FXML
@@ -104,6 +104,7 @@ public class Controller {
         SaveLoadManager.load(file);
 
         characterName.setText(character.getName());
+        playerName.setText(character.getPlayer());
         level.setText(String.valueOf(character.getLevel()));
     }
 

@@ -3,26 +3,25 @@ package model.equipment;
 import javafx.beans.property.*;
 import model.enums.Rarity;
 import model.enums.Slot;
+import model.util.StringUtils;
 
 import java.util.Objects;
 
-public abstract class Equipment {
+public abstract class Equipment implements Comparable<Equipment> {
     private final ReadOnlyDoubleWrapper weight;
     private final ReadOnlyDoubleWrapper value;
     private final ReadOnlyStringWrapper name;
     private final ReadOnlyObjectWrapper<Rarity> rarity;
     private final ReadOnlyStringWrapper description;
     private final ReadOnlyObjectWrapper<Slot> slot;
-    private final ReadOnlyIntegerWrapper count;
 
     Equipment(double weight, double value, String name, String description, Rarity rarity, Slot slot) {
         this.weight = new ReadOnlyDoubleWrapper(weight);
         this.value = new ReadOnlyDoubleWrapper(value);
-        this.name = new ReadOnlyStringWrapper(name);
+        this.name = new ReadOnlyStringWrapper(StringUtils.camelCase(name));
         this.description = new ReadOnlyStringWrapper(description);
         this.rarity = new ReadOnlyObjectWrapper<>(rarity);
         this.slot = new ReadOnlyObjectWrapper<>(slot);
-        this.count = new ReadOnlyIntegerWrapper(1);
     }
 
     double getWeight() {
@@ -81,31 +80,12 @@ public abstract class Equipment {
         return description.get();
     }
 
-    public int getCount() {
-        return count.get();
-    }
-
     public ReadOnlyStringProperty descriptionProperty() {
         return description.getReadOnlyProperty();
     }
 
     public ReadOnlyObjectProperty<Slot> slotProperty() {
         return slot.getReadOnlyProperty();
-    }
-    public ReadOnlyIntegerProperty countProperty() {
-        return count.getReadOnlyProperty();
-    }
-
-    public void add(int e) {
-        count.set(count.get()+e);
-    }
-
-    public void remove(int e) {
-        count.set(count.get()-e);
-    }
-
-    public void setCount(int count) {
-        this.count.set(count);
     }
 
     public abstract Equipment copy();
@@ -126,5 +106,10 @@ public abstract class Equipment {
     @Override
     public int hashCode() {
         return Objects.hash(weight, value, name, rarity, description, slot);
+    }
+
+    @Override
+    public int compareTo(Equipment o) {
+        return this.getName().compareTo(o.getName());
     }
 }

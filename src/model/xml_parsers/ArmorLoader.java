@@ -16,6 +16,7 @@ import java.io.File;
 import java.util.*;
 
 import static model.enums.Type.None;
+import static model.util.StringUtils.camelCase;
 
 public class ArmorLoader extends FileLoader<Armor> {
 

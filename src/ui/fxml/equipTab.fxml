@@ -89,25 +89,13 @@
                 <AnchorPane minHeight="0.0" minWidth="0.0">
                     <TableView fx:id="equipped" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                         <columns>
-                            <TableColumn editable="false" maxWidth="1.7976931348623157E308" prefWidth="122.3333740234375" resizable="false" sortable="false" text="Item">
-                                <cellValueFactory>
-                                    <PropertyValueFactory property="name" />
-                                </cellValueFactory>
+                            <TableColumn fx:id="nameCol" editable="false" maxWidth="1.7976931348623157E308" prefWidth="122.3333740234375" resizable="false" sortable="false" text="Item">
                             </TableColumn>
-                            <TableColumn editable="false" maxWidth="1.7976931348623157E308" minWidth="0.0" prefWidth="59.0" resizable="false" sortable="false" text="Slot">
-                                <cellValueFactory>
-                                    <PropertyValueFactory property="slot" />
-                                </cellValueFactory>
+                            <TableColumn fx:id="slotCol" editable="false" maxWidth="1.7976931348623157E308" minWidth="0.0" prefWidth="90.0" resizable="false" sortable="false" text="Slot">
                             </TableColumn>
-                            <TableColumn editable="false" maxWidth="1.7976931348623157E308" prefWidth="70.0" resizable="false" sortable="false" text="Weight">
-                                <cellValueFactory>
-                                    <PropertyValueFactory property="weight" />
-                                </cellValueFactory>
+                            <TableColumn fx:id="weightCol" editable="false" maxWidth="1.7976931348623157E308" prefWidth="70.0" resizable="false" sortable="false" text="Weight">
                             </TableColumn>
-                            <TableColumn editable="false" maxWidth="1.7976931348623157E308" prefWidth="65.0" resizable="false" sortable="false" text="Quantity">
-                                <cellValueFactory>
-                                    <PropertyValueFactory property="count" />
-                                </cellValueFactory>
+                            <TableColumn fx:id="quantityCol" editable="false" maxWidth="1.7976931348623157E308" prefWidth="65.0" resizable="false" sortable="false" text="Quantity">
                             </TableColumn>
                         </columns>
                     </TableView>

@@ -58,10 +58,10 @@ public class AbilityDisplayController {
             Integer col = GridPane.getColumnIndex(label);
             switch(row) {
                 case 1: // Scores
-                    label.setText(String.valueOf(character.scores().getScore(AbilityScore.scores()[col-1])));
+                    label.setText(String.valueOf(character.scores().getScore(AbilityScore.scores().get(col-1))));
                     break;
                 case 2: // Modifiers
-                    int abilityMod = character.scores().getMod(AbilityScore.scores()[col - 1]);
+                    int abilityMod = character.scores().getMod(AbilityScore.scores().get(col-1));
                     if (abilityMod > 0)
                         label.setText("+" + abilityMod);
                     else
@@ -71,7 +71,7 @@ public class AbilityDisplayController {
                     label.setText("");
                     int checker=0;
                     for (AbilityMod mod : character.scores().getAbilityMods(relevantTypes[row - 3])) {
-                        if(mod.getTarget().equals(AbilityScore.scores()[col - 1])){
+                        if(mod.getTarget().equals(AbilityScore.scores().get(col-1))){
                             if(mod.isPositive()) {
                                 if(checker == 2)
                                     checker = 3;

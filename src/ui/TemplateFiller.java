@@ -147,6 +147,10 @@ public class TemplateFiller {
                         ()->false));
         root.computeIfAbsent("abilityMod", (key)->
                 new FunctionalInterfaceHash((s)->
+                        character.scores().getMod(AbilityScore.valueOf(s.substring(0,1).toUpperCase() + s.substring(1).toLowerCase())),
+                        ()->false));
+        root.computeIfAbsent("abilityScore", (key)->
+                new FunctionalInterfaceHash((s)->
                         character.scores().getScore(AbilityScore.valueOf(s.substring(0,1).toUpperCase() + s.substring(1).toLowerCase())),
                         ()->false));
         root.computeIfAbsent("items", (key)-> character.inventory().getItems().values());

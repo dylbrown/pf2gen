@@ -11,5 +11,5 @@ public enum Slot {
     PrimaryHand, OffHand,
     Armor,
     //Special
-    Slotless, None
+    Slotless, Carried, None
 }

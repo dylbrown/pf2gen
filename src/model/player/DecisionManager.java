@@ -2,24 +2,29 @@ package model.player;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import model.abilities.abilitySlots.Choice;
 
 import java.util.*;
 
 public class DecisionManager {
-    private final ObservableList<Choice> decisions = FXCollections.observableArrayList();
-    private final SortedMap<Integer, SortedMap<String, Choice>> decisionMap = new TreeMap<>();
+    private final ObservableList<Choice> decisions;
+    private final FilteredList<Choice> unmade;
+    private final SortedList<Choice> unmadeByLevel;
+
+    DecisionManager() {
+        decisions = FXCollections.observableArrayList();
+        unmade = new FilteredList<>(decisions, choice -> choice.viewSelections().size() < choice.getNumSelections());
+        unmadeByLevel = new SortedList<>(unmade, Comparator.comparingInt(Choice::getLevel));
+    }
 
     public void remove(Choice choice) {
         decisions.remove(choice);
-        decisionMap.computeIfAbsent(choice.getLevel(), (key)->
-                new TreeMap<>()).remove(choice.toString(), choice);
     }
 
     public void add(Choice choice) {
         decisions.add(choice);
-        decisionMap.computeIfAbsent(choice.getLevel(), (key)->
-                new TreeMap<>()).put(choice.toString(), choice);
     }
 
     public ObservableList<Choice> getDecisions() {
@@ -27,23 +32,10 @@ public class DecisionManager {
     }
 
     public Choice getNextUnmadeDecision() {
-        for (Map.Entry<Integer, SortedMap<String, Choice>> levelEntry : decisionMap.entrySet()) {
-            for(Map.Entry<String, Choice> entry: levelEntry.getValue().entrySet()) {
-                if(entry.getValue().getSelections().size() < entry.getValue().getNumSelections())
-                    return entry.getValue();
-            }
-        }
-        return null;
+        return unmadeByLevel.get(0);
     }
 
-    public List<Choice> getUnmadeDecisions() {
-        List<Choice> choices = new ArrayList<>();
-        for (Map.Entry<Integer, SortedMap<String, Choice>> levelEntry : decisionMap.entrySet()) {
-            for(Map.Entry<String, Choice> entry: levelEntry.getValue().entrySet()) {
-                if(entry.getValue().getSelections().size() < entry.getValue().getNumSelections())
-                    choices.add(entry.getValue());
-            }
-        }
-        return choices;
+    public ObservableList<Choice> getUnmadeDecisions() {
+        return FXCollections.unmodifiableObservableList(unmade);
     }
 }

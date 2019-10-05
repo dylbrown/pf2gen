@@ -7,22 +7,20 @@ import model.equipment.WeaponGroup;
 import model.xml_parsers.ArmorLoader;
 import model.xml_parsers.WeaponsLoader;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class EquipmentManager {
-    private static List<Equipment> allEquipment;
+    private static SortedSet<Equipment> allEquipment;
     private static WeaponsLoader weaponsLoader = new WeaponsLoader();
     private static ArmorLoader armorLoader = new ArmorLoader();
 
-    public static List<Equipment> getEquipment() {
+    public static SortedSet<Equipment> getEquipment() {
         if(allEquipment == null) {
-            allEquipment = new ArrayList<>();
+            allEquipment = new TreeSet<>((Comparator.comparing(Equipment::getName)));
             allEquipment.addAll(getWeapons());
             allEquipment.addAll(getArmor());
         }
-        return allEquipment;
+        return Collections.unmodifiableSortedSet(allEquipment);
     }
 
     public static Map<String, WeaponGroup> getWeaponGroups() {

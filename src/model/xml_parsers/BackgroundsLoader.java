@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static model.util.StringUtils.camelCase;
+import static model.util.StringUtils.camelCaseWord;
+
 public class BackgroundsLoader extends FileLoader<Background> {
     private List<Background> backgrounds;
 

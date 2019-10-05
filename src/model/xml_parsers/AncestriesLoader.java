@@ -16,6 +16,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static model.util.StringUtils.camelCaseWord;
+
 public class AncestriesLoader extends FileLoader<Ancestry> {
 
     private static AncestriesLoader instance;

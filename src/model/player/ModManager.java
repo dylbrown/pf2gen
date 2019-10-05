@@ -68,7 +68,7 @@ class ModManager {
                     return;
                 }
                 List<String> selections = Collections.emptyList();
-                String[] listSplit = things.split(":");
+                String[] listSplit = things.split(" ?: ?");
                 String[] words = listSplit[0].split(" ");
                 switch (words[0].toLowerCase()){
                     case "weapongroup":

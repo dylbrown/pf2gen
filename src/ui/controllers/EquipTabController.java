@@ -1,6 +1,5 @@
 package ui.controllers;
 
-import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -11,18 +10,31 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.web.WebView;
 import model.data_managers.EquipmentManager;
 import model.enums.ArmorProficiency;
+import model.enums.Slot;
 import model.equipment.*;
+import model.util.OPair;
 import ui.Main;
 
-import java.util.Comparator;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class EquipTabController {
 
     @FXML
-    private ListView<Equipment> inventory, allItems, unequipped;
+    private TableColumn<OPair<ItemCount, Slot>, String> nameCol;
     @FXML
-    private TableView<Equipment> equipped;
+    private TableColumn<OPair<ItemCount, Slot>, Slot> slotCol;
+    @FXML
+    private TableColumn<OPair<ItemCount, Slot>, String> weightCol;
+    @FXML
+    private TableColumn<OPair<ItemCount, Slot>, Integer> quantityCol;
+    @FXML
+    private ListView<Equipment> allItems;
+    @FXML
+    private ListView<ItemCount> inventory, unequipped;
+    @FXML
+    private TableView<OPair<ItemCount, Slot>> equipped;
     @FXML
     public GridPane itemGrid;
     @FXML
@@ -34,24 +46,40 @@ public class EquipTabController {
     private CheckMenuItem armorFilter, weaponFilter;
     @FXML
     private RadioMenuItem nameSort, priceSort, ascSort, descSort;
-    ToggleGroup sortBy = new ToggleGroup(); ToggleGroup direction = new ToggleGroup();
+    private ToggleGroup sortBy = new ToggleGroup(); private ToggleGroup direction = new ToggleGroup();
     private double value = 0;
-    private final ObservableList<Equipment> items = FXCollections.observableArrayList();
-    private final FilteredList<Equipment> filter = new FilteredList<>(items);
-    private final SortedList<Equipment> sort = new SortedList<>(filter);
-    private final ObservableList<Equipment> inventoryList = FXCollections.observableArrayList();
-    private final ObservableList<Equipment> unequipList = FXCollections.observableArrayList();
-    private final ObservableList<Equipment> equipList = FXCollections.observableArrayList();
+    private final ObservableList<Equipment> itemList = FXCollections.observableArrayList();
+    private final ObservableList<ItemCount> inventoryList = FXCollections.observableArrayList();
+    private final ObservableList<ItemCount> unequipList = FXCollections.observableArrayList();
+    private final ObservableList<OPair<ItemCount, Slot>> equipList = FXCollections.observableArrayList();
+    //Filters
+    private final FilteredList<Equipment> itemsFilter = new FilteredList<>(itemList);
+    private final FilteredList<ItemCount> unequipFilter = new FilteredList<>(unequipList);
+    private final FilteredList<OPair<ItemCount, Slot>> equipFilter = new FilteredList<>(equipList);
+    //Sorters
+    private final SortedList<Equipment> itemsSort = new SortedList<>(itemsFilter);
+    private final SortedList<ItemCount> unequipSort = new SortedList<>(unequipFilter, Comparator.comparing(o -> o.stats().getName()));
+    private final SortedList<OPair<ItemCount, Slot>> equipSort = new SortedList<>(equipFilter, (o1, o2) -> {
+        int i = o1.second.get().compareTo(o1.second.get());
+        if(i == 0) i = o1.first.get().stats().compareTo(o2.first.get().stats());
+        return i;
+    });
 
     @FXML
     private void initialize() {
-        items.addAll(EquipmentManager.getEquipment());
+        nameCol.setCellValueFactory(param -> param.getValue().first.get().stats().nameProperty());
+        slotCol.setCellValueFactory(param -> param.getValue().second);
+        weightCol.setCellValueFactory(param -> param.getValue().first.get().stats().nameProperty());
+        quantityCol.setCellValueFactory(param -> param.getValue().first.get().countProperty());
+
+
+        itemList.addAll(EquipmentManager.getEquipment());
         money.setText(Main.character.inventory().getMoneyProperty().get()+" sp");
         Main.character.inventory().getMoneyProperty().addListener((event)-> money.setText(Main.character.inventory().getMoneyProperty().get()+" sp"));
         value = Main.character.inventory().getTotalValue();
         totalValue.setText(value+" sp");
 
-        allItems.setItems(sort);
+        allItems.setItems(itemsSort);
 
         //Set Up Filter Toggles
         armorFilter.selectedProperty().addListener((change)->filterStore());
@@ -66,14 +94,11 @@ public class EquipTabController {
         direction.selectToggle(ascSort);
 
 
-        ChangeListener<Equipment> displayItem = (obs, oldVal, selectedItem) ->{
-            if(selectedItem instanceof Weapon)
-                item.getEngine().loadContent(generateWeaponText((Weapon)selectedItem));
-            else if(selectedItem instanceof Armor)
-                item.getEngine().loadContent(generateArmorText((Armor) selectedItem));
-        };
-        allItems.getSelectionModel().selectedItemProperty().addListener(displayItem);
-        inventory.getSelectionModel().selectedItemProperty().addListener(displayItem);
+
+        allItems.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selectedItem) -> setDisplay(selectedItem));
+        inventory.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selectedItem) -> {
+            if(selectedItem != null) setDisplay(selectedItem.stats());
+        });
         allItems.setOnMouseClicked((event) -> {
             if(event.getClickCount() == 2) {
                 Equipment item = allItems.getSelectionModel().getSelectedItem();
@@ -82,43 +107,60 @@ public class EquipTabController {
         });
         inventory.setOnMouseClicked((event) -> {
             if(event.getClickCount() == 2) {
-                Equipment item = inventory.getSelectionModel().getSelectedItem();
+                ItemCount item = inventory.getSelectionModel().getSelectedItem();
                 tryToSell(item);
             }
         });
         unequipped.setOnMouseClicked((event) -> {
             if(event.getClickCount() == 2) {
-                Equipment item = unequipped.getSelectionModel().getSelectedItem();
+                ItemCount item = unequipped.getSelectionModel().getSelectedItem();
                 tryToEquip(item);
             }
         });
 
         equipped.setOnMouseClicked(event -> {
             if(event.getClickCount() == 2) {
-                Equipment item = equipped.getSelectionModel().getSelectedItem();
-                tryToUnequip(item);
+                OPair<ItemCount, Slot> item = equipped.getSelectionModel().getSelectedItem();
+                tryToUnequip(item.first.get(), item.second.get());
             }
         });
 
-        inventory.setItems(new SortedList<>(inventoryList, Comparator.comparing(Equipment::toString)));
-        unequipped.setItems(new SortedList<>(unequipList, Comparator.comparing(Equipment::toString)));
-        equipped.setItems(new SortedList<>(equipList, Comparator.comparing(Equipment::toString)));
+        inventory.setItems(new SortedList<>(inventoryList, Comparator.comparing(o -> o.stats().toString())));
+        unequipped.setItems(unequipSort);
+        equipped.setItems(equipSort);
 
         Main.character.inventory().addInventoryListener(change -> {
             if(change.wasRemoved()) {
-                inventoryList.remove(change.getKey());
-                unequipList.remove(change.getKey());
-                value -= change.getKey().getValue();
-                totalValue.setText(value+" sp");
-                equipList.remove(change.getKey());
+                ItemCount valueRemoved = change.getValueRemoved();
+                inventoryList.remove(valueRemoved);
+                unequipList.removeIf(item->item.stats() == valueRemoved.stats());
+                equipList.removeIf(pair -> pair.first.get() == valueRemoved);
             }
             if(change.wasAdded()) {
-                inventoryList.add(change.getKey());
-                unequipList.add(change.getKey());
-                value += change.getKey().getValue();
-                totalValue.setText(value+" sp");
+                ItemCount valueAdded = change.getValueAdded();
+                inventoryList.add(valueAdded);
+                unequipList.add(new ItemCount(valueAdded.stats(), 0));
             }
+            refreshTotalValue();
+            inventory.refresh();
+            unequipped.refresh();
+            equipped.refresh();
         });
+    }
+
+    private void refreshTotalValue() {
+        value = 0;
+        for (ItemCount itemCount : inventoryList) {
+            value += itemCount.getCount() * itemCount.stats().getValue();
+        }
+        totalValue.setText(value+" sp");
+    }
+
+    private void setDisplay(Equipment selectedItem) {
+        if (selectedItem instanceof Weapon)
+            item.getEngine().loadContent(generateWeaponText((Weapon) selectedItem));
+        else if (selectedItem instanceof Armor)
+            item.getEngine().loadContent(generateArmorText((Armor) selectedItem));
     }
 
     private String generateArmorText(Armor armor) {
@@ -183,44 +225,116 @@ public class EquipTabController {
 
     private String generateCostString(double cost) {
         if(Math.floor(cost) != cost)
-            return cost * 10 + " cp";
-        else if(Math.floor(cost/10) != cost/10)
-            return cost + " sp";
+            return (int)(cost * 10) + " cp";
+        else if(cost < 100 || Math.floor(cost/10) != cost/10)
+            return (int)cost + " sp";
         else
-            return cost / 10 + " gp";
+            return (int)(cost / 10) + " gp";
     }
 
-    private void tryToEquip(Equipment item) {
-        if(Main.character.inventory().equip(item, 1)) {
-            if(!equipList.contains(item))
-                equipList.add(item);
-            unequipList.remove(item);
+    private void tryToEquip(ItemCount unequippedItem) {
+        Slot slot = unequippedItem.stats().getSlot(); List<Slot> choices;
+        if(slot == Slot.OneHand) {
+            choices = new ArrayList<>(Arrays.asList(Slot.PrimaryHand, Slot.OffHand, Slot.Carried));
+        }else{
+            choices = new ArrayList<>(Arrays.asList(slot, Slot.Carried));
+        }
+
+        ChoiceDialog<Slot> dialog = new ChoiceDialog<>(Slot.PrimaryHand, choices);
+        dialog.setTitle("Slot Choice");
+        dialog.setHeaderText("Choose a Slot");
+        dialog.setContentText("");
+
+        Optional<Slot> result = dialog.showAndWait();
+        if (!result.isPresent()) return;
+        slot = result.get();
+        if(Main.character.inventory().equip(unequippedItem.stats(), slot, 1)) {
+            boolean alreadyEquipped = false;
+            for (OPair<ItemCount, Slot> pair : equipList) {
+                if(pair.first.get().stats() == unequippedItem.stats() && pair.second.get() == slot) {
+                    alreadyEquipped = true;
+                    break;
+                }
+            }
+            if(!alreadyEquipped) {
+                OPair<ItemCount, Slot> pair = new OPair<>(new ItemCount(unequippedItem.stats(), 1), slot);
+                equipList.add(pair);
+            } else {
+                ItemCount equippedItem = find(equipSort, unequippedItem.stats(), opair->opair.first.get());
+                if (equippedItem != null) {
+                    equippedItem.add(1);
+                }
+            }
+            unequippedItem.remove(1);
+        }
+        unequipped.refresh();
+    }
+
+    private void tryToUnequip(ItemCount equippedItem, Slot slot) {
+        if(Main.character.inventory().unequip(equippedItem.stats(), slot,1)) {
+            equippedItem.remove(1);
+            ItemCount unequippedItem = find(unequipSort, equippedItem.stats(), item -> item);
+            if(unequippedItem != null)
+                unequippedItem.add(1);
+            if(equippedItem.getCount() == 0)
+                equipList.removeIf(pair->(pair.first.get() == equippedItem) && (pair.second.get() == slot));
+            unequipped.refresh();
         }
     }
 
-    private void tryToUnequip(Equipment item) {
-        if(Main.character.inventory().unequip(item, 1)) {
-            if(!unequipList.contains(item))
-                unequipList.add(item);
-            equipList.remove(item);
-        }
-    }
+    private void tryToSell(ItemCount item) {
 
-    private void tryToSell(Equipment item) {
-
-        if (!Main.character.inventory().sell(item, 1)) {
+        if (!Main.character.inventory().sell(item.stats(), 1)) {
             new Alert(Alert.AlertType.INFORMATION, "Not Enough Items!").showAndWait();
+        }else{
+            ItemCount unequipCount = find(unequipSort, item.stats(), itemCount -> itemCount);
+            if(unequipCount != null) {
+                if(unequipCount.getCount() > 0)
+                    unequipCount.remove(1);
+                else {
+                    ItemCount equipCount = find(equipped.getItems(), item.stats(), opair -> opair.first.get());
+                    if(equipCount != null) {
+                        equipCount.remove(1);
+                    }
+                }
+            }
+            inventory.refresh();
+            unequipped.refresh();
+            equipped.refresh();
         }
+    }
+
+    private <T> ItemCount find(List<T> list, Equipment stats, Function<T,ItemCount> converter) {
+        int first = 0; int last = list.size();
+        while(first < last) {
+            ItemCount count = converter.apply(list.get((first + last) / 2));
+            if(count.stats().compareTo(stats) == 0)
+                return count;
+            else if(count.stats().compareTo(stats) < 0)
+                last = (first + last) / 2;
+            else
+                first = (first + last) / 2 + 1;
+        }
+        return null;
     }
 
     private void tryToBuy(Equipment item) {
         if (!Main.character.inventory().buy(item, 1)) {
             new Alert(Alert.AlertType.INFORMATION, "Not Enough Money!").showAndWait();
+        }else{
+            ItemCount unequippedItem = find(unequipSort, item, u -> u);
+            if(unequippedItem != null)
+                unequippedItem.add(1);
+            inventory.refresh();
+            unequipped.refresh();
+            equipped.refresh();
         }
     }
 
     private void filterStore(){
-        filter.setPredicate((item)-> (armorFilter.isSelected() && item instanceof Armor) || (weaponFilter.isSelected() && item instanceof Weapon));
+        itemsFilter.setPredicate((item)-> (armorFilter.isSelected() && item instanceof Armor) || (weaponFilter.isSelected() && item instanceof Weapon));
+        unequipFilter.setPredicate(itemCount -> itemCount.getCount() > 0);
+        equipFilter.setPredicate(pair -> pair.first.get().getCount() > 0);
     }
 
     private void sortStore() {
@@ -231,6 +345,6 @@ public class EquipTabController {
             comparator = Comparator.comparing(Equipment::getValue);
         if(direction.getSelectedToggle() == descSort)
             comparator = comparator.reversed();
-        sort.setComparator(comparator);
+        itemsSort.setComparator(comparator);
     }
 }
