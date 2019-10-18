@@ -1,12 +1,14 @@
 package tools;
 
+import model.enums.Action;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import static model.util.StringUtils.camelCase;
 
-public class FeatListParser {
+public class FeatListParser extends SourceParser {
     private StringBuilder currentFeat = new StringBuilder();
     private BufferedWriter skill;
     private BufferedWriter general;
@@ -32,7 +34,8 @@ public class FeatListParser {
 
     private int currentPointInList = 0;
     private boolean isSkill = false;
-    private void parseLine(String line) throws IOException {
+    private Action cost = null;
+    void parseLine(String line) throws IOException {
         if(line.contains("@")){
             currentFeat.append("</Description></Ability>");
             currentPointInList = 0;
@@ -42,13 +45,28 @@ public class FeatListParser {
                 skill.write(currentFeat.toString());
             isSkill = false;
             currentFeat = new StringBuilder();
+            cost = null;
             return;
         }
         switch (currentPointInList){
             case 0:
                 String[] split = line.split(" FEAT ");
-                currentFeat.append("<Ability name=\"").append(camelCase(split[0]))
-                        .append("\" level=\"").append(split[1]).append("\">");
+                if(line.contains("[ONE-ACTION]")){
+                    cost = Action.One;
+                }else if(line.contains("[TWO-ACTIONS]")){
+                    cost = Action.Two;
+                }else if(line.contains("[THREE-ACTIONS]")){
+                    cost = Action.Three;
+                }else if(line.contains("[REACTION]")){
+                    cost = Action.Reaction;
+                }else if(line.contains("[FREE-ACTION]")){
+                    cost = Action.Free;
+                }
+                currentFeat.append("<Ability name=\"").append(camelCase(split[0].replaceAll("\\[[^\\[\\]]*\\]", "")))
+                        .append("\" level=\"").append(split[1]).append("\"");
+                if(cost != null)
+                    currentFeat.append(" cost=\"").append(cost.toString()).append("\">");
+                else currentFeat.append(">");
                 break;
             case 1:
                 split = line.split(" ");
@@ -78,17 +96,5 @@ public class FeatListParser {
                 break;
         }
         currentPointInList++;
-    }
-
-    String camelCase(String str) {
-        String[] split = str.split(" ");
-        for(int i=0; i<split.length;i++) {
-            split[i] = camelCaseWord(split[i]);
-        }
-        return String.join(" ", split);
-    }
-
-    String camelCaseWord(String str) {
-        return str.substring(0,1).toUpperCase() + str.substring(1).toLowerCase();
     }
 }

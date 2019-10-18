@@ -179,9 +179,11 @@ public class PC {
     }
 
     public int getAC() {
-        Armor armor = (Armor) inventory.getEquipped(Slot.Armor).stats();
-        if(armor != null)
-            return 10 + level.get() + armor.getAC() + Math.max(scores.getMod(Dex), armor.getMaxDex());
+        if(inventory.getEquipped(Slot.Armor) != null) {
+            Armor armor = (Armor) inventory.getEquipped(Slot.Armor).stats();
+            if(armor != null)
+                return 10 + level.get() + armor.getAC() + Math.max(scores.getMod(Dex), armor.getMaxDex());
+        }
         return 10 + level.get() + scores.getMod(Dex);
     }
 

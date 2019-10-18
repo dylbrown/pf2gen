@@ -19,9 +19,14 @@ import java.util.*;
 public class AttributeManager {
     private final Map<Attribute, ReadOnlyObjectWrapper<Proficiency>> proficiencies = new HashMap<>();
     private final Map<Attribute, Map<Proficiency, List<AttributeMod>>> proficienciesTracker = new HashMap<>();
-    private final SortedMap<Integer, Set<Attribute>> skillChoices = new TreeMap<>(); //Map from level to selected skills
-    private final SortedMap<Integer, Integer> innerSkillIncreases = new TreeMap<>(); // Maps from level to number of increases
-    private final ObservableMap<Integer, Integer> skillIncreases = FXCollections.observableMap(innerSkillIncreases); // Maps from level to number of increases
+
+    //Map from level to selected skills`
+    private final SortedMap<Integer, Set<Attribute>> skillChoices = new TreeMap<>();
+
+    // Maps from level to number of increases
+    private final SortedMap<Integer, Integer> innerSkillIncreases = new TreeMap<>();
+    private final ObservableMap<Integer, Integer> skillIncreases = FXCollections.observableMap(innerSkillIncreases);
+
     private final Map<Proficiency, MinimumProficiencyList> minLists = new HashMap<>();
     private final ReadOnlyObjectProperty<Integer> level;
     private DecisionManager decisions;
@@ -248,6 +253,11 @@ public class AttributeManager {
 
     public ObservableMap<Integer, Integer> getSkillIncreases() {
         return FXCollections.unmodifiableObservableMap(skillIncreases);
+    }
+
+    public int getSkillIncreasesRemaining(int level) {
+        return skillIncreases.getOrDefault(level, 0)
+                - skillChoices.getOrDefault(level, Collections.emptySet()).size();
     }
 
     public ObservableList<String> getMinList(Proficiency min) {

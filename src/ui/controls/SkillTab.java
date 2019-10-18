@@ -32,6 +32,7 @@ public class SkillTab extends AnchorPane {
         character.getLevelProperty().addListener(change -> updateLabel());
         character.getPClassProperty().addListener(change -> updateLabel());
         character.scores().addAbilityObserver((o, arg)->updateLabel());
+        character.attributes().addObserver((o, arg)->updateLabel());
         updateLabel();
 
         AnchorPane.setLeftAnchor(border, 15.0);
@@ -94,17 +95,25 @@ public class SkillTab extends AnchorPane {
 
     private void updateLabel() {
         ObservableMap<Integer, Integer> skillIncreases = character.attributes().getSkillIncreases();
+        int[] remaining = new int[4];
         int[] increases = new int[4];
         increases[0] = skillIncreases.getOrDefault(1,0);
-        for(int i=2; i<=character.getLevel(); i++) {
-            if(i < Proficiency.getMinLevel(Proficiency.Master)){
-                increases[1]++;
-            }else if (i < Proficiency.getMinLevel(Proficiency.Legendary)){
-                increases[2]++;
+        remaining[0] = character.attributes().getSkillIncreasesRemaining(1);
+        for(int level=2; level<=character.getLevel(); level++) {
+            if(level < Proficiency.getMinLevel(Proficiency.Master)){
+                increases[1] += skillIncreases.getOrDefault(level, 0);
+                remaining[1] += character.attributes().getSkillIncreasesRemaining(level);
+            }else if (level < Proficiency.getMinLevel(Proficiency.Legendary)){
+                increases[2] += skillIncreases.getOrDefault(level, 0);
+                remaining[2] += character.attributes().getSkillIncreasesRemaining(level);
             }else{
-                increases[3]++;
+                increases[3] += skillIncreases.getOrDefault(level, 0);
+                remaining[3] += character.attributes().getSkillIncreasesRemaining(level);
             }
         }
-        remainingIncreases.setText("T:"+increases[0]+", E:"+increases[1]+", M:"+increases[2]+", L:"+increases[3]);
+        remainingIncreases.setText("T:"+remaining[0]+"/"+increases[0]
+                +", E:"+remaining[1]+"/"+increases[1]
+                +", M:"+remaining[2]+"/"+increases[2]
+                +", L:"+remaining[3]+"/"+increases[3]);
     }
 }

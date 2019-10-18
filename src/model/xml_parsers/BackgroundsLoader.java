@@ -66,10 +66,6 @@ public class BackgroundsLoader extends FileLoader<Background> {
                                 break;
                             case "Skill":
                                 String[] split = camelCase(trim).split(",");
-                                for (String s : split) {
-                                    System.out.println(s);
-                                }
-
                                 for(int k=0; k<2; k++){
                                     String[] orCheck = split[k].trim().split(" [oO]r ");
                                     if(orCheck.length > 1) {
