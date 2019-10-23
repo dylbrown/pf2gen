@@ -86,9 +86,10 @@ public class PC {
     }
 
     public void setAncestry(Ancestry ancestry) {
+        if(ancestry == null) return;
         if(getAncestry() != null) {
             scores.remove(getAncestry().getAbilityMods());
-            languages.removeAll(ancestry.getLanguages());
+            languages.removeAll(getAncestry().getLanguages());
             abilities.removeAll(Type.Ancestry);
         }
         this.ancestry.set(ancestry);
@@ -250,7 +251,7 @@ public class PC {
         return (pClass.get() != null) ? pClass.get() : PClass.NO_CLASS;
     }
 
-    public InventoryManager inventory() {return inventory;}
+    public InventoryManager inventory   () {return inventory;}
 
     public AttributeManager attributes() {
         return attributes;

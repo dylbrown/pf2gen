@@ -25,6 +25,28 @@ public class Dice {
         return size;
     }
 
+    public static Dice increase(Dice source) {
+        int size = getNextSize(source.size);
+        return dice.computeIfAbsent(source.count, (key)->
+                new HashMap<>()).computeIfAbsent(size, (key)->new Dice(source.count, size));
+    }
+
+    private static int getNextSize(int size) {
+        switch (size) {
+            case 4:
+                return 6;
+            case 6:
+                return 8;
+            case 8:
+                return 10;
+            case 10:
+                return 12;
+            case 12:
+            default:
+                return size;
+        }
+    }
+
     @Override
     public String toString() {
         return count+"d"+size;

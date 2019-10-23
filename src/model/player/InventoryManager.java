@@ -9,14 +9,12 @@ import model.enums.Slot;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
 
-import java.util.Comparator;
-import java.util.TreeMap;
-
 public class InventoryManager {
     private final ReadOnlyObjectWrapper<Double> money= new ReadOnlyObjectWrapper<>(150.0);
     private final ObservableMap<Equipment, ItemCount> inventory = FXCollections.observableHashMap();
     private final ObservableMap<Slot, ItemCount> equipped = FXCollections.observableHashMap();
-    private final ObservableMap<Equipment, ItemCount> carried = FXCollections.observableMap(new TreeMap<>(Comparator.comparing(Equipment::getName)));
+    private final ObservableMap<Equipment, ItemCount> unequipped = FXCollections.observableHashMap();
+    private double totalWeight = 0;
 
     public ItemCount getEquipped(Slot slot) {
         return equipped.get(slot);
@@ -30,34 +28,41 @@ public class InventoryManager {
         if(item.getValue() * count > money.get()) return false;
         money.set(money.get() - item.getValue() * count);
 
-        if(inventory.get(item) != null) {
-            inventory.get(item).add(count);
-        }else{
-            inventory.put(item, new ItemCount(item, count));
-        }
+        //Add To Inventory
+        inventory.computeIfAbsent(item, (key)->new ItemCount(item, 0)).add(count);
+
+
+        //Add To Unequipped
+        unequipped.computeIfAbsent(item, (key)->new ItemCount(item, 0)).add(count);
+
+        //Add To Total Weight
+        totalWeight += item.weightProperty().doubleValue() * count;
         return true;
     }
 
-    public boolean sell(Equipment equipment, int count) {
-        ItemCount item = inventory.get(equipment);
-        if(item == null) return false;
-        int remaining = item.getCount();
+    public boolean sell(Equipment item, int count) {
+        ItemCount itemCount = inventory.get(item);
+        if(itemCount == null) return false;
+        int remaining = itemCount.getCount();
         if(remaining <= 0) return false;
-        money.set(money.get() + equipment.getValue() * count);
-        item.remove(count);
-        int totalEquipped = 0;
-        Slot slot = equipment.getSlot();
-        if(equipped.get(slot) != null && equipped.get(slot).stats() == equipment) totalEquipped += equipped.get(slot).getCount();
-        if(slot == Slot.OneHand){
-            if(equipped.get(Slot.PrimaryHand) != null && equipped.get(Slot.PrimaryHand).stats() == equipment) totalEquipped += equipped.get(Slot.PrimaryHand).getCount();
-            if(equipped.get(Slot.OffHand) != null && equipped.get(Slot.OffHand).stats() == equipment) totalEquipped += equipped.get(Slot.OffHand).getCount();
-        }
-        if(totalEquipped > item.getCount())
-            unequip(equipment, totalEquipped - item.getCount());
+        money.set(money.get() + item.getValue() * count);
+        itemCount.remove(count);
+
+        //Unequip Some if there aren't enough unequipped
+        if(unequipped.get(item).getCount() < count)
+            unequip(item, count - unequipped.get(item).getCount());
+
+        //Remove from Unequipped
+        unequipped.get(item).remove(count);
+        if(unequipped.get(item).getCount() <= 0) unequipped.remove(item);
+
         remaining -= count;
         if(remaining <= 0) {
-            inventory.remove(equipment);
+            inventory.remove(item);
         }
+
+        //Remove From Total Weight
+        totalWeight -= item.weightProperty().doubleValue() * count;
         return true;
     }
 
@@ -88,52 +93,31 @@ public class InventoryManager {
             }else return false;
         }
 
-        //Add To Carried
-        if(carried.get(item) == null){
-            carried.put(item, new ItemCount(item, count));
-        }else {
-            carried.get(item).add(count);
+        //Remove From Unequipped
+        unequipped.get(item).remove(count);
+        if(unequipped.get(item).getCount() == 0) {
+            unequipped.remove(slot);
         }
         return true;
     }
 
     private boolean unequip(Equipment item, int count) {
         Slot slot = item.getSlot();
-        ItemCount slotContents = equipped.get(slot);
-        if(slotContents != null && slotContents.stats().equals(item) && slotContents.getCount() >= count) {
-            slotContents.remove(count);
-            carried.get(item).remove(count);
-            if(slotContents.getCount() == 0) {
-                equipped.remove(slot);
-                carried.remove(item);
-            }
-            return true;
-        }
 
         if(slot == Slot.OneHand){
-            if(unequip(item, Slot.PrimaryHand, count)) return true;
-            if(unequip(item, Slot.OffHand, count)) return true;
+            return unequip(item, Slot.OffHand, count) || unequip(item, Slot.PrimaryHand, count);
+        }else{
+            return unequip(item, slot, count);
         }
-
-
-        ItemCount carriedCount = carried.get(item);
-        if(carriedCount != null && carriedCount.getCount() >= count) {
-            carriedCount.remove(count);
-            if(carriedCount.getCount() == 0) carried.remove(item);
-            return true;
-        }
-        return false;
     }
 
     public boolean unequip(Equipment item, Slot slot, int count) {
         ItemCount slotContents = equipped.get(slot);
         if(slotContents != null && slotContents.stats().equals(item) && slotContents.getCount() >= count) {
             slotContents.remove(count);
-            carried.get(item).remove(count);
-            if(slotContents.getCount() == 0)
-                equipped.remove(slot);
-            if(carried.get(item).getCount() == 0)
-                carried.remove(item);
+
+            //Add To Unequipped
+            unequipped.computeIfAbsent(item, (key)->new ItemCount(item, 0)).add(count);
             return true;
         }
         return false;
@@ -147,8 +131,8 @@ public class InventoryManager {
         return FXCollections.unmodifiableObservableMap(equipped);
     }
 
-    public ObservableMap<Equipment, ItemCount> getCarried() {
-        return FXCollections.unmodifiableObservableMap(carried);
+    public ObservableMap<Equipment, ItemCount> getUnequipped() {
+        return FXCollections.unmodifiableObservableMap(unequipped);
     }
 
     public void reset() {
@@ -156,6 +140,14 @@ public class InventoryManager {
             sell(item.stats(), item.getCount());
         }
 
+    }
+
+    public double getTotalWeight() {
+        return totalWeight;
+    }
+
+    public double getMoney() {
+        return money.get();
     }
 
     public void addEquippedListener(MapChangeListener<Slot, ItemCount> listener) {

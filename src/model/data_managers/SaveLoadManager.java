@@ -56,6 +56,15 @@ public class SaveLoadManager {
         character.inventory().getItems().values().forEach((item)-> items.put(item.getName(), item.getCount()));
         map.put("inventory", items);
 
+            writeOutLine(out, "Inventory");
+            for (ItemCount item : character.inventory().getItems().values()) {
+                writeOutLine(out, " - "+item.getCount()+" "+item.stats().getName());
+            }
+            writeOutLine(out, "Equipped");
+            //Print items in specific slots
+            for (Map.Entry<Slot, ItemCount> entry : character.inventory().getEquipped().entrySet()) {
+                writeOutLine(out, " - "+entry.getKey()+": "+entry.getValue().getCount()+" "+entry.getValue().stats().getName());
+            }
 
         if (file != null) {
             try {

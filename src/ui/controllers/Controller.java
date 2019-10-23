@@ -1,5 +1,6 @@
 package ui.controllers;
 
+import com.sun.javafx.webkit.WebConsoleListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -8,7 +9,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import model.data_managers.SaveLoadManager;
 import ui.Main;
-import ui.TemplateFiller;
+import ui.ftl.TemplateFiller;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -44,6 +45,7 @@ public class Controller {
 
     @FXML
     private void initialize(){
+
         Main.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.TAB && event.isControlDown()) {
                 rootTabs.fireEvent(event);
@@ -65,7 +67,7 @@ public class Controller {
             if (file != null) {
                 try {
                     PrintWriter out = new PrintWriter(file);
-                    out.println(htmlContent);
+                    out.println(TemplateFiller.getSheet());
                     out.close();
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
@@ -77,6 +79,10 @@ public class Controller {
         displayTab.setOnSelectionChanged((event) -> {
             if(displayTab.isSelected()) {
                 htmlContent = TemplateFiller.getStatBlock();
+                htmlContent = htmlContent.replace("</title>", "</title>\n<base href=\"file:///"
+                        + new File("jquery/").getAbsolutePath().replaceAll("\\\\", "/")
+                        + "/\"/>");
+                System.out.println(htmlContent);
                 display.getEngine().loadContent(htmlContent);
             }
         });

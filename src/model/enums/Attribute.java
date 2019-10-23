@@ -5,8 +5,9 @@ import model.ability_scores.AbilityScore;
 import java.util.*;
 
 import static model.ability_scores.AbilityScore.*;
+import static model.util.StringUtils.camelCaseWord;
 
-    public enum Attribute {
+public enum Attribute {
     Acrobatics(Dex), Arcana(Int), Athletics(Str), Crafting(Int), Deception(Cha), Diplomacy(Cha), Intimidation(Cha), Lore(Int), Medicine(Wis), Nature(Wis), Occultism(Int), Performance(Cha), Religion(Wis), Society(Int), Stealth(Dex), Survival(Wis), Thievery(Dex),
 
     Fortitude(Con), Reflex(Dex), Will(Wis), Perception(Wis),
@@ -78,7 +79,26 @@ import static model.ability_scores.AbilityScore.*;
             }
         }
 
-    public AbilityScore getKeyAbility() {
+        public static Attribute robustValueOf(String s) {
+            try {
+                return Attribute.valueOf(camelCaseWord(s));
+            }catch(IllegalArgumentException e) {
+                switch (s.toLowerCase()) {
+                    case "simpleweapons": return SimpleWeapons;
+                    case "martialweapons": return MartialWeapons;
+                    case "advancedweapons": return AdvancedWeapons;
+                    case "lightarmor": return LightArmor;
+                    case "mediumarmor": return MediumArmor;
+                    case "heavyarmor": return HeavyArmor;
+                    case "spellattacks": return SpellAttacks;
+                    case "spelldcs": return SpellDcs;
+                    case "classdc": return ClassDc;
+                }
+            }
+            throw new IllegalArgumentException();
+        }
+
+        public AbilityScore getKeyAbility() {
         return keyAbility;
     }
 }
