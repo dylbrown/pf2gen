@@ -91,7 +91,9 @@ public class AttributeManager {
         proficienciesTracker.computeIfAbsent(mod.getAttr(), (key) -> new HashMap<>())
                 .computeIfAbsent(mod.getMod(), (key) -> new ArrayList<>())
                 .add(mod);
-        if (proficiency.getValue() == null || proficiency.getValue().getMod() < mod.getMod().getMod()) {
+        if (proficiency == null) {
+            proficiencies.put(mod.getAttr(), new ReadOnlyObjectWrapper<>(mod.getMod()));
+        } else if (proficiency.getValue() == null || proficiency.getValue().getMod() < mod.getMod().getMod()) {
             proficiency.set(mod.getMod());
         }
         proficiencyChange.wink();
