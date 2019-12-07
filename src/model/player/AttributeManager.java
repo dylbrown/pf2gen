@@ -16,6 +16,9 @@ import model.equipment.WeaponGroup;
 
 import java.util.*;
 
+/**
+ * @author Dylan Brown
+ */
 public class AttributeManager {
     private final Map<Attribute, ReadOnlyObjectWrapper<Proficiency>> proficiencies = new HashMap<>();
     private final Map<Attribute, Map<Proficiency, List<AttributeMod>>> proficienciesTracker = new HashMap<>();
@@ -51,18 +54,33 @@ public class AttributeManager {
                 Proficiency.Legendary));
     }
 
+    /**
+     * Update the number of initial skill increases
+     * @param numSkills the number of initial skill increases
+     */
     void updateSkillCount(int numSkills) {
         skillIncreases.put(1,numSkills);
         proficiencyChange.wink();
     }
 
+    /**
+     * apply an attribute mod to the character's proficiencies
+     * <p>
+     *     If the mod is a choice, it adds it to the decisions.
+     *     If the mod would increase the character's current proficiency, do so.
+     *     Otherwise just silently adds it to their list of proficiency sources.
+     * </p>
+     * @param mod the mod to apply
+     */
     void apply(AttributeMod mod) {
+        //TODO: Add support for free skill increase if redundant
         if(mod.getAttr() == null) return;
         if(mod instanceof AttributeModSingleChoice) {
-            decisions.add((AttributeModSingleChoice)mod);
+            AttributeModSingleChoice choice = (AttributeModSingleChoice) mod;
+            decisions.add(choice);
             if(!choices.contains(mod)) {
-                choices.add((AttributeModSingleChoice) mod);
-                ((AttributeModSingleChoice) mod).getChoiceProperty().addListener((observable, oldVal, newVal)->{
+                choices.add(choice);
+                choice.getChoiceProperty().addListener((observable, oldVal, newVal)->{
                     remove(new AttributeMod(oldVal, mod.getMod()));
                     apply(new AttributeMod(newVal, mod.getMod()));
                 });
@@ -70,17 +88,33 @@ public class AttributeManager {
             return;
         }
         ReadOnlyObjectWrapper<Proficiency> proficiency = proficiencies.get(mod.getAttr());
-        proficienciesTracker.computeIfAbsent(mod.getAttr(), (key) -> new HashMap<>()).computeIfAbsent(mod.getMod(), (key) -> new ArrayList<>()).add(mod);
-        if (proficiency == null) {
-            proficiencies.put(mod.getAttr(), new ReadOnlyObjectWrapper<>(mod.getMod()));
-        } else if (proficiency.getValue() == null || proficiency.getValue().getMod() < mod.getMod().getMod()) {
+        proficienciesTracker.computeIfAbsent(mod.getAttr(), (key) -> new HashMap<>())
+                .computeIfAbsent(mod.getMod(), (key) -> new ArrayList<>())
+                .add(mod);
+        if (proficiency.getValue() == null || proficiency.getValue().getMod() < mod.getMod().getMod()) {
             proficiency.set(mod.getMod());
         }
         proficiencyChange.wink();
     }
 
+    /**
+     * remove an attribute mod from the character's proficiencies
+     * <p>
+     *     If the mod is a choice, it removes it from the decisions.
+     *     If removing the mod would decrease the character's current proficiency, do so.
+     *     Otherwise just silently remove it to their list of proficiency sources.
+     * </p>
+     * @param mod the mod to remove
+     */
     void remove(AttributeMod mod) {
         if(mod.getAttr() == null) return;
+        ReadOnlyObjectWrapper<Proficiency> proficiency = proficiencies.get(mod.getAttr());
+        Map<Proficiency, List<AttributeMod>> proficiencyListMap = proficienciesTracker.computeIfAbsent(mod.getAttr(), (key) -> new HashMap<>());
+        List<AttributeMod> attributeMods = proficiencyListMap.computeIfAbsent(mod.getMod(), (key) -> new ArrayList<>());
+
+        if(!attributeMods.contains(mod)) return;
+
+
         if(mod instanceof AttributeModSingleChoice) {
             decisions.remove((AttributeModSingleChoice)mod);
             Attribute choice = ((AttributeModSingleChoice) mod).getChoice();
@@ -88,9 +122,7 @@ public class AttributeManager {
                 remove(new AttributeMod(choice, mod.getMod()));
             return;
         }
-        ReadOnlyObjectWrapper<Proficiency> proficiency = proficiencies.get(mod.getAttr());
-        Map<Proficiency, List<AttributeMod>> proficiencyListMap = proficienciesTracker.computeIfAbsent(mod.getAttr(), (key) -> new HashMap<>());
-        List<AttributeMod> attributeMods = proficiencyListMap.computeIfAbsent(mod.getMod(), (key) -> new ArrayList<>());
+
         attributeMods.remove(mod);
         if (proficiency.get().getMod() == mod.getMod().getMod() && attributeMods.size() == 0) {
             boolean doLoop = true;
@@ -112,12 +144,19 @@ public class AttributeManager {
                         break;
                 }
                 if (doLoop)
-                    doLoop = removeHelper(proficiencyListMap, temp);
+                    doLoop = doNotHaveProf(proficiencyListMap, temp);
             }
             proficiency.set(temp);
         }
     }
-    private boolean removeHelper(Map<Proficiency, List<AttributeMod>> proficiencyListMap, Proficiency proficiency) {
+
+    /**
+     * Check if the map contains the given proficiency
+     * @param proficiencyListMap the sub-map of the proficiency tracker
+     * @param proficiency the desired proficiency
+     * @return true if do not have the desired proficiency
+     */
+    private boolean doNotHaveProf(Map<Proficiency, List<AttributeMod>> proficiencyListMap, Proficiency proficiency) {
         return proficiencyListMap.computeIfAbsent(proficiency, (key) -> new ArrayList<>()).size() == 0;
     }
 
@@ -241,6 +280,9 @@ public class AttributeManager {
         return Collections.unmodifiableSortedMap(skillChoices);
     }
 
+    /**
+     * Unmake all skill choices
+     */
     public void resetSkills() {
         for(int i=level.get(); i>0; i--) {
             Set<Attribute> attributes = skillChoices.get(i);
@@ -260,7 +302,7 @@ public class AttributeManager {
                 - skillChoices.getOrDefault(level, Collections.emptySet()).size();
     }
 
-    ObservableList<String> getMinList(Proficiency min) {
+    public ObservableList<String> getMinList(Proficiency min) {
         return minLists.get(min);
     }
 }

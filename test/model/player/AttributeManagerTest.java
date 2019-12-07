@@ -1,17 +1,69 @@
 package model.player;
 
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.value.ObservableValue;
+import model.AttributeMod;
+import model.AttributeModSingleChoice;
+import model.enums.Attribute;
+import model.enums.Proficiency;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class AttributeManagerTest {
 
-	@Test
-	void updateSkillCount() {
+	private ReadOnlyObjectWrapper<Integer> level;
+	private AttributeManager attributes;
+
+	@BeforeEach
+	void setUp() {
+		level = new ReadOnlyObjectWrapper<>(7);
+		attributes = new AttributeManager(level, new DecisionManager());
 	}
 
 	@Test
-	void apply() {
+	void updateSkillCount() {
+		attributes.updateSkillCount(7);
+		assertEquals(7, attributes.getSkillIncreases().get(1));
+	}
+
+	@Test
+	void applyThatIncreases() {
+		ObservableValue<Proficiency> value = attributes.getProficiency(Attribute.Athletics);
+		assertEquals(Proficiency.Untrained, value.getValue());
+
+		attributes.apply(new AttributeMod(Attribute.Athletics, Proficiency.Trained));
+		assertEquals(Proficiency.Trained, value.getValue());
+
+		attributes.apply(new AttributeMod(Attribute.Athletics, Proficiency.Expert));
+		assertEquals(Proficiency.Expert, value.getValue());
+	}
+
+	@Test
+	void applyThatDoesNotIncrease() {
+		ObservableValue<Proficiency> value = attributes.getProficiency(Attribute.Athletics);
+		assertEquals(Proficiency.Untrained, value.getValue());
+
+		attributes.apply(new AttributeMod(Attribute.Athletics, Proficiency.Expert));
+		assertEquals(Proficiency.Expert, value.getValue());
+
+		attributes.apply(new AttributeMod(Attribute.Athletics, Proficiency.Trained));
+		assertEquals(Proficiency.Expert, value.getValue());
+	}
+
+	@Test
+	void applyChoiceIncreaseLater() {
+		ObservableValue<Proficiency> value = attributes.getProficiency(Attribute.Athletics);
+		assertEquals(Proficiency.Untrained, value.getValue());
+
+		AttributeModSingleChoice choice = new AttributeModSingleChoice(
+				new Attribute[]{Attribute.Athletics}, Proficiency.Trained);
+		attributes.apply(choice);
+		assertEquals(Proficiency.Untrained, value.getValue());
+
+		choice.fill(Attribute.Athletics);
+		assertEquals(Proficiency.Trained, value.getValue());
 	}
 
 	@Test
@@ -36,29 +88,38 @@ class AttributeManagerTest {
 
 	@Test
 	void addSkillIncrease() {
+		assertEquals(0, attributes.getSkillIncreases().getOrDefault(16, 0));
+		attributes.addSkillIncrease(16);
+		assertEquals(1, attributes.getSkillIncreases().get(16));
+		attributes.addSkillIncrease(16);
+		assertEquals(2, attributes.getSkillIncreases().get(16));
 	}
 
 	@Test
 	void removeSkillIncrease() {
+		attributes.addSkillIncrease(16);
+		attributes.addSkillIncrease(16);
+		assertEquals(2, attributes.getSkillIncreases().get(16));
+		attributes.removeSkillIncrease(16);
+		assertEquals(1, attributes.getSkillIncreases().get(16));
+		attributes.removeSkillIncrease(16);
+		assertEquals(0, attributes.getSkillIncreases().getOrDefault(16, 0));
 	}
 
 	@Test
-	void apply1() {
+	void applyWeaponGroup() {
 	}
 
 	@Test
-	void remove1() {
+	void removeWeaponGroup() {
 	}
 
 	@Test
 	void resetSkills() {
+
 	}
 
 	@Test
 	void getSkillIncreasesRemaining() {
-	}
-
-	@Test
-	void getMinList() {
 	}
 }
