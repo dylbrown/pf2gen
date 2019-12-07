@@ -3,7 +3,9 @@ package ui.ftl.entries;
 import model.enums.Slot;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
+import model.equipment.Weapon;
 import model.util.Pair;
+import ui.Main;
 
 public class ItemCountWrapper {
     private ItemCount itemCount;
@@ -31,5 +33,13 @@ public class ItemCountWrapper {
 
     public int getCount() {
         return itemCount.getCount();
+    }
+
+    public int getAttack() {
+        return Main.character.getAttackMod((Weapon) itemCount.stats());
+    }
+
+    public int getDamagemod() {
+        return Main.character.getDamageMod((Weapon) itemCount.stats());
     }
 }

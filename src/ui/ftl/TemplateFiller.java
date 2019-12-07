@@ -128,6 +128,7 @@ public class TemplateFiller {
     }
 
     private String sheet() {
+        long start = System.currentTimeMillis();
         wrapper.refresh();
         Template template;
         try {
@@ -142,6 +143,7 @@ public class TemplateFiller {
         } catch (TemplateException | IOException e) {
             e.printStackTrace();
         }
+        System.out.println(System.currentTimeMillis()-start+" ms");
         return results.toString();
     }
 }

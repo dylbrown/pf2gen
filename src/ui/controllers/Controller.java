@@ -82,7 +82,6 @@ public class Controller {
                 htmlContent = htmlContent.replace("</title>", "</title>\n<base href=\"file:///"
                         + new File("jquery/").getAbsolutePath().replaceAll("\\\\", "/")
                         + "/\"/>");
-                System.out.println(htmlContent);
                 display.getEngine().loadContent(htmlContent);
             }
         });

@@ -27,9 +27,8 @@ public class EquipmentList implements TemplateSequenceModel {
 
     EquipmentList(ObservableMap<Equipment, ItemCount> unequipped, ObservableMap<Slot, ItemCount> equipped) {
         for (Map.Entry<Slot, ItemCount> entry : equipped.entrySet()) {
-            equip.add(new Pair<>(entry.getKey(), entry.getValue()));
+            equipList.add(new Pair<>(entry.getKey(), entry.getValue()));
         }
-
         unequipList.addAll(unequipped.values());
         equipped.addListener((MapChangeListener<Slot, ItemCount>) change -> {
             if(change.wasAdded()) {

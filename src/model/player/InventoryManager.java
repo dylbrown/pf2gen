@@ -95,8 +95,8 @@ public class InventoryManager {
 
         //Remove From Unequipped
         unequipped.get(item).remove(count);
-        if(unequipped.get(item).getCount() == 0) {
-            unequipped.remove(slot);
+        if(unequipped.get(item).getCount() <= 0) {
+            unequipped.remove(item);
         }
         return true;
     }
@@ -115,6 +115,9 @@ public class InventoryManager {
         ItemCount slotContents = equipped.get(slot);
         if(slotContents != null && slotContents.stats().equals(item) && slotContents.getCount() >= count) {
             slotContents.remove(count);
+            if(slotContents.getCount() <= 0) {
+                equipped.remove(slot);
+            }
 
             //Add To Unequipped
             unequipped.computeIfAbsent(item, (key)->new ItemCount(item, 0)).add(count);
