@@ -8,7 +8,7 @@ import java.util.List;
 
 import static model.util.StringUtils.camelCase;
 
-public class FeatListParser extends SourceParser {
+class FeatListParser extends SourceParser {
     private StringBuilder currentFeat = new StringBuilder();
     private BufferedWriter skill;
     private BufferedWriter general;
@@ -35,7 +35,7 @@ public class FeatListParser extends SourceParser {
     private int currentPointInList = 0;
     private boolean isSkill = false;
     private Action cost = null;
-    void parseLine(String line) throws IOException {
+    private void parseLine(String line) throws IOException {
         if(line.contains("@")){
             currentFeat.append("</Description></Ability>");
             currentPointInList = 0;
@@ -62,7 +62,7 @@ public class FeatListParser extends SourceParser {
                 }else if(line.contains("[FREE-ACTION]")){
                     cost = Action.Free;
                 }
-                currentFeat.append("<Ability name=\"").append(camelCase(split[0].replaceAll("\\[[^\\[\\]]*\\]", "")))
+                currentFeat.append("<Ability name=\"").append(camelCase(split[0].replaceAll("\\[[^\\[\\]]*]", "")))
                         .append("\" level=\"").append(split[1]).append("\"");
                 if(cost != null)
                     currentFeat.append(" cost=\"").append(cost.toString()).append("\">");

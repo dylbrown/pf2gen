@@ -8,7 +8,7 @@ import model.util.Pair;
 import ui.Main;
 
 public class ItemCountWrapper {
-    private ItemCount itemCount;
+    private final ItemCount itemCount;
     private Slot slot = null;
     public ItemCountWrapper(ItemCount itemCount) {
         this.itemCount = itemCount;

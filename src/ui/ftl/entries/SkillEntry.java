@@ -6,8 +6,8 @@ import model.enums.Attribute;
 import java.util.function.Supplier;
 
 public class SkillEntry {
-    private Attribute name;
-    private Supplier<Integer> mod;
+    private final Attribute name;
+    private final Supplier<Integer> mod;
 
     public SkillEntry(Attribute name, Supplier<Integer> mod) {
         this.name = name;

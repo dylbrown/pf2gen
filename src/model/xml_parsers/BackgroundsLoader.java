@@ -23,7 +23,7 @@ import static model.util.StringUtils.camelCaseWord;
 public class BackgroundsLoader extends FileLoader<Background> {
     private List<Background> backgrounds;
 
-    private static BackgroundsLoader instance;
+    private static final BackgroundsLoader instance;
     static{instance = new BackgroundsLoader();}
 
     private BackgroundsLoader() {

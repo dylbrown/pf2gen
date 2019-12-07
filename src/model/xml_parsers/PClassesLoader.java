@@ -17,7 +17,7 @@ public class PClassesLoader extends FileLoader<PClass> {
 
     private List<PClass> PClasses;
 
-    private static PClassesLoader instance;
+    private static final PClassesLoader instance;
     static{instance = new PClassesLoader();}
 
     private PClassesLoader() {

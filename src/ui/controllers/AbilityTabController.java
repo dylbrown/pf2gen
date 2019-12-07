@@ -11,6 +11,7 @@ import ui.Main;
 
 import java.util.*;
 
+@SuppressWarnings("WeakerAccess")
 public class AbilityTabController {
     @FXML
     GridPane abilitiesGrid;

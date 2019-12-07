@@ -6,10 +6,10 @@ import model.xml_parsers.FeatsLoader;
 import java.util.*;
 
 public class FeatsManager {
-    private static SortedMap<String, Ability> allFeatsMap;
-    private static List<Ability> allFeats;
-    private static FeatsLoader generalFeats = new FeatsLoader("data/feats/general.pfdyl");
-    private static FeatsLoader skillFeats = new FeatsLoader("data/feats/skill.pfdyl");
+    private static final SortedMap<String, Ability> allFeatsMap;
+    private static final List<Ability> allFeats;
+    private static final FeatsLoader generalFeats = new FeatsLoader("data/feats/general.pfdyl");
+    private static final FeatsLoader skillFeats = new FeatsLoader("data/feats/skill.pfdyl");
 
     static{
         allFeats = new ArrayList<>();

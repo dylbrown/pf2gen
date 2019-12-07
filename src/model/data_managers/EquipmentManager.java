@@ -11,8 +11,8 @@ import java.util.*;
 
 public class EquipmentManager {
     private static SortedSet<Equipment> allEquipment;
-    private static WeaponsLoader weaponsLoader = new WeaponsLoader();
-    private static ArmorLoader armorLoader = new ArmorLoader();
+    private static final WeaponsLoader weaponsLoader = new WeaponsLoader();
+    private static final ArmorLoader armorLoader = new ArmorLoader();
 
     public static SortedSet<Equipment> getEquipment() {
         if(allEquipment == null) {

@@ -79,6 +79,7 @@ public enum Attribute {
             }
         }
 
+        @SuppressWarnings("SpellCheckingInspection")
         public static Attribute robustValueOf(String s) {
             try {
                 return Attribute.valueOf(camelCaseWord(s));

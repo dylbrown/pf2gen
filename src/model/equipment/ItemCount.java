@@ -34,9 +34,8 @@ public class ItemCount {
         count.set(count.get()+e);
     }
 
-    public ItemCount remove(int e) {
+    public void remove(int e) {
         count.set(count.get()-e);
-        return new ItemCount(baseItem, e);
     }
 
     public void setCount(int count) {

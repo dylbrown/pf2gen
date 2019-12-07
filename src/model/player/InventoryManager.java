@@ -10,7 +10,8 @@ import model.equipment.Equipment;
 import model.equipment.ItemCount;
 
 public class InventoryManager {
-    private final ReadOnlyObjectWrapper<Double> money= new ReadOnlyObjectWrapper<>(150.0);
+    public static final Double INITIAL_AMOUNT = 150.0;
+    private final ReadOnlyObjectWrapper<Double> money= new ReadOnlyObjectWrapper<>(INITIAL_AMOUNT);
     private final ObservableMap<Equipment, ItemCount> inventory = FXCollections.observableHashMap();
     private final ObservableMap<Slot, ItemCount> equipped = FXCollections.observableHashMap();
     private final ObservableMap<Equipment, ItemCount> unequipped = FXCollections.observableHashMap();
@@ -25,6 +26,7 @@ public class InventoryManager {
     }
 
     public boolean buy(Equipment item, int count) {
+        if(count == 0) return false;
         if(item.getValue() * count > money.get()) return false;
         money.set(money.get() - item.getValue() * count);
 
@@ -44,7 +46,7 @@ public class InventoryManager {
         ItemCount itemCount = inventory.get(item);
         if(itemCount == null) return false;
         int remaining = itemCount.getCount();
-        if(remaining <= 0) return false;
+        if(remaining - count < 0) return false;
         money.set(money.get() + item.getValue() * count);
         itemCount.remove(count);
 
@@ -75,6 +77,10 @@ public class InventoryManager {
     }
 
     public boolean equip(Equipment item, Slot slot, int count) {
+        //If trying to equip to OneHand, check it
+        if(slot == Slot.OneHand){
+            return equip(item, Slot.PrimaryHand, count) || equip(item, Slot.OffHand, count);
+        }
         //If only carried, don't put in slot
         if(slot != Slot.Carried) {
             //Handle Hand Shenanigans
@@ -139,10 +145,11 @@ public class InventoryManager {
     }
 
     public void reset() {
-        for (ItemCount item : inventory.values()) {
-            sell(item.stats(), item.getCount());
-        }
-
+        money.set(INITIAL_AMOUNT);
+        equipped.clear();
+        unequipped.clear();
+        inventory.clear();
+        totalWeight = 0;
     }
 
     public double getTotalWeight() {
@@ -155,5 +162,9 @@ public class InventoryManager {
 
     public void addEquippedListener(MapChangeListener<Slot, ItemCount> listener) {
         equipped.addListener(listener);
+    }
+
+    public void setMoney(double amount) {
+        money.set(amount);
     }
 }

@@ -7,8 +7,8 @@ import java.util.function.Supplier;
 
 class FIHash implements TemplateHashModel {
     private final ObjectWrapper wrapper;
-    private Function<String, Object> getter;
-    private Supplier<Boolean> empty;
+    private final Function<String, Object> getter;
+    private final Supplier<Boolean> empty;
     FIHash(Function<String, Object> getter, Supplier<Boolean> empty, ObjectWrapper objectWrapper){
         this.getter = getter;
         this.empty = empty;

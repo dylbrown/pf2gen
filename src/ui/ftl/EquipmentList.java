@@ -18,12 +18,12 @@ import ui.ftl.entries.ItemCountWrapper;
 import java.util.Comparator;
 import java.util.Map;
 
-public class EquipmentList implements TemplateSequenceModel {
-    private ObservableList<Pair<Slot, ItemCount>> equipList = FXCollections.observableArrayList();
-    private ObservableList<ItemCount> unequipList = FXCollections.observableArrayList();
-    private SortedList<Pair<Slot, ItemCount>> equip = new SortedList<>(equipList,
+class EquipmentList implements TemplateSequenceModel {
+    private final ObservableList<Pair<Slot, ItemCount>> equipList = FXCollections.observableArrayList();
+    private final ObservableList<ItemCount> unequipList = FXCollections.observableArrayList();
+    private final SortedList<Pair<Slot, ItemCount>> equip = new SortedList<>(equipList,
             (Comparator.comparing(o -> o.second.stats())));
-    private SortedList<ItemCount> unequip = new SortedList<>(unequipList, Comparator.comparing(ItemCount::stats));
+    private final SortedList<ItemCount> unequip = new SortedList<>(unequipList, Comparator.comparing(ItemCount::stats));
 
     EquipmentList(ObservableMap<Equipment, ItemCount> unequipped, ObservableMap<Slot, ItemCount> equipped) {
         for (Map.Entry<Slot, ItemCount> entry : equipped.entrySet()) {

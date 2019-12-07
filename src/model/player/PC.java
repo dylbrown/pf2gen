@@ -28,20 +28,20 @@ import static model.ability_scores.AbilityScore.*;
 
 public class PC {
     public static final int MAX_LEVEL = 20;
-    private ReadOnlyObjectWrapper<Ancestry> ancestry = new ReadOnlyObjectWrapper<>();
-    private ReadOnlyObjectWrapper<Background> background = new ReadOnlyObjectWrapper<>();
-    private ReadOnlyObjectWrapper<PClass> pClass = new ReadOnlyObjectWrapper<>();
+    private final ReadOnlyObjectWrapper<Ancestry> ancestry = new ReadOnlyObjectWrapper<>();
+    private final ReadOnlyObjectWrapper<Background> background = new ReadOnlyObjectWrapper<>();
+    private final ReadOnlyObjectWrapper<PClass> pClass = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<Integer> level = new ReadOnlyObjectWrapper<>(0);
     private final Eyeball ancestryWatcher = new Eyeball();
     private String name;
     private String player;
     private final List<Language> languages = new ArrayList<>();
     private final InventoryManager inventory = new InventoryManager();
-    private ModManager modManager;
-    private DecisionManager decisions = new DecisionManager();
-    private AbilityManager abilities = new AbilityManager(this);
-    private AbilityScoreManager scores = new AbilityScoreManager();
-    private AttributeManager attributes = new AttributeManager(level.getReadOnlyProperty(), decisions);
+    private final ModManager modManager;
+    private final DecisionManager decisions = new DecisionManager();
+    private final AbilityManager abilities = new AbilityManager(this);
+    private final AbilityScoreManager scores = new AbilityScoreManager();
+    private final AttributeManager attributes = new AttributeManager(level.getReadOnlyProperty(), decisions);
 
     {
         modManager = new ModManager(this, level.getReadOnlyProperty());

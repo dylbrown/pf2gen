@@ -70,7 +70,7 @@ public class ArmorLoader extends FileLoader<Armor> {
     }
 
     private Armor getArmor(Element armor) {
-        double weight=0; double value=0; String name=""; String description = ""; Rarity rarity=Rarity.Common; List<ItemTrait> traits = new ArrayList<>(); boolean isShield=false; int acMod=0; int maxDex=0; int acp=0; int speedPenalty=0; int strength=0; ArmorGroup group = ArmorGroup.None; ArmorProficiency proficiency = ArmorProficiency.Light;
+        double weight=0; double value=0; String name=""; String description = ""; Rarity rarity=Rarity.Common; List<ItemTrait> traits = new ArrayList<>(); boolean isShield=false; int acMod=0; int maxDex=0; int acp=0; int speedPenalty=0; int strength=0; ArmorGroup group = ArmorGroup.None; ArmorProficiency proficiency;
         int hardness=0;int hp=0; int bt=0;
         Node proficiencyNode= armor.getParentNode();
         if(proficiencyNode.getNodeName().trim().equals("Shield"))

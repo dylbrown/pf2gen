@@ -13,7 +13,7 @@ import java.util.List;
 
 public class AttributeModSingleChoice extends AttributeMod implements SingleChoiceList<Attribute> {
     private final List<Attribute> choices = new ArrayList<>();
-    private ReadOnlyObjectWrapper<Attribute> choiceProperty = new ReadOnlyObjectWrapper<>();
+    private final ReadOnlyObjectWrapper<Attribute> choiceProperty = new ReadOnlyObjectWrapper<>();
 
     public AttributeModSingleChoice(Attribute first, Attribute second, Proficiency prof) {
         super(Attribute.None,prof);

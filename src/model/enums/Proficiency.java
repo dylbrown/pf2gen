@@ -5,8 +5,8 @@ public enum Proficiency {
 
     private final int mod;
 
-    Proficiency(int modv) {
-        mod = modv;
+    Proficiency(int mod) {
+        this.mod = mod;
     }
 
     public static Proficiency max(Proficiency oldProf, Proficiency newProf) {

@@ -11,8 +11,8 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public class ObservableBindings implements Bindings {
-    private ObservableMap<String, Object> map = FXCollections.observableHashMap();
+class ObservableBindings implements Bindings {
+    private final ObservableMap<String, Object> map = FXCollections.observableHashMap();
     @Override
     public Object put(String name, Object value) {
         return map.put(name, value);

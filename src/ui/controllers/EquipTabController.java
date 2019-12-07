@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("WeakerAccess")
 public class EquipTabController {
 
     @FXML
@@ -48,7 +49,7 @@ public class EquipTabController {
     private CheckMenuItem armorFilter, weaponFilter;
     @FXML
     private RadioMenuItem nameSort, priceSort, ascSort, descSort;
-    private ToggleGroup sortBy = new ToggleGroup(); private ToggleGroup direction = new ToggleGroup();
+    private final ToggleGroup sortBy = new ToggleGroup(); private final ToggleGroup direction = new ToggleGroup();
     private double value = 0;
 
     //All Items

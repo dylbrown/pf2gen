@@ -1,9 +1,9 @@
 package model.util;
 
 public class Triple<T, U, V> {
-    public T first;
-    public U second;
-    public V third;
+    public final T first;
+    public final U second;
+    public final V third;
 
     public Triple(T t, U u, V v) {
         this.first = t;

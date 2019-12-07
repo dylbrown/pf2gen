@@ -9,6 +9,7 @@ import model.ability_scores.AbilityMod;
 import model.xml_parsers.AncestriesLoader;
 import ui.Main;
 
+@SuppressWarnings("WeakerAccess")
 public class AncestryTabController {
     @FXML
     private Label hp;

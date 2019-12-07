@@ -15,6 +15,7 @@ import java.util.List;
 
 import static ui.Main.character;
 
+@SuppressWarnings("WeakerAccess")
 public class AbilityDisplayController {
     @FXML
     private GridPane gridPane;

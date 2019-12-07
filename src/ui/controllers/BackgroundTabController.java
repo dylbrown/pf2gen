@@ -8,6 +8,7 @@ import model.xml_parsers.BackgroundsLoader;
 
 import static ui.Main.character;
 
+@SuppressWarnings("WeakerAccess")
 public class BackgroundTabController {
     @FXML
     private ListView<Background> backgroundList;

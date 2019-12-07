@@ -14,9 +14,8 @@ import java.util.Map;
 import static model.util.StringUtils.camelCase;
 import static model.util.StringUtils.camelCaseWord;
 
-public class BackgroundScraper extends SRDScraper {
-    private BufferedWriter out;
-    private Map<String, StringBuilder> sources = new HashMap<>();
+class BackgroundScraper extends SRDScraper {
+    private final Map<String, StringBuilder> sources = new HashMap<>();
 
     public static void main(String[] args) {
         new BackgroundScraper();
@@ -24,6 +23,7 @@ public class BackgroundScraper extends SRDScraper {
 
     private BackgroundScraper() {
         Document doc;
+        BufferedWriter out;
         try  {
             doc = Jsoup.connect("http://pf2.d20pfsrd.com/background").get();
             out = new BufferedWriter(new FileWriter(new File("backgrounds.txt")));
@@ -50,15 +50,6 @@ public class BackgroundScraper extends SRDScraper {
             e.printStackTrace();
         }
     }
-
-    private static String format = "<background>\n" +
-            "\t\t<Name>%s</Name>\n" +
-            "\t\t<Source>%s</Source>\n" +
-            "\t\t<Description>%s</Description>\n" +
-            "\t\t<Skill>%s, Lore (%s)</Skill>\n" +
-            "\t\t<AbilityBonuses>%s or %s, Free</AbilityBonuses>\n" +
-            "\t\t<Feat>%s</Feat>\n" +
-            "\t</background>\n";
 
     private void addBackground(String href, String source) {
         Document doc;
@@ -112,6 +103,14 @@ public class BackgroundScraper extends SRDScraper {
         // Filter out the feat
         String feat = camelCase(skillsFeat[1].replaceAll(" skill feat.*", ""));
 
+        String format = "<background>\n" +
+                "\t\t<Name>%s</Name>\n" +
+                "\t\t<Source>%s</Source>\n" +
+                "\t\t<Description>%s</Description>\n" +
+                "\t\t<Skill>%s, Lore (%s)</Skill>\n" +
+                "\t\t<AbilityBonuses>%s or %s, Free</AbilityBonuses>\n" +
+                "\t\t<Feat>%s</Feat>\n" +
+                "\t</background>\n";
         sources.computeIfAbsent(source.toLowerCase(), key->new StringBuilder())
                 .append(String.format(format, backgroundName, camelCase(source), description, skill1, Lore, choice1, choice2, feat));
     }

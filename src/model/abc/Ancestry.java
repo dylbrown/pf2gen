@@ -40,4 +40,8 @@ public class Ancestry extends AC {
     public List<Language> getLanguages() {
         return Collections.unmodifiableList(languages);
     }
+
+    public List<Language> getBonusLanguages() {
+        return Collections.unmodifiableList(bonusLanguages);
+    }
 }

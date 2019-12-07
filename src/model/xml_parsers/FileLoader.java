@@ -7,7 +7,6 @@ import model.abilities.AbilitySet;
 import model.abilities.Activity;
 import model.abilities.SkillIncrease;
 import model.abilities.abilitySlots.*;
-import model.abilities.abilitySlots.DynamicFilledSlot;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
@@ -41,14 +40,17 @@ import static model.util.StringUtils.camelCaseWord;
 
 abstract class FileLoader<T> {
     File path;
-    private static DocumentBuilder builder = null;
+    private static final DocumentBuilder builder;
 
     static{
+        DocumentBuilder builder1;
         try {
-            builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            builder1 = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
+            builder1 = null;
         }
+        builder = builder1;
         assert builder != null;
     }
 

@@ -8,7 +8,7 @@ public abstract class AbilitySlot {
 
     ReadOnlyObjectWrapper<Ability> currentAbility;
     boolean preSet = false;
-    private int level;
+    private final int level;
 
     AbilitySlot(String name, int level) {
         this.name = name;
@@ -16,7 +16,7 @@ public abstract class AbilitySlot {
         currentAbility = new ReadOnlyObjectWrapper<>(null);
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 

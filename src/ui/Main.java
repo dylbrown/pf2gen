@@ -20,7 +20,7 @@ public class Main extends Application {
         character = new PC();
     }
 
-    private static Property<Scene> scene = new SimpleObjectProperty<>();
+    private static final Property<Scene> scene = new SimpleObjectProperty<>();
 
     @Override
     public void start(Stage primaryStage) throws Exception{

@@ -28,9 +28,9 @@ import java.util.stream.Collectors;
 import static model.util.StringUtils.camelCaseWord;
 import static ui.Main.character;
 
-public class CharacterWrapper implements TemplateHashModel {
-    private Map<String, Object> map = new HashMap<>();
-    private Configuration cfg;
+class CharacterWrapper implements TemplateHashModel {
+    private final Map<String, Object> map = new HashMap<>();
+    private final Configuration cfg;
     CharacterWrapper(PC character, Configuration cfg) {
         this.cfg = cfg;
 

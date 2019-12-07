@@ -20,7 +20,7 @@ import static model.util.StringUtils.camelCaseWord;
 
 public class AncestriesLoader extends FileLoader<Ancestry> {
 
-    private static AncestriesLoader instance;
+    private static final AncestriesLoader instance;
     static{instance = new AncestriesLoader();}
     private AncestriesLoader() {
         path = new File("data/ancestries");

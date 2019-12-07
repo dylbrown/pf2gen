@@ -29,10 +29,10 @@ public class AttributeManager {
 
     private final Map<Proficiency, MinimumProficiencyList> minLists = new HashMap<>();
     private final ReadOnlyObjectProperty<Integer> level;
-    private DecisionManager decisions;
-    private Map<WeaponGroup, Proficiency> groupProficiencies = new HashMap<>();
+    private final DecisionManager decisions;
+    private final Map<WeaponGroup, Proficiency> groupProficiencies = new HashMap<>();
     private final Eyeball proficiencyChange = new Eyeball();
-    private List<AttributeModSingleChoice> choices = new ArrayList<>();
+    private final List<AttributeModSingleChoice> choices = new ArrayList<>();
 
     AttributeManager(ReadOnlyObjectProperty<Integer> level, DecisionManager decisions){
         this.level = level;
@@ -260,7 +260,7 @@ public class AttributeManager {
                 - skillChoices.getOrDefault(level, Collections.emptySet()).size();
     }
 
-    public ObservableList<String> getMinList(Proficiency min) {
+    ObservableList<String> getMinList(Proficiency min) {
         return minLists.get(min);
     }
 }

@@ -8,6 +8,7 @@ import model.xml_parsers.PClassesLoader;
 
 import static ui.Main.character;
 
+@SuppressWarnings("WeakerAccess")
 public class ClassTabController {
     @FXML
     private ListView<PClass> classList;

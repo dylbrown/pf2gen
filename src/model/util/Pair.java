@@ -3,7 +3,7 @@ package model.util;
 import java.util.Objects;
 
 public class Pair<T, U> {
-    public T first;
+    public final T first;
     public U second;
 
     public Pair(T t, U u) {
