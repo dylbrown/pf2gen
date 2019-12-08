@@ -19,8 +19,8 @@ import static model.util.StringUtils.camelCase;
 public class WeaponsLoader extends FileLoader<Weapon> {
 
     private List<Weapon> weapons;
-    private final Map<String, WeaponGroup> weaponGroups = new HashMap<>();
-    private final Map<String, ItemTrait> weaponTraits = new HashMap<>();
+    private static final Map<String, WeaponGroup> weaponGroups = new HashMap<>();
+    private static final Map<String, ItemTrait> weaponTraits = new HashMap<>();
 
     public WeaponsLoader() {
         path = new File("data/equipment/weapons.pfdyl");
@@ -65,7 +65,7 @@ public class WeaponsLoader extends FileLoader<Weapon> {
         return None;
     }
 
-    private Weapon getWeapon(Element weapon) {
+    static Weapon getWeapon(Element weapon) {
         double weight=0; double value=0; String name=""; String description = ""; Rarity rarity=Rarity.Common; Dice damage=Dice.get(1,6); DamageType damageType = DamageType.Piercing; int hands = 1; WeaponGroup group = null; List<ItemTrait> traits = new ArrayList<>(); WeaponProficiency weaponProficiency; int range=0; int reload=0; boolean isRanged=false; boolean uncommon=false;
         Node proficiencyNode= weapon.getParentNode();
         Node rangeNode = proficiencyNode.getParentNode();

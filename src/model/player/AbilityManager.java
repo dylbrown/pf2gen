@@ -6,6 +6,7 @@ import javafx.collections.transformation.SortedList;
 import model.AttributeMod;
 import model.abilities.Ability;
 import model.abilities.AbilitySet;
+import model.abilities.AttackAbility;
 import model.abilities.SkillIncrease;
 import model.abilities.abilitySlots.AbilitySingleChoice;
 import model.abilities.abilitySlots.AbilitySlot;
@@ -89,6 +90,10 @@ public class AbilityManager {
                         apply(subAbility);
                 }
             }else {
+                if(ability instanceof AttackAbility) {
+                    pc.addAttacks(((AttackAbility) ability).getAttacks());
+                }
+
                 if (ability instanceof SkillIncrease) {
                     pc.attributes().addSkillIncrease(ability.getLevel());
                 }
@@ -131,6 +136,10 @@ public class AbilityManager {
                 }
             }else{
                 abilities.remove(ability);
+
+                if(ability instanceof AttackAbility) {
+                    pc.removeAttacks(((AttackAbility) ability).getAttacks());
+                }
 
                 if (ability instanceof SkillIncrease) {
                     pc.attributes().removeSkillIncrease(ability.getLevel());

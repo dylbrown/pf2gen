@@ -31,6 +31,10 @@ public class TemplateFiller {
     private static final TemplateFiller instance;
     private final CharacterWrapper wrapper;
 
+    public static ObjectWrapper getWrapper(){
+        return cfg.getObjectWrapper();
+    }
+
 
     static{
         cfg = new Configuration(Configuration.VERSION_2_3_28);

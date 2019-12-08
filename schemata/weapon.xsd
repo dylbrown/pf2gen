@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:pf2="https://dylbrown.github.io"
+           targetNamespace="https://dylbrown.github.io">
+    <xs:include schemaLocation="weapon.xsd"/>
+    <xs:complexType name="Weapon">
+        <xs:sequence>
+            <xs:element name="Name" type="xs:string"/>
+            <xs:element name="Price" type="xs:string" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:token">
+                        <xs:pattern value="[\d.]+ [sgpc]p"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="Damage" type="xs:string">
+                <xs:simpleType>
+                    <xs:restriction base="xs:token">
+                        <xs:pattern value="\d+d\d+( ?\+ ?\d+)?( ?[SBP])?"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="Bulk" type="xs:string" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:token">
+                        <xs:pattern value="(L|\d+)"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="Hands" type="xs:string" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:token">
+                        <xs:pattern value="[012]"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="Group" type="xs:string"/>
+            <xs:element name="Traits" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

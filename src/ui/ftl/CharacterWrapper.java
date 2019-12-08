@@ -37,6 +37,8 @@ class CharacterWrapper implements TemplateHashModel {
         //map.put("totalweight", (NumberSupplier) ()->character.inventory().getTotalWeight());
 
         map.put("attributes", getAttributeMap());
+        map.put("attacks", character.getAttacks().stream()
+                .map((o)->new ItemCountWrapper(new ItemCount(o, 1))).collect(Collectors.toList()));
 
         map.put("getSlot", new FIHash((s)->{
             ItemCount count = character.inventory().getEquipped(Slot.valueOf(s));
@@ -57,7 +59,8 @@ class CharacterWrapper implements TemplateHashModel {
         map.put("items", new EquipmentList(character.inventory().getUnequipped(), character.inventory().getEquipped()));
 
 
-        map.put("inventory", character.inventory().getItems().values().stream().map(ItemCountWrapper::new).collect(Collectors.toList()));
+        map.put("inventory", character.inventory().getItems().values().stream()
+                .map(ItemCountWrapper::new).collect(Collectors.toList()));
 
         map.put("skills", getSkills());
         refresh();

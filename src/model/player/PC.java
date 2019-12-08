@@ -14,10 +14,7 @@ import model.enums.Attribute;
 import model.enums.Language;
 import model.enums.Slot;
 import model.enums.Type;
-import model.equipment.Armor;
-import model.equipment.ItemTrait;
-import model.equipment.RangedWeapon;
-import model.equipment.Weapon;
+import model.equipment.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +39,7 @@ public class PC {
     private final AbilityManager abilities = new AbilityManager(this);
     private final AbilityScoreManager scores = new AbilityScoreManager();
     private final AttributeManager attributes = new AttributeManager(level.getReadOnlyProperty(), decisions);
+    private List<Weapon> attacks = new ArrayList<>();
 
     {
         modManager = new ModManager(this, level.getReadOnlyProperty());
@@ -291,5 +289,17 @@ public class PC {
 
     public void reset() {
         while(getLevel() > 1) levelDown();
+    }
+
+    void addAttacks(List<Weapon> attacks) {
+        this.attacks.addAll(attacks);
+    }
+
+    void removeAttacks(List<Weapon> attacks) {
+        this.attacks.removeAll(attacks);
+    }
+
+    public List<Weapon> getAttacks() {
+        return Collections.unmodifiableList(attacks);
     }
 }

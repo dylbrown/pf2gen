@@ -2,18 +2,17 @@ package model.xml_parsers;
 
 import model.AttributeMod;
 import model.AttributeModSingleChoice;
-import model.abilities.Ability;
-import model.abilities.AbilitySet;
-import model.abilities.Activity;
-import model.abilities.SkillIncrease;
+import model.abilities.*;
 import model.abilities.abilitySlots.*;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
+import model.data_managers.EquipmentManager;
 import model.enums.Action;
 import model.enums.Attribute;
 import model.enums.Proficiency;
 import model.enums.Type;
+import model.equipment.Weapon;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -52,6 +51,7 @@ abstract class FileLoader<T> {
         }
         builder = builder1;
         assert builder != null;
+        EquipmentManager.getEquipment();//TODO: Separate out loading weapon groups
     }
 
     public abstract List<T> parse();
@@ -110,6 +110,7 @@ abstract class FileLoader<T> {
         for(int i=0; i<nodes.getLength(); i++) {
             if(!(nodes.item(i) instanceof Element)) continue;
             Element item = (Element) nodes.item(i);
+            if(!item.getTagName().matches("Ability(Set)?")) continue;
             Ability name = makeAbility(item, item.getAttribute("name"));
             if(name != null)
                 choices.add(name);
@@ -130,7 +131,7 @@ abstract class FileLoader<T> {
         return makeAbility(element, name, 1);
     }
     Ability makeAbility(Element element, String name, int level) {
-        boolean activity=false; boolean multiple = false; Action cost = Action.One; String trigger = ""; List<String> prerequisites = new ArrayList<>(); List<AttributeMod> requiredAttrs = new ArrayList<>(); String customMod = ""; List<AbilitySlot> abilitySlots = new ArrayList<>();
+        boolean activity=false; boolean multiple = false; Action cost = Action.One; String trigger = ""; List<String> prerequisites = new ArrayList<>(); List<AttributeMod> requiredAttrs = new ArrayList<>(); String customMod = ""; List<AbilitySlot> abilitySlots = new ArrayList<>(); List<Weapon> weapons = new ArrayList<>();
         if(element.getTagName().equals("Ability")) {
             List<AttributeMod> mods = new ArrayList<>();
             String description = "";
@@ -177,6 +178,9 @@ abstract class FileLoader<T> {
                             }
                         }).collect(Collectors.toCollection(ArrayList::new)));
                         break;
+                    case "Weapon":
+                        weapons.add(WeaponsLoader.getWeapon(propElem));
+                        break;
                     case "CustomMod":
                         customMod = trim;
                         break;
@@ -205,7 +209,9 @@ abstract class FileLoader<T> {
                         }
                 }
             }
-            if(cost == Action.Reaction || cost == Action.Free)
+            if(weapons.size()>0)
+                return new AttackAbility(level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, getSource(), multiple, weapons);
+            else if(cost == Action.Reaction || cost == Action.Free)
                 return new Activity(cost, trigger, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, getSource(), multiple);
             else if(activity)
                 return new Activity(cost, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, getSource(), multiple);
@@ -220,11 +226,11 @@ abstract class FileLoader<T> {
             String desc="";
             if(element.getElementsByTagName("Description").getLength() > 0)
                 desc = element.getElementsByTagName("Description").item(0).getTextContent().trim();
-            if(element.getElementsByTagName("Prerequisites").getLength() > 0)
-                prerequisites.addAll(Arrays.asList(element.getElementsByTagName("Prerequisites").item(0).getTextContent().trim().split(",")));
+            /*if(element.getElementsByTagName("Prerequisites").getLength() > 0)
+                prerequisites.addAll(Arrays.asList(element.getElementsByTagName("Prerequisites").item(0).getTextContent().trim().split(",")));*/
             if(element.getAttribute("multiple").equals("true"))
                 multiple = true;
-            return new AbilitySet(level, name, desc, makeAbilities(element.getElementsByTagName("Ability")),prerequisites, requiredAttrs, customMod, abilitySlots, getSource(), multiple);
+            return new AbilitySet(level, name, desc, makeAbilities(element.getChildNodes()),prerequisites, requiredAttrs, customMod, abilitySlots, getSource(), multiple);
         }
         return null;
     }

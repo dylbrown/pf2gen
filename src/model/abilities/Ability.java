@@ -7,6 +7,7 @@ import model.enums.Type;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class Ability implements Comparable<Ability> {
     private final List<String> prerequisites;
@@ -102,5 +103,19 @@ public class Ability implements Comparable<Ability> {
 
     public Type getType() {
         return type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Ability ability = (Ability) o;
+        return type == ability.type &&
+                name.equals(ability.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, name);
     }
 }

@@ -43,6 +43,7 @@ public class PClassesLoader extends FileLoader<PClass> {
                         continue;
                     Element curr = (Element) classProperties.item(i);
                     String trim = curr.getTextContent().trim();
+                    NodeList childNodes = curr.getChildNodes();
                     switch(curr.getTagName()){
                         case "Name":
                             name = trim;
@@ -62,10 +63,11 @@ public class PClassesLoader extends FileLoader<PClass> {
                         case "FeatureList":
                             int level = Integer.parseInt(curr.getAttribute("level"));
                             List<AbilitySlot> abilitySlots = new ArrayList<>();
-                            for(int j=0; j<curr.getElementsByTagName("AbilitySlot").getLength(); j++) {
-                                if(curr.getElementsByTagName("AbilitySlot").item(j).getNodeType() != Node.ELEMENT_NODE)
+                            for(int j = 0; j< childNodes.getLength(); j++) {
+                                if(childNodes.item(j).getNodeType() != Node.ELEMENT_NODE)
                                     continue;
-                                Element slotNode = (Element) curr.getElementsByTagName("AbilitySlot").item(j);
+                                Element slotNode = (Element) childNodes.item(j);
+                                if(!slotNode.getTagName().equals("AbilitySlot")) continue;
                                 String abilityName = slotNode.getAttribute("name");
                                 switch(slotNode.getAttribute("state").toLowerCase().trim()){
                                     case "filled":
@@ -94,10 +96,9 @@ public class PClassesLoader extends FileLoader<PClass> {
                             table.put(level, abilitySlots);
                             break;
                         case "Feats":
-                            NodeList featNodes = curr.getChildNodes();
-                            for (int j = 0; j < featNodes.getLength(); j++) {
-                                if(featNodes.item(j) instanceof Element)
-                                    feats.add(makeAbility((Element) featNodes.item(j), ((Element) featNodes.item(j)).getAttribute("name")));
+                            for (int j = 0; j < childNodes.getLength(); j++) {
+                                if(childNodes.item(j) instanceof Element)
+                                    feats.add(makeAbility((Element) childNodes.item(j), ((Element) childNodes.item(j)).getAttribute("name")));
                             }
                             break;
                     }
