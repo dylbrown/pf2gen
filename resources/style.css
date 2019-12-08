@@ -34,3 +34,20 @@
 .list-cell:odd {
     -fx-background: derive(-fx-control-inner-background-alt, -20%);
 }
+
+.inverted-color {
+    -fx-font-size: 12pt;
+    -fx-background-color: black;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+
+}
+
+.regular-color {
+    -fx-font-size:12pt;
+    -fx-background-color: white;
+    -fx-text-fill: black;
+    -fx-border-width: 2;
+    -fx-border-color:black;
+    -fx-padding: 4 2 4 2;
+}

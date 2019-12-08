@@ -1,9 +1,6 @@
 package ui.ftl;
 
-import freemarker.cache.TemplateLookupContext;
-import freemarker.cache.TemplateLookupResult;
-import freemarker.cache.TemplateLookupStrategy;
-import freemarker.cache.URLTemplateLoader;
+import freemarker.cache.*;
 import freemarker.core.TemplateNumberFormatFactory;
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.*;
@@ -38,6 +35,25 @@ public class TemplateFiller {
 
     static{
         cfg = new Configuration(Configuration.VERSION_2_3_28);
+        if(new File("/data").isDirectory()) {
+            try {
+                cfg.setTemplateLoader(new FileTemplateLoader(new File("/data")));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }else{
+            cfg.setTemplateLoader(new URLTemplateLoader() {
+                @Override
+                protected URL getURL(String s) {
+                    try {
+                        return new URL("https://dylbrown.github.io/pf2gen_data/"+s);
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+            });
+        }
         File file = new File("data/");
         if(file.exists()) {
             try {

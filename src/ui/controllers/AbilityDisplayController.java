@@ -1,7 +1,7 @@
 package ui.controllers;
 
 import javafx.fxml.FXML;
-import javafx.geometry.HPos;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -44,13 +44,21 @@ public class AbilityDisplayController {
                 continue;
             if(character.scores().getAbilityMods(relevantTypes[i]).size() > 0){
                 added[i] = true;
-                List<Label> list = Arrays.asList(new Label(), new Label(), new Label(), new Label(), new Label(), new Label());
+                List<Label> list = Arrays.asList(new Label(" "), new Label(" "), new Label(" "), new Label(" "), new Label(" "), new Label(" "));
                 for (Label label : list) {
-                    GridPane.setHalignment(label, HPos.CENTER);
-                    label.setStyle("-fx-font-size:18pt;");
+                    //label.setStyle("-fx-font-size:18pt;");
+                    label.getStyleClass().add("regular-color");
+                    label.setMaxWidth(1.7976931348623157E308);
+                    label.setMaxHeight(1.7976931348623157E308);
+                    label.setAlignment(Pos.CENTER);
                 }
                 boxes.addAll(list);
-                gridPane.addRow(3+i, new Label(labels[i]), list.get(0), list.get(1), list.get(2), list.get(3), list.get(4), list.get(5));
+                Label label = new Label(labels[i]);
+                label.getStyleClass().add("inverted-color");
+                label.setMaxWidth(1.7976931348623157E308);
+                label.setMaxHeight(1.7976931348623157E308);
+                label.setAlignment(Pos.CENTER);
+                gridPane.addRow(3+i, label, list.get(0), list.get(1), list.get(2), list.get(3), list.get(4), list.get(5));
             }
         }
 
@@ -69,7 +77,7 @@ public class AbilityDisplayController {
                         label.setText(String.valueOf(abilityMod));
                     break;
                 default:
-                    label.setText("");
+                    label.setText(" ");
                     int checker=0;
                     for (AbilityMod mod : character.scores().getAbilityMods(relevantTypes[row - 3])) {
                         if(mod.getTarget().equals(AbilityScore.scores().get(col-1))){

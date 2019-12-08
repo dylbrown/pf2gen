@@ -72,6 +72,8 @@ public class PC {
     public void levelUp(){
         if(level.get() == 0)
             return;
+        if(level.get() == 20)
+            return;
         level.set(level.get()+1);
         applyLevel(getPClass().getLevel(level.get()));
     }
