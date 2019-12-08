@@ -1,28 +1,32 @@
 package ui.controllers;
 
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.FlowPane;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
 import ui.Main;
+import ui.controls.AbilityEntry;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("WeakerAccess")
 public class AbilityTabController {
     @FXML
-    GridPane abilitiesGrid;
+    FlowPane abilitiesList;
 
     private final List<AbilityModChoice> choices = new ArrayList<>();
-    private final Map<AbilityModChoice, List<Node>> tracker = new HashMap<>();
+    private final Map<AbilityModChoice, AbilityEntry> tracker = new HashMap<>();
 
     @FXML
     private void initialize() {
         updateTable();
         Main.character.scores().addAbilityObserver((observable, arg)->updateTable());
+        abilitiesList.prefWrapLengthProperty().bind(abilitiesList.widthProperty());
     }
 
     private void updateTable() {
@@ -33,15 +37,7 @@ public class AbilityTabController {
             }
         }
         for (AbilityModChoice removal : removals) {
-            List<Node> removed = tracker.remove(removal);
-            Integer rowIndex = GridPane.getRowIndex(removed.get(0));
-            abilitiesGrid.getChildren().removeAll(removed);
-            for (Node child : abilitiesGrid.getChildren()) {
-                Integer otherIndex = GridPane.getRowIndex(child);
-                if(otherIndex != null && otherIndex > rowIndex)
-                    GridPane.setRowIndex(child, otherIndex - 1);
-            }
-
+            abilitiesList.getChildren().remove(tracker.remove(removal));
             choices.remove(removal);
         }
         for (AbilityModChoice choice : Main.character.scores().getAbilityScoreChoices()) {
@@ -54,16 +50,13 @@ public class AbilityTabController {
             }
             if(!contains){
                 choices.add(choice);
-                Label label;
+                Label label = new Label("Type: "+choice.getType().name());
                 ComboBox<AbilityScore> dropdown = new ComboBox<>();
                 dropdown.getItems().addAll(choice.getChoices());
                 dropdown.setOnAction((event -> Main.character.scores().choose(choice, dropdown.getValue())));
-                if(choice.getChoices().size() == 6)
-                    label = new Label("Type: "+choice.getType().name()+" (Free Boost)");
-                else
-                    label = new Label("Type: "+choice.getType().name()+" (Boost SingleChoice)");
-                abilitiesGrid.addRow(choices.size(), label, dropdown);
-                tracker.put(choice, Arrays.asList(label, dropdown));
+                AbilityEntry entry = new AbilityEntry(label, dropdown);
+                abilitiesList.getChildren().add(entry);
+                tracker.put(choice, entry);
 
                 choice.getTargetProperty().addListener((o, oldVal, newVal)-> dropdown.getSelectionModel().select(newVal));
             }
