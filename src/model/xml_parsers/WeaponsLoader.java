@@ -15,7 +15,7 @@ import java.util.*;
 
 import static model.enums.Type.None;
 import static model.util.StringUtils.camelCase;
-
+//TODO: Implement Builder Pattern
 public class WeaponsLoader extends FileLoader<Weapon> {
 
     private List<Weapon> weapons;

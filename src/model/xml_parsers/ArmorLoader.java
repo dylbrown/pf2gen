@@ -17,7 +17,7 @@ import java.util.*;
 
 import static model.enums.Type.None;
 import static model.util.StringUtils.camelCase;
-
+//TODO: Implement Builder Pattern
 public class ArmorLoader extends FileLoader<Armor> {
 
     private List<Armor> armorAndShields;

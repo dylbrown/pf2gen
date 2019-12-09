@@ -11,7 +11,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
+//TODO: Implement Builder Pattern
 public class FeatsLoader extends FileLoader<Ability> {
     private List<Ability> feats;
     public FeatsLoader(String location) {

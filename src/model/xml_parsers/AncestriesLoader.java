@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static model.util.StringUtils.camelCaseWord;
-
+//TODO: Implement Builder Pattern
 public class AncestriesLoader extends FileLoader<Ancestry> {
 
     private static final AncestriesLoader instance;

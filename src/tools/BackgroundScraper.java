@@ -4,60 +4,29 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import static model.util.StringUtils.camelCase;
 import static model.util.StringUtils.camelCaseWord;
 
 class BackgroundScraper extends SRDScraper {
-    private final Map<String, StringBuilder> sources = new HashMap<>();
 
     public static void main(String[] args) {
         new BackgroundScraper();
     }
 
     private BackgroundScraper() {
-        Document doc;
-        BufferedWriter out;
-        try  {
-            doc = Jsoup.connect("http://pf2.d20pfsrd.com/background").get();
-            out = new BufferedWriter(new FileWriter(new File("backgrounds.txt")));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        doc.getElementById("archive-data-table").getElementsByTag("tbody").first().getElementsByTag("tr").forEach(element -> {
-            try {
-                addBackground(element.child(0).child(0).attr("href"), element.child(2).text());
-            } catch (ArrayIndexOutOfBoundsException e) {e.printStackTrace(); }
-        });
-        for (StringBuilder value : sources.values()) {
-            try {
-                out.write(value.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        super("http://pf2.d20pfsrd.com/background", "generated/backgrounds.txt", 2);
     }
 
-    private void addBackground(String href, String source) {
+    @Override
+    String addItem(String href, String source) {
         Document doc;
         try {
             doc = Jsoup.connect(href).get();
         } catch (IOException e) {
             e.printStackTrace();
-            return;
+            return "";
         }
         Element article = doc.getElementsByTag("article").first();
 
@@ -111,11 +80,6 @@ class BackgroundScraper extends SRDScraper {
                 "\t\t<AbilityBonuses>%s or %s, Free</AbilityBonuses>\n" +
                 "\t\t<Feat>%s</Feat>\n" +
                 "\t</background>\n";
-        sources.computeIfAbsent(source.toLowerCase(), key->new StringBuilder())
-                .append(String.format(format, backgroundName, camelCase(source), description, skill1, Lore, choice1, choice2, feat));
+        return String.format(format, backgroundName, camelCase(source), description, skill1, Lore, choice1, choice2, feat);
     }
-
-    /*
-
-    * */
 }

@@ -19,7 +19,7 @@ import java.util.List;
 
 import static model.util.StringUtils.camelCase;
 import static model.util.StringUtils.camelCaseWord;
-
+//TODO: Implement Builder Pattern
 public class BackgroundsLoader extends FileLoader<Background> {
     private List<Background> backgrounds;
 
