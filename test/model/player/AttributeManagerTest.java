@@ -89,20 +89,19 @@ class AttributeManagerTest {
 	@Test
 	void addSkillIncrease() {
 		assertEquals(0, attributes.getSkillIncreases().getOrDefault(16, 0));
-		attributes.addSkillIncrease(16);
+		attributes.addSkillIncreases(1, 16);
 		assertEquals(1, attributes.getSkillIncreases().get(16));
-		attributes.addSkillIncrease(16);
-		assertEquals(2, attributes.getSkillIncreases().get(16));
+		attributes.addSkillIncreases(2, 16);
+		assertEquals(3, attributes.getSkillIncreases().get(16));
 	}
 
 	@Test
 	void removeSkillIncrease() {
-		attributes.addSkillIncrease(16);
-		attributes.addSkillIncrease(16);
+		attributes.addSkillIncreases(3, 16);
 		assertEquals(2, attributes.getSkillIncreases().get(16));
-		attributes.removeSkillIncrease(16);
+		attributes.removeSkillIncreases(2, 16);
 		assertEquals(1, attributes.getSkillIncreases().get(16));
-		attributes.removeSkillIncrease(16);
+		attributes.removeSkillIncreases(1, 16);
 		assertEquals(0, attributes.getSkillIncreases().getOrDefault(16, 0));
 	}
 

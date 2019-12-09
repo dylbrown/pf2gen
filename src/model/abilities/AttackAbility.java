@@ -1,22 +1,42 @@
 package model.abilities;
 
-import model.AttributeMod;
-import model.abilities.abilitySlots.AbilitySlot;
-import model.enums.Type;
 import model.equipment.Weapon;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class AttackAbility extends Ability {
 	private final List<Weapon> weapons;
 
-	public AttackAbility(int level, String name, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type, boolean multiple, List<Weapon> weapons) {
-		super(level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, type, multiple);
-		this.weapons = weapons;
+	private AttackAbility(AttackAbility.Builder builder) {
+		super(builder);
+		this.weapons = builder.weapons;
 	}
 
 	public List<Weapon> getAttacks() {
 		return Collections.unmodifiableList(weapons);
+	}
+
+	public static class Builder extends Ability.Builder {
+		private List<Weapon> weapons = Collections.emptyList();
+
+		public Builder(Ability.Builder builder) {
+			super(builder);
+		}
+
+		public void addWeapon(Weapon weapon) {
+			if(weapons.size() == 0) weapons = new ArrayList<>();
+			weapons.add(weapon);
+		}
+
+		public void setWeapons(List<Weapon> weapons) {
+			this.weapons = weapons;
+		}
+
+		@Override
+		public AttackAbility build() {
+			return new AttackAbility(this);
+		}
 	}
 }

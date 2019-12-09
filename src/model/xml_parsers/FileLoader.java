@@ -12,7 +12,6 @@ import model.enums.Action;
 import model.enums.Attribute;
 import model.enums.Proficiency;
 import model.enums.Type;
-import model.equipment.Weapon;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -111,9 +110,9 @@ abstract class FileLoader<T> {
             if(!(nodes.item(i) instanceof Element)) continue;
             Element item = (Element) nodes.item(i);
             if(!item.getTagName().matches("Ability(Set)?")) continue;
-            Ability name = makeAbility(item, item.getAttribute("name"));
-            if(name != null)
-                choices.add(name);
+            Ability ability = makeAbility(item, item.getAttribute("name"));
+            if(ability != null)
+                choices.add(ability);
         }
         return choices;
     }
@@ -130,20 +129,32 @@ abstract class FileLoader<T> {
     Ability makeAbility(Element element, String name) {
         return makeAbility(element, name, 1);
     }
+
     Ability makeAbility(Element element, String name, int level) {
-        boolean activity=false; boolean multiple = false; Action cost = Action.One; String trigger = ""; List<String> prerequisites = new ArrayList<>(); List<AttributeMod> requiredAttrs = new ArrayList<>(); String customMod = ""; List<AbilitySlot> abilitySlots = new ArrayList<>(); List<Weapon> weapons = new ArrayList<>();
-        if(element.getTagName().equals("Ability")) {
-            List<AttributeMod> mods = new ArrayList<>();
-            String description = "";
+        if(element.getTagName().contains("Ability")) {
+            Ability.Builder builder;
+            Activity.Builder acBuilder = null;
+            AttackAbility.Builder attBuilder = null;
             if(!element.getAttribute("cost").equals("")) {
-                activity=true;
-                cost=Action.robustValueOf(camelCaseWord(element.getAttribute("cost").trim()));
-            }
+                acBuilder = new Activity.Builder();
+                acBuilder.setCost(Action.robustValueOf(camelCaseWord(element.getAttribute("cost").trim())));
+                builder = acBuilder;
+            }else builder = new Ability.Builder();
+            builder.setName(name);
             if(!element.getAttribute("level").equals("")) {
-                level=Integer.parseInt(element.getAttribute("level"));
+                builder.setLevel(Integer.parseInt(element.getAttribute("level")));
+            }else builder.setLevel(level);
+            String increase = element.getAttribute("skillIncrease");
+            if(!increase.equals("")){
+                if(increase.equals("true")) builder.setSkillIncreases(1);
+                else builder.setSkillIncreases(Integer.parseInt(increase));
+            }
+            if(!element.getAttribute("abilityBoosts").trim().equals("")) {
+                int count = Integer.parseInt(element.getAttribute("abilityBoosts"));
+                builder.setBoosts(getBoosts(count, level));
             }
             if(element.getAttribute("multiple").equals("true"))
-                multiple = true;
+                builder.setMultiple(true);
             for (int i = 0; i < element.getChildNodes().getLength(); i++) {
                 Node item = element.getChildNodes().item(i);
                 if (item.getNodeType() != Node.ELEMENT_NODE)
@@ -152,17 +163,18 @@ abstract class FileLoader<T> {
                 String trim = propElem.getTextContent().trim();
                 switch (propElem.getTagName()) {
                     case "Trigger":
-                        trigger = trim;
+                        if (acBuilder != null) {
+                            acBuilder.setTrigger(trim);
+                        }
                         break;
                     case "AttributeMods":
-                        Proficiency prof = Proficiency.valueOf(camelCaseWord(propElem.getAttribute("Proficiency").trim()));
-                        addMods(trim, prof, mods);
+                        Proficiency prof = Proficiency.valueOf(camelCaseWord(propElem.getAttribute("Proficiency").trim()));                     builder.addAllMods(addMods(trim, prof));
                         break;
                     case "Description":
-                        description = trim;
+                        builder.setDescription(trim);
                         break;
                     case "Prerequisites":
-                        prerequisites.addAll(Arrays.asList(trim.split(",")));
+                        builder.setPrerequisites(Arrays.asList(trim.split(",")));
                         break;
                     case "Requires":
                         if(trim.matches(".*\\d.*"))
@@ -179,58 +191,52 @@ abstract class FileLoader<T> {
                         }).collect(Collectors.toCollection(ArrayList::new)));
                         break;
                     case "Weapon":
-                        weapons.add(WeaponsLoader.getWeapon(propElem));
+                        if(attBuilder == null) {
+                            builder = attBuilder = new AttackAbility.Builder(builder);
+                        }
+                        attBuilder.addWeapon(WeaponsLoader.getWeapon(propElem));
                         break;
                     case "CustomMod":
-                        customMod = trim;
+                        builder.setCustomMod(trim);
                         break;
                     case "AbilitySlot":
                         String abilityName = propElem.getAttribute("name");
+                        int slotLevel = level;
+                        if(!propElem.getAttribute("level").equals(""))
+                            slotLevel = Integer.parseInt(propElem.getAttribute("level").toLowerCase().trim());
                         switch(propElem.getAttribute("state").toLowerCase().trim()){
                             case "filled":
                                 NodeList ability = propElem.getElementsByTagName("Ability");
                                 if(ability.getLength() > 0) {
                                     Element temp = (Element) ability.item(0);
-                                    abilitySlots.add(new FilledSlot(abilityName, level, makeAbility(temp, abilityName, level)));
+                                    builder.addAbilitySlot(new FilledSlot(abilityName,
+                                            slotLevel, makeAbility(temp, abilityName, level)));
                                 }else{
                                     String type = propElem.getAttribute("type");
                                     if(type.equals("")) type = "General";
-                                    abilitySlots.add(new DynamicFilledSlot(abilityName, level,
+                                    builder.addAbilitySlot(new DynamicFilledSlot(abilityName, slotLevel,
                                             propElem.getAttribute("contents"),
                                             getDynamicType(type), false));
                                 }
                                 break;
                             case "feat":
-                                abilitySlots.add(new FeatSlot(abilityName, level, getTypes(propElem.getAttribute("type"))));
+                                builder.addAbilitySlot(new FeatSlot(abilityName, slotLevel,
+                                        getTypes(propElem.getAttribute("type"))));
                                 break;
                             case "choice":
-                                abilitySlots.add(new SingleChoiceSlot(abilityName, level, makeAbilities(propElem.getChildNodes())));
+                                builder.addAbilitySlot(new SingleChoiceSlot(abilityName, slotLevel,
+                                        makeAbilities(propElem.getChildNodes())));
                                 break;
                         }
                 }
             }
-            if(weapons.size()>0)
-                return new AttackAbility(level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, getSource(), multiple, weapons);
-            else if(cost == Action.Reaction || cost == Action.Free)
-                return new Activity(cost, trigger, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, getSource(), multiple);
-            else if(activity)
-                return new Activity(cost, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, getSource(), multiple);
-            else if(element.getAttribute("skillIncrease").equals("true"))
-                return new SkillIncrease(level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, multiple);
-            else if(!element.getAttribute("abilityBoosts").trim().equals("")) {
-                int count = Integer.parseInt(element.getAttribute("abilityBoosts"));
-                return new Ability(level, name, getBoosts(count, level), description, requiredAttrs, customMod, abilitySlots, getSource(), multiple);
-            }else
-                return new Ability(level, name, mods, description, prerequisites, requiredAttrs, customMod, abilitySlots, getSource(), multiple);
-        }else if(element.getTagName().equals("AbilitySet")){
-            String desc="";
-            if(element.getElementsByTagName("Description").getLength() > 0)
-                desc = element.getElementsByTagName("Description").item(0).getTextContent().trim();
-            /*if(element.getElementsByTagName("Prerequisites").getLength() > 0)
-                prerequisites.addAll(Arrays.asList(element.getElementsByTagName("Prerequisites").item(0).getTextContent().trim().split(",")));*/
-            if(element.getAttribute("multiple").equals("true"))
-                multiple = true;
-            return new AbilitySet(level, name, desc, makeAbilities(element.getChildNodes()),prerequisites, requiredAttrs, customMod, abilitySlots, getSource(), multiple);
+            builder.setType(getSource());
+            if(element.getTagName().equals("AbilitySet")){
+                AbilitySet.Builder setBuilder = new AbilitySet.Builder(builder);
+                setBuilder.setAbilities(makeAbilities(element.getChildNodes()));
+                builder = setBuilder;
+            }
+            return builder.build();
         }
         return null;
     }
@@ -246,7 +252,8 @@ abstract class FileLoader<T> {
         return boosts;
     }
 
-    private void addMods(String textContent, Proficiency prof, List<AttributeMod> mods) {
+    private List<AttributeMod> addMods(String textContent, Proficiency prof) {
+        List<AttributeMod> mods = new ArrayList<>();
         String[] split = textContent.split(",");
         for(String str: split) {
             if (!str.trim().equals("")) {
@@ -265,6 +272,7 @@ abstract class FileLoader<T> {
                 }
             }
         }
+        return mods;
     }
 
     List<AbilityMod> getAbilityMods(String bonuses, String penalties, Type type) {

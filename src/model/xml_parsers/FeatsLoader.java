@@ -23,7 +23,7 @@ public class FeatsLoader extends FileLoader<Ability> {
         if(feats == null) {
             feats = new ArrayList<>();
             Document doc = getDoc(path);
-            NodeList abilities = doc.getElementsByTagName("feats").item(0).getChildNodes();
+            NodeList abilities = doc.getElementsByTagName("pf2:feats").item(0).getChildNodes();
             for(int i=0; i<abilities.getLength(); i++) {
                 if(abilities.item(i).getNodeType() == Node.ELEMENT_NODE)
                     this.feats.add(makeAbility((Element) abilities.item(i),

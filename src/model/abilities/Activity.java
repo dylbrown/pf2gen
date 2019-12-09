@@ -1,24 +1,15 @@
 package model.abilities;
 
-import model.AttributeMod;
-import model.abilities.abilitySlots.AbilitySlot;
 import model.enums.Action;
-import model.enums.Type;
-
-import java.util.List;
 
 public class Activity extends Ability {
     private final Action cost;
-    private String trigger = "";
+    private final String trigger;
 
-    public Activity(Action cost, int level, String name, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type, boolean multiple) {
-        super(level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, type, multiple);
-        this.cost = cost;
-    }
-
-    public Activity(Action cost, String trigger, int level, String name, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type, boolean multiple) {
-        this(cost, level, name, description, prerequisites, requiredAttrs, customMod, abilitySlots, type, multiple);
-        this.trigger = trigger;
+    public Activity(Activity.Builder builder) {
+        super(builder);
+        this.cost = builder.cost;
+        this.trigger = builder.trigger;
     }
 
     public Action getCost() {
@@ -27,5 +18,23 @@ public class Activity extends Ability {
 
     public String getTrigger() {
         return trigger;
+    }
+
+    public static class Builder extends Ability.Builder {
+        private Action cost;
+        private String trigger;
+
+        public void setCost(Action cost) {
+            this.cost = cost;
+        }
+
+        public void setTrigger(String trigger) {
+            this.trigger = trigger;
+        }
+
+        @Override
+        public Activity build() {
+            return new Activity(this);
+        }
     }
 }

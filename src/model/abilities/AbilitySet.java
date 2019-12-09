@@ -1,25 +1,33 @@
 package model.abilities;
 
-import model.AttributeMod;
-import model.abilities.abilitySlots.AbilitySlot;
-import model.enums.Type;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class AbilitySet extends Ability {
     private final List<Ability> abilities;
-    public AbilitySet(int level, String name, String desc, List<Ability> abilities, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type, boolean multiple) {
-        super(level, name, desc, prerequisites, requiredAttrs, customMod, abilitySlots, type, multiple);
-        this.abilities = abilities;
-        modifiers = new ArrayList<>();
-        for(Ability ability: abilities) {
-            modifiers.addAll(ability.getModifiers());
-        }
+    private AbilitySet(AbilitySet.Builder builder) {
+        super(builder);
+        this.abilities = builder.abilities;
     }
 
     public List<Ability> getAbilities(){
         return Collections.unmodifiableList(abilities);
+    }
+
+    public static class Builder extends Ability.Builder {
+        private List<Ability> abilities;
+
+	    public Builder(Ability.Builder builder) {
+            super(builder);
+        }
+
+	    public void setAbilities(List<Ability> abilities) {
+            this.abilities = abilities;
+        }
+
+        @Override
+        public AbilitySet build() {
+            return new AbilitySet(this);
+        }
     }
 }

@@ -5,52 +5,42 @@ import model.abilities.abilitySlots.AbilitySlot;
 import model.ability_scores.AbilityMod;
 import model.enums.Type;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 public class Ability implements Comparable<Ability> {
+    //TODO: Support Repeatedly Chooseable
     private final List<String> prerequisites;
     private final List<AttributeMod> requiredAttrs;
     private final String customMod;
     private final List<AbilitySlot> abilitySlots;
     private final Type type;
     private final boolean multiple;
-    List<AttributeMod> modifiers;
-    private List<AbilityMod> abilityMods;
+    private final List<AttributeMod> modifiers;
+    private final List<AbilityMod> abilityMods;
     private final String name;
     private final String description;
     private final int level;
+    private final int skillIncreases;
 
-    private Ability(String name, int level, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type, boolean multiple) {
-        this.name = name;
-        this.description = description;
-        this.prerequisites = prerequisites;
-        this.level = level;
-        if(requiredAttrs.size() == 0)
+    protected Ability(Ability.Builder builder) {
+        this.name = builder.name;
+        this.level = builder.level;
+        this.modifiers = builder.modifiers;
+        this.description = builder.description;
+        this.prerequisites = builder.prerequisites;
+        if(builder.requiredAttrs.size() == 0)
             this.requiredAttrs = Collections.emptyList();
         else
-            this.requiredAttrs = requiredAttrs;
-        abilityMods = Collections.emptyList();
-        this.customMod = customMod;
-        this.abilitySlots = abilitySlots;
-        this.type = type;
-        this.multiple = multiple;
-    }
-
-    Ability(int level, String name, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type, boolean multiple) {
-        this(name, level, description, prerequisites, requiredAttrs, customMod, abilitySlots, type, multiple);
-        this.modifiers= Collections.emptyList();
-    }
-
-    public Ability(int level, String name, List<AttributeMod> mods, String description, List<String> prerequisites, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type, boolean multiple) {
-        this(name, level, description, prerequisites, requiredAttrs, customMod, abilitySlots, type, multiple);
-        this.modifiers = mods;
-    }
-
-    public Ability(int level, String name, List<AbilityMod> boosts, String description, List<AttributeMod> requiredAttrs, String customMod, List<AbilitySlot> abilitySlots, Type type, boolean multiple) {
-        this(level, name, description, Collections.emptyList(), requiredAttrs, customMod, abilitySlots, type, multiple);
-        this.abilityMods = boosts;
+            this.requiredAttrs = builder.requiredAttrs;
+        this.customMod = builder.customMod;
+        this.abilityMods = builder.abilityMods;
+        this.abilitySlots = builder.abilitySlots;
+        this.type = builder.type;
+        this.multiple = builder.multiple;
+        this.skillIncreases = builder.skillIncreases;
     }
 
     public List<AttributeMod> getModifiers() {
@@ -74,6 +64,10 @@ public class Ability implements Comparable<Ability> {
 
     public int getLevel() {
         return level;
+    }
+
+    public int getSkillIncreases() {
+        return skillIncreases;
     }
 
     public List<AttributeMod> getRequiredAttrs() {
@@ -117,5 +111,99 @@ public class Ability implements Comparable<Ability> {
     @Override
     public int hashCode() {
         return Objects.hash(type, name);
+    }
+
+    public static class Builder {
+        private List<String> prerequisites = Collections.emptyList();
+        private List<AttributeMod> requiredAttrs = Collections.emptyList();
+        private String customMod = "";
+        private List<AbilitySlot> abilitySlots = Collections.emptyList();
+        private Type type;
+        private boolean multiple = false;
+        List<AttributeMod> modifiers = Collections.emptyList();
+        private List<AbilityMod> abilityMods = Collections.emptyList();
+        private String name;
+        private String description = "";
+        private int level = 1;
+        private int skillIncreases = 0;
+
+        public Builder(){}
+
+        public Builder(Ability.Builder builder) {
+            this.prerequisites = builder.prerequisites;
+            this.requiredAttrs = builder.requiredAttrs;
+            this.customMod = builder.customMod;
+            this.abilitySlots = builder.abilitySlots;
+            this.type = builder.type;
+            this.multiple = builder.multiple;
+            this.modifiers = builder.modifiers;
+            this.abilityMods = builder.abilityMods;
+            this.name = builder.name;
+            this.description = builder.description;
+            this.level = builder.level;
+            this.skillIncreases = builder.skillIncreases;
+        }
+
+        public void setPrerequisites(List<String> prerequisites) {
+            this.prerequisites = prerequisites;
+        }
+
+        public void setRequiredAttrs(List<AttributeMod> requiredAttrs) {
+            this.requiredAttrs = requiredAttrs;
+        }
+
+        public void setCustomMod(String customMod) {
+            this.customMod = customMod;
+        }
+
+        public void addAbilitySlot(AbilitySlot abilitySlot) {
+            if(abilitySlots.size() == 0) abilitySlots = new ArrayList<>();
+            abilitySlots.add(abilitySlot);
+        }
+
+        public void setAbilitySlots(List<AbilitySlot> abilitySlots) {
+            this.abilitySlots = abilitySlots;
+        }
+
+        public void setType(Type type) {
+            this.type = type;
+        }
+
+        public void setMultiple(boolean multiple) {
+            this.multiple = multiple;
+        }
+
+        public void setAttrMods(List<AttributeMod> modifiers) {
+            this.modifiers = modifiers;
+        }
+
+        public void setBoosts(List<AbilityMod> abilityMods) {
+            this.abilityMods = abilityMods;
+        }
+
+        public void addAllMods(List<AttributeMod> mods) {
+            if(modifiers.size() == 0) modifiers = new ArrayList<>();
+            modifiers.addAll(mods);
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public void setLevel(int level) {
+            this.level = level;
+        }
+
+        public void setSkillIncreases(int skillIncreases) {
+            this.skillIncreases = skillIncreases;
+        }
+
+        public Ability build() {
+            return new Ability(this);
+        }
     }
 }

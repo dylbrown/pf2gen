@@ -7,11 +7,10 @@ import model.AttributeMod;
 import model.abilities.Ability;
 import model.abilities.AbilitySet;
 import model.abilities.AttackAbility;
-import model.abilities.SkillIncrease;
 import model.abilities.abilitySlots.AbilitySingleChoice;
 import model.abilities.abilitySlots.AbilitySlot;
-import model.abilities.abilitySlots.SingleChoice;
 import model.abilities.abilitySlots.FeatSlot;
+import model.abilities.abilitySlots.SingleChoice;
 import model.data_managers.FeatsManager;
 import model.enums.Type;
 
@@ -94,9 +93,7 @@ public class AbilityManager {
                     pc.addAttacks(((AttackAbility) ability).getAttacks());
                 }
 
-                if (ability instanceof SkillIncrease) {
-                    pc.attributes().addSkillIncrease(ability.getLevel());
-                }
+                pc.attributes().addSkillIncreases(ability.getSkillIncreases(), ability.getLevel());
 
                 for (AttributeMod mod : ability.getModifiers()) {
                     pc.attributes().apply(mod);
@@ -141,9 +138,7 @@ public class AbilityManager {
                     pc.removeAttacks(((AttackAbility) ability).getAttacks());
                 }
 
-                if (ability instanceof SkillIncrease) {
-                    pc.attributes().removeSkillIncrease(ability.getLevel());
-                }
+                pc.attributes().removeSkillIncreases(ability.getSkillIncreases(), ability.getLevel());
 
                 for (AttributeMod mod : ability.getModifiers()) {
                     pc.attributes().remove(mod);
@@ -163,7 +158,7 @@ public class AbilityManager {
         return FXCollections.unmodifiableObservableList(abilities);
     }
 
-    public void removeAll(Type type) {
+    void removeAll(Type type) {
         if(abcTracker.get(type) != null) {
             Iterator<Ability> iterator = abcTracker.get(type).iterator();
 
@@ -175,7 +170,7 @@ public class AbilityManager {
         }
     }
 
-    public void changeSlot(AbilitySlot slot, Ability selectedItem) {
+    void changeSlot(AbilitySlot slot, Ability selectedItem) {
         Ability oldItem = slot.getCurrentAbility();
         if(oldItem != null)
             remove(oldItem);
@@ -184,6 +179,7 @@ public class AbilityManager {
         apply(selectedItem);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean haveAbility(Ability ability) {
         return sortedAbilities.contains(ability);
     }

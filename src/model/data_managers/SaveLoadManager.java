@@ -183,8 +183,9 @@ public class SaveLoadManager {
                         options = character.abilities().getOptions((FeatSlot)decision);
                     else options = Collections.emptyList();
                     for (Object option : options) {
-                        if(selections.contains(option.toString()) && !decision.viewSelections().contains(option)){//TODO: Handle multi-take
-                            character.addSelection(decision, option);
+                        if(selections.contains(option.toString())) {
+	                        //noinspection unchecked
+	                        character.addSelection(decision, option);
                             successes++;
                             if(decision.viewSelections().size() == selections.size())
                                 decisionStringMap.put(decision.toString(), null);

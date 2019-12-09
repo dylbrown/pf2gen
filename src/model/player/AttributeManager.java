@@ -257,12 +257,12 @@ public class AttributeManager {
         return false;
     }
 
-    void addSkillIncrease(int level) {
+    void addSkillIncreases(int amount, int level) {
         skillIncreases.put(level, skillIncreases.computeIfAbsent(level, (key) -> 0) + 1);
         proficiencyChange.wink();
     }
 
-    void removeSkillIncrease(int level) {
+    void removeSkillIncreases(int amount, int level) {
         skillIncreases.put(level, skillIncreases.computeIfAbsent(level, (key) -> 1) - 1);
         proficiencyChange.wink();
     }
@@ -304,7 +304,7 @@ public class AttributeManager {
                 - skillChoices.getOrDefault(level, Collections.emptySet()).size();
     }
 
-    public ObservableList<String> getMinList(Proficiency min) {
+    ObservableList<String> getMinList(Proficiency min) {
         return minLists.get(min);
     }
 }
