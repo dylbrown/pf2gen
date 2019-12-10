@@ -1,12 +1,13 @@
 package model.player;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
-import model.AttributeMod;
+import model.abc.Ancestry;
+import model.abc.PClass;
 import model.abilities.Ability;
 import model.abilities.AbilitySet;
-import model.abilities.AttackAbility;
 import model.abilities.abilitySlots.AbilitySingleChoice;
 import model.abilities.abilitySlots.AbilitySlot;
 import model.abilities.abilitySlots.FeatSlot;
@@ -21,20 +22,27 @@ public class AbilityManager {
     private final SortedList<Ability> sortedAbilities;
     private final ObservableList<AbilitySet> abilitySets = FXCollections.observableArrayList();
     private final Map<Type, Set<Ability>> abcTracker = new HashMap<>();
-    private final PC pc;
     private final DecisionManager decisions;
+    private final Applier applier;
+    private final ReadOnlyObjectProperty<Ancestry> ancestry;
+    private final ReadOnlyObjectProperty<PClass> pClass;
+    private final ReadOnlyObjectProperty<Integer> level;
 
-    AbilityManager(PC pc) {
-        this.pc = pc;
-        this.decisions = pc.decisions();
+    AbilityManager(DecisionManager decisions, ReadOnlyObjectProperty<Ancestry> ancestry,
+                   ReadOnlyObjectProperty<PClass> pClass,
+                   ReadOnlyObjectProperty<Integer> level, Applier applier) {
+        this.applier = applier;
+        this.decisions = decisions;
+        this.ancestry = ancestry;
+        this.pClass = pClass;
+        this.level = level;
         sortedAbilities = new SortedList<>(abilities);
 
-        pc.getLevelProperty().addListener((observable -> {
+        level.addListener((observable -> {
             for (AbilitySet abilitySet : abilitySets) {
                 remove(abilitySet);
                 apply(abilitySet);
             }
-
         }));
     }
 
@@ -44,16 +52,16 @@ public class AbilityManager {
             for (Type allowedType : ((FeatSlot) choice).getAllowedTypes()) {
                 switch (allowedType) {
                     case Class:
-                        if (pc.getPClass() != null)
-                            results.addAll(pc.getPClass().getFeats(((FeatSlot) choice).getLevel()));
+                        if (pClass.get() != null)
+                            results.addAll(pClass.get().getFeats(((FeatSlot) choice).getLevel()));
                         break;
                     case Ancestry:
-                        if (pc.getAncestry() != null)
-                            results.addAll(pc.getAncestry().getFeats(((FeatSlot) choice).getLevel()));
+                        if (ancestry.get() != null)
+                            results.addAll(ancestry.get().getFeats(((FeatSlot) choice).getLevel()));
                         break;
                     case Heritage:
-                        if (pc.getAncestry() != null)
-                            results.addAll(pc.getAncestry().getHeritages());
+                        if (ancestry.get() != null)
+                            results.addAll(ancestry.get().getHeritages());
                         break;
                     case General:
                         results.addAll(FeatsManager.getGeneralFeats());
@@ -78,32 +86,20 @@ public class AbilityManager {
 
     private void apply(Ability ability) {
         if(ability != null) {
+            applier.apply(ability);
             if(ability.getType() != Type.None)
                 abcTracker.computeIfAbsent(ability.getType(), (key)->new HashSet<>()).add(ability);
             if(ability instanceof AbilitySet) {
                 abilitySets.add((AbilitySet) ability);
                 List<Ability> subAbilities = ((AbilitySet) ability).getAbilities();
-                int level = pc.getLevel();
                 for (Ability subAbility : subAbilities) {
-                    if(subAbility.getLevel() <= level)
+                    if(subAbility.getLevel() <= level.get())
                         apply(subAbility);
                 }
             }else {
-                if(ability instanceof AttackAbility) {
-                    pc.addAttacks(((AttackAbility) ability).getAttacks());
-                }
-
-                pc.attributes().addSkillIncreases(ability.getSkillIncreases(), ability.getLevel());
-
-                for (AttributeMod mod : ability.getModifiers()) {
-                    pc.attributes().apply(mod);
-                }
                 for (AbilitySlot subSlot : ability.getAbilitySlots()) {
                     apply(subSlot);
                 }
-                pc.scores().apply(ability.getAbilityMods());
-                if (!ability.getCustomMod().equals(""))
-                    pc.mods().jsApply(ability.getCustomMod());
                 abilities.add(ability);
             }
         }
@@ -133,23 +129,9 @@ public class AbilityManager {
                 }
             }else{
                 abilities.remove(ability);
-
-                if(ability instanceof AttackAbility) {
-                    pc.removeAttacks(((AttackAbility) ability).getAttacks());
-                }
-
-                pc.attributes().removeSkillIncreases(ability.getSkillIncreases(), ability.getLevel());
-
-                for (AttributeMod mod : ability.getModifiers()) {
-                    pc.attributes().remove(mod);
-                }
                 for(AbilitySlot subSlot: ability.getAbilitySlots()) {
                     remove(subSlot);
                 }
-
-                pc.scores().remove(ability.getAbilityMods());
-                if(!ability.getCustomMod().equals(""))
-                    pc.mods().jsRemove(ability.getCustomMod());
             }
         }
     }

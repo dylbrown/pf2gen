@@ -24,7 +24,7 @@ public class SpellsLoader extends FileLoader<Spell> {
 		return instance;
 	}
 
-	private SpellsLoader() {
+	public SpellsLoader() {
 		path = new File("data/spells");
 	}
 

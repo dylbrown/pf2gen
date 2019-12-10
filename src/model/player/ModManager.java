@@ -53,7 +53,7 @@ class ModManager {
         }
     }
 
-    ModManager(PC character, ReadOnlyObjectProperty<Integer> levelProperty) {
+    ModManager(PC character, ReadOnlyObjectProperty<Integer> levelProperty, Applier applier) {
         ScriptEngineManager manager = new ScriptEngineManager();
         engine = manager.getEngineByName("js");
         engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
@@ -142,6 +142,16 @@ class ModManager {
                 apply(jsString);
             }
         });
+
+        applier.onApply(ability -> {
+            if (!ability.getCustomMod().equals(""))
+                jsApply(ability.getCustomMod());
+        });
+
+        applier.onRemove(ability -> {
+            if(!ability.getCustomMod().equals(""))
+                jsRemove(ability.getCustomMod());
+        });
     }
 
     private void add(ArbitraryChoice arbitraryChoice, int amount) {
@@ -151,7 +161,7 @@ class ModManager {
     private void subtract(ArbitraryChoice arbitraryChoice, int amount) {
         arbitraryChoice.decreaseChoices(amount);
     }
-    void jsApply(String jsString) {
+    private void jsApply(String jsString) {
         jsStrings.add(jsString);
         apply(jsString);
     }
@@ -165,7 +175,7 @@ class ModManager {
         }
     }
 
-    void jsRemove(String jsString) {
+    private void jsRemove(String jsString) {
         remove(jsString);
         jsStrings.remove(jsString);
     }

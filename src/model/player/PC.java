@@ -7,6 +7,7 @@ import model.abc.Ancestry;
 import model.abc.Background;
 import model.abc.PClass;
 import model.abilities.Ability;
+import model.abilities.AttackAbility;
 import model.abilities.abilitySlots.AbilitySlot;
 import model.abilities.abilitySlots.Choice;
 import model.abilities.abilitySlots.SingleChoice;
@@ -30,19 +31,22 @@ public class PC {
     private final ReadOnlyObjectWrapper<PClass> pClass = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<Integer> level = new ReadOnlyObjectWrapper<>(0);
     private final Eyeball ancestryWatcher = new Eyeball();
+    private final Applier applier = new Applier();
     private String name;
     private String player;
     private final List<Language> languages = new ArrayList<>();
     private final InventoryManager inventory = new InventoryManager();
     private final ModManager modManager;
     private final DecisionManager decisions = new DecisionManager();
-    private final AbilityManager abilities = new AbilityManager(this);
-    private final AbilityScoreManager scores = new AbilityScoreManager();
-    private final AttributeManager attributes = new AttributeManager(level.getReadOnlyProperty(), decisions);
+    private final AbilityManager abilities = new AbilityManager(decisions, getAncestryProperty(),
+            getPClassProperty(), getLevelProperty(), applier);
+    private final AbilityScoreManager scores = new AbilityScoreManager(applier);
+    private final AttributeManager attributes = new AttributeManager(level.getReadOnlyProperty(), decisions, applier);
+    private final SpellManager spells = new SpellManager(applier);
     private List<Weapon> attacks = new ArrayList<>();
 
     {
-        modManager = new ModManager(this, level.getReadOnlyProperty());
+        modManager = new ModManager(this, level.getReadOnlyProperty(), applier);
     }
 
     public PC() {
@@ -51,6 +55,18 @@ public class PC {
                 attributes.updateSkillCount(getPClass().getSkillIncrease() + scores.getMod(Int));
             }
         }));
+
+        applier.onApply(ability -> {
+            if(ability instanceof AttackAbility) {
+                addAttacks(((AttackAbility) ability).getAttacks());
+            }
+        });
+
+        applier.onRemove(ability -> {
+            if(ability instanceof AttackAbility) {
+                removeAttacks(((AttackAbility) ability).getAttacks());
+            }
+        });
     }
 
     public void setName(String name) {
@@ -281,6 +297,8 @@ public class PC {
         return decisions;
     }
 
+    public SpellManager spells() {return spells;}
+
     ModManager mods() {
         return modManager;
     }
@@ -293,11 +311,11 @@ public class PC {
         while(getLevel() > 1) levelDown();
     }
 
-    void addAttacks(List<Weapon> attacks) {
+    private void addAttacks(List<Weapon> attacks) {
         this.attacks.addAll(attacks);
     }
 
-    void removeAttacks(List<Weapon> attacks) {
+    private void removeAttacks(List<Weapon> attacks) {
         this.attacks.removeAll(attacks);
     }
 

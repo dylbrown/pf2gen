@@ -5,10 +5,7 @@ import model.abilities.abilitySlots.AbilitySlot;
 import model.ability_scores.AbilityMod;
 import model.enums.Type;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Ability implements Comparable<Ability> {
     //TODO: Support Repeatedly Chooseable
@@ -24,6 +21,7 @@ public class Ability implements Comparable<Ability> {
     private final String description;
     private final int level;
     private final int skillIncreases;
+
 
     protected Ability(Ability.Builder builder) {
         this.name = builder.name;

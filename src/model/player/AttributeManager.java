@@ -37,7 +37,7 @@ public class AttributeManager {
     private final Eyeball proficiencyChange = new Eyeball();
     private final List<AttributeModSingleChoice> choices = new ArrayList<>();
 
-    AttributeManager(ReadOnlyObjectProperty<Integer> level, DecisionManager decisions){
+    AttributeManager(ReadOnlyObjectProperty<Integer> level, DecisionManager decisions, Applier applier){
         this.level = level;
         this.decisions = decisions;
         for (Attribute skill : Attribute.getSkills()) {
@@ -52,6 +52,20 @@ public class AttributeManager {
                 Proficiency.Master));
         minLists.put(Proficiency.Legendary, new MinimumProficiencyList(Collections.unmodifiableMap(proficiencies),
                 Proficiency.Legendary));
+
+        applier.onApply((ability -> {
+            addSkillIncreases(ability.getSkillIncreases(), ability.getLevel());
+            for (AttributeMod mod : ability.getModifiers()) {
+                apply(mod);
+            }
+        }));
+
+        applier.onRemove((ability -> {
+            removeSkillIncreases(ability.getSkillIncreases(), ability.getLevel());
+            for (AttributeMod mod : ability.getModifiers()) {
+                remove(mod);
+            }
+        }));
     }
 
     /**

@@ -31,6 +31,8 @@ class SpellScraper extends SRDScraper {
 
 		String spellName = article.getElementsByTag("h1").first().text();
 		String spellLevel = article.getElementsByClass("spell-level").first().text();
+		if(article.getElementsByClass("spell-type").first().text().equals("Cantrip"))
+			spellLevel = "0";
 		List<String> traits = new ArrayList<>();
 		for (Element trait : article.getElementsByClass("trait")) {
 			traits.add(trait.text());

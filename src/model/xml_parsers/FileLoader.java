@@ -12,6 +12,7 @@ import model.enums.Action;
 import model.enums.Attribute;
 import model.enums.Proficiency;
 import model.enums.Type;
+import model.spells.CasterType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -135,6 +136,7 @@ abstract class FileLoader<T> {
             Ability.Builder builder;
             Activity.Builder acBuilder = null;
             AttackAbility.Builder attBuilder = null;
+            SpellAbility.Builder spBuilder = null;
             if(!element.getAttribute("cost").equals("")) {
                 acBuilder = new Activity.Builder();
                 acBuilder.setCost(Action.robustValueOf(camelCaseWord(element.getAttribute("cost").trim())));
@@ -198,6 +200,16 @@ abstract class FileLoader<T> {
                         break;
                     case "CustomMod":
                         builder.setCustomMod(trim);
+                        break;
+                    case "SpellSlots":
+                        if(spBuilder == null) {
+                            builder = spBuilder = new SpellAbility.Builder(builder);
+                        }
+                        spBuilder.addSpellSlots(Integer.parseInt(propElem.getAttribute("level")),
+                                              Integer.parseInt(propElem.getAttribute("count")));
+                        if(!propElem.getAttribute("type").equals("")) {
+                            spBuilder.setCasterType(CasterType.valueOf(propElem.getAttribute("type")));
+                        }
                         break;
                     case "AbilitySlot":
                         String abilityName = propElem.getAttribute("name");

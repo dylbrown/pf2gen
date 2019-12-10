@@ -6,7 +6,7 @@ import model.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Spell {
+public class Spell implements Comparable<Spell> {
 	private String name, castTime, requirements, range, area, targets, duration, save, description;
 	private int level;
 	private List<Trait> traits;
@@ -90,6 +90,11 @@ public class Spell {
 		return getName();
 	}
 
+	@Override
+	public int compareTo(Spell o) {
+		return name.compareTo(o.name);
+	}
+
 	public static class Builder {
 		private String name;
 		private int level;
@@ -149,7 +154,7 @@ public class Spell {
 			}
 		}
 
-		public void setCastTime(String castTime) {
+		private void setCastTime(String castTime) {
 			this.castTime = castTime;
 		}
 

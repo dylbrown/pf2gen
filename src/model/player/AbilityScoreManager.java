@@ -19,7 +19,7 @@ public class AbilityScoreManager {
     private final Eyeball abilityScoreChange = new Eyeball();
     private final List<AbilityModChoice> abilityScoreChoices = new ArrayList<>();
 
-    AbilityScoreManager() {
+    AbilityScoreManager(Applier applier) {
         List<AbilityModChoice> choices = Arrays.asList(
                 new AbilityModChoice(Type.Initial),
                 new AbilityModChoice(Type.Initial),
@@ -28,6 +28,8 @@ public class AbilityScoreManager {
         );
         abilityScoreChoices.addAll(choices);
         abilityScoresByType.put(Type.Initial, new ArrayList<>(choices));
+        applier.onApply(ability -> apply(ability.getAbilityMods()));
+        applier.onRemove(ability -> remove(ability.getAbilityMods()));
     }
 
     Eyeball getScoreEyeball(AbilityScore score) {

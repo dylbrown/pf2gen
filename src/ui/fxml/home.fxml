@@ -80,6 +80,9 @@
         <Tab closable="false" text="Equipment">
             <fx:include source="equipTab.fxml" />
         </Tab>
+        <Tab closable="false" text="Spells">
+            <fx:include source="spellsTab.fxml" />
+        </Tab>
         <Tab fx:id="displayTab" closable="false" text="Display">
             <StackPane>
                 <AnchorPane prefHeight="200.0" prefWidth="200.0">

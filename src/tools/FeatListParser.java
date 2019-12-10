@@ -18,9 +18,9 @@ class FeatListParser extends SourceParser {
     }
 
     private FeatListParser() {
-        try (BufferedReader br = new BufferedReader(new FileReader(new File("source.txt")))) {
-            skill = new BufferedWriter(new FileWriter(new File("skill.txt")));
-            general = new BufferedWriter(new FileWriter(new File("general.txt")));
+        try (BufferedReader br = new BufferedReader(new FileReader(new File("generated/featListSource.txt")))) {
+            skill = new BufferedWriter(new FileWriter(new File("generated/skill.txt")));
+            general = new BufferedWriter(new FileWriter(new File("generated/general.txt")));
             String line;
             while ((line = br.readLine()) != null) {
                 parseLine(line);

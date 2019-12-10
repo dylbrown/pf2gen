@@ -19,7 +19,7 @@ class AttributeManagerTest {
 	@BeforeEach
 	void setUp() {
 		level = new ReadOnlyObjectWrapper<>(7);
-		attributes = new AttributeManager(level, new DecisionManager());
+		attributes = new AttributeManager(level, new DecisionManager(), new Applier());
 	}
 
 	@Test
