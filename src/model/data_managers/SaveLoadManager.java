@@ -70,10 +70,13 @@ public class SaveLoadManager {
 
             //Spells
             writeOutLine(out, "Spells Known");
+            int i = 0;
             for (ObservableList<Spell> spells : character.spells().getSpellsKnown()) {
+                writeOutLine(out, " - Level "+i);
                 for (Spell spell : spells) {
-                    writeOutLine(out, " - "+ spell.getName());
+                    writeOutLine(out, "   - "+ spell.getName());
                 }
+                i++;
             }
 
 
@@ -138,22 +141,24 @@ public class SaveLoadManager {
 
             //Ability Score Choices
             //Parse data into more usable format
-            Set<Triple<Type, AbilityScore, List<AbilityScore>>> mods = Arrays.stream(nextLineEq(lines).split(", "))
-                    .map(SaveLoadManager::makeTriple).collect(Collectors.toSet());
+            String nextLineEq = nextLineEq(lines);
+            if(!nextLineEq.trim().equals("")) {
+                Set<Triple<Type, AbilityScore, List<AbilityScore>>> mods = Arrays.stream(nextLineEq.split(", "))
+                        .map(SaveLoadManager::makeTriple).collect(Collectors.toSet());
 
-            //iterate through all current choices and set them if they have a match.
-            for (AbilityModChoice modChoice : character.scores().getAbilityScoreChoices()) {
-                Iterator<Triple<Type, AbilityScore, List<AbilityScore>>> iterator = mods.iterator();
-                while(iterator.hasNext()){
-                    Triple<Type, AbilityScore, List<AbilityScore>> next = iterator.next();
-                    if(modChoice.matches(next.first, next.third)){
-                        character.scores().choose(modChoice, next.second);
-                        iterator.remove();
-                        break;
+                //iterate through all current choices and set them if they have a match.
+                for (AbilityModChoice modChoice : character.scores().getAbilityScoreChoices()) {
+                    Iterator<Triple<Type, AbilityScore, List<AbilityScore>>> iterator = mods.iterator();
+                    while (iterator.hasNext()) {
+                        Triple<Type, AbilityScore, List<AbilityScore>> next = iterator.next();
+                        if (modChoice.matches(next.first, next.third)) {
+                            character.scores().choose(modChoice, next.second);
+                            iterator.remove();
+                            break;
+                        }
                     }
                 }
             }
-
             //Skill Increase Choices
             character.attributes().resetSkills();
             lines.second++; // Skip Section Header
@@ -249,15 +254,18 @@ public class SaveLoadManager {
             //Spells
             lines.second++; // Skip Section Header
             character.spells().reset();
-            while(true) {
-                String s;
-                try { s = nextLine(lines); }
-                catch(RuntimeException e) { break; }
-                if(!s.startsWith(" - ")) {
-                    lines.second--;
-                    break;
+            for(int i=0; i<=10; i++){
+                lines.second++;
+                while(true) {
+                    String s;
+                    try { s = nextLine(lines); }
+                    catch(RuntimeException e) { break; }
+                    if(!s.startsWith("   - ")) {
+                        lines.second--;
+                        break;
+                    }
+                    character.spells().addSpell(AllSpells.find(s.substring(5)));
                 }
-                character.spells().addSpell(AllSpells.find(s.substring(3)));
             }
 
             System.out.println(System.currentTimeMillis()-start+" ms");

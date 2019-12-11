@@ -101,9 +101,7 @@ public class SpellManager {
 
 	public void reset() {
 		for(int i=0; i <= 10; i++) {
-			spellSlots.set(i, 0);
 			spellsKnown.get(i).clear();
 		}
-		casterType.clear();
 	}
 }

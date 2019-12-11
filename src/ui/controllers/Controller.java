@@ -17,7 +17,6 @@ import java.util.Objects;
 
 import static ui.Main.character;
 
-@SuppressWarnings("WeakerAccess")
 public class Controller {
     @FXML
     private Button save;
