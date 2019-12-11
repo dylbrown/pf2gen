@@ -1,13 +1,10 @@
 package ui.controllers;
 
 import javafx.collections.ListChangeListener;
-import javafx.collections.MapChangeListener;
-import javafx.collections.ObservableMap;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
 import model.data_managers.AllSpells;
 import model.player.SpellManager;
@@ -21,6 +18,11 @@ public class SpellsTabController {
 
 	@FXML
 	private TreeView<String> allSpells, spellsKnown;
+
+	private ListView<String> filterList = new ListView<>();
+
+	@FXML
+	private BorderPane spellsContainer;
 
 	@FXML
 	private WebView spellDisplay;
@@ -58,6 +60,8 @@ public class SpellsTabController {
 							}
 							spellsKnown.getRoot().getChildren().get(spell.getLevel())
 									.getChildren().add(new TreeItem<>(spell.getName()));
+							spellsKnown.getRoot().getChildren().get(spell.getLevel())
+									.getChildren().sort(Comparator.comparing(TreeItem::getValue));
 						}
 					}
 					if(change.wasRemoved()) {
@@ -74,9 +78,18 @@ public class SpellsTabController {
 				}
 			});
 		}
-		ObservableMap<Integer, Integer> spellSlots = spells.getSpellSlots();
-		spellSlots.addListener((MapChangeListener<Integer, Integer>) change ->
-				knowns[change.getKey()].setText(String.valueOf(spellSlots.get(change.getKey()))));
+		ObservableList<Integer> spellSlots = spells.getSpellSlots();
+		spellSlots.addListener((ListChangeListener<Integer>) c->{
+			while(c.next()) {
+				if (c.wasReplaced()) {
+					int start = c.getFrom() ;
+					int end = c.getTo() ;
+					for (int i = start ; i < end ; i++) {
+						knowns[i].setText(String.valueOf(spellSlots.get(i)));
+					}
+				}
+			}
+		});
 
 		allSpells.setOnMouseClicked(event -> {
 			if(allSpells.getSelectionModel().getSelectedItem() != null) {
@@ -98,8 +111,17 @@ public class SpellsTabController {
 			}
 		});
 
+		spellsKnown.getSelectionModel().selectedItemProperty().addListener(change->{
+			if(spellsKnown.getSelectionModel().getSelectedItem() != null) {
+				String item = spellsKnown.getSelectionModel().getSelectedItem().getValue();
+				if (!item.matches("\\d{1,2}")) {
+					renderSpell(AllSpells.find(item));
+				}
+			}
+		});
+
 		spellsKnown.setOnMouseClicked(event -> {
-			if(allSpells.getSelectionModel().getSelectedItem() != null) {
+			if(spellsKnown.getSelectionModel().getSelectedItem() != null) {
 				String item = spellsKnown.getSelectionModel().getSelectedItem().getValue();
 				if (!item.matches("\\d{1,2}")) {
 					Spell spell = AllSpells.find(item);
@@ -115,6 +137,21 @@ public class SpellsTabController {
 				String item = spellsKnown.getSelectionModel().getSelectedItem().getValue();
 				if (!item.matches("\\d{1,2}")) {
 					renderSpell(AllSpells.find(item));
+				}
+			}
+		});
+
+		filter.textProperty().addListener((observable, oldValue, newValue) -> {
+			if(!newValue.equals(oldValue)){
+				if(!newValue.equals("")) {
+					filterList.getItems().setAll(
+							AllSpells.getAllSpells().stream()
+									.map(Spell::getName)
+									.filter(s -> s.toLowerCase().contains(newValue.toLowerCase()))
+									.collect(Collectors.toList()));
+					spellsContainer.setCenter(filterList);
+				}else{
+					spellsContainer.setCenter(allSpells);
 				}
 			}
 		});

@@ -106,18 +106,18 @@ public class AbilityManager {
     }
 
     void remove(AbilitySlot slot) {
+        Ability ability = slot.getCurrentAbility();
+        remove(ability);
 
         if(slot instanceof SingleChoice){
             decisions.remove((SingleChoice) slot);
             ((SingleChoice) slot).empty();
         }
-
-        Ability ability = slot.getCurrentAbility();
-        remove(ability);
     }
 
     private void remove(Ability ability) {
         if(ability != null) {
+            applier.remove(ability);
             if(ability.getType() != Type.None)
                 abcTracker.computeIfAbsent(ability.getType(), (key)->new HashSet<>()).remove(ability);
             if(ability instanceof AbilitySet){

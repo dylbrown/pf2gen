@@ -80,7 +80,7 @@
         <Tab closable="false" text="Equipment">
             <fx:include source="equipTab.fxml" />
         </Tab>
-        <Tab closable="false" text="Spells">
+        <Tab closable="false" text="Spells" fx:id="spellTab">
             <fx:include source="spellsTab.fxml" />
         </Tab>
         <Tab fx:id="displayTab" closable="false" text="Display">

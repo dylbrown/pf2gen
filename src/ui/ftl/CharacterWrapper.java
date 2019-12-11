@@ -63,6 +63,8 @@ class CharacterWrapper implements TemplateHashModel {
                 .map(ItemCountWrapper::new).collect(Collectors.toList()));
 
         map.put("skills", getSkills());
+
+        map.put("spellsKnown", character.spells().getSpellsKnown());
         refresh();
     }
 
@@ -80,6 +82,7 @@ class CharacterWrapper implements TemplateHashModel {
     }
 
     void refresh() {
+        map.put("casterType", character.spells().getCasterType());
         updateAbilities();
         map.put("inventory", character.inventory().getItems().values().stream().map(ItemCountWrapper::new).collect(Collectors.toList()));
     }

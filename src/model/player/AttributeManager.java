@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import model.AttributeMod;
 import model.AttributeModSingleChoice;
+import model.SkillIncrease;
 import model.WeaponGroupMod;
 import model.abilities.MinimumProficiencyList;
 import model.enums.Attribute;
@@ -24,7 +25,7 @@ public class AttributeManager {
     private final Map<Attribute, Map<Proficiency, List<AttributeMod>>> proficienciesTracker = new HashMap<>();
 
     //Map from level to selected skills`
-    private final SortedMap<Integer, Set<Attribute>> skillChoices = new TreeMap<>();
+    private final SortedMap<Integer, Set<SkillIncrease>> skillChoices = new TreeMap<>();
 
     // Maps from level to number of increases
     private final SortedMap<Integer, Integer> innerSkillIncreases = new TreeMap<>();
@@ -124,13 +125,6 @@ public class AttributeManager {
      */
     void remove(AttributeMod mod) {
         if(mod.getAttr() == null) return;
-        ReadOnlyObjectWrapper<Proficiency> proficiency = proficiencies.get(mod.getAttr());
-        Map<Proficiency, List<AttributeMod>> proficiencyListMap = proficienciesTracker.computeIfAbsent(mod.getAttr(), (key) -> new HashMap<>());
-        List<AttributeMod> attributeMods = proficiencyListMap.computeIfAbsent(mod.getMod(), (key) -> new ArrayList<>());
-
-        if(!attributeMods.contains(mod)) return;
-
-
         if(mod instanceof AttributeModSingleChoice) {
             decisions.remove((AttributeModSingleChoice)mod);
             Attribute choice = ((AttributeModSingleChoice) mod).getChoice();
@@ -138,6 +132,13 @@ public class AttributeManager {
                 remove(new AttributeMod(choice, mod.getMod()));
             return;
         }
+        ReadOnlyObjectWrapper<Proficiency> proficiency = proficiencies.get(mod.getAttr());
+        Map<Proficiency, List<AttributeMod>> proficiencyListMap = proficienciesTracker.computeIfAbsent(mod.getAttr(), (key) -> new HashMap<>());
+        List<AttributeMod> attributeMods = proficiencyListMap.computeIfAbsent(mod.getMod(), (key) -> new ArrayList<>());
+
+        if(!attributeMods.contains(mod)) return;
+
+
 
         attributeMods.remove(mod);
         if (proficiency.get().getMod() == mod.getMod().getMod() && attributeMods.size() == 0) {
@@ -201,13 +202,12 @@ public class AttributeManager {
                 continue;
             if(prof.getValue() == Proficiency.Master && entry.getKey() < Proficiency.getMinLevel(Proficiency.Legendary))
                 continue;
-            Set<Attribute> choices = skillChoices.computeIfAbsent(entry.getKey(), (key) -> new HashSet<>());
+            Set<SkillIncrease> choices = skillChoices.computeIfAbsent(entry.getKey(), (key) -> new HashSet<>());
             if(entry.getValue() - choices.size() <= 0)
                 continue;
-            if(choices.contains(skill))
-                continue;
-            choices.add(skill);
-            prof.setValue(Proficiency.values()[Arrays.asList(Proficiency.values()).indexOf(prof.getValue())+1]);
+            Proficiency value = Proficiency.values()[Arrays.asList(Proficiency.values()).indexOf(prof.getValue()) + 1];
+            choices.add(new SkillIncrease(skill, value, entry.getKey()));
+            prof.setValue(value);
             proficiencyChange.wink();
             return true;
         }
@@ -226,15 +226,14 @@ public class AttributeManager {
                 continue;
             if(prof.getValue() == Proficiency.Master && entry.getKey() < Proficiency.getMinLevel(Proficiency.Legendary))
                 continue;
-            Set<Attribute> choices = skillChoices.computeIfAbsent(entry.getKey(), (key) -> new HashSet<>());
+            Set<SkillIncrease> choices = skillChoices.computeIfAbsent(entry.getKey(), (key) -> new HashSet<>());
             if(entry.getValue() - choices.size() <= 0)
-                continue;
-            if(choices.contains(skill))
                 continue;
             return true;
         }
         return false;
     }
+
     public boolean regressSkill(Attribute skill) {
         if(!Arrays.asList(Attribute.getSkills()).contains(skill))
             return false;
@@ -245,10 +244,10 @@ public class AttributeManager {
             reverser.push(entry);
         }
         for (Map.Entry<Integer, Integer> entry : reverser) {
-            Set<Attribute> choices = skillChoices.computeIfAbsent(entry.getKey(), (key) -> new HashSet<>());
-            if(!choices.contains(skill))
+            Set<SkillIncrease> choices = skillChoices.computeIfAbsent(entry.getKey(), (key) -> new HashSet<>());
+            if(!choices.contains(new SkillIncrease(skill, prof.getValue(), entry.getKey())))
                 continue;
-            choices.remove(skill);
+            choices.remove(new SkillIncrease(skill, prof.getValue(), entry.getKey()));
             prof.setValue(Proficiency.values()[Arrays.asList(Proficiency.values()).indexOf(prof.getValue())-1]);
             proficiencyChange.wink();
             return true;
@@ -263,8 +262,8 @@ public class AttributeManager {
         ReadOnlyObjectWrapper<Proficiency> prof = proficiencies.get(skill);
         if(prof.getValue() == Proficiency.Untrained) return false;
         for (Map.Entry<Integer, Integer> entry : skillIncreases.entrySet()) {
-            Set<Attribute> choices = skillChoices.computeIfAbsent(entry.getKey(), (key) -> new HashSet<>());
-            if(!choices.contains(skill))
+            Set<SkillIncrease> choices = skillChoices.computeIfAbsent(entry.getKey(), (key) -> new HashSet<>());
+            if(!choices.contains(new SkillIncrease(skill, prof.getValue(), entry.getKey())))
                 continue;
             return true;
         }
@@ -272,12 +271,16 @@ public class AttributeManager {
     }
 
     void addSkillIncreases(int amount, int level) {
-        skillIncreases.put(level, skillIncreases.computeIfAbsent(level, (key) -> 0) + 1);
+        skillIncreases.put(level, skillIncreases.computeIfAbsent(level, (key) -> 0) + amount);
         proficiencyChange.wink();
     }
 
     void removeSkillIncreases(int amount, int level) {
-        skillIncreases.put(level, skillIncreases.computeIfAbsent(level, (key) -> 1) - 1);
+        skillIncreases.put(level, skillIncreases.computeIfAbsent(level, (key) -> 1) - amount);
+        while(getSkillIncreasesRemaining(level) < 0) {
+            SkillIncrease next = skillChoices.get(level).iterator().next();
+            regressSkill(next.getAttr());
+        }
         proficiencyChange.wink();
     }
 
@@ -292,7 +295,7 @@ public class AttributeManager {
         return Proficiency.max(getProficiency(attr).getValue(), groupProficiencies.getOrDefault(group, Proficiency.Untrained));
     }
 
-    public SortedMap<Integer, Set<Attribute>> getSkillChoices() {
+    public SortedMap<Integer, Set<SkillIncrease>> getSkillChoices() {
         return Collections.unmodifiableSortedMap(skillChoices);
     }
 
@@ -301,10 +304,10 @@ public class AttributeManager {
      */
     public void resetSkills() {
         for(int i=level.get(); i>0; i--) {
-            Set<Attribute> attributes = skillChoices.get(i);
+            Set<SkillIncrease> attributes = skillChoices.get(i);
             if (attributes != null) {
                 while(attributes.size() > 0)
-                    regressSkill(attributes.iterator().next());
+                    regressSkill(attributes.iterator().next().getAttr());
             }
         }
     }

@@ -19,7 +19,7 @@ public class AllSpells {
 		}
 	}
 
-	private static List<Spell> getAllSpells() {
+	public static List<Spell> getAllSpells() {
 		return spells.parse();
 	}
 

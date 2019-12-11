@@ -1,6 +1,7 @@
 package model.data_managers;
 
 import javafx.collections.ObservableList;
+import model.SkillIncrease;
 import model.abc.Ancestry;
 import model.abc.Background;
 import model.abc.PClass;
@@ -15,6 +16,7 @@ import model.enums.Type;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
 import model.equipment.SearchItem;
+import model.spells.Spell;
 import model.util.Pair;
 import model.util.Triple;
 import model.xml_parsers.AncestriesLoader;
@@ -65,6 +67,15 @@ public class SaveLoadManager {
             for (Map.Entry<Slot, ItemCount> entry : character.inventory().getEquipped().entrySet()) {
                 writeOutLine(out, " - "+entry.getKey()+": "+entry.getValue().getCount()+" "+entry.getValue().stats().getName());
             }
+
+            //Spells
+            writeOutLine(out, "Spells Known");
+            for (ObservableList<Spell> spells : character.spells().getSpellsKnown()) {
+                for (Spell spell : spells) {
+                    writeOutLine(out, " - "+ spell.getName());
+                }
+            }
+
 
         if (file != null) {
             try {
@@ -153,6 +164,7 @@ public class SaveLoadManager {
                     break;
                 }
                 String[] split = s.split(" ?: ?");
+                if(split.length < 2) continue;
                 for (String attribute : split[1].split(" ?, ?")) {
                     character.attributes().advanceSkill(Attribute.valueOf(attribute));
                 }
@@ -232,6 +244,20 @@ public class SaveLoadManager {
                     if(tailSet.first().getName().equals(split[1]))
                         character.inventory().equip(tailSet.first(),Slot.valueOf(slotSplit[0]),  Integer.valueOf(split[0]));
                 }
+            }
+
+            //Spells
+            lines.second++; // Skip Section Header
+            character.spells().reset();
+            while(true) {
+                String s;
+                try { s = nextLine(lines); }
+                catch(RuntimeException e) { break; }
+                if(!s.startsWith(" - ")) {
+                    lines.second--;
+                    break;
+                }
+                character.spells().addSpell(AllSpells.find(s.substring(3)));
             }
 
             System.out.println(System.currentTimeMillis()-start+" ms");

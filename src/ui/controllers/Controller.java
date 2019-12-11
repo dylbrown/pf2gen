@@ -28,7 +28,7 @@ public class Controller {
     @FXML
     private TextField characterName, playerName;
     @FXML
-    private Tab displayTab;
+    private Tab displayTab, spellTab;
     @FXML
     private WebView display;
     @FXML
