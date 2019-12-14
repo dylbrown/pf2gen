@@ -32,7 +32,7 @@ public class SingleChoiceSlot extends AbilitySlot implements ChoiceList<Ability>
 
     @Override
     public Ability getChoice() {
-        return currentAbility.get();
+        return currentAbility == null ? null : currentAbility.get();
     }
 
     @Override

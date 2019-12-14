@@ -11,6 +11,7 @@ import model.enums.Slot;
 import model.equipment.Armor;
 import model.equipment.Shield;
 import model.equipment.Weapon;
+import model.spells.CasterType;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -116,6 +117,7 @@ public class TemplateFiller {
         root.put("Activity", Activity.class);
         try {
             root.put("Slot", ((BeansWrapper)cfg.getObjectWrapper()).getEnumModels().get(Slot.class.getName()));
+            root.put("CasterType", ((BeansWrapper)cfg.getObjectWrapper()).getEnumModels().get(CasterType.class.getName()));
         } catch (TemplateModelException e) {
             e.printStackTrace();
         }

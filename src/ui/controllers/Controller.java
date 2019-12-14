@@ -75,6 +75,7 @@ public class Controller {
         }));
 
         characterName.textProperty().addListener((observable, oldValue, newValue) -> character.setName(newValue));
+        playerName.textProperty().addListener((observable, oldValue, newValue) -> character.setPlayer(newValue));
         displayTab.setOnSelectionChanged((event) -> {
             if(displayTab.isSelected()) {
                 htmlContent = TemplateFiller.getStatBlock();

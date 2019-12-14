@@ -55,7 +55,7 @@ public class SpellManager {
 		spellSlots.set(level, spellSlots.get(level) - amount);
 		if(getCasterType() == CasterType.Spontaneous) {
 			while(spellsKnown.get(level).size() > spellSlots.get(level)) {
-				spellsKnown.remove(spellsKnown.size() - 1);
+				spellsKnown.get(level).remove(spellsKnown.get(level).size() - 1);
 			}
 		}
 	}
