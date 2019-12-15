@@ -132,6 +132,8 @@ class ModManager {
         engine.put("removeGroupProf", new SpecialFunction((group, prof)->
                 attributes.remove(new WeaponGroupMod(EquipmentManager.getWeaponGroups().get(((String)group).toLowerCase()),
                         Proficiency.valueOf((String)prof)))));
+        // TODO: Support Individual Weapon Proficiencies
+        // TODO: Support Weapon Specialization
         engine.put("level", levelProperty.getValue());
         levelProperty.addListener((event)-> {
             for (String jsString : jsStrings) {
