@@ -65,6 +65,7 @@ class CharacterWrapper implements TemplateHashModel {
         map.put("skills", getSkills());
 
         map.put("spellsKnown", character.spells().getSpellsKnown());
+        map.put("focusSpells", character.spells().getFocusSpells());
         map.put("spellSlots", character.spells().getSpellSlots());
         refresh();
     }

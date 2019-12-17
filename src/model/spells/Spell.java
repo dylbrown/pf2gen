@@ -4,33 +4,33 @@ import model.enums.Trait;
 import model.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Spell implements Comparable<Spell> {
-	private String name, castTime, requirements, range, area, targets, duration, save, description;
-	private int level;
-	private List<Trait> traits;
-	private List<Tradition> traditions;
-	private List<SpellComponent> cast;
+	private final String name, castTime, requirements, range, area, targets, duration, save, description, page;
+	private final int level;
+	private final List<Trait> traits;
+	private final List<Tradition> traditions;
+	private final List<SpellComponent> cast;
+	private final boolean isCantrip;
 
-	private Spell(String name, int level, List<Trait> traits,
-	              List<Tradition> traditions, List<SpellComponent> cast,
-	              String castTime, String requirements, String range,
-	              String area, String targets, String duration,
-	              String save, String description) {
-		this.name = name;
-		this.level = level;
-		this.traits = traits;
-		this.traditions = traditions;
-		this.cast = cast;
-		this.castTime = castTime;
-		this.requirements = requirements;
-		this.range = range;
-		this.area = area;
-		this.targets = targets;
-		this.duration = duration;
-		this.save = save;
-		this.description = description;
+	private Spell(Spell.Builder builder) {
+		this.name = builder.name;
+		this.level = builder.level;
+		this.traits = builder.traits;
+		this.traditions = builder.traditions;
+		this.cast = builder.cast;
+		this.castTime = builder.castTime;
+		this.requirements = builder.requirements;
+		this.range = builder.range;
+		this.area = builder.area;
+		this.targets = builder.targets;
+		this.duration = builder.duration;
+		this.save = builder.save;
+		this.description = builder.description;
+		this.page = builder.page;
+		this.isCantrip = builder.isCantrip;
 	}
 
 	public String getName() {
@@ -95,12 +95,17 @@ public class Spell implements Comparable<Spell> {
 		return name.compareTo(o.name);
 	}
 
+	public boolean isCantrip() {
+		return isCantrip;
+	}
+
 	public static class Builder {
 		private String name;
 		private int level;
 		private List<Trait> traits = new ArrayList<>();
-		private List<Tradition> traditions = new ArrayList<>();
+		private List<Tradition> traditions = Collections.emptyList();
 		private List<SpellComponent> cast = new ArrayList<>();
+		private boolean isCantrip = false;
 		private String castTime = "";
 		private String requirements = "";
 		private String range = "";
@@ -108,6 +113,7 @@ public class Spell implements Comparable<Spell> {
 		private String targets = "";
 		private String duration = "";
 		private String save = "";
+		private String page = "";
 		private String description;
 
 		public void setName(String name) {
@@ -128,7 +134,12 @@ public class Spell implements Comparable<Spell> {
 			}
 		}
 
+		public void setPage(String page) {
+			this.page = page;
+		}
+
 		public void setTraditions(String traditions) {
+			if(this.traditions.size() == 0) this.traditions = new ArrayList<>();
 			for (String tradition : traditions.split(", ?")) {
 				try {
 					this.traditions.add(Tradition.valueOf(StringUtils.camelCaseWord(tradition)));
@@ -136,6 +147,10 @@ public class Spell implements Comparable<Spell> {
 					e.printStackTrace();
 				}
 			}
+		}
+
+		public void setCantrip(boolean cantrip) {
+			isCantrip = cantrip;
 		}
 
 		public void setCast(String casts) {
@@ -147,7 +162,7 @@ public class Spell implements Comparable<Spell> {
 			}
 			for (String cast : casts.split(", ?")) {
 				try {
-					this.cast.add(SpellComponent.valueOf(StringUtils.camelCaseWord(cast)));
+					this.cast.add(SpellComponent.valueOf(StringUtils.camelCaseWord(cast).trim()));
 				}catch(Exception e) {
 					e.printStackTrace();
 				}
@@ -191,9 +206,8 @@ public class Spell implements Comparable<Spell> {
 		}
 
 		public Spell build() {
-			return new Spell(name, level, traits,
-					traditions, cast, castTime, requirements, range, area,
-					targets, duration, save, description);
+			if(level == 0) isCantrip = true;
+			return new Spell(this);
 		}
 	}
 }

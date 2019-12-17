@@ -13,13 +13,16 @@ import java.util.Map;
 public class SpellManager {
 	private ObservableList<Integer> spellSlots = FXCollections.observableArrayList();
 	private ObservableList<ObservableList<Spell>> spellsKnown = FXCollections.observableArrayList();
+	private ObservableList<Integer> extraSpellsKnown = FXCollections.observableArrayList();
 	private List<CasterType> casterType = new ArrayList<>();
+	private ObservableList<Spell> focusSpells = FXCollections.observableArrayList();
 
 	private ObservableList<ObservableList<Spell>> knownRetainer = FXCollections.observableArrayList();
 
 	SpellManager(Applier applier) {
 		for(int i = 0; i <= 10; i++){
 			spellSlots.add(0);
+			extraSpellsKnown.add(0);
 			spellsKnown.add(FXCollections.observableArrayList());
 			knownRetainer.add(FXCollections.unmodifiableObservableList(spellsKnown.get(i)));
 		}
@@ -30,6 +33,10 @@ public class SpellManager {
 				for (Map.Entry<Integer, Integer> entry : sAbility.getSpellSlots().entrySet()) {
 					addSlots(entry.getKey(), entry.getValue());
 				}
+				for (Map.Entry<Integer, Integer> entry : sAbility.getExtraSpellsKnown().entrySet()) {
+					addKnown(entry.getKey(), entry.getValue());
+				}
+				focusSpells.addAll(sAbility.getFocusSpells());
 				if(sAbility.getCasterType() != CasterType.None)
 					casterType.add(sAbility.getCasterType());
 			}
@@ -41,6 +48,10 @@ public class SpellManager {
 				for (Map.Entry<Integer, Integer> entry : sAbility.getSpellSlots().entrySet()) {
 					removeSlots(entry.getKey(), entry.getValue());
 				}
+				for (Map.Entry<Integer, Integer> entry : sAbility.getExtraSpellsKnown().entrySet()) {
+					removeKnown(entry.getKey(), entry.getValue());
+				}
+				focusSpells.removeAll(sAbility.getFocusSpells());
 				if(sAbility.getCasterType() != CasterType.None)
 					casterType.remove(sAbility.getCasterType());
 			}
@@ -50,9 +61,21 @@ public class SpellManager {
 	private void addSlots(int level, int amount) {
 		spellSlots.set(level, amount + spellSlots.get(level));
 	}
+	private void addKnown(int level, int amount) {
+		extraSpellsKnown.set(level, amount + extraSpellsKnown.get(level));
+	}
 
 	private void removeSlots(int level, int amount) {
 		spellSlots.set(level, spellSlots.get(level) - amount);
+		checkKnownCap(level);
+	}
+
+	private void removeKnown(int level, int amount) {
+		extraSpellsKnown.set(level, extraSpellsKnown.get(level) - amount);
+		checkKnownCap(level);
+	}
+
+	private void checkKnownCap(int level) {
 		if(getCasterType() == CasterType.Spontaneous) {
 			while(spellsKnown.get(level).size() > spellSlots.get(level)) {
 				spellsKnown.get(level).remove(spellsKnown.get(level).size() - 1);
@@ -65,6 +88,11 @@ public class SpellManager {
 		return slotsRetainer;
 	}
 
+	private ObservableList<Spell> focusRetainer = FXCollections.unmodifiableObservableList(focusSpells);
+	public ObservableList<Spell> getFocusSpells() {
+		return focusRetainer;
+	}
+
 	private ObservableList<ObservableList<Spell>> nestedKnown = FXCollections.unmodifiableObservableList(knownRetainer);
 	public ObservableList<ObservableList<Spell>> getSpellsKnown() {
 		return nestedKnown;
@@ -72,6 +100,11 @@ public class SpellManager {
 
 	public ObservableList<Spell> getSpellsKnown(int level) {
 		return knownRetainer.get(level);
+	}
+
+	private ObservableList<Integer> extraRetainer = FXCollections.unmodifiableObservableList(extraSpellsKnown);
+	public ObservableList<Integer> getExtraSpellsKnown() {
+		return extraSpellsKnown;
 	}
 
 	public boolean isCaster() {
@@ -86,7 +119,7 @@ public class SpellManager {
 		if(getCasterType() == CasterType.None) return false;
 		if(getCasterType() == CasterType.Spontaneous) {
 			if(spellsKnown.get(spell.getLevel()).size()
-					>= spellSlots.get(spell.getLevel()))
+					>= spellSlots.get(spell.getLevel()) + extraSpellsKnown.get(spell.getLevel()))
 				return false;
 		}
 		ObservableList<Spell> levelList = spellsKnown.get(spell.getLevel());

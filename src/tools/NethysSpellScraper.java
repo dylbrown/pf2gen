@@ -123,7 +123,7 @@ public class NethysSpellScraper {
 				.append("\n    <Traits>").append(String.join(", ", traits)).append("</Traits>");
 		if(traditions.size() > 0)
 			results.append("\n    <Traditions>").append(String.join(", ",traditions)).append("</Traditions>");
-		results.append("\n    <Cast>").append(cast).append("</Cast>");
+		results.append("\n    <Cast>").append(cast.trim().replaceAll(";\\z", "")).append("</Cast>");
 		if(!requirements.equals(""))
 			results.append("\n    <Requirements>").append(requirements).append("</Requirements>");
 		if(!range.equals(""))
@@ -163,7 +163,7 @@ public class NethysSpellScraper {
 			Node node = output.getElementsMatchingText("\\A"+bContents+"\\z").first().nextSibling();
 			while(node instanceof Element || (node instanceof TextNode && ((TextNode) node).getWholeText().trim().equals(""))) node = node.nextSibling();
 			if (node instanceof TextNode)
-				return ((TextNode) node).getWholeText().trim().replaceAll(";\\z", "");
+				return ((TextNode) node).getWholeText().trim().replaceAll(";$", "");
 		}
 		return "";
 	}

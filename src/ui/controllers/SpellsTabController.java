@@ -32,10 +32,13 @@ public class SpellsTabController {
 
 	@FXML
 	private Label known0,known1,known2,known3,known4,known5,known6,known7,known8,known9,known10;
-	private Label[] knowns;
+	@FXML
+	private Label slots0, slots1, slots2, slots3, slots4, slots5, slots6, slots7, slots8, slots9, slots10;
+	private Label[] slots, knowns;
 
 	@FXML
 	private void initialize() {
+		slots = new Label[]{slots0, slots1, slots2, slots3, slots4, slots5, slots6, slots7, slots8, slots9, slots10};
 		knowns = new Label[]{known0, known1, known2, known3, known4, known5, known6, known7, known8, known9, known10};
 		SpellManager spells = Main.character.spells();
 		allSpells.setShowRoot(false);
@@ -79,13 +82,22 @@ public class SpellsTabController {
 			});
 		}
 		ObservableList<Integer> spellSlots = spells.getSpellSlots();
+		ObservableList<Integer> extraSpellsKnown = spells.getExtraSpellsKnown();
 		spellSlots.addListener((ListChangeListener<Integer>) c->{
 			while(c.next()) {
 				if (c.wasReplaced()) {
-					int start = c.getFrom() ;
-					int end = c.getTo() ;
-					for (int i = start ; i < end ; i++) {
-						knowns[i].setText(String.valueOf(spellSlots.get(i)));
+					for (int i = c.getFrom() ; i < c.getTo() ; i++) {
+						slots[i].setText(String.valueOf(spellSlots.get(i)));
+						knowns[i].setText(String.valueOf(spellSlots.get(i) + extraSpellsKnown.get(i)));
+					}
+				}
+			}
+		});
+		extraSpellsKnown.addListener((ListChangeListener<Integer>) c->{
+			while(c.next()) {
+				if (c.wasReplaced()) {
+					for (int i = c.getFrom() ; i < c.getTo() ; i++) {
+						knowns[i].setText(String.valueOf(spellSlots.get(i) + extraSpellsKnown.get(i)));
 					}
 				}
 			}

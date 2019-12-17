@@ -7,6 +7,7 @@ import model.abilities.abilitySlots.*;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
+import model.data_managers.AllSpells;
 import model.data_managers.EquipmentManager;
 import model.enums.Action;
 import model.enums.Attribute;
@@ -163,7 +164,7 @@ abstract class FileLoader<T> {
                     continue;
                 Element propElem = (Element) item;
                 String trim = propElem.getTextContent().trim();
-                switch (propElem.getTagName()) {
+                switch (propElem.getTagName()) {//TODO: Support SpellsKnown, Spell tags
                     case "Trigger":
                         if (acBuilder != null) {
                             acBuilder.setTrigger(trim);
@@ -210,6 +211,19 @@ abstract class FileLoader<T> {
                         if(!propElem.getAttribute("type").equals("")) {
                             spBuilder.setCasterType(CasterType.valueOf(propElem.getAttribute("type")));
                         }
+                        break;
+                    case "SpellsKnown":
+                        if(spBuilder == null) {
+                            builder = spBuilder = new SpellAbility.Builder(builder);
+                        }
+                        spBuilder.addExtraSpellKnown(Integer.parseInt(propElem.getAttribute("level")),
+                                                    Integer.parseInt(propElem.getAttribute("count")));
+                        break;
+                    case "Spell":
+                        if(spBuilder == null) {
+                            builder = spBuilder = new SpellAbility.Builder(builder);
+                        }
+                        spBuilder.addFocusSpell(AllSpells.find(propElem.getAttribute("name")));
                         break;
                     case "AbilitySlot":
                         String abilityName = propElem.getAttribute("name");
