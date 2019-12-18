@@ -5,17 +5,20 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
+import model.enums.BuySellMode;
 import model.enums.Slot;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
 
 public class InventoryManager {
-    public static final Double INITIAL_AMOUNT = 150.0;
+    static final Double INITIAL_AMOUNT = 150.0;
     private final ReadOnlyObjectWrapper<Double> money= new ReadOnlyObjectWrapper<>(INITIAL_AMOUNT);
     private final ObservableMap<Equipment, ItemCount> inventory = FXCollections.observableHashMap();
     private final ObservableMap<Slot, ItemCount> equipped = FXCollections.observableHashMap();
     private final ObservableMap<Equipment, ItemCount> unequipped = FXCollections.observableHashMap();
     private double totalWeight = 0;
+    private double sellMultiplier = 1;
+    private double buyMultiplier = 1;
 
     public ItemCount getEquipped(Slot slot) {
         return equipped.get(slot);
@@ -27,8 +30,8 @@ public class InventoryManager {
 
     public boolean buy(Equipment item, int count) {
         if(count == 0) return false;
-        if(item.getValue() * count > money.get()) return false;
-        money.set(money.get() - item.getValue() * count);
+        if(item.getValue() * count * buyMultiplier > money.get()) return false;
+        money.set(money.get() - item.getValue() * count * buyMultiplier);
 
         //Add To Inventory
         inventory.computeIfAbsent(item, (key)->new ItemCount(item, 0)).add(count);
@@ -47,7 +50,7 @@ public class InventoryManager {
         if(itemCount == null) return false;
         int remaining = itemCount.getCount();
         if(remaining - count < 0) return false;
-        money.set(money.get() + item.getValue() * count);
+        money.set(money.get() + item.getValue() * count * sellMultiplier);
         itemCount.remove(count);
 
         //Unequip Some if there aren't enough unequipped
@@ -152,7 +155,7 @@ public class InventoryManager {
         totalWeight = 0;
     }
 
-    public double getTotalWeight() {
+    double getTotalWeight() {
         return totalWeight;
     }
 
@@ -166,5 +169,24 @@ public class InventoryManager {
 
     public void setMoney(double amount) {
         money.set(amount);
+    }
+
+    public void setMode(BuySellMode mode) {
+        switch (mode) {
+            case Normal:
+                buyMultiplier = sellMultiplier = 1;
+                break;
+            case SellHalf:
+                buyMultiplier = 1;
+                sellMultiplier = .5;
+                break;
+            case Cashless:
+                buyMultiplier = sellMultiplier = 0;
+                break;
+        }
+    }
+
+    public void addMoney(double amount) {
+        money.set(money.get() + amount);
     }
 }

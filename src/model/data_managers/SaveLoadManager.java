@@ -11,6 +11,7 @@ import model.abilities.abilitySlots.FeatSlot;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
 import model.enums.Attribute;
+import model.enums.BuySellMode;
 import model.enums.Slot;
 import model.enums.Type;
 import model.equipment.Equipment;
@@ -215,7 +216,10 @@ public class SaveLoadManager {
 
             //Items
             character.inventory().reset();
+            String money = nextLineEq(lines);
+            character.inventory().setMoney(Double.parseDouble(money));
             lines.second++; // Skip Section Header
+            character.inventory().setMode(BuySellMode.Cashless);
             while(true) {
                 String s;
                 try { s = nextLine(lines); }
@@ -231,6 +235,7 @@ public class SaveLoadManager {
                         character.inventory().buy(tailSet.first(), Integer.valueOf(split[0]));
                 }
             }
+            character.inventory().setMode(BuySellMode.Normal);
 
             //Equipping
             lines.second++; // Skip Section Header

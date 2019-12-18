@@ -10,8 +10,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.web.WebView;
+import javafx.util.StringConverter;
 import model.data_managers.EquipmentManager;
 import model.enums.ArmorProficiency;
+import model.enums.BuySellMode;
 import model.enums.Slot;
 import model.equipment.*;
 import model.util.OPair;
@@ -42,6 +44,10 @@ public class EquipTabController {
     public GridPane itemGrid;
     @FXML
     private Label money, totalValue;
+    @FXML
+    private ComboBox<BuySellMode> multiplier;
+    @FXML
+    private Button addMoney;
 
     @FXML
     private WebView item;
@@ -189,6 +195,40 @@ public class EquipTabController {
                 if(unequippedItem != null)
                     updateFromEquip(unequippedItem, change.getKey());
             }
+        });
+
+        multiplier.getItems().addAll(BuySellMode.values());
+        multiplier.setConverter(new StringConverter<BuySellMode>() {
+            @Override
+            public String toString(BuySellMode object) {
+                switch (object) {
+                    case Normal: return "Normal";
+                    case SellHalf: return "Sell Half";
+                    case Cashless: return "Cashless";
+                }
+                return null;
+            }
+
+            @Override
+            public BuySellMode fromString(String string) {
+                switch (string) {
+                    case "Normal": return BuySellMode.Normal;
+                    case "Sell Half": return BuySellMode.SellHalf;
+                    case "Cashless": return BuySellMode.Cashless;
+                }
+                return null;
+            }
+        });
+        multiplier.valueProperty().addListener(((observable, oldValue, newValue) -> {
+            if(newValue != null) Main.character.inventory().setMode(newValue);
+        }));
+        addMoney.setOnAction(event -> {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Add Money");
+            dialog.setHeaderText("Add Money (in sp)");
+            dialog.setContentText("Amount:");
+            dialog.showAndWait().ifPresent(s ->
+                    Main.character.inventory().addMoney(Double.parseDouble(s)));
         });
     }
 

@@ -23,7 +23,7 @@ public class ClassScraper {
 	private final Map<String, StringBuilder> sources = new HashMap<>();
 
 	public static void main(String[] args) {
-		new ClassScraper("http://2e.aonprd.com/Feats.aspx?Traits=19", "generated/classFeats.txt");
+		new ClassScraper("http://2e.aonprd.com/Feats.aspx?Traits=26", "generated/classFeats.txt");
 	}
 
 	private ClassScraper(String inputURL, String outputPath) {
