@@ -14,6 +14,7 @@ import model.enums.Attribute;
 import model.enums.Proficiency;
 import model.enums.Type;
 import model.spells.CasterType;
+import model.spells.SpellType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -171,7 +172,8 @@ abstract class FileLoader<T> {
                         }
                         break;
                     case "AttributeMods":
-                        Proficiency prof = Proficiency.valueOf(camelCaseWord(propElem.getAttribute("Proficiency").trim()));                     builder.addAllMods(addMods(trim, prof));
+                        Proficiency prof = Proficiency.valueOf(camelCaseWord(propElem.getAttribute("Proficiency").trim()));
+                        builder.addAllMods(addMods(trim, prof));
                         break;
                     case "Description":
                         builder.setDescription(trim);
@@ -223,7 +225,14 @@ abstract class FileLoader<T> {
                         if(spBuilder == null) {
                             builder = spBuilder = new SpellAbility.Builder(builder);
                         }
-                        spBuilder.addFocusSpell(AllSpells.find(propElem.getAttribute("name")));
+                        SpellType spellType = null;
+                        switch(propElem.getAttribute("type")) {
+                            case "Spell": spellType = SpellType.Spell; break;
+                            case "Cantrip": spellType = SpellType.Cantrip; break;
+                            case "Focus": spellType = SpellType.Focus; break;
+                            case "Focus Cantrip": spellType = SpellType.FocusCantrip; break;
+                        }
+                        spBuilder.addBonusSpell(spellType, AllSpells.find(propElem.getAttribute("name")));
                         break;
                     case "AbilitySlot":
                         String abilityName = propElem.getAttribute("name");

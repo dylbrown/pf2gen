@@ -16,6 +16,7 @@ import model.enums.Language;
 import model.enums.Slot;
 import model.enums.Type;
 import model.equipment.*;
+import model.spells.Spell;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -248,10 +249,21 @@ public class PC {
         }
         for (String s : ability.getPrerequisites()) {
             boolean found=false;
-            for (Ability charAbility : abilities.getAbilities()) {
-                if(charAbility != null && charAbility.toString().toLowerCase().trim().equals(s.toLowerCase().trim())) {
-                    found=true;
-                    break;
+outerLoop:  for (String orClause : split) {
+                if(orClause.matches("Spell\\(.*\\)")) {
+                    String spellName = orClause.replaceAll("Spell\\((.*)\\)", "\\1");
+                    for (Spell focusSpell : spells().getFocusSpells()) {
+                        if(focusSpell.getName().equals(spellName)) {
+                            found = true;
+                            break outerLoop;
+                        }
+                    }
+                }else for (Ability charAbility : abilities.getAbilities()) {
+                    if(charAbility != null && charAbility.toString().toLowerCase().trim().equals(
+                            orClause.toLowerCase().trim())) {
+                        found=true;
+                        break outerLoop;
+                    }
                 }
             }
             if(!found) return false;

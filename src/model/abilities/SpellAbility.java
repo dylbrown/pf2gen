@@ -2,20 +2,26 @@ package model.abilities;
 
 import model.spells.CasterType;
 import model.spells.Spell;
+import model.spells.SpellType;
 
 import java.util.*;
 
 public class SpellAbility extends Ability {
 	private final Map<Integer, Integer> spellSlots;
 	private final Map<Integer, Integer> extraSpellsKnown;
-	private final List<Spell> focusSpells;
+	private Map<SpellType, List<Spell>> bonusSpells = Collections.emptyMap();
 	private final CasterType casterType;
 	private SpellAbility(Builder builder) {
 		super(builder);
 		spellSlots = builder.spellSlots;
 		extraSpellsKnown = builder.extraSpellsKnown;
-		this.focusSpells = builder.focusSpells;
 		casterType = builder.casterType;
+
+		if(builder.bonusSpells.size() > 0) bonusSpells = new HashMap<>();
+		for (Map.Entry<SpellType, List<Spell>> entry : builder.bonusSpells.entrySet()) {
+			bonusSpells.put(entry.getKey(), Collections.unmodifiableList(entry.getValue()));
+		}
+
 	}
 
 	public Map<Integer, Integer> getSpellSlots() {
@@ -30,14 +36,14 @@ public class SpellAbility extends Ability {
 		return Collections.unmodifiableMap(extraSpellsKnown);
 	}
 
-	public List<Spell> getFocusSpells() {
-		return Collections.unmodifiableList(focusSpells);
+	public Map<SpellType, List<Spell>> getBonusSpells() {
+		return Collections.unmodifiableMap(bonusSpells);
 	}
 
 	public static class Builder extends Ability.Builder {
 		private Map<Integer, Integer> spellSlots = Collections.emptyMap();
 		private Map<Integer, Integer> extraSpellsKnown = Collections.emptyMap();
-		private List<Spell> focusSpells = Collections.emptyList();
+		private Map<SpellType, List<Spell>> bonusSpells = Collections.emptyMap();
 		private CasterType casterType = CasterType.None;
 		public Builder() {}
 		public Builder(Ability.Builder builder) {
@@ -54,9 +60,9 @@ public class SpellAbility extends Ability {
 			extraSpellsKnown.put(level, extraSpellsKnown.getOrDefault(level, 0) + count);
 		}
 
-		public void addFocusSpell(Spell spell) {
-			if(focusSpells.size() == 0) focusSpells = new ArrayList<>();
-			focusSpells.add(spell);
+		public void addBonusSpell(SpellType type, Spell spell) {
+			if(bonusSpells.size() == 0) bonusSpells = new HashMap<>();
+			bonusSpells.computeIfAbsent(type, k -> new ArrayList<>()).add(spell);
 		}
 
 		public void setCasterType(CasterType casterType) {

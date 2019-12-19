@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import model.abilities.SpellAbility;
 import model.spells.CasterType;
 import model.spells.Spell;
+import model.spells.SpellType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ public class SpellManager {
 	private ObservableList<Integer> extraSpellsKnown = FXCollections.observableArrayList();
 	private List<CasterType> casterType = new ArrayList<>();
 	private ObservableList<Spell> focusSpells = FXCollections.observableArrayList();
+	private List<Spell> abilitySpells = new ArrayList<>();
 
 	private ObservableList<ObservableList<Spell>> knownRetainer = FXCollections.observableArrayList();
 
@@ -36,7 +38,19 @@ public class SpellManager {
 				for (Map.Entry<Integer, Integer> entry : sAbility.getExtraSpellsKnown().entrySet()) {
 					addKnown(entry.getKey(), entry.getValue());
 				}
-				focusSpells.addAll(sAbility.getFocusSpells());
+				for (Map.Entry<SpellType, List<Spell>> entry : sAbility.getBonusSpells().entrySet()) {
+					switch(entry.getKey()) {
+						case Spell:
+						case Cantrip:
+							entry.getValue().forEach(this::addSpell);
+							abilitySpells.addAll(entry.getValue());
+							break;
+						case Focus:
+						case FocusCantrip:
+							focusSpells.addAll(entry.getValue());
+							break;
+					}
+				}
 				if(sAbility.getCasterType() != CasterType.None)
 					casterType.add(sAbility.getCasterType());
 			}
@@ -51,7 +65,19 @@ public class SpellManager {
 				for (Map.Entry<Integer, Integer> entry : sAbility.getExtraSpellsKnown().entrySet()) {
 					removeKnown(entry.getKey(), entry.getValue());
 				}
-				focusSpells.removeAll(sAbility.getFocusSpells());
+				for (Map.Entry<SpellType, List<Spell>> entry : sAbility.getBonusSpells().entrySet()) {
+					switch(entry.getKey()) {
+						case Spell:
+						case Cantrip:
+							abilitySpells.removeAll(entry.getValue());
+							entry.getValue().forEach(this::removeSpell);
+							break;
+						case Focus:
+						case FocusCantrip:
+							focusSpells.removeAll(entry.getValue());
+							break;
+					}
+				}
 				if(sAbility.getCasterType() != CasterType.None)
 					casterType.remove(sAbility.getCasterType());
 			}
@@ -128,8 +154,10 @@ public class SpellManager {
 		return true;
 	}
 
-	public void removeSpell(Spell spell) {
+	public boolean removeSpell(Spell spell) {
+		if(abilitySpells.contains(spell)) return false;
 		spellsKnown.get(spell.getLevel()).remove(spell);
+		return true;
 	}
 
 	public void reset() {
