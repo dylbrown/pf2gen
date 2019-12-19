@@ -19,14 +19,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ClassScraper {
+public class NethysClassFeatScraper {
 	private final Map<String, StringBuilder> sources = new HashMap<>();
 
 	public static void main(String[] args) {
-		new ClassScraper("http://2e.aonprd.com/Feats.aspx?Traits=26", "generated/classFeats.txt");
+		new NethysClassFeatScraper("http://2e.aonprd.com/Feats.aspx?Traits=26", "generated/classFeats.txt");
 	}
 
-	private ClassScraper(String inputURL, String outputPath) {
+	private NethysClassFeatScraper(String inputURL, String outputPath) {
 		Document doc;
 		BufferedWriter out;
 		try  {

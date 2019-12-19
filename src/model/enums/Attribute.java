@@ -1,11 +1,11 @@
 package model.enums;
 
 import model.ability_scores.AbilityScore;
+import model.util.StringUtils;
 
 import java.util.*;
 
 import static model.ability_scores.AbilityScore.*;
-import static model.util.StringUtils.camelCaseWord;
 
 public enum Attribute {
     Acrobatics(Dex), Arcana(Int), Athletics(Str), Crafting(Int), Deception(Cha), Diplomacy(Cha), Intimidation(Cha), Lore(Int), Medicine(Wis), Nature(Wis), Occultism(Int), Performance(Cha), Religion(Wis), Society(Int), Stealth(Dex), Survival(Wis), Thievery(Dex),
@@ -16,7 +16,12 @@ public enum Attribute {
 
     LightArmor, MediumArmor, HeavyArmor, Unarmored, Shields,
 
-    SpellAttacks, SpellDcs, ClassDc,
+    ArcaneSpellAttacks, ArcaneSpellDCs,
+    DivineSpellAttacks, DivineSpellDCs,
+    OccultSpellAttacks, OccultSpellDCs,
+    PrimalSpellAttacks, PrimalSpellDCs,
+
+    ClassDC,
 
     None;
 
@@ -81,19 +86,26 @@ public enum Attribute {
 
         @SuppressWarnings("SpellCheckingInspection")
         public static Attribute robustValueOf(String s) {
+            String formatted = StringUtils.camelCase(s.trim()).replaceAll(" ", "");
             try {
-                return Attribute.valueOf(camelCaseWord(s));
+                return Attribute.valueOf(formatted);
             }catch(IllegalArgumentException e) {
-                switch (s.toLowerCase()) {
+                switch (formatted.toLowerCase()) {
                     case "simpleweapons": return SimpleWeapons;
                     case "martialweapons": return MartialWeapons;
                     case "advancedweapons": return AdvancedWeapons;
                     case "lightarmor": return LightArmor;
                     case "mediumarmor": return MediumArmor;
                     case "heavyarmor": return HeavyArmor;
-                    case "spellattacks": return SpellAttacks;
-                    case "spelldcs": return SpellDcs;
-                    case "classdc": return ClassDc;
+                    case "arcanespellattacks": return ArcaneSpellAttacks;
+                    case "arcanespelldcs": return ArcaneSpellDCs;
+                    case "divinespellattacks": return DivineSpellAttacks;
+                    case "divinespelldcs": return DivineSpellDCs;
+                    case "occultspellattacks": return OccultSpellAttacks;
+                    case "occultspelldcs": return OccultSpellDCs;
+                    case "primalspellattacks": return PrimalSpellAttacks;
+                    case "primalspelldcs": return PrimalSpellDCs;
+                    case "classdc": return ClassDC;
                 }
             }
             throw new IllegalArgumentException();

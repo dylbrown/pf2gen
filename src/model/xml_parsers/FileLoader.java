@@ -189,7 +189,7 @@ abstract class FileLoader<T> {
                                 String data = camelCase(str.trim().substring(4).trim().replaceAll("[()]", ""));
                                 return new AttributeMod(Attribute.Lore, reqProf, data);
                             }else{
-                                return new AttributeMod(Attribute.valueOf(camelCase(split[1].trim())), reqProf);
+                                return new AttributeMod(Attribute.robustValueOf(camelCase(split[1].trim())), reqProf);
                             }
                         }).collect(Collectors.toCollection(ArrayList::new)));
                         break;
@@ -285,15 +285,15 @@ abstract class FileLoader<T> {
             if (!str.trim().equals("")) {
                 String[] orCheck = str.trim().split(" or ");
                 if(orCheck.length > 1) {
-                    mods.add(new AttributeModSingleChoice(Attribute.valueOf(camelCase(orCheck[0]).replaceAll(" ", "")),
-                            Attribute.valueOf(camelCase(orCheck[1]).replaceAll(" ", "")), prof));
+                    mods.add(new AttributeModSingleChoice(Attribute.robustValueOf(orCheck[0]),
+                            Attribute.robustValueOf(orCheck[1]), prof));
                 }else {
                     if (camelCaseWord(str.trim()).substring(0, 4).equals("Lore")) {
                         Attribute skill = Attribute.Lore;
                         String data = camelCase(str.trim().substring(4).trim().replaceAll("[()]", ""));
                         mods.add(new AttributeMod(skill, prof, data));
                     } else {
-                        mods.add(new AttributeMod(Attribute.valueOf(camelCase(str.trim()).replaceAll(" ", "")), prof));
+                        mods.add(new AttributeMod(Attribute.robustValueOf(str), prof));
                     }
                 }
             }
