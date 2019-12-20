@@ -15,6 +15,7 @@ import model.enums.Proficiency;
 import model.enums.Type;
 import model.spells.CasterType;
 import model.spells.SpellType;
+import model.spells.Tradition;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -120,12 +121,12 @@ abstract class FileLoader<T> {
         return choices;
     }
 
-    List<Type> getTypes(String string) {
-        List<Type> results = new ArrayList<>();
+    List<String> getTypes(String string) {
+        List<String> results = new ArrayList<>();
         String[] split = string.trim().split(" ");
         for(String term: split) {
             if(!term.trim().equals(""))
-                results.add(Type.valueOf(camelCaseWord(term.trim())));
+                results.add(camelCaseWord(term.trim()));
         }
         return results;
     }
@@ -165,7 +166,7 @@ abstract class FileLoader<T> {
                     continue;
                 Element propElem = (Element) item;
                 String trim = propElem.getTextContent().trim();
-                switch (propElem.getTagName()) {//TODO: Support SpellsKnown, Spell tags
+                switch (propElem.getTagName()) {
                     case "Trigger":
                         if (acBuilder != null) {
                             acBuilder.setTrigger(trim);
@@ -210,15 +211,19 @@ abstract class FileLoader<T> {
                     case "CustomMod":
                         builder.setCustomMod(trim);
                         break;
+                    case "Spellcasting":
+                        if(spBuilder == null) {
+                            builder = spBuilder = new SpellAbility.Builder(builder);
+                        }
+                        spBuilder.setTradition(Tradition.valueOf(propElem.getAttribute("tradition")));
+                        spBuilder.setCasterType(CasterType.valueOf(propElem.getAttribute("type")));
+                        break;
                     case "SpellSlots":
                         if(spBuilder == null) {
                             builder = spBuilder = new SpellAbility.Builder(builder);
                         }
                         spBuilder.addSpellSlots(Integer.parseInt(propElem.getAttribute("level")),
                                               Integer.parseInt(propElem.getAttribute("count")));
-                        if(!propElem.getAttribute("type").equals("")) {
-                            spBuilder.setCasterType(CasterType.valueOf(propElem.getAttribute("type")));
-                        }
                         break;
                     case "SpellsKnown":
                         if(spBuilder == null) {
@@ -241,34 +246,7 @@ abstract class FileLoader<T> {
                         spBuilder.addBonusSpell(spellType, AllSpells.find(propElem.getAttribute("name")));
                         break;
                     case "AbilitySlot":
-                        String abilityName = propElem.getAttribute("name");
-                        int slotLevel = level;
-                        if(!propElem.getAttribute("level").equals(""))
-                            slotLevel = Integer.parseInt(propElem.getAttribute("level").toLowerCase().trim());
-                        switch(propElem.getAttribute("state").toLowerCase().trim()){
-                            case "filled":
-                                NodeList ability = propElem.getElementsByTagName("Ability");
-                                if(ability.getLength() > 0) {
-                                    Element temp = (Element) ability.item(0);
-                                    builder.addAbilitySlot(new FilledSlot(abilityName,
-                                            slotLevel, makeAbility(temp, abilityName, level)));
-                                }else{
-                                    String type = propElem.getAttribute("type");
-                                    if(type.equals("")) type = "General";
-                                    builder.addAbilitySlot(new DynamicFilledSlot(abilityName, slotLevel,
-                                            propElem.getAttribute("contents"),
-                                            getDynamicType(type), false));
-                                }
-                                break;
-                            case "feat":
-                                builder.addAbilitySlot(new FeatSlot(abilityName, slotLevel,
-                                        getTypes(propElem.getAttribute("type"))));
-                                break;
-                            case "choice":
-                                builder.addAbilitySlot(new SingleChoiceSlot(abilityName, slotLevel,
-                                        makeAbilities(propElem.getChildNodes())));
-                                break;
-                        }
+                        builder.addAbilitySlot(makeAbilitySlot(propElem, level));
                 }
             }
             builder.setType(getSource());
@@ -278,6 +256,35 @@ abstract class FileLoader<T> {
                 builder = setBuilder;
             }
             return builder.build();
+        }
+        return null;
+    }
+
+    AbilitySlot makeAbilitySlot(Element propElem, int level) {
+        String abilityName = propElem.getAttribute("name");
+        int slotLevel = level;
+        if(!propElem.getAttribute("level").equals(""))
+            slotLevel = Integer.parseInt(propElem.getAttribute("level").toLowerCase().trim());
+        switch(propElem.getAttribute("state").toLowerCase().trim()){
+            case "filled":
+                NodeList ability = propElem.getElementsByTagName("Ability");
+                if(ability.getLength() > 0) {
+                    Element temp = (Element) ability.item(0);
+                    return new FilledSlot(abilityName,
+                            slotLevel, makeAbility(temp, abilityName, level));
+                }else{
+                    String type = propElem.getAttribute("type");
+                    if(type.equals("")) type = "General";
+                     return new DynamicFilledSlot(abilityName, slotLevel,
+                            propElem.getAttribute("contents"),
+                            getDynamicType(type), false);
+                }
+            case "feat":
+                return new FeatSlot(abilityName, slotLevel,
+                        getTypes(propElem.getAttribute("type")));
+            case "choice":
+                return new SingleChoiceSlot(abilityName, slotLevel,
+                        makeAbilities(propElem.getChildNodes()));
         }
         return null;
     }

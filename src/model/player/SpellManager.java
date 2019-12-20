@@ -1,11 +1,14 @@
 package model.player;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.abilities.SpellAbility;
 import model.spells.CasterType;
 import model.spells.Spell;
 import model.spells.SpellType;
+import model.spells.Tradition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +18,8 @@ public class SpellManager {
 	private ObservableList<Integer> spellSlots = FXCollections.observableArrayList();
 	private ObservableList<ObservableList<Spell>> spellsKnown = FXCollections.observableArrayList();
 	private ObservableList<Integer> extraSpellsKnown = FXCollections.observableArrayList();
-	private List<CasterType> casterType = new ArrayList<>();
+	private ReadOnlyObjectWrapper<CasterType> casterType = new ReadOnlyObjectWrapper<>();
+	private ReadOnlyObjectWrapper<Tradition> tradition = new ReadOnlyObjectWrapper<>();
 	private ObservableList<Spell> focusSpells = FXCollections.observableArrayList();
 	private List<Spell> abilitySpells = new ArrayList<>();
 
@@ -52,7 +56,9 @@ public class SpellManager {
 					}
 				}
 				if(sAbility.getCasterType() != CasterType.None)
-					casterType.add(sAbility.getCasterType());
+					casterType.set(sAbility.getCasterType());
+				if(sAbility.getTradition() != null)
+					tradition.set(sAbility.getTradition());
 			}
 		});
 
@@ -79,7 +85,9 @@ public class SpellManager {
 					}
 				}
 				if(sAbility.getCasterType() != CasterType.None)
-					casterType.remove(sAbility.getCasterType());
+					casterType.set(CasterType.None);
+				if(sAbility.getTradition() != null)
+					tradition.set(null);
 			}
 		});
 	}
@@ -102,7 +110,7 @@ public class SpellManager {
 	}
 
 	private void checkKnownCap(int level) {
-		if(getCasterType() == CasterType.Spontaneous) {
+		if(getCasterType().get() == CasterType.Spontaneous) {
 			while(spellsKnown.get(level).size() > spellSlots.get(level)) {
 				spellsKnown.get(level).remove(spellsKnown.get(level).size() - 1);
 			}
@@ -134,21 +142,21 @@ public class SpellManager {
 	}
 
 	public boolean isCaster() {
-		return casterType.size() > 0;
+		return casterType.get() != null && casterType.get() != CasterType.None;
 	}
 
-	public CasterType getCasterType() {
-		return (isCaster()) ? casterType.get(0) : CasterType.None;
+	public ReadOnlyObjectProperty<CasterType> getCasterType() {
+		return casterType.getReadOnlyProperty();
 	}
 
 	public boolean addSpell(Spell spell) {
-		if(getCasterType() == CasterType.None) return false;
-		if(getCasterType() == CasterType.Spontaneous) {
-			if(spellsKnown.get(spell.getLevel()).size()
-					>= spellSlots.get(spell.getLevel()) + extraSpellsKnown.get(spell.getLevel()))
+		if(getCasterType().get() == CasterType.None) return false;
+		if(getCasterType().get() == CasterType.Spontaneous) {
+			if(spellsKnown.get(spell.getLevelOrCantrip()).size()
+					>= spellSlots.get(spell.getLevelOrCantrip()) + extraSpellsKnown.get(spell.getLevelOrCantrip()))
 				return false;
 		}
-		ObservableList<Spell> levelList = spellsKnown.get(spell.getLevel());
+		ObservableList<Spell> levelList = spellsKnown.get(spell.getLevelOrCantrip());
 		if(levelList.contains(spell)) return false;
 		levelList.add(spell);
 		return true;
@@ -156,7 +164,7 @@ public class SpellManager {
 
 	public boolean removeSpell(Spell spell) {
 		if(abilitySpells.contains(spell)) return false;
-		spellsKnown.get(spell.getLevel()).remove(spell);
+		spellsKnown.get(spell.getLevelOrCantrip()).remove(spell);
 		return true;
 	}
 
@@ -164,5 +172,9 @@ public class SpellManager {
 		for(int i=0; i <= 10; i++) {
 			spellsKnown.get(i).clear();
 		}
+	}
+
+	public ReadOnlyObjectProperty<Tradition> getTradition() {
+		return tradition.getReadOnlyProperty();
 	}
 }

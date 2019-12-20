@@ -9,6 +9,7 @@ import javafx.scene.web.WebView;
 import model.data_managers.AllSpells;
 import model.player.SpellManager;
 import model.spells.Spell;
+import model.spells.Tradition;
 import ui.Main;
 
 import java.util.Comparator;
@@ -45,31 +46,27 @@ public class SpellsTabController {
 		allSpells.setRoot(new TreeItem<>(""));
 		spellsKnown.setShowRoot(false);
 		spellsKnown.setRoot(new TreeItem<>(""));
+		showAllSpells(spells.getTradition().get());
+		spells.getTradition().addListener((observable, oldValue, newValue) -> showAllSpells(newValue));
 		for(int i = 0; i <= 10; i++) {
-			allSpells.getRoot().getChildren().add(new TreeItem<>(String.valueOf(i)));
-			allSpells.getRoot().getChildren().get(i).getChildren().addAll(
-					AllSpells.getSpells(i).stream().map(s->
-							new TreeItem<>(s.getName())).collect(Collectors.toList()));
-			allSpells.getRoot().getChildren().get(i).getChildren().sort(
-					Comparator.comparing(TreeItem::getValue));
 			spells.getSpellsKnown(i).addListener((ListChangeListener<Spell>) change -> {
 				while(change.next()) {
 					if(change.wasAdded()) {
 						for (Spell spell : change.getAddedSubList()) {
 							int j = spellsKnown.getRoot().getChildren().size();
-							while(j <= spell.getLevel()) {
+							while(j <= spell.getLevelOrCantrip()) {
 								spellsKnown.getRoot().getChildren().add(new TreeItem<>(String.valueOf(j)));
 								j++;
 							}
-							spellsKnown.getRoot().getChildren().get(spell.getLevel())
+							spellsKnown.getRoot().getChildren().get(spell.getLevelOrCantrip())
 									.getChildren().add(new TreeItem<>(spell.getName()));
-							spellsKnown.getRoot().getChildren().get(spell.getLevel())
+							spellsKnown.getRoot().getChildren().get(spell.getLevelOrCantrip())
 									.getChildren().sort(Comparator.comparing(TreeItem::getValue));
 						}
 					}
 					if(change.wasRemoved()) {
 						for (Spell spell : change.getRemoved()) {
-							spellsKnown.getRoot().getChildren().get(spell.getLevel())
+							spellsKnown.getRoot().getChildren().get(spell.getLevelOrCantrip())
 									.getChildren().removeIf(o->o.getValue().equals(spell.getName()));
 							int j = spellsKnown.getRoot().getChildren().size();
 							while(j > 0 && spellsKnown.getRoot().getChildren().get(j-1).getChildren().size() == 0) {
@@ -167,6 +164,18 @@ public class SpellsTabController {
 				}
 			}
 		});
+	}
+
+	private void showAllSpells(Tradition tradition) {
+		allSpells.getRoot().getChildren().clear();
+		for(int i=0; i <= 10; i++) {
+			allSpells.getRoot().getChildren().add(new TreeItem<>(String.valueOf(i)));
+			allSpells.getRoot().getChildren().get(i).getChildren().addAll(
+					AllSpells.getSpells(tradition, i).stream().map(s->
+							new TreeItem<>(s.getName())).collect(Collectors.toList()));
+			allSpells.getRoot().getChildren().get(i).getChildren().sort(
+					Comparator.comparing(TreeItem::getValue));
+		}
 	}
 
 	private void renderSpell(Spell spell) {

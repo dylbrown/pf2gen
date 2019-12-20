@@ -2,7 +2,7 @@ package model.abilities.abilitySlots;
 
 import model.abc.PClass;
 import model.abilities.Ability;
-import model.data_managers.FeatsManager;
+import model.data_managers.AllFeats;
 import model.enums.Type;
 
 public class DynamicFilledSlot extends AbilitySlot {
@@ -28,7 +28,7 @@ public class DynamicFilledSlot extends AbilitySlot {
         switch(type){
             case General:
             case Skill:
-                return FeatsManager.find(contents);
+                return AllFeats.find(contents);
             case Class:
                 if(hasClass){
                     return pClass.findFeat(contents);

@@ -99,6 +99,10 @@ public class Spell implements Comparable<Spell> {
 		return isCantrip;
 	}
 
+	public int getLevelOrCantrip() {
+		return isCantrip ? 0 : getLevel();
+	}
+
 	public static class Builder {
 		private String name;
 		private int level;

@@ -3,20 +3,19 @@ package model.abilities.abilitySlots;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import model.abilities.Ability;
-import model.enums.Type;
 
 import java.util.Collections;
 import java.util.List;
 
 public class FeatSlot extends AbilitySlot implements AbilitySingleChoice {
-    private final List<Type> allowedTypes;
+    private final List<String> allowedTypes;
 
-    public FeatSlot(String name, int level, List<Type> allowedTypes) {
+    public FeatSlot(String name, int level, List<String> allowedTypes) {
         super(name, level);
         this.allowedTypes = allowedTypes;
     }
 
-    public List<Type> getAllowedTypes() {
+    public List<String> getAllowedTypes() {
         return Collections.unmodifiableList(allowedTypes);
     }
 

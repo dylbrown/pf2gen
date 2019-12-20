@@ -17,6 +17,7 @@ public class AbilitySet extends Ability {
     public static class Builder extends Ability.Builder {
         private List<Ability> abilities;
 
+        public Builder() {}
 	    public Builder(Ability.Builder builder) {
             super(builder);
         }

@@ -9,7 +9,7 @@ import model.abc.PClass;
 import model.abilities.Ability;
 import model.abilities.AbilitySet;
 import model.abilities.abilitySlots.*;
-import model.data_managers.FeatsManager;
+import model.data_managers.AllFeats;
 import model.enums.Type;
 
 import java.util.*;
@@ -53,24 +53,22 @@ public class AbilityManager {
     public List<Ability> getOptions(SingleChoice<Ability> choice) {
         if (choice instanceof FeatSlot){
             List<Ability> results = new ArrayList<>();
-            for (Type allowedType : ((FeatSlot) choice).getAllowedTypes()) {
+            for (String allowedType : ((FeatSlot) choice).getAllowedTypes()) {
                 switch (allowedType) {
-                    case Class:
+                    case "Class":
                         if (pClass.get() != null)
                             results.addAll(pClass.get().getFeats(((FeatSlot) choice).getLevel()));
                         break;
-                    case Ancestry:
+                    case "Ancestry":
                         if (ancestry.get() != null)
                             results.addAll(ancestry.get().getFeats(((FeatSlot) choice).getLevel()));
                         break;
-                    case Heritage:
+                    case "Heritage":
                         if (ancestry.get() != null)
                             results.addAll(ancestry.get().getHeritages());
                         break;
-                    case General:
-                        results.addAll(FeatsManager.getGeneralFeats());
-                    case Skill:
-                        results.addAll(FeatsManager.getSkillFeats());
+                    default:
+                        results.addAll(AllFeats.getFeats(allowedType));
                         break;
                 }
             }
@@ -87,7 +85,7 @@ public class AbilityManager {
 
         if(slot instanceof FilledSlot) {
             for (String s : ability.getPrereqStrings()) {
-                needsPrereqs.computeIfAbsent(s, s1 -> new HashSet<>()).add(ability);
+                needsPrereqs.computeIfAbsent(s.toLowerCase(), s1 -> new HashSet<>()).add(ability);
             }
             isApplied.put(ability, meetsPrereqs.apply(ability));
             if(isApplied.get(ability)) apply(ability);
@@ -98,7 +96,7 @@ public class AbilityManager {
         if(ability != null) {
             applier.apply(ability);
             for (String s : ability.getGivenPrerequisites()) {
-                prereqGivers.computeIfAbsent(s, s1 -> new HashSet<>()).add(ability);
+                prereqGivers.computeIfAbsent(s.toLowerCase(), s1 -> new HashSet<>()).add(ability);
                 checkPrereqs(s);
             }
             //TODO: Handle invalidating your own choices
@@ -121,8 +119,8 @@ public class AbilityManager {
     }
 
     private void checkPrereqs(String prereq) {
-        if(needsPrereqs.get(prereq) == null) return;
-        for (Ability ability : needsPrereqs.get(prereq)) {
+        if(needsPrereqs.get(prereq.toLowerCase()) == null) return;
+        for (Ability ability : needsPrereqs.get(prereq.toLowerCase())) {
             if(isApplied.get(ability)) {
                 if(!meetsPrereqs.apply(ability)){
                     isApplied.put(ability, false);
@@ -151,7 +149,7 @@ public class AbilityManager {
         if(ability != null) {
             applier.remove(ability);
             for (String s : ability.getGivenPrerequisites()) {
-                prereqGivers.computeIfAbsent(s, s1 -> new HashSet<>()).remove(ability);
+                prereqGivers.computeIfAbsent(s.toLowerCase(), s1 -> new HashSet<>()).remove(ability);
                 checkPrereqs(s);
             }
             if(ability.getType() != Type.None)
@@ -212,7 +210,7 @@ public class AbilityManager {
             }
             return false;
         }else{
-            return prereqGivers.get(prereq) != null && prereqGivers.get(prereq).size() > 0;
+            return prereqGivers.get(prereq.toLowerCase()) != null && prereqGivers.get(prereq.toLowerCase()).size() > 0;
         }
     }
 }
