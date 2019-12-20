@@ -15,10 +15,10 @@ import java.util.List;
 
 import static ui.Main.character;
 
-public class FeatSelectionPane extends SingleSelectionPane<Ability> {
+class FeatSelectionPane extends SingleSelectionPane<Ability> {
     private List<Ability> unmetPrereqs = new ArrayList<>();
 
-    public FeatSelectionPane(SingleChoice<Ability> slot) {
+    FeatSelectionPane(SingleChoice<Ability> slot) {
         AbilityManager abilities = character.abilities();
         init(slot);
         if(slot instanceof ChoiceList)
@@ -55,6 +55,13 @@ public class FeatSelectionPane extends SingleSelectionPane<Ability> {
                 }
                 if (event.wasRemoved()) {
                     unmetPrereqs.removeAll(event.getRemoved());
+                    items.removeIf((item)->{
+                        if(!character.meetsPrerequisites(item)){
+                            unmetPrereqs.add(item);
+                            return true;
+                        }
+                        return false;
+                    });
                     for (Ability item : event.getRemoved()) {
                         if(abilities.getOptions(slot).contains(item)){
                             if (!character.meetsPrerequisites(item)) {

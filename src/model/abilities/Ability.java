@@ -9,7 +9,7 @@ import java.util.*;
 
 public class Ability implements Comparable<Ability> {
     //TODO: Support Repeatedly Chooseable
-    private final List<String> prerequisites;
+    private final List<String> prerequisites, prereqStrings, givenPrerequisites;
     private final List<AttributeMod> requiredAttrs;
     private final String customMod;
     private final List<AbilitySlot> abilitySlots;
@@ -29,6 +29,8 @@ public class Ability implements Comparable<Ability> {
         this.modifiers = builder.modifiers;
         this.description = builder.description;
         this.prerequisites = builder.prerequisites;
+        this.prereqStrings = builder.prereqStrings;
+        this.givenPrerequisites = builder.givenPrerequisites;
         if(builder.requiredAttrs.size() == 0)
             this.requiredAttrs = Collections.emptyList();
         else
@@ -76,6 +78,14 @@ public class Ability implements Comparable<Ability> {
         return Collections.unmodifiableList(prerequisites);
     }
 
+    public List<String> getPrereqStrings() {
+        return Collections.unmodifiableList(prereqStrings);
+    }
+
+    public List<String> getGivenPrerequisites() {
+        return Collections.unmodifiableList(givenPrerequisites);
+    }
+
     public String getCustomMod() {
         return customMod;
     }
@@ -113,6 +123,8 @@ public class Ability implements Comparable<Ability> {
 
     public static class Builder {
         private List<String> prerequisites = Collections.emptyList();
+        private List<String> prereqStrings = Collections.emptyList();
+        private List<String> givenPrerequisites = Collections.emptyList();
         private List<AttributeMod> requiredAttrs = Collections.emptyList();
         private String customMod = "";
         private List<AbilitySlot> abilitySlots = Collections.emptyList();
@@ -129,6 +141,8 @@ public class Ability implements Comparable<Ability> {
 
         public Builder(Ability.Builder builder) {
             this.prerequisites = builder.prerequisites;
+            this.prereqStrings = builder.prereqStrings;
+            this.givenPrerequisites = builder.givenPrerequisites;
             this.requiredAttrs = builder.requiredAttrs;
             this.customMod = builder.customMod;
             this.abilitySlots = builder.abilitySlots;
@@ -145,6 +159,12 @@ public class Ability implements Comparable<Ability> {
         public void setPrerequisites(List<String> prerequisites) {
             this.prerequisites = prerequisites;
         }
+
+        public void setPrereqStrings(List<String> strings) {
+            this.prereqStrings = strings;
+        }
+
+        public void setGivesPrerequisites(List<String> given) {this.givenPrerequisites = given;}
 
         public void setRequiredAttrs(List<AttributeMod> requiredAttrs) {
             this.requiredAttrs = requiredAttrs;

@@ -40,7 +40,7 @@ public class PC {
     private final ModManager modManager;
     private final DecisionManager decisions = new DecisionManager();
     private final AbilityManager abilities = new AbilityManager(decisions, getAncestryProperty(),
-            getPClassProperty(), getLevelProperty(), applier);
+            getPClassProperty(), getLevelProperty(), applier, this::meetsPrerequisites);
     private final AbilityScoreManager scores = new AbilityScoreManager(applier);
     private final AttributeManager attributes = new AttributeManager(level.getReadOnlyProperty(), decisions, applier);
     private final SpellManager spells = new SpellManager(applier);
@@ -174,8 +174,12 @@ public class PC {
     public <U , T extends SingleChoice<U>> void choose(T slot, U selectedItem) {
         if(slot instanceof AbilitySlot && (selectedItem == null || selectedItem instanceof Ability)) {
             if(selectedItem == null || (meetsPrerequisites((Ability) selectedItem) &&
-                    ((Ability) selectedItem).isMultiple() || !abilities().haveAbility((Ability) selectedItem)))
-                abilities.changeSlot((AbilitySlot) slot, (Ability) selectedItem);
+                    (((Ability) selectedItem).isMultiple() || !abilities().haveAbility((Ability) selectedItem)))){
+                if(slot.getChoice() != null) {
+                    abilities.changeSlot((AbilitySlot) slot, null);
+                    choose(slot, selectedItem);
+                }else abilities.changeSlot((AbilitySlot) slot, (Ability) selectedItem);
+            }
         }else{
             slot.fill(selectedItem);
         }
@@ -258,13 +262,19 @@ outerLoop:  for (String orClause : split) {
                             break outerLoop;
                         }
                     }
-                }else for (Ability charAbility : abilities.getAbilities()) {
-                    if(charAbility != null && charAbility.toString().toLowerCase().trim().equals(
-                            orClause.toLowerCase().trim())) {
-                        found=true;
-                        break outerLoop;
-                    }
+                }else {
+                    found = abilities.meetsPrerequisite(orClause, true);
+                    if(found) break;
                 }
+            }
+            if(!found) return false;
+        }
+        for (String prereq : ability.getPrereqStrings()) {
+            String[] split = prereq.split(" or ");
+            boolean found=false;
+            for (String orClause : split) {
+                found = abilities.meetsPrerequisite(orClause, false);
+                if(found) break;
             }
             if(!found) return false;
         }

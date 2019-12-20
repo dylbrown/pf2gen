@@ -179,7 +179,13 @@ abstract class FileLoader<T> {
                         builder.setDescription(trim);
                         break;
                     case "Prerequisites":
-                        builder.setPrerequisites(Arrays.asList(trim.split(",")));
+                        builder.setPrerequisites(Arrays.asList(trim.split(", ?")));
+                        break;
+                    case "PrereqStrings":
+                        builder.setPrereqStrings(Arrays.asList(trim.split(", ?")));
+                        break;
+                    case "GivesPrerequisites":
+                        builder.setGivesPrerequisites(Arrays.asList(trim.split(", ?")));
                         break;
                     case "Requires":
                         if(trim.matches(".*\\d.*"))
