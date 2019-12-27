@@ -8,7 +8,7 @@ import java.io.IOException;
 class AbilityDisplay extends GridPane {
     public AbilityDisplay(){
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(
-                "/ui/fxml/abilityDisplay.fxml"));
+		        "/src/main/ui/fxml/abilityDisplay.fxml"));
         fxmlLoader.setRoot(this);
 
         try {

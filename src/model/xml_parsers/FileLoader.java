@@ -97,13 +97,9 @@ abstract class FileLoader<T> {
                 urlConnection.setDefaultUseCaches(false);
                 urlConnection.setUseCaches(false);
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                StringBuilder s = new StringBuilder();
                 String temp;
                 while((temp = bufferedReader.readLine()) != null)
-                    s.append(temp);
-                for (String name : s.toString().split("\\n")) {
-                    results.add(getDoc(new File(path.toString()+"\\"+name+".pfdyl")));
-                }
+                    results.add(getDoc(new File(path.toString()+"\\"+temp+".pfdyl")));
             } catch (IOException e) {
                 e.printStackTrace();
             }
