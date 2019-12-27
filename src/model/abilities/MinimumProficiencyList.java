@@ -17,7 +17,7 @@ import java.util.Map;
 public class MinimumProficiencyList extends TransformationList<String, Attribute> implements Iterable<String>, Collection<String>, List<String>, Observable, ObservableList<String> {
     private int[] sourceIndices;
     private boolean[] isInList;
-    int size;
+    private int size;
     /**
      * Creates a new Transformation list wrapped around the source list.
      *
@@ -61,7 +61,7 @@ public class MinimumProficiencyList extends TransformationList<String, Attribute
     }
 
     private void removeFromList(int sourceIndex) {
-        int index = getFilteredIndex(sourceIndex);
+        int index = getViewIndex(sourceIndex);
         nextRemove(index, get(index));
         for(int i=index+1; i < size; i++)
             sourceIndices[i-1] = sourceIndices[i];
@@ -93,7 +93,7 @@ public class MinimumProficiencyList extends TransformationList<String, Attribute
         return sourceIndices[index];
     }
 
-    public int getFilteredIndex(int sourceIndex) {
+    public int getViewIndex(int sourceIndex) {
         return Arrays.binarySearch(sourceIndices, 0, size, sourceIndex);
     }
 

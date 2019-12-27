@@ -89,7 +89,7 @@ public class TemplateFiller {
         DefaultObjectWrapperBuilder owb = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_28);
         owb.setMethodAppearanceFineTuner((input, output) -> {
             String name = input.getMethod().getName();
-            if(input.getMethod().getParameterCount() == 0 && name.substring(0, 3).equals("get")){
+            if(input.getMethod().getParameterCount() == 0 && name.substring(0, 3).equals("get") && name.length() > 3){
                 try {
                     output.setExposeAsProperty(new PropertyDescriptor(name.substring(3).toLowerCase(),input.getMethod(), null));
                 } catch (IntrospectionException e) {

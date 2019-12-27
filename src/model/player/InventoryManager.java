@@ -155,7 +155,7 @@ public class InventoryManager {
         totalWeight = 0;
     }
 
-    double getTotalWeight() {
+    public double getTotalWeight() {
         return totalWeight;
     }
 

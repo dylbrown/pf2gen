@@ -55,7 +55,7 @@ class ModManager {
 
     ModManager(PC character, ReadOnlyObjectProperty<Integer> levelProperty, Applier applier) {
         ScriptEngineManager manager = new ScriptEngineManager();
-        engine = manager.getEngineByName("js");
+        engine = manager.getEngineByName("nashorn");
         engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
         engine.put("add",
                 new SpecialFunction((str, num) -> mods.merge((String)str, ((Number)num).intValue(), Integer::sum)));

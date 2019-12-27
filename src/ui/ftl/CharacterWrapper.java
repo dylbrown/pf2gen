@@ -67,6 +67,8 @@ class CharacterWrapper implements TemplateHashModel {
         map.put("spellsKnown", character.spells().getSpellsKnown());
         map.put("focusSpells", character.spells().getFocusSpells());
         map.put("spellSlots", character.spells().getSpellSlots());
+        map.put("casterType", character.spells().getCasterType());
+        map.put("tradition", character.spells().getTradition());
         refresh();
     }
 
@@ -84,7 +86,6 @@ class CharacterWrapper implements TemplateHashModel {
     }
 
     void refresh() {
-        map.put("casterType", character.spells().getCasterType());
         updateAbilities();
         map.put("inventory", character.inventory().getItems().values().stream().map(ItemCountWrapper::new).collect(Collectors.toList()));
     }

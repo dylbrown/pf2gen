@@ -21,16 +21,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import sun.misc.IOUtils;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -96,8 +96,12 @@ abstract class FileLoader<T> {
                 URLConnection urlConnection = index.openConnection();
                 urlConnection.setDefaultUseCaches(false);
                 urlConnection.setUseCaches(false);
-                String s = new String(IOUtils.readFully(urlConnection.getInputStream(), -1, true), StandardCharsets.UTF_8);
-                for (String name : s.split("\\n")) {
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                StringBuilder s = new StringBuilder();
+                String temp;
+                while((temp = bufferedReader.readLine()) != null)
+                    s.append(temp);
+                for (String name : s.toString().split("\\n")) {
                     results.add(getDoc(new File(path.toString()+"\\"+name+".pfdyl")));
                 }
             } catch (IOException e) {

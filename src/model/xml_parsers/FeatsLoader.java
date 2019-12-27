@@ -37,7 +37,7 @@ public class FeatsLoader extends FileLoader<Ability> {
                         Ability ability = makeAbility((Element) abilities.item(i),
                                 ((Element) abilities.item(i)).getAttribute("name"));
                         this.feats.add(ability);
-                        this.featsMap.computeIfAbsent(file.replaceAll(".pfdyl", "").toLowerCase(),
+                        this.featsMap.computeIfAbsent(file.replaceAll(".pfdyl", "").toLowerCase().replaceAll(" ", ""),
                                 s->new ArrayList<>()).add(ability);
                     }
                 }
@@ -53,6 +53,6 @@ public class FeatsLoader extends FileLoader<Ability> {
 
     public List<Ability> getFeats(String type) {
         parse();
-        return Collections.unmodifiableList(featsMap.getOrDefault(type, Collections.emptyList()));
+        return Collections.unmodifiableList(featsMap.getOrDefault(type.toLowerCase().replaceAll(" ", ""), Collections.emptyList()));
     }
 }

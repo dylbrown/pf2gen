@@ -113,7 +113,8 @@ public class Ability implements Comparable<Ability> {
         if (o == null || getClass() != o.getClass()) return false;
         Ability ability = (Ability) o;
         return type == ability.type &&
-                name.equals(ability.name);
+                name.equals(ability.name)
+                && description.equals(ability.description);
     }
 
     @Override

@@ -17,7 +17,7 @@ public class AllFeats {
     }
 
     public static List<Ability> getFeats(String allowedType) {
-        return feats.getFeats(allowedType.toLowerCase());
+        return feats.getFeats(allowedType);
     }
 
     public static Ability find(String contents) {

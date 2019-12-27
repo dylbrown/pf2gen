@@ -15,7 +15,7 @@ import java.io.IOException;
 
 public class NethysClassTableScraper extends ClassTableParser {
 	public static void main(String[] args) {
-		new NethysClassTableScraper("http://2e.aonprd.com/Classes.aspx?ID=11", "generated/classTable.txt");
+		new NethysClassTableScraper("http://2e.aonprd.com/Classes.aspx?ID=12", "generated/classTable.txt");
 	}
 
 	private Document doc;
