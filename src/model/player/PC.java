@@ -160,7 +160,7 @@ public class PC {
         return ((getAncestry() != null) ? getAncestry().getHP() : 0) + (((getPClass() != null) ? getPClass().getHP() : 0) + scores.getMod(Con)) * level.get() + modManager.get("hp");
     }
     public void addAncestryObserver(Observer o) {
-        ancestryWatcher.addObserver(o);
+        ancestryWatcher.addObserver(o); // TODO: Remove deprecated observer use
     }
 
     public ReadOnlyObjectProperty<Integer> getLevelProperty() {
@@ -204,9 +204,9 @@ public class PC {
         if(inventory.getEquipped(Slot.Armor) != null) {
             Armor armor = (Armor) inventory.getEquipped(Slot.Armor).stats();
             if(armor != null)
-                return 10 + level.get() + armor.getAC() + Math.max(scores.getMod(Dex), armor.getMaxDex());
+                return 10 + attributes().getProficiency(Attribute.valueOf(armor.getProficiency())).getValue().getMod(level.get()) + armor.getAC() + Math.max(scores.getMod(Dex), armor.getMaxDex());
         }
-        return 10 + level.get() + scores.getMod(Dex);
+        return 10 + attributes().getProficiency(Attribute.Unarmored).getValue().getMod(level.get()) + scores.getMod(Dex);
     }
 
     public int getTotalMod(Attribute attribute) {

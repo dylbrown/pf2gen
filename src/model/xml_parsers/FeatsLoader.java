@@ -2,6 +2,7 @@ package model.xml_parsers;
 
 import model.abilities.Ability;
 import model.enums.Type;
+import model.util.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -21,8 +22,9 @@ public class FeatsLoader extends FileLoader<Ability> {
     public List<Ability> parse() {
         if(feats == null) {
             feats = new ArrayList<>();
-            for (Document doc : getDocs(path)) {
-                String file = doc.getDocumentURI().replaceAll(".*/", "").toLowerCase();
+            for (Pair<Document, String> docEntry : getDocs(path)) {
+                Document doc = docEntry.first;
+                String file = docEntry.second;
                 if(file.equals("bloodline.pfdyl")) {
                     for (Ability ability : new BloodlinesLoader(doc).parse()) {
                         this.feats.add(ability);

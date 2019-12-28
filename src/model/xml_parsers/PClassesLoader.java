@@ -5,6 +5,7 @@ import model.abilities.Ability;
 import model.abilities.abilitySlots.*;
 import model.ability_scores.AbilityMod;
 import model.enums.Type;
+import model.util.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

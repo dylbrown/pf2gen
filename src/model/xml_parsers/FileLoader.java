@@ -16,13 +16,13 @@ import model.enums.Type;
 import model.spells.CasterType;
 import model.spells.SpellType;
 import model.spells.Tradition;
+import model.util.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedReader;
@@ -42,18 +42,11 @@ import static model.util.StringUtils.camelCaseWord;
 
 abstract class FileLoader<T> {
     File path;
-    private static final DocumentBuilder builder;
+    private static final DocumentBuilderFactory factory;
 
     static{
-        DocumentBuilder builder1;
-        try {
-            builder1 = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-            builder1 = null;
-        }
-        builder = builder1;
-        assert builder != null;
+        factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
         EquipmentManager.getEquipment();//TODO: Separate out loading weapon groups
     }
 
@@ -65,16 +58,16 @@ abstract class FileLoader<T> {
         Document doc = null;
         if(path.exists()) {
             try {
-                doc = builder.parse(path);
-            } catch (IOException | SAXException e) {
+                doc = factory.newDocumentBuilder().parse(path);
+            } catch (IOException | SAXException | ParserConfigurationException e) {
                 e.printStackTrace();
             }
         }else{
             try {
                 URL url = new URL("https://dylbrown.github.io/pf2gen_data/"+path.toString().replaceAll("\\\\", "/"));
                 System.out.println("Could not find "+path.getName()+" on disk, loading from repository.");
-                doc=builder.parse(url.openStream());
-            } catch (SAXException | IOException e) {
+                doc= factory.newDocumentBuilder().parse(url.openStream());
+            } catch ( SAXException|IOException|ParserConfigurationException e) {
                 e.printStackTrace();
             }
         }
@@ -82,12 +75,12 @@ abstract class FileLoader<T> {
         return doc;
     }
 
-    List<Document> getDocs(File path) {
-        List<Document> results = new ArrayList<>();
+    List<Pair<Document, String>> getDocs(File path) {
+        List<Pair<Document, String>> results = new ArrayList<>();
         if(path.exists()) {
             for (File file : Objects.requireNonNull(path.listFiles())) {
                 if(file.getName().substring(file.getName().length()-5).equals("pfdyl"))
-                    results.add(getDoc(file));
+                    results.add(new Pair<>(getDoc(file), file.getName()));
             }
 
         }else{
@@ -99,7 +92,7 @@ abstract class FileLoader<T> {
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
                 String temp;
                 while((temp = bufferedReader.readLine()) != null)
-                    results.add(getDoc(new File(path.toString()+"\\"+temp+".pfdyl")));
+                    results.add(new Pair<>(getDoc(new File(path.toString()+"\\"+temp+".pfdyl")), temp+".pfdyl"));
             } catch (IOException e) {
                 e.printStackTrace();
             }

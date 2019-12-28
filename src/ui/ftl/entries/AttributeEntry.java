@@ -8,6 +8,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ObservableValue;
 import model.enums.Attribute;
 import model.enums.Proficiency;
+import ui.Main;
 
 public class AttributeEntry implements TemplateHashModel {
     private final Attribute attr;
@@ -25,7 +26,7 @@ public class AttributeEntry implements TemplateHashModel {
     @Override
     public TemplateModel get(String s) throws TemplateModelException {
         switch(s) {
-            case "total": return wrapper.wrap(prof.getValue().getMod(level.get()));
+            case "total": return wrapper.wrap(Main.character.getTotalMod(attr));
             case "attribute": return wrapper.wrap(attr);
             case "proficiency": return wrapper.wrap(prof.getValue());
             case "ability": return wrapper.wrap(attr.getKeyAbility());

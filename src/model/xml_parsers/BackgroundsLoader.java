@@ -38,7 +38,8 @@ public class BackgroundsLoader extends FileLoader<Background> {
     public List<Background> parse() {
         if(backgrounds == null) {
             backgrounds = new ArrayList<>();
-            for (Document doc : getDocs(path)) {
+            for (Pair<Document, String> docEntry : getDocs(path)) {
+                Document doc = docEntry.first;
                 NodeList backgroundNodes = doc.getElementsByTagName("background");
                 for(int b=0; b<backgroundNodes.getLength(); b++) {
                     NodeList classProperties = backgroundNodes.item(b).getChildNodes();

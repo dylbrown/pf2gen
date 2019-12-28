@@ -5,6 +5,7 @@ import model.abilities.Ability;
 import model.enums.Language;
 import model.enums.Size;
 import model.enums.Type;
+import model.util.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -35,7 +36,8 @@ public class AncestriesLoader extends FileLoader<Ancestry> {
     public List<Ancestry> parse() {
         if(ancestries == null) {
             ancestries = new ArrayList<>();
-            for (Document doc : getDocs(path)) {
+            for (Pair<Document, String> docEntry : getDocs(path)) {
+                Document doc = docEntry.first;
                 NodeList classProperties = doc.getElementsByTagName("ancestry").item(0).getChildNodes();
 
                 String name = ""; int hp = 0; Size size = Size.Medium; int speed=0; String bonuses=""; String penalties=""; List<Ability> feats = new ArrayList<>();List<Ability> heritages = new ArrayList<>(); String description = ""; List<Language> languages = new ArrayList<>();List<Language> bonusLanguages = new ArrayList<>();

@@ -129,6 +129,7 @@ public class AbilityManager {
 	}
 
 	private void checkAPrereq(String prereq, Map<String, Set<Ability>> mapOfChoice) {
+		if(prereq == null || mapOfChoice == null) return;
 		if (mapOfChoice.get(prereq.toLowerCase()) == null) return;
 		for (Ability ability : mapOfChoice.get(prereq.toLowerCase())) {
 			if (isApplied.get(ability)) {
@@ -154,7 +155,7 @@ public class AbilityManager {
 			for (String s : ability.getPrerequisites()) {
 				needsPrerequisites.computeIfAbsent(s.toLowerCase(), s1 -> new HashSet<>()).remove(ability);
 			}
-			if (isApplied.get(ability)) remove(ability);
+			if (isApplied.get(ability) != null && isApplied.get(ability)) remove(ability);
 			isApplied.remove(ability);
 		} else remove(ability);
 
