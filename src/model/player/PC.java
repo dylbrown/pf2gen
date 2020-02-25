@@ -11,11 +11,11 @@ import model.abilities.AttackAbility;
 import model.abilities.abilitySlots.AbilitySlot;
 import model.abilities.abilitySlots.Choice;
 import model.abilities.abilitySlots.SingleChoice;
-import model.enums.Attribute;
-import model.enums.Language;
-import model.enums.Slot;
-import model.enums.Type;
-import model.equipment.*;
+import model.enums.*;
+import model.equipment.Armor;
+import model.equipment.ItemTrait;
+import model.equipment.RangedWeapon;
+import model.equipment.Weapon;
 import model.spells.Spell;
 
 import java.util.ArrayList;
@@ -33,8 +33,9 @@ public class PC {
     private final ReadOnlyObjectWrapper<Integer> level = new ReadOnlyObjectWrapper<>(0);
     private final Eyeball ancestryWatcher = new Eyeball();
     private final Applier applier = new Applier();
-    private String name;
+    private String name, height, weight, age, hair, eyes, gender;
     private String player;
+    private Alignment alignment;
     private final List<Language> languages = new ArrayList<>();
     private final InventoryManager inventory = new InventoryManager();
     private final ModManager modManager;
@@ -76,6 +77,62 @@ public class PC {
 
     public String getName() {
         return (name != null) ? name : "Unnamed";
+    }
+
+    public String getHeight() {
+        return height;
+    }
+
+    public void setHeight(String height) {
+        this.height = height;
+    }
+
+    public String getWeight() {
+        return weight;
+    }
+
+    public void setWeight(String weight) {
+        this.weight = weight;
+    }
+
+    public String getAge() {
+        return age;
+    }
+
+    public void setAge(String age) {
+        this.age = age;
+    }
+
+    public String getHair() {
+        return hair;
+    }
+
+    public void setHair(String hair) {
+        this.hair = hair;
+    }
+
+    public String getEyes() {
+        return eyes;
+    }
+
+    public void setEyes(String eyes) {
+        this.eyes = eyes;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public Alignment getAlignment() {
+        return alignment;
+    }
+
+    public void setAlignment(Alignment alignment) {
+        this.alignment = alignment;
     }
 
     public void setPlayer(String name) {

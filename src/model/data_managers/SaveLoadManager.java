@@ -10,10 +10,7 @@ import model.abilities.abilitySlots.ChoiceList;
 import model.abilities.abilitySlots.FeatSlot;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
-import model.enums.Attribute;
-import model.enums.BuySellMode;
-import model.enums.Slot;
-import model.enums.Type;
+import model.enums.*;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
 import model.equipment.SearchItem;
@@ -104,61 +101,68 @@ public class SaveLoadManager {
             Pair<List<String>, Integer> lines= new Pair<>(lineList, 0);
             character.reset();
             long start = System.currentTimeMillis();
-            //Name
-            character.setName(nextLineEq(lines));
-            character.setPlayer(nextLineEq(lines));
+            String curr = nextLine(lines);
+            while(curr.contains("=")) {
+                String[] split = curr.split(" ?= ?", 2);
+                String afterEq = split[1];
+                if(afterEq.length() == 0) afterEq = "";
+                switch (split[0].trim()) {
+                    case "name": character.setName(afterEq); break;
+                    case "player": character.setPlayer(afterEq); break;
+                    case "height": character.setHeight(afterEq); break;
+                    case "weight": character.setWeight(afterEq); break;
+                    case "age": character.setAge(afterEq); break;
+                    case "eyes": character.setEyes(afterEq); break;
+                    case "hair": character.setHair(afterEq); break;
+                    case "gender": character.setGender(afterEq); break;
+                    case "alignment": character.setAlignment(Alignment.valueOf(afterEq)); break;
+                    case "ancestry":
+                        for (Ancestry ancestry : AncestriesLoader.instance().parse()) {
+                            if (ancestry.getName().equals(afterEq)) {
+                                character.setAncestry(ancestry);
+                                break;
+                            }
+                        } break;
+                    case "background":
+                        for (Background background : BackgroundsLoader.instance().parse()) {
+                            if (background.getName().equals(afterEq)) {
+                                character.setBackground(background);
+                                break;
+                            }
+                        } break;
+                    case "class":
+                        for (PClass pClass : PClassesLoader.instance().parse()) {
+                            if (pClass.getName().equals(afterEq)) {
+                                character.setClass(pClass);
+                                break;
+                            }
+                        } break;
+                    case "level":
+                        Integer lvl = Integer.valueOf(afterEq);
+                        while (character.getLevel() < lvl)
+                            character.levelUp();
+                        break;
+                    case "abilityChoices":
+                        if (!afterEq.trim().equals("")) {
+                            //Parse data into more usable format
+                            Set<Triple<Type, AbilityScore, List<AbilityScore>>> mods = Arrays.stream(afterEq.split(", "))
+                                    .map(SaveLoadManager::makeTriple).collect(Collectors.toSet());
 
-            //Ancestry
-            String anc = nextLineEq(lines);
-            for (Ancestry ancestry : AncestriesLoader.instance().parse()) {
-                if(ancestry.getName().equals(anc)){
-                    character.setAncestry(ancestry);
-                    break;
+                            //iterate through all current choices and set them if they have a match.
+                            for (AbilityModChoice modChoice : character.scores().getAbilityScoreChoices()) {
+                                Iterator<Triple<Type, AbilityScore, List<AbilityScore>>> iterator = mods.iterator();
+                                while (iterator.hasNext()) {
+                                    Triple<Type, AbilityScore, List<AbilityScore>> next = iterator.next();
+                                    if (modChoice.matches(next.first, next.third)) {
+                                        character.scores().choose(modChoice, next.second);
+                                        iterator.remove();
+                                        break;
+                                    }
+                                }
+                            }
+                        } break;
                 }
-            }
-
-            //Background
-            String bac = nextLineEq(lines);
-            for (Background background : BackgroundsLoader.instance().parse()) {
-                if(background.getName().equals(bac)){
-                    character.setBackground(background);
-                    break;
-                }
-            }
-
-            //PClass
-            String cla = nextLineEq(lines);
-            for (PClass pClass : PClassesLoader.instance().parse()) {
-                if(pClass.getName().equals(cla)){
-                    character.setClass(pClass);
-                    break;
-                }
-            }
-
-            //Level
-            Integer lvl = Integer.valueOf(nextLineEq(lines));
-            while(character.getLevel() < lvl)
-                character.levelUp();
-
-            //Ability Score Choices
-            //Parse data into more usable format
-            String nextLineEq = nextLineEq(lines);
-            if(!nextLineEq.trim().equals("")) {
-                Set<Triple<Type, AbilityScore, List<AbilityScore>>> mods = Arrays.stream(nextLineEq.split(", "))
-                        .map(SaveLoadManager::makeTriple).collect(Collectors.toSet());
-
-                //iterate through all current choices and set them if they have a match.
-                for (AbilityModChoice modChoice : character.scores().getAbilityScoreChoices()) {
-                    Iterator<Triple<Type, AbilityScore, List<AbilityScore>>> iterator = mods.iterator();
-                    while (iterator.hasNext()) {
-                        Triple<Type, AbilityScore, List<AbilityScore>> next = iterator.next();
-                        if (modChoice.matches(next.first, next.third)) {
-                            character.scores().choose(modChoice, next.second);
-                            iterator.remove();
-                            break;
-                        }
-                    }
-                }
+                curr = nextLine(lines);
             }
             //Skill Increase Choices
             character.attributes().resetSkills();

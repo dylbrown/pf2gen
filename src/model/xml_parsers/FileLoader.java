@@ -243,6 +243,9 @@ abstract class FileLoader<T> {
                 }
             }
             builder.setType(getSource());
+            if (element.getAttribute("type").trim().toLowerCase().equals("heritage")) {
+                builder.setType(Type.Heritage);
+            }
             if(element.getTagName().equals("AbilitySet")){
                 AbilitySet.Builder setBuilder = new AbilitySet.Builder(builder);
                 setBuilder.setAbilities(makeAbilities(element.getChildNodes()));
