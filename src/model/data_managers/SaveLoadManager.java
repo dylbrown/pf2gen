@@ -33,29 +33,59 @@ import static ui.Main.character;
 
 public class SaveLoadManager {
     public static void save(File file){
-        Map<String, Object> map = new HashMap<>();
-        map.put("name", character.getName());
-        map.put("ancestry", character.getAncestry().getName());
-        map.put("background", character.getBackground().getName());
-        map.put("class", character.getPClass().getName());
-        map.put("level", character.getLevel());
-        map.put("abilityChoices", character.scores().getAbilityScoreChoices());
-        map.put("decisions", character.decisions().getDecisions().stream().filter(
-                choice -> choice.getSelections().size()>0).map(
-                (choice)->{
-                    StringBuilder builder = new StringBuilder();
-                    builder.append(choice.toString());
-                    for (Object selection : choice.getSelections()) {
-                        builder.append(selection.toString());
+        PrintWriter out = null;
+        if (file != null) {
+        try {
+            out = new PrintWriter(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (out != null) {
+            writeOutLine(out, "name = "+character.getName());
+            writeOutLine(out, "player = "+character.getPlayer());
+            if(character.getHeight() != null) writeOutLine(out, "height = "+character.getHeight());
+            if(character.getWeight() != null) writeOutLine(out, "weight = "+character.getWeight());
+            if(character.getAge() != null) writeOutLine(out, "age = "+character.getAge());
+            if(character.getHair() != null) writeOutLine(out, "hair = "+character.getHair());
+            if(character.getEyes() != null) writeOutLine(out, "eyes = "+character.getEyes());
+            if(character.getGender() != null) writeOutLine(out, "gender = "+character.getGender());
+            if(character.getAlignment() != null) writeOutLine(out, "alignment = "+character.getAlignment());
+            writeOutLine(out, "ancestry = "+character.getAncestry().getName());
+            writeOutLine(out, "background = "+character.getBackground().getName());
+            writeOutLine(out, "class = "+character.getPClass().getName());
+            writeOutLine(out, "level = "+character.getLevel());
+            writeOutLine(out, "abilityChoices = " + character.scores().getAbilityScoreChoices().stream().filter(
+                    choice -> choice.getTarget() != AbilityScore.Free).map(
+                    choice -> {
+                        if(choice.getChoices().size() < 6)
+                            return choice.getType() + ":"
+                                    + choice.getChoices().stream().map(Enum::toString).collect(Collectors.joining("/"))+
+                                    ":" + choice.getTarget().toString();
+                        else
+                            return choice.getType() + ":" + choice.getTarget().toString();
                     }
-                    return builder.toString();
-                }).collect(
-                Collectors.toList()));
-        map.put("skillChoices", character.attributes().getSkillChoices());
-        HashMap<String, Integer> items = new HashMap<>();
-        character.inventory().getItems().values().forEach((item)-> items.put(item.getName(), item.getCount()));
-        map.put("inventory", items);
+                ).collect(Collectors.joining(", ")));
 
+            writeOutLine(out, "Skill Choices");
+            for (Map.Entry<Integer, Set<SkillIncrease>> level : character.attributes().getSkillChoices().entrySet()) {
+                writeOutLine(out, " - " + level.getKey()+":"+level.getValue().stream().map(s->s.getAttr().toString()).collect(Collectors.joining(", ")));
+            }
+
+            //Decisions
+            writeOutLine(out, "Decisions");
+            for (Choice decision : character.decisions().getDecisions()) {
+                if(decision.viewSelections().size() == 0) continue;
+                StringBuilder builder = new StringBuilder();
+                builder.append(decision.toString()).append(" : ");
+                boolean first = true;
+                for (Object selection : decision.viewSelections()) {
+                    if(first) first = false;
+                    else builder.append(" ^ ");
+                    builder.append(selection.toString());
+                }
+                writeOutLine(out, " - " + builder.toString());
+            }
+            writeOutLine(out, "money = " + character.inventory().getMoney());
             writeOutLine(out, "Inventory");
             for (ItemCount item : character.inventory().getItems().values()) {
                 writeOutLine(out, " - "+item.getCount()+" "+item.stats().getName());

@@ -26,7 +26,7 @@ public class ArmorLoader extends FileLoader<Armor> {
     private final Map<String, ItemTrait> armorTraits = new HashMap<>();
 
     public ArmorLoader() {
-        path = new File("data/equipment/armorAndShields.pfdyl");
+        path = new File("data/equipment/armor_and_shields.pfdyl");
     }
     @Override
     public List<Armor> parse() {

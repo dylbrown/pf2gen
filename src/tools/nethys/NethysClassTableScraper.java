@@ -1,4 +1,4 @@
-package tools;
+package tools.nethys;
 
 import model.util.StringUtils;
 import org.jsoup.Jsoup;
@@ -7,6 +7,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
+import tools.ClassTableParser;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -49,7 +50,6 @@ public class NethysClassTableScraper extends ClassTableParser {
 
 	}
 
-	@Override
 	String getDescription(String feature) {
 		StringBuilder desc = new StringBuilder();
 		Elements text = doc.getElementsMatchingOwnText(StringUtils.camelCase(feature));

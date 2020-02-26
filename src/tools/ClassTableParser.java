@@ -1,18 +1,17 @@
 package tools;
 
-import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
 import static model.util.StringUtils.camelCase;
 import static model.util.StringUtils.camelCaseWord;
 
-class ClassTableParser extends SourceParser {
+public class ClassTableParser extends SourceParser {
     //private BufferedWriter outputFile;
     public static void main(String[] args) {
         new ClassTableParser();
     }
-    ClassTableParser() {
+    protected ClassTableParser() {
 //        try {
 //            outputFile = new BufferedWriter(new FileWriter(new File("generated/classTable.txt")));
 //            BufferedReader br = new BufferedReader(new FileReader(new File("generated/inputTable.txt")));
@@ -29,9 +28,9 @@ class ClassTableParser extends SourceParser {
     private Map<String, StringBuilder> features = new HashMap<>();
 
 
-    String className = null;
+    protected String className = null;
     private boolean isCaster = false;
-    String parseTableLine(int level, String abilities) throws IOException {
+    protected String parseTableLine(int level, String abilities) {
         if(className == null || abilities.equals("Class Features")){
             return "";
         }
@@ -104,7 +103,7 @@ class ClassTableParser extends SourceParser {
         return listBuilder.toString();
     }
 
-    String getDescription(String feature) {
+    private String getDescription(String feature) {
         return "";
     }
 }

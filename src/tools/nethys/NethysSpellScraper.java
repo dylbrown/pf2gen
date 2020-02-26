@@ -1,4 +1,4 @@
-package tools;
+package tools.nethys;
 
 import model.util.Pair;
 import model.util.StringUtils;
@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class NethysSpellScraper {
+public class NethysSpellScraper extends NethysScraper {
 	private final Map<String, StringBuilder> sources = new HashMap<>();
 
 	public static void main(String[] args) {
@@ -156,15 +156,5 @@ public class NethysSpellScraper {
 		results.append("\n</Spell>\n");
 
 		return new Pair<>(results.toString(), source);
-	}
-
-	private String getAfter(Element output, String bContents) {
-		if(output.getElementsMatchingOwnText("\\A"+bContents+"\\z").size() > 0) {
-			Node node = output.getElementsMatchingText("\\A"+bContents+"\\z").first().nextSibling();
-			while(node instanceof Element || (node instanceof TextNode && ((TextNode) node).getWholeText().trim().equals(""))) node = node.nextSibling();
-			if (node instanceof TextNode)
-				return ((TextNode) node).getWholeText().trim().replaceAll(";$", "");
-		}
-		return "";
 	}
 }
