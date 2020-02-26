@@ -19,7 +19,7 @@ import java.util.List;
 
 import static model.util.StringUtils.camelCaseWord;
 //TODO: Implement Builder Pattern
-public class AncestriesLoader extends FileLoader<Ancestry> {
+public class AncestriesLoader extends AbilityLoader<Ancestry> {
 
     private static final AncestriesLoader instance;
     static{instance = new AncestriesLoader();}
@@ -103,7 +103,9 @@ public class AncestriesLoader extends FileLoader<Ancestry> {
     }
 
     @Override
-    protected Type getSource() {
-        return Type.Ancestry;
+    protected Type getSource(Element element) {
+        if (element.getAttribute("type").trim().toLowerCase().equals("heritage"))
+            return Type.Heritage;
+        else return Type.Ancestry;
     }
 }

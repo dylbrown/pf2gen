@@ -1,6 +1,5 @@
 package model.xml_parsers;
 
-import model.enums.Type;
 import model.spells.Spell;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -19,11 +18,6 @@ public class SpellsLoader extends FileLoader<Spell> {
 
 	public SpellsLoader(String s) {
 		path = new File("data/spells/"+s);
-	}
-
-	@Override
-	protected Type getSource() {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override

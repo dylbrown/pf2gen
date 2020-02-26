@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class BloodlinesLoader extends FileLoader<Ability> {
+public class BloodlinesLoader extends AbilityLoader<Ability> {
 	private final Document doc;
 	private List<Ability> bloodlines;
 	BloodlinesLoader(Document doc) {
@@ -92,7 +92,7 @@ public class BloodlinesLoader extends FileLoader<Ability> {
 	}
 
 	@Override
-	protected Type getSource() {
+	protected Type getSource(Element element) {
 		return Type.Class;
 	}
 }

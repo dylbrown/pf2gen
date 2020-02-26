@@ -14,7 +14,7 @@ import org.w3c.dom.NodeList;
 import java.io.File;
 import java.util.*;
 //TODO: Implement Builder Pattern
-public class PClassesLoader extends FileLoader<PClass> {
+public class PClassesLoader extends AbilityLoader<PClass> {
 
     private List<PClass> PClasses;
 
@@ -116,7 +116,7 @@ public class PClassesLoader extends FileLoader<PClass> {
     }
 
     @Override
-    protected Type getSource() {
+    protected Type getSource(Element element) {
         return Type.Class;
     }
 }

@@ -20,7 +20,7 @@ import java.util.List;
 import static model.util.StringUtils.camelCase;
 import static model.util.StringUtils.camelCaseWord;
 //TODO: Implement Builder Pattern
-public class BackgroundsLoader extends FileLoader<Background> {
+public class BackgroundsLoader extends AbilityLoader<Background> {
     private List<Background> backgrounds;
 
     private static final BackgroundsLoader instance;
@@ -95,7 +95,7 @@ public class BackgroundsLoader extends FileLoader<Background> {
     }
 
     @Override
-    protected Type getSource() {
+    protected Type getSource(Element element) {
         return Type.Background;
     }
 

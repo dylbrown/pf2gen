@@ -39,9 +39,11 @@ public class NethysItemScraper extends NethysScraper {
 					+ ".pfdyl");
 			if(outputFile.exists()) return;
 			out = new BufferedWriter(new FileWriter(outputFile));
-			out.write("<Items category=\""+title+"\">");
+			out.write("<pf2:Items category=\""+title+"\" xmlns:pf2=\"https://dylbrown.github.io\"\n" +
+					"\t\t   xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+					"\t\t   xsi:schemaLocation=\"https://dylbrown.github.io ../../schemata/item.xsd\">\n");
 			parseTable(doc, out);
-			out.write("</Items>");
+			out.write("</pf2:Items>");
 			out.close();
 		} catch (IOException e) {
 			e.printStackTrace();

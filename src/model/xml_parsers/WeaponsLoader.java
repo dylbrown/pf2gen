@@ -2,7 +2,6 @@ package model.xml_parsers;
 
 import model.enums.DamageType;
 import model.enums.Rarity;
-import model.enums.Type;
 import model.enums.WeaponProficiency;
 import model.equipment.*;
 import org.w3c.dom.Document;
@@ -13,10 +12,9 @@ import org.w3c.dom.NodeList;
 import java.io.File;
 import java.util.*;
 
-import static model.enums.Type.None;
 import static model.util.StringUtils.camelCase;
 //TODO: Implement Builder Pattern
-public class WeaponsLoader extends FileLoader<Weapon> {
+public class WeaponsLoader extends ItemLoader<Weapon> {
 
     private List<Weapon> weapons;
     private static final Map<String, WeaponGroup> weaponGroups = new HashMap<>();
@@ -60,11 +58,6 @@ public class WeaponsLoader extends FileLoader<Weapon> {
         return Collections.unmodifiableList(weapons);
     }
 
-    @Override
-    protected Type getSource() {
-        return None;
-    }
-
     static Weapon getWeapon(Element weapon) {
         double weight=0; double value=0; String name=""; String description = ""; Rarity rarity=Rarity.Common; Dice damage=Dice.get(1,6); DamageType damageType = DamageType.Piercing; int hands = 1; WeaponGroup group = null; List<ItemTrait> traits = new ArrayList<>(); WeaponProficiency weaponProficiency; int range=0; int reload=0; boolean isRanged=false; boolean uncommon=false;
         Node proficiencyNode= weapon.getParentNode();
@@ -91,22 +84,10 @@ public class WeaponsLoader extends FileLoader<Weapon> {
                     description = trim;
                     break;
                 case "Price":
-                    String[] split = trim.split(" ");
-                    value = Double.parseDouble(split[0]);
-                    switch(split[1].toLowerCase()) {
-                        case "cp":
-                            value *= .1;
-                            break;
-                        case "gp":
-                            value *= 10;
-                            break;
-                        case "pp":
-                            value *= 100;
-                            break;
-                    }
+                    value = getPrice(trim);
                     break;
                 case "Damage":
-                    split = trim.split(" ");
+                    String[] split = trim.split(" ");
                     String[] diceSplit = split[0].split("d");
                     damage = Dice.get(Integer.parseInt(diceSplit[0]), Integer.parseInt(diceSplit[1]));
                     switch(split[1].toUpperCase()) {

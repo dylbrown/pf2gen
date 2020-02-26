@@ -11,7 +11,7 @@ import org.w3c.dom.NodeList;
 import java.io.File;
 import java.util.*;
 
-public class FeatsLoader extends FileLoader<Ability> {
+public class FeatsLoader extends AbilityLoader<Ability> {
     private Map<String, List<Ability>> featsMap = new HashMap<>();
     private List<Ability> feats;
     public FeatsLoader(String location) {
@@ -49,7 +49,7 @@ public class FeatsLoader extends FileLoader<Ability> {
     }
 
     @Override
-    protected Type getSource() {
+    protected Type getSource(Element element) {
         return Type.General;
     }
 

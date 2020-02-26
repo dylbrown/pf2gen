@@ -2,7 +2,6 @@ package model.xml_parsers;
 
 import model.enums.ArmorProficiency;
 import model.enums.Rarity;
-import model.enums.Type;
 import model.equipment.Armor;
 import model.equipment.ArmorGroup;
 import model.equipment.ItemTrait;
@@ -15,10 +14,9 @@ import org.w3c.dom.NodeList;
 import java.io.File;
 import java.util.*;
 
-import static model.enums.Type.None;
 import static model.util.StringUtils.camelCase;
 //TODO: Implement Builder Pattern
-public class ArmorLoader extends FileLoader<Armor> {
+public class ArmorLoader extends ItemLoader<Armor> {
 
     private List<Armor> armorAndShields;
 
@@ -64,11 +62,6 @@ public class ArmorLoader extends FileLoader<Armor> {
         return Collections.unmodifiableList(armorAndShields);
     }
 
-    @Override
-    protected Type getSource() {
-        return None;
-    }
-
     private Armor getArmor(Element armor) {
         double weight=0; double value=0; String name=""; String description = ""; Rarity rarity=Rarity.Common; List<ItemTrait> traits = new ArrayList<>(); boolean isShield=false; int acMod=0; int maxDex=0; int acp=0; int speedPenalty=0; int strength=0; ArmorGroup group = ArmorGroup.None; ArmorProficiency proficiency;
         int hardness=0;int hp=0; int bt=0;
@@ -103,19 +96,7 @@ public class ArmorLoader extends FileLoader<Armor> {
                     speedPenalty = Integer.parseInt(trim.replaceAll("\\+",""));
                     break;
                 case "Price":
-                    String[] split = trim.split(" ");
-                    value = Double.parseDouble(split[0]);
-                    switch(split[1].toLowerCase()) {
-                        case "cp":
-                            value *= .1;
-                            break;
-                        case "gp":
-                            value *= 10;
-                            break;
-                        case "pp":
-                            value *= 100;
-                            break;
-                    }
+                    value = getPrice(trim);
                     break;
                 case "Bulk":
                     if (trim.toUpperCase().equals("L"))
