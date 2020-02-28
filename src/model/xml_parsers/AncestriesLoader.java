@@ -1,7 +1,6 @@
 package model.xml_parsers;
 
 import model.abc.Ancestry;
-import model.abilities.Ability;
 import model.enums.Language;
 import model.enums.Size;
 import model.enums.Type;
@@ -13,7 +12,6 @@ import org.w3c.dom.NodeList;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,7 +38,8 @@ public class AncestriesLoader extends AbilityLoader<Ancestry> {
                 Document doc = docEntry.first;
                 NodeList classProperties = doc.getElementsByTagName("ancestry").item(0).getChildNodes();
 
-                String name = ""; int hp = 0; Size size = Size.Medium; int speed=0; String bonuses=""; String penalties=""; List<Ability> feats = new ArrayList<>();List<Ability> heritages = new ArrayList<>(); String description = ""; List<Language> languages = new ArrayList<>();List<Language> bonusLanguages = new ArrayList<>();
+                Ancestry.Builder builder = new Ancestry.Builder();
+                String bonuses = ""; String penalties = "";
 
                 for(int i=0; i<classProperties.getLength(); i++) {
                     if(classProperties.item(i).getNodeType() != Node.ELEMENT_NODE)
@@ -49,54 +48,57 @@ public class AncestriesLoader extends AbilityLoader<Ancestry> {
                     String trim = curr.getTextContent().trim();
                     switch(curr.getTagName()){
                         case "Name":
-                            name = trim;
+                            builder.setName(trim);
                             break;
                         case "Description":
-                            description = trim;
+                            builder.setDescription(trim);
                             break;
                         case "HP":
-                            hp = Integer.parseInt(trim);
+                            builder.setHP(Integer.parseInt(trim));
                             break;
                         case "Languages":
                             for (String s : trim.split(",")) {
-                                languages.add(Language.valueOf(s.trim()));
+                                builder.addLanguages(Language.valueOf(s.trim()));
                             }
                             break;
                         case "BonusLanguages":
                             for (String s : trim.split(",")) {
                                 if(s.trim().equals("All")){
-                                    bonusLanguages.addAll(Arrays.asList(Language.getChooseable()));
+                                    builder.addBonusLanguages(Language.getChooseable());
                                     break;
                                 }
-                                bonusLanguages.add(Language.valueOf(s.trim()));
+                               builder.addBonusLanguages(Language.valueOf(s.trim()));
                             }
                             break;
                         case "Size":
-                            size = Size.valueOf(camelCaseWord(trim));
+                            builder.setSize(Size.valueOf(camelCaseWord(trim)));
                             break;
                         case "Speed":
-                            speed = Integer.parseInt(trim);
+                            builder.setSpeed(Integer.parseInt(trim));
                             break;
                         case "AbilityBonuses":
                             bonuses = trim;
                             break;
                         case "AbilityPenalties":
                             penalties = trim;
+                            break;
                         case "Feats":
                             NodeList featNodes = curr.getChildNodes();
                             for (int j = 0; j < featNodes.getLength(); j++) {
                                 if(featNodes.item(j) instanceof Element)
                                     if (((Element) featNodes.item(j)).getAttribute("type").trim().toLowerCase().equals("heritage")) {
-                                        heritages.add(makeAbility((Element) featNodes.item(j), ((Element) featNodes.item(j)).getAttribute("name")));
+                                        builder.addHeritage(makeAbility((Element) featNodes.item(j),
+                                                ((Element) featNodes.item(j)).getAttribute("name")));
                                     } else {
-                                        feats.add(makeAbility((Element) featNodes.item(j), ((Element) featNodes.item(j)).getAttribute("name")));
+                                        builder.addFeat(makeAbility((Element) featNodes.item(j),
+                                                ((Element) featNodes.item(j)).getAttribute("name")));
                                     }
                             }
                             break;
                     }
                 }
-
-                ancestries.add(new Ancestry(name, description, languages, bonusLanguages, hp, size, speed, getAbilityMods(bonuses, penalties, Type.Ancestry), feats, heritages));
+                builder.setAbilityMods(getAbilityMods(bonuses, penalties, Type.Ancestry));
+                ancestries.add(builder.build());
             }
         }
         return Collections.unmodifiableList(ancestries);

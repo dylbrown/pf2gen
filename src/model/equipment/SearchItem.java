@@ -9,7 +9,7 @@ import model.enums.Slot;
 public class SearchItem extends Equipment {
 
     public SearchItem(String name) {
-        super(0, 0, name, null, null, null);
+        super(new Equipment.Builder().setName(name));
     }
 
     @Override

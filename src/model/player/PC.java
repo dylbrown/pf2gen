@@ -13,7 +13,7 @@ import model.abilities.abilitySlots.Choice;
 import model.abilities.abilitySlots.SingleChoice;
 import model.enums.*;
 import model.equipment.Armor;
-import model.equipment.ItemTrait;
+import model.equipment.CustomTrait;
 import model.equipment.RangedWeapon;
 import model.equipment.Weapon;
 import model.spells.Spell;
@@ -284,7 +284,7 @@ public class PC {
 
     public int getAttackMod(Weapon weapon) {
         int mod = attributes.getProficiency(Attribute.valueOf(weapon.getProficiency()), weapon.getGroup()).getMod(level.get());
-        if(weapon.getTraits().contains(new ItemTrait("Finesse")))
+        if(weapon.getTraits().contains(new CustomTrait("Finesse")))
             return mod+Math.max(scores.getMod(Str), scores.getMod(Dex));
         else if(weapon instanceof RangedWeapon)
             return mod+scores.getMod(Dex);
@@ -293,7 +293,7 @@ public class PC {
     }
 
     public int getDamageMod(Weapon weapon) {
-        if(weapon.getTraits().contains(new ItemTrait("Thrown")))
+        if(weapon.getTraits().contains(new CustomTrait("Thrown")))
             return scores.getMod(Str);
         else if(weapon instanceof RangedWeapon)
             return 0;

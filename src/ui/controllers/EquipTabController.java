@@ -23,7 +23,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("WeakerAccess")
 public class EquipTabController {
 
     @FXML
@@ -287,7 +286,7 @@ public class EquipTabController {
             text.append("; <b>Group</b> ").append(armor.getGroup().getName());
         }
         if(armor.getTraits().size() > 0)
-            text.append("<br><b>Traits</b> ").append(armor.getTraits().stream().map(ItemTrait::getName).collect(Collectors.joining(", ")));
+            text.append("<br><b>Traits</b> ").append(armor.getTraits().stream().map(CustomTrait::getName).collect(Collectors.joining(", ")));
         return text.toString();
     }
 
@@ -303,7 +302,7 @@ public class EquipTabController {
             text.append("; <b>Reload</b> ").append(((RangedWeapon) weapon).getReload());
         }
         if(weapon.getTraits().size() > 0)
-            text.append("<br><b>Traits</b> ").append(weapon.getTraits().stream().map(ItemTrait::getName).collect(Collectors.joining(", ")));
+            text.append("<br><b>Traits</b> ").append(weapon.getTraits().stream().map(CustomTrait::getName).collect(Collectors.joining(", ")));
         return text.toString();
     }
 

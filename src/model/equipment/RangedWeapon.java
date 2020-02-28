@@ -1,19 +1,13 @@
 package model.equipment;
 
-import model.enums.DamageType;
-import model.enums.Rarity;
-import model.enums.WeaponProficiency;
-
-import java.util.List;
-
 public class RangedWeapon extends Weapon {
     private final int range;
     private final int reload;
 
-    public RangedWeapon(double weight, double value, String name, String description, Rarity rarity, Dice damage, DamageType damageType, int hands, WeaponGroup group, List<ItemTrait> traits, WeaponProficiency weaponProficiency, int range, int reload, boolean uncommon) {
-        super(weight, value, name, description, rarity, damage, damageType, hands, group, traits, weaponProficiency, uncommon);
-        this.range = range;
-        this.reload = reload;
+    private RangedWeapon(RangedWeapon.Builder builder) {
+        super(builder);
+        this.range = builder.range;
+        this.reload = builder.reload;
     }
 
     @Override
@@ -27,5 +21,27 @@ public class RangedWeapon extends Weapon {
 
     public int getReload() {
         return reload;
+    }
+
+    public static class Builder extends Weapon.Builder {
+        private int range = 0;
+        private int reload = 0;
+
+        public Builder(Weapon.Builder builder) {
+            super(builder.build());
+        }
+
+        @Override
+        public RangedWeapon build() {
+            return new RangedWeapon(this);
+        }
+
+        public void setRange(int range) {
+            this.range = range;
+        }
+
+        public void setReload(int reload) {
+            this.reload = reload;
+        }
     }
 }

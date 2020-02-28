@@ -66,17 +66,6 @@ public class ItemBuilder {
 	public void addTrait(String trait) {
 		this.traits.add(trait);
 	}
-
-	/*
-	*   <Name>Light mace</Name>
-		<Price>4 sp</Price>
-		<Damage>1d4 B</Damage>
-		<Bulk>L</Bulk>
-		<Hands>1</Hands>
-		<Group>Club</Group>
-		<Traits>Agile, finesse, shove
-		</Traits>
-	* */
 	public String build() {
 		StringBuilder item = new StringBuilder();
 		item.append("<Item level=\"").append(level);

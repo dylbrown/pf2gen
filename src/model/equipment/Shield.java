@@ -1,21 +1,18 @@
 package model.equipment;
 
 import model.enums.ArmorProficiency;
-import model.enums.Rarity;
 import model.enums.Slot;
-
-import java.util.List;
 
 public class Shield extends Armor {
     private final int hardness;
     private final int hp;
     private final int bt;
 
-    public Shield(double weight, double value, String name, String description, Rarity rarity, int acMod, int maxDex, int speedPenalty, int hardness, int hp, int bt, List<ItemTrait> traits) {
-        super(weight, value, name, description, rarity, acMod, maxDex, 0, speedPenalty, 0, ArmorGroup.None, traits, ArmorProficiency.Shield, Slot.OneHand);
-        this.hardness = hardness;
-        this.hp = hp;
-        this.bt = bt;
+    public Shield(Shield.Builder builder) {
+        super(builder);
+        this.hardness = builder.hardness;
+        this.hp = builder.hp;
+        this.bt = builder.bt;
     }
 
     public int getHardness() {
@@ -32,6 +29,48 @@ public class Shield extends Armor {
 
     @Override
     public Shield copy() {
-        return new Shield(getWeight(),getValue(),getName(),getDescription(),getRarity(),getAC(),getMaxDex(),getSpeedPenalty(), getHardness(), getHP(), getBT(), getTraits());
+        return new Shield.Builder(this).build();
+    }
+
+    public static class Builder extends Armor.Builder {
+        private int hardness;
+        private int hp;
+        private int bt;
+
+        public Builder() { init(); }
+
+        public Builder(Armor.Builder builder) {
+            super(builder.build());
+            init();
+        }
+
+        public Builder(Shield shield) {
+            super(shield);
+            this.hardness = shield.hardness;
+            this.hp = shield.hp;
+            this.bt = shield.bt;
+        }
+
+        private void init() {
+            this.setProficiency(ArmorProficiency.Shield);
+            this.setSlot(Slot.OneHand);
+        }
+
+        @Override
+        public Shield build() {
+            return new Shield(this);
+        }
+
+        public void setHardness(int hardness) {
+            this.hardness = hardness;
+        }
+
+        public void setHP(int hp) {
+            this.hp = hp;
+        }
+
+        public void setBT(int bt) {
+            this.bt = bt;
+        }
     }
 }

@@ -1,10 +1,11 @@
 package model.xml_parsers;
 
 import model.data_managers.EquipmentManager;
-import model.enums.Type;
 import model.util.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -18,6 +19,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 abstract class FileLoader<T> {
     File path;
@@ -50,6 +52,15 @@ abstract class FileLoader<T> {
         }
         assert doc != null;
         return doc;
+    }
+
+    void iterateElements(Document doc, String tagName, Consumer<Element> consumer) {
+        NodeList groupNodes = doc.getElementsByTagName(tagName);
+        for(int i=0; i<groupNodes.getLength(); i++) {
+            if(groupNodes.item(i).getNodeType() != Node.ELEMENT_NODE)
+                continue;
+            consumer.accept((Element) groupNodes.item(i));
+        }
     }
 
     List<Pair<Document, String>> getDocs(File path) {

@@ -1,9 +1,8 @@
 package model.equipment;
 
 import model.enums.ArmorProficiency;
-import model.enums.Rarity;
-import model.enums.Slot;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,31 +13,19 @@ public class Armor extends Equipment {
     private final int speedPenalty;
     private final int strength;
     private final ArmorGroup group;
-    private final List<ItemTrait> traits;
+    private final List<CustomTrait> traits;
     private final ArmorProficiency proficiency;
 
-    public Armor(double weight, double value, String name, String description, Rarity rarity, int acMod, int maxDex, int acp, int speedPenalty, int strength, ArmorGroup group, List<ItemTrait> traits, ArmorProficiency proficiency) {
-        super(weight, value, name, description, rarity, Slot.Armor);
-        this.AC = acMod;
-        this.maxDex = maxDex;
-        this.ACP = acp;
-        this.speedPenalty = speedPenalty;
-        this.strength = strength;
-        this.group = group;
-        this.traits = traits;
-        this.proficiency = proficiency;
-    }
-
-    Armor(double weight, double value, String name, String description, Rarity rarity, int acMod, int maxDex, int acp, int speedPenalty, int strength, ArmorGroup group, List<ItemTrait> traits, ArmorProficiency proficiency, Slot weirdSlot) {
-        super(weight, value, name, description, rarity, weirdSlot);
-        this.AC = acMod;
-        this.maxDex = maxDex;
-        this.ACP = acp;
-        this.speedPenalty = speedPenalty;
-        this.strength = strength;
-        this.group = group;
-        this.traits = traits;
-        this.proficiency = proficiency;
+    public Armor(Armor.Builder builder) {
+        super(builder);
+        this.AC = builder.AC;
+        this.maxDex = builder.maxDex;
+        this.ACP = builder.ACP;
+        this.speedPenalty = builder.speedPenalty;
+        this.strength = builder.strength;
+        this.group = builder.group;
+        this.traits = builder.traits;
+        this.proficiency = builder.proficiency;
     }
 
     public int getAC() {
@@ -65,7 +52,7 @@ public class Armor extends Equipment {
         return group;
     }
 
-    public List<ItemTrait> getTraits() {
+    public List<CustomTrait> getTraits() {
         return Collections.unmodifiableList(traits);
     }
 
@@ -75,6 +62,72 @@ public class Armor extends Equipment {
 
     @Override
     public Armor copy() {
-        return new Armor(getWeight(),getValue(),getName(),getDescription(),getRarity(),getAC(),getMaxDex(),getACP(),getSpeedPenalty(),getStrength(),getGroup(), getTraits(), getProficiency(), getSlot());
+        return new Armor.Builder(this).build();
+    }
+
+    public static class Builder extends Equipment.Builder {
+        private int AC=0;
+        private int maxDex=0;
+        private int ACP=0;
+        private int speedPenalty=0;
+        private int strength=0;
+        private ArmorGroup group=ArmorGroup.None;
+        private List<CustomTrait> traits= new ArrayList<>();
+        private ArmorProficiency proficiency = null;
+
+        public Builder() {}
+
+        public Builder(Armor armor) {
+            super(armor);
+            this.AC = armor.AC;
+            this.maxDex = armor.maxDex;
+            this.ACP = armor.ACP;
+            this.speedPenalty = armor.speedPenalty;
+            this.strength = armor.strength;
+            this.group = armor.group;
+            this.traits = armor.traits;
+            this.proficiency = armor.proficiency;
+        }
+
+        @Override
+        public Armor build() {
+            return new Armor(this);
+        }
+
+        public void setAC(int AC) {
+            this.AC = AC;
+        }
+
+        public void setMaxDex(int maxDex) {
+            this.maxDex = maxDex;
+        }
+
+        public void setACP(int ACP) {
+            this.ACP = ACP;
+        }
+
+        public void setSpeedPenalty(int speedPenalty) {
+            this.speedPenalty = speedPenalty;
+        }
+
+        public void setStrength(int strength) {
+            this.strength = strength;
+        }
+
+        public void setGroup(ArmorGroup group) {
+            this.group = group;
+        }
+
+        public void setTraits(List<CustomTrait> traits) {
+            this.traits = traits;
+        }
+
+        public void setProficiency(ArmorProficiency proficiency) {
+            this.proficiency = proficiency;
+        }
+
+        public void addArmorTrait(CustomTrait trait) {
+            this.traits.add(trait);
+        }
     }
 }

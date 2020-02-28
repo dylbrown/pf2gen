@@ -172,7 +172,7 @@ public class NethysItemScraper extends NethysScraper {
 							item.setHands(trim.replaceAll("[^\\d]+", ""));
 							break;
 						case "bulk":
-							item.setHands(trim);
+							item.setBulk(trim);
 							break;
 						case "usage":
 							item.setUsage(trim);

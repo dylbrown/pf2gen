@@ -1,10 +1,10 @@
 package model.equipment;
 
 import model.enums.DamageType;
-import model.enums.Rarity;
 import model.enums.Slot;
 import model.enums.WeaponProficiency;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -13,19 +13,19 @@ public class Weapon extends Equipment {
     private final DamageType damageType;
     private final int hands;
     private final WeaponGroup group;
-    private final List<ItemTrait> traits;
+    private final List<CustomTrait> traits;
     private final WeaponProficiency proficiency;
     private final boolean uncommon;
 
-    public Weapon(double weight, double value, String name, String description, Rarity rarity, Dice damage, DamageType damageType, int hands, WeaponGroup group, List<ItemTrait> traits, WeaponProficiency proficiency, boolean uncommon) {
-        super(weight, value, name, description, rarity, getSlot(hands));
-        this.damage = damage;
-        this.damageType = damageType;
-        this.hands = hands;
-        this.group = group;
-        this.traits = traits;
-        this.proficiency = proficiency;
-        this.uncommon = uncommon;
+    public Weapon(Weapon.Builder builder) {
+        super(builder);
+        this.damage = builder.damage;
+        this.damageType = builder.damageType;
+        this.hands = builder.hands;
+        this.group = builder.group;
+        this.traits = builder.traits;
+        this.proficiency = builder.proficiency;
+        this.uncommon = builder.uncommon;
     }
 
     private static Slot getSlot(int hands) {
@@ -48,7 +48,7 @@ public class Weapon extends Equipment {
         return group;
     }
 
-    public List<ItemTrait> getTraits() {
+    public List<CustomTrait> getTraits() {
         return Collections.unmodifiableList(traits);
     }
 
@@ -62,10 +62,66 @@ public class Weapon extends Equipment {
 
     @Override
     public Weapon copy() {
-        return new Weapon(getWeight(),getValue(),getName(),getDescription(),getRarity(),getDamage(),getDamageType(),getHands(),getGroup(),getTraits(),getProficiency(), uncommon);
+        return new Weapon.Builder(this).build();
     }
 
     public boolean isRanged(){
         return false;
+    }
+
+    public static class Builder extends Equipment.Builder {
+        private Dice damage;
+        private DamageType damageType;
+        private int hands;
+        private WeaponGroup group;
+        private List<CustomTrait> traits = new ArrayList<>();
+        private WeaponProficiency proficiency;
+        private boolean uncommon;
+
+        public Builder() {}
+
+        public Builder(Weapon weapon) {
+            super(weapon);
+            this.damage = weapon.damage;
+            this.damageType = weapon.damageType;
+            this.hands = weapon.hands;
+            this.group = weapon.group;
+            this.traits = new ArrayList<>(weapon.traits);
+            this.proficiency = weapon.proficiency;
+            this.uncommon = weapon.uncommon;
+        }
+
+        @Override
+        public Weapon build() {
+            return new Weapon(this);
+        }
+
+        public void setDamage(Dice damage) {
+            this.damage = damage;
+        }
+
+        public void setDamageType(DamageType damageType) {
+            this.damageType = damageType;
+        }
+
+        public void setHands(int hands) {
+            this.hands = hands;
+        }
+
+        public void setGroup(WeaponGroup group) {
+            this.group = group;
+        }
+
+        public void setProficiency(WeaponProficiency proficiency) {
+            this.proficiency = proficiency;
+        }
+
+        public void setUncommon(boolean uncommon) {
+            this.uncommon = uncommon;
+        }
+
+        public void addWeaponTrait(CustomTrait customTrait) {
+            traits.add(customTrait);
+        }
     }
 }
