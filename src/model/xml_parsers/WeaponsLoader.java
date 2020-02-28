@@ -97,9 +97,6 @@ public class WeaponsLoader extends FileLoader<Weapon> {
                     else
                         builder.setWeight(Double.parseDouble(trim));
                     break;
-                case "Hands":
-                    builder.setHands(Integer.parseInt(trim));
-                    break;
                 case "Group":
                     builder.setGroup(weaponGroups.get(trim.toLowerCase()));
                     break;

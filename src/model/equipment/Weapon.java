@@ -11,7 +11,6 @@ import java.util.List;
 public class Weapon extends Equipment {
     private final Dice damage;
     private final DamageType damageType;
-    private final int hands;
     private final WeaponGroup group;
     private final List<CustomTrait> traits;
     private final WeaponProficiency proficiency;
@@ -21,7 +20,6 @@ public class Weapon extends Equipment {
         super(builder);
         this.damage = builder.damage;
         this.damageType = builder.damageType;
-        this.hands = builder.hands;
         this.group = builder.group;
         this.traits = builder.traits;
         this.proficiency = builder.proficiency;
@@ -38,10 +36,6 @@ public class Weapon extends Equipment {
 
     public DamageType getDamageType() {
         return damageType;
-    }
-
-    public int getHands() {
-        return hands;
     }
 
     public WeaponGroup getGroup() {
@@ -84,7 +78,6 @@ public class Weapon extends Equipment {
             super(weapon);
             this.damage = weapon.damage;
             this.damageType = weapon.damageType;
-            this.hands = weapon.hands;
             this.group = weapon.group;
             this.traits = new ArrayList<>(weapon.traits);
             this.proficiency = weapon.proficiency;
@@ -102,10 +95,6 @@ public class Weapon extends Equipment {
 
         public void setDamageType(DamageType damageType) {
             this.damageType = damageType;
-        }
-
-        public void setHands(int hands) {
-            this.hands = hands;
         }
 
         public void setGroup(WeaponGroup group) {

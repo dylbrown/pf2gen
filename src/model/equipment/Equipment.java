@@ -20,6 +20,7 @@ public class Equipment implements Comparable<Equipment> {
     private final ReadOnlyStringWrapper description;
     private final ReadOnlyObjectWrapper<Slot> slot;
     private final ReadOnlyObjectWrapper<List<Trait>> traits;
+    private final int hands;
 
     Equipment(Equipment.Builder builder) {
         this.weight = new ReadOnlyDoubleWrapper(builder.weight);
@@ -30,6 +31,7 @@ public class Equipment implements Comparable<Equipment> {
         this.rarity = new ReadOnlyObjectWrapper<>(builder.rarity);
         this.slot = new ReadOnlyObjectWrapper<>(builder.slot);
         this.traits = new ReadOnlyObjectWrapper<>((builder.traits.size() > 0) ? builder.traits : Collections.emptyList());
+        this.hands = builder.hands;
     }
 
     double getWeight() {
@@ -63,6 +65,10 @@ public class Equipment implements Comparable<Equipment> {
 
     public Slot getSlot() {
         return slot.get();
+    }
+
+    public int getHands() {
+        return hands;
     }
 
     @Override
@@ -139,6 +145,7 @@ public class Equipment implements Comparable<Equipment> {
         String description = "";
         Slot slot = Slot.None;
         List<Trait> traits = new ArrayList<>();
+        private int hands;
 
         public Builder() {}
 
@@ -184,6 +191,10 @@ public class Equipment implements Comparable<Equipment> {
 
         public void addTrait(Trait trait) {
             traits.add(trait);
+        }
+
+        public void setHands(int hands) {
+            this.hands = hands;
         }
 
         public Equipment build() {

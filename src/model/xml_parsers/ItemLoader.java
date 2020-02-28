@@ -66,7 +66,8 @@ public class ItemLoader extends FileLoader<Equipment> {
                 else
                     builder.setWeight(Double.parseDouble(trim));
                 break;
-            case "Hands": //TODO: Support hands on any item
+            case "Hands":
+                builder.setHands(Integer.parseInt(trim));
                 break;
             case "Traits":
                 Arrays.stream(trim.split(",")).map((item)->
