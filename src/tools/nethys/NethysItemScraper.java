@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class NethysItemScraper extends NethysScraper {
-	private final Map<String, StringBuilder> sources = new HashMap<>();
+	private Map<String, StringBuilder> sources = new HashMap<>();
 	private final Set<Integer> visited = new HashSet<>();
 	private static final List<Integer> extensions = new ArrayList<>(Arrays.asList(
 			1,15,6,45,21,22,23,2,31,32,33,34,41
@@ -60,6 +60,7 @@ public class NethysItemScraper extends NethysScraper {
 					out.write("<SubCategory name=\""+subCatName+"\">");
 					parseTable(subDoc, out);
 					out.write("</SubCategory>");
+					sources = new HashMap<>();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
