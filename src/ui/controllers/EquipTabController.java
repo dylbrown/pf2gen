@@ -11,22 +11,18 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.web.WebView;
 import javafx.util.StringConverter;
-import model.enums.ArmorProficiency;
 import model.enums.BuySellMode;
 import model.enums.Slot;
-import model.equipment.*;
-import model.equipment.weapons.RangedWeapon;
-import model.equipment.weapons.Weapon;
+import model.equipment.Equipment;
+import model.equipment.ItemCount;
 import model.util.OPair;
 import ui.Main;
+import ui.controls.equipment.EquipmentHTMLGenerator;
 import ui.controls.equipment.EquipmentList;
 import ui.controls.equipment.ItemEntry;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static model.util.StringUtils.generateCostString;
 
 public class EquipTabController {
 
@@ -54,7 +50,7 @@ public class EquipTabController {
     private Button addMoney;
 
     @FXML
-    private WebView item;
+    private WebView itemDisplay;
     @FXML
     private RadioMenuItem nameSort, priceSort, ascSort, descSort;
     private final ToggleGroup sortBy = new ToggleGroup(); private final ToggleGroup direction = new ToggleGroup();
@@ -80,6 +76,7 @@ public class EquipTabController {
 
     @FXML
     private void initialize() {
+        itemDisplay.setZoom(1.25);
         EquipmentList.init(allItems, this::tryToBuy);
         nameCol.setCellValueFactory(param -> param.getValue().first.get().stats().nameProperty());
         slotCol.setCellValueFactory(param -> param.getValue().second);
@@ -88,17 +85,12 @@ public class EquipTabController {
 
 
         money.setText(Main.character.inventory().getMoneyProperty().get()+" sp");
-        Main.character.inventory().getMoneyProperty().addListener((event)-> money.setText(Main.character.inventory().getMoneyProperty().get()+" sp"));
+        Main.character.inventory().getMoneyProperty().addListener((event)->
+                money.setText(Main.character.inventory().getMoneyProperty().get()+" sp"));
         value = Main.character.inventory().getTotalValue();
         totalValue.setText(value+" sp");
 
         //Set up sort options
-        sortBy.getToggles().addAll(nameSort, priceSort);
-        direction.getToggles().addAll(ascSort,descSort);
-        sortBy.selectToggle(nameSort);
-        sortBy.selectedToggleProperty().addListener((change)->sortStore());
-        direction.selectedToggleProperty().addListener((change)->sortStore());
-        direction.selectToggle(ascSort);
 
 
 
@@ -186,13 +178,16 @@ public class EquipTabController {
         });
 
         multiplier.getItems().addAll(BuySellMode.values());
-        multiplier.setConverter(new StringConverter<BuySellMode>() {
+        multiplier.setConverter(new StringConverter<>() {
             @Override
             public String toString(BuySellMode object) {
                 switch (object) {
-                    case Normal: return "Normal";
-                    case SellHalf: return "Sell Half";
-                    case Cashless: return "Cashless";
+                    case Normal:
+                        return "Normal";
+                    case SellHalf:
+                        return "Sell Half";
+                    case Cashless:
+                        return "Cashless";
                 }
                 return null;
             }
@@ -200,9 +195,12 @@ public class EquipTabController {
             @Override
             public BuySellMode fromString(String string) {
                 switch (string) {
-                    case "Normal": return BuySellMode.Normal;
-                    case "Sell Half": return BuySellMode.SellHalf;
-                    case "Cashless": return BuySellMode.Cashless;
+                    case "Normal":
+                        return BuySellMode.Normal;
+                    case "Sell Half":
+                        return BuySellMode.SellHalf;
+                    case "Cashless":
+                        return BuySellMode.Cashless;
                 }
                 return null;
             }
@@ -229,70 +227,9 @@ public class EquipTabController {
     }
 
     private void setDisplay(Equipment selectedItem) {
-        if (selectedItem instanceof Weapon)
-            item.getEngine().loadContent(generateWeaponText((Weapon) selectedItem));
-        else if (selectedItem instanceof Armor)
-            item.getEngine().loadContent(generateArmorText((Armor) selectedItem));
-    }
-
-    private String generateArmorText(Armor armor) {
-        StringBuilder text = new StringBuilder();
-        text.append("<p><h3 style='display:inline;'>").append(armor.getName()).append("</h3><br>");
-        if(armor.getProficiency() != ArmorProficiency.Shield)
-            text.append(armor.getProficiency()).append(" Armor<br><b>Cost</b> ");
-        else
-            text.append("Shield<br><b>Cost</b> ");
-        text.append(generateCostString(armor.getValue())).append("; <b>Bulk</b> ");
-        text.append(armor.getPrettyWeight()).append("<br><b>AC Bonus</b> ");
-        if(armor.getAC() >= 0)
-            text.append("+");
-        text.append(armor.getAC());
-        if(armor instanceof Shield) {
-            text.append("; <b>Speed Penalty</b> ");
-            if (armor.getSpeedPenalty() < 0)
-                text.append(Math.abs(armor.getSpeedPenalty())).append(" ft.");
-            else
-                text.append("—");
-            text.append("<br><b>Hardness</b> ").append(((Shield) armor).getHardness());
-            text.append("; <b>HP(BT)</b> ").append(((Shield) armor).getHP()).append("(");
-            text.append(((Shield) armor).getBT()).append(")");
-        }else{
-            text.append("; <b>Dex Cap</b> +").append(armor.getMaxDex()).append("<br><b>ACP</b> ");
-            if (armor.getACP() < 0)
-                text.append(armor.getACP());
-            else
-                text.append("—");
-            text.append("; <b>Speed Penalty</b> ");
-            if (armor.getSpeedPenalty() < 0)
-                text.append(Math.abs(armor.getSpeedPenalty())).append(" ft.");
-            else
-                text.append("—");
-            text.append("<br><b>Strength</b> ");
-            if (armor.getStrength() > 0)
-                text.append(armor.getStrength());
-            else
-                text.append("—");
-            text.append("; <b>Group</b> ").append(armor.getGroup().getName());
-        }
-        if(armor.getTraits().size() > 0)
-            text.append("<br><b>Traits</b> ").append(armor.getTraits().stream().map(CustomTrait::getName).collect(Collectors.joining(", ")));
-        return text.toString();
-    }
-
-    private String generateWeaponText(Weapon weapon) {
-        StringBuilder text = new StringBuilder();
-        text.append("<p><h3 style='display:inline;'>").append(weapon.getName()).append("</h3><br>");
-        text.append(weapon.getProficiency().toString()).append(" Weapon<br><b>Cost</b> ");
-        text.append(generateCostString(weapon.getValue())).append("; <b>Bulk</b> ");
-        text.append(weapon.getPrettyWeight()).append("; <b>Hands</b> ").append(weapon.getHands());
-        text.append("<br><b>Damage</b> ").append(weapon.getDamage()).append(" ").append(weapon.getDamageType().toString(), 0, 1).append("; <b>Group</b> ").append(weapon.getGroup().getName());
-        if(weapon instanceof RangedWeapon){
-            text.append("<br><b>Range</b> ").append(((RangedWeapon) weapon).getRange());
-            text.append("; <b>Reload</b> ").append(((RangedWeapon) weapon).getReload());
-        }
-        if(weapon.getTraits().size() > 0)
-            text.append("<br><b>Traits</b> ").append(weapon.getTraits().stream().map(CustomTrait::getName).collect(Collectors.joining(", ")));
-        return text.toString();
+        String s = EquipmentHTMLGenerator.generateText(selectedItem);
+        itemDisplay.getEngine().loadContent(s);
+//        System.out.println(s);
     }
 
     private boolean controllerOp = false;
@@ -308,7 +245,7 @@ public class EquipTabController {
             dialog.setContentText("");
 
             Optional<Slot> result = dialog.showAndWait();
-            if (!result.isPresent()) {
+            if (result.isEmpty()) {
                 controllerOp = false;
                 return;
             }
@@ -381,15 +318,5 @@ public class EquipTabController {
             unequipped.refresh();
             equipped.refresh();
         }
-    }
-
-    private void sortStore() {
-        Comparator<Equipment> comparator;
-        if(sortBy.getSelectedToggle() == nameSort)
-            comparator = Comparator.comparing(Equipment::toString);
-        else
-            comparator = Comparator.comparing(Equipment::getValue);
-        if(direction.getSelectedToggle() == descSort)
-            comparator = comparator.reversed();
     }
 }

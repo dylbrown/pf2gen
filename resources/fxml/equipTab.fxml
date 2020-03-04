@@ -22,15 +22,13 @@
                            <rowConstraints>
                                <RowConstraints minHeight="10.0" vgrow="NEVER" />
                            </rowConstraints>
-                     <VBox alignment="CENTER_LEFT" GridPane.hgrow="SOMETIMES">
-                        <children>
-                           <ComboBox fx:id="multiplier" promptText="Buy/Sell Mode" />
-                           <Button fx:id="addMoney" alignment="CENTER" mnemonicParsing="false" text="Add Money" />
-                        </children>
-                        <padding>
-                           <Insets left="5.0" />
-                        </padding>
-                     </VBox>
+                           <VBox alignment="CENTER_LEFT" GridPane.hgrow="SOMETIMES">
+                               <padding>
+                                   <Insets left="5.0"/>
+                               </padding>
+                               <ComboBox fx:id="multiplier" promptText="Buy/Sell Mode"/>
+                               <Button fx:id="addMoney" alignment="CENTER" mnemonicParsing="false" text="Add Money"/>
+                           </VBox>
                            <VBox alignment="CENTER" GridPane.columnIndex="1">
                                <Label alignment="CENTER" contentDisplay="CENTER" text="Money" VBox.vgrow="SOMETIMES" />
                                <Label fx:id="money" alignment="CENTER" contentDisplay="CENTER" VBox.vgrow="SOMETIMES" />
@@ -57,7 +55,7 @@
                     <AnchorPane minHeight="0.0" minWidth="0.0">
                         <ListView fx:id="inventory" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                     </AnchorPane>
-               <WebView fx:id="item" minHeight="-1.0" minWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" />
+               <WebView fx:id="itemDisplay" minHeight="-1.0" minWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" />
                 </SplitPane>
             </SplitPane>
         </AnchorPane>

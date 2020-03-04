@@ -212,7 +212,7 @@ public class NethysItemScraper extends NethysScraper {
 				return "[[" + elem.attr("alt") + "]]";
 			}
 			else if(elem.tagName().equals("br")) {
-				return "\n";
+				return "&lt;br&gt;";
 			}
 		}
 		return "";

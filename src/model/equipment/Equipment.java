@@ -117,7 +117,7 @@ public class Equipment implements Comparable<Equipment> {
         return builder.build();
     }
 
-    private List<Trait> getTraits() {
+    public List<Trait> getTraits() {
         return Collections.unmodifiableList(traits.get());
     }
 

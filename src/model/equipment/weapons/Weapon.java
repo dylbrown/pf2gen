@@ -44,7 +44,7 @@ public class Weapon extends Equipment {
         return group;
     }
 
-    public List<CustomTrait> getTraits() {
+    public List<CustomTrait> getWeaponTraits() {
         return Collections.unmodifiableList(traits);
     }
 

@@ -52,7 +52,7 @@ public class Armor extends Equipment {
         return group;
     }
 
-    public List<CustomTrait> getTraits() {
+    public List<CustomTrait> getArmorTraits() {
         return Collections.unmodifiableList(traits);
     }
 
