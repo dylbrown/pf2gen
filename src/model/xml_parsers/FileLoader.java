@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-abstract class FileLoader<T> {
+public abstract class FileLoader<T> {
     File path;
     private static final DocumentBuilderFactory factory;
 

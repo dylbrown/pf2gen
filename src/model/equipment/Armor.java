@@ -75,7 +75,7 @@ public class Armor extends Equipment {
         private List<CustomTrait> traits= new ArrayList<>();
         private ArmorProficiency proficiency = null;
 
-        public Builder() {}
+        public Builder() {this.setCategory("Armor");}
 
         public Builder(Armor armor) {
             super(armor);
@@ -87,6 +87,7 @@ public class Armor extends Equipment {
             this.group = armor.group;
             this.traits = armor.traits;
             this.proficiency = armor.proficiency;
+            this.setCategory("Armor");
         }
 
         @Override

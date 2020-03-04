@@ -1,4 +1,4 @@
-package model.equipment;
+package model.equipment.weapons;
 
 public class RangedWeapon extends Weapon {
     private final int range;

@@ -10,7 +10,7 @@ import model.abilities.Activity;
 import model.enums.Slot;
 import model.equipment.Armor;
 import model.equipment.Shield;
-import model.equipment.Weapon;
+import model.equipment.weapons.Weapon;
 import model.spells.CasterType;
 
 import java.beans.IntrospectionException;

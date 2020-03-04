@@ -13,7 +13,7 @@ import model.WeaponGroupMod;
 import model.abilities.MinimumProficiencyList;
 import model.enums.Attribute;
 import model.enums.Proficiency;
-import model.equipment.WeaponGroup;
+import model.equipment.weapons.WeaponGroup;
 
 import java.util.*;
 

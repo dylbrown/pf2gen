@@ -11,14 +11,18 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
+import static model.util.StringUtils.camelCase;
 import static model.util.StringUtils.camelCaseWord;
 
 public class ItemLoader extends FileLoader<Equipment> {
     private List<Equipment> items = null;
+    private String niceTitle;
 
     public ItemLoader(String s) {
         path = new File("data/equipment/"+s);
+        niceTitle = camelCase(s.replace(".pfdyl","").replaceAll("_"," "));
     }
     @Override
     public List<Equipment> parse() {
@@ -38,6 +42,13 @@ public class ItemLoader extends FileLoader<Equipment> {
 
     private Equipment makeItem(Element item) {
         Equipment.Builder builder = new Equipment.Builder();
+        builder.setCategory(niceTitle);
+        Node parentNode = item.getParentNode();
+        if(parentNode instanceof Element && ((Element) parentNode).getTagName().equals("SubCategory")) {
+            builder.setSubCategory(((Element) parentNode).getAttribute("name"));
+        }
+        if(item.hasAttribute("level"))
+            builder.setLevel(Integer.valueOf(item.getAttribute("level")));
         NodeList nodeList = item.getChildNodes();
         for(int i=0; i<nodeList.getLength(); i++) {
             if(nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)
@@ -71,16 +82,24 @@ public class ItemLoader extends FileLoader<Equipment> {
                 break;
             case "Traits":
                 Arrays.stream(trim.split(",")).map((item)->
-                        Trait.valueOf(camelCaseWord(item.trim())))
+                {
+                    try{
+                        return Trait.valueOf(camelCaseWord(item.trim()));
+                    }catch(IllegalArgumentException e){
+                        System.out.println(e.getMessage());
+                        return null;
+                    }
+                }).filter(Objects::nonNull)
                     .forEachOrdered(builder::addTrait);
                 break;
         }
     }
 
 
-    private static double getPrice(String priceString) {
+    public static double getPrice(String priceString) {
+        if(priceString.equals("")) return 0;
         String[] split = priceString.split(" ");
-        double value = Double.parseDouble(split[0]);
+        double value = Double.parseDouble(split[0].replace(",",""));
         switch(split[1].toLowerCase()) {
             case "cp":
                 value *= .1;

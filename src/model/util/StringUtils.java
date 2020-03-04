@@ -18,4 +18,13 @@ public class StringUtils {
         while(i < str.length()-1 && !str.substring(i, i+1).matches("\\w")) i++;
         return str.substring(0, i) + str.substring(i,i+1).toUpperCase() + str.substring(i+1).toLowerCase();
     }
+
+    public static String generateCostString(double cost) {
+        if(Math.floor(cost) != cost)
+            return (int)(cost * 10) + " cp";
+        else if(cost < 100 || Math.floor(cost/10) != cost/10)
+            return (int)cost + " sp";
+        else
+            return (int)(cost / 10) + " gp";
+    }
 }

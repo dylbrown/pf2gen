@@ -11,17 +11,22 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.web.WebView;
 import javafx.util.StringConverter;
-import model.data_managers.EquipmentManager;
 import model.enums.ArmorProficiency;
 import model.enums.BuySellMode;
 import model.enums.Slot;
 import model.equipment.*;
+import model.equipment.weapons.RangedWeapon;
+import model.equipment.weapons.Weapon;
 import model.util.OPair;
 import ui.Main;
+import ui.controls.equipment.EquipmentList;
+import ui.controls.equipment.ItemEntry;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static model.util.StringUtils.generateCostString;
 
 public class EquipTabController {
 
@@ -34,7 +39,7 @@ public class EquipTabController {
     @FXML
     private TableColumn<OPair<ItemCount, Slot>, Integer> quantityCol;
     @FXML
-    private ListView<Equipment> allItems;
+    private TreeTableView<ItemEntry> allItems;
     @FXML
     private ListView<ItemCount> inventory, unequipped;
     @FXML
@@ -51,16 +56,9 @@ public class EquipTabController {
     @FXML
     private WebView item;
     @FXML
-    private CheckMenuItem armorFilter, weaponFilter;
-    @FXML
     private RadioMenuItem nameSort, priceSort, ascSort, descSort;
     private final ToggleGroup sortBy = new ToggleGroup(); private final ToggleGroup direction = new ToggleGroup();
     private double value = 0;
-
-    //All Items
-    private final ObservableList<Equipment> itemList = FXCollections.observableArrayList();
-    private final FilteredList<Equipment> itemsFilter = new FilteredList<>(itemList);
-    private final SortedList<Equipment> itemsSort = new SortedList<>(itemsFilter);
 
     //Inventory List
     private final ObservableList<ItemCount> inventoryList = FXCollections.observableArrayList(count -> new Observable[]{count.countProperty()});
@@ -82,23 +80,17 @@ public class EquipTabController {
 
     @FXML
     private void initialize() {
+        EquipmentList.init(allItems, this::tryToBuy);
         nameCol.setCellValueFactory(param -> param.getValue().first.get().stats().nameProperty());
         slotCol.setCellValueFactory(param -> param.getValue().second);
         weightCol.setCellValueFactory(param -> param.getValue().first.get().stats().nameProperty());
         quantityCol.setCellValueFactory(param -> param.getValue().first.get().countProperty());
 
 
-        itemList.addAll(EquipmentManager.getEquipment());
         money.setText(Main.character.inventory().getMoneyProperty().get()+" sp");
         Main.character.inventory().getMoneyProperty().addListener((event)-> money.setText(Main.character.inventory().getMoneyProperty().get()+" sp"));
         value = Main.character.inventory().getTotalValue();
         totalValue.setText(value+" sp");
-
-        allItems.setItems(itemsSort);
-
-        //Set Up Filter Toggles
-        armorFilter.selectedProperty().addListener((change)->filterStore());
-        weaponFilter.selectedProperty().addListener((change)->filterStore());
 
         //Set up sort options
         sortBy.getToggles().addAll(nameSort, priceSort);
@@ -110,15 +102,12 @@ public class EquipTabController {
 
 
 
-        allItems.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selectedItem) -> setDisplay(selectedItem));
+        allItems.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selectedItem) -> {
+            Equipment item = selectedItem.getValue().getItem();
+            if(item != null) setDisplay(item);
+        });
         inventory.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selectedItem) -> {
             if(selectedItem != null) setDisplay(selectedItem.stats());
-        });
-        allItems.setOnMouseClicked((event) -> {
-            if(event.getClickCount() % 2 == 0) {
-                Equipment item = allItems.getSelectionModel().getSelectedItem();
-                tryToBuy(item);
-            }
         });
         inventory.setOnMouseClicked((event) -> {
             if(event.getClickCount() % 2 == 0) {
@@ -306,15 +295,6 @@ public class EquipTabController {
         return text.toString();
     }
 
-    private String generateCostString(double cost) {
-        if(Math.floor(cost) != cost)
-            return (int)(cost * 10) + " cp";
-        else if(cost < 100 || Math.floor(cost/10) != cost/10)
-            return (int)cost + " sp";
-        else
-            return (int)(cost / 10) + " gp";
-    }
-
     private boolean controllerOp = false;
     private void tryToEquip(ItemCount unequippedItem) {
         controllerOp = true;
@@ -403,10 +383,6 @@ public class EquipTabController {
         }
     }
 
-    private void filterStore(){
-        itemsFilter.setPredicate((item)-> (armorFilter.isSelected() && item instanceof Armor) || (weaponFilter.isSelected() && item instanceof Weapon));
-    }
-
     private void sortStore() {
         Comparator<Equipment> comparator;
         if(sortBy.getSelectedToggle() == nameSort)
@@ -415,6 +391,5 @@ public class EquipTabController {
             comparator = Comparator.comparing(Equipment::getValue);
         if(direction.getSelectedToggle() == descSort)
             comparator = comparator.reversed();
-        itemsSort.setComparator(comparator);
     }
 }

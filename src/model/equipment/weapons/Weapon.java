@@ -1,8 +1,10 @@
-package model.equipment;
+package model.equipment.weapons;
 
 import model.enums.DamageType;
 import model.enums.Slot;
 import model.enums.WeaponProficiency;
+import model.equipment.CustomTrait;
+import model.equipment.Equipment;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,7 +74,7 @@ public class Weapon extends Equipment {
         private WeaponProficiency proficiency;
         private boolean uncommon;
 
-        public Builder() {}
+        public Builder() { this.setCategory("Weapon");}
 
         public Builder(Weapon weapon) {
             super(weapon);
@@ -82,6 +84,7 @@ public class Weapon extends Equipment {
             this.traits = new ArrayList<>(weapon.traits);
             this.proficiency = weapon.proficiency;
             this.uncommon = weapon.uncommon;
+            this.setCategory("Weapon");
         }
 
         @Override

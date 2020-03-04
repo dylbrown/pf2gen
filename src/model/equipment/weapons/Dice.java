@@ -1,4 +1,4 @@
-package model.equipment;
+package model.equipment.weapons;
 
 import java.util.HashMap;
 import java.util.Map;

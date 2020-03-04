@@ -3,6 +3,10 @@ package model.xml_parsers;
 import model.enums.DamageType;
 import model.enums.WeaponProficiency;
 import model.equipment.*;
+import model.equipment.weapons.Dice;
+import model.equipment.weapons.RangedWeapon;
+import model.equipment.weapons.Weapon;
+import model.equipment.weapons.WeaponGroup;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -10,12 +14,14 @@ import org.w3c.dom.NodeList;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static model.util.StringUtils.camelCase;
 //TODO: Implement Builder Pattern
 public class WeaponsLoader extends FileLoader<Weapon> {
 
     private List<Weapon> weapons;
+    private List<Equipment> equipment;
     private static final Map<String, WeaponGroup> weaponGroups = new HashMap<>();
     private static final Map<String, CustomTrait> weaponTraits = new HashMap<>();
 
@@ -34,7 +40,7 @@ public class WeaponsLoader extends FileLoader<Weapon> {
                 weaponGroups.put(name.toLowerCase(), new WeaponGroup(critEffect, name));
             });
 
-            iterateElements(doc, "CustomTrait", (curr)->{
+            iterateElements(doc, "WeaponTrait", (curr)->{
                 String name = curr.getElementsByTagName("Name").item(0).getTextContent().trim();
                 String desc = curr.getElementsByTagName("Description").item(0).getTextContent().trim();
                 weaponTraits.put(camelCase(name), new CustomTrait(name, desc));
@@ -120,5 +126,10 @@ public class WeaponsLoader extends FileLoader<Weapon> {
     public Map<String, WeaponGroup> getWeaponsGroups() {
         if(weapons == null) parse();
         return Collections.unmodifiableMap(weaponGroups);
+    }
+
+    public List<Equipment> getEquipmentList() {
+        if(equipment == null) equipment = parse().stream().map(a->(Equipment) a).collect(Collectors.toList());
+        return equipment;
     }
 }

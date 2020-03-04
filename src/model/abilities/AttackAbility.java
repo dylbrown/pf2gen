@@ -1,6 +1,6 @@
 package model.abilities;
 
-import model.equipment.Weapon;
+import model.equipment.weapons.Weapon;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -1,10 +1,7 @@
 package model.xml_parsers;
 
 import model.enums.ArmorProficiency;
-import model.equipment.Armor;
-import model.equipment.ArmorGroup;
-import model.equipment.CustomTrait;
-import model.equipment.Shield;
+import model.equipment.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -12,12 +9,14 @@ import org.w3c.dom.NodeList;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static model.util.StringUtils.camelCase;
 //TODO: Implement Builder Pattern
 public class ArmorLoader extends FileLoader<Armor> {
 
     private List<Armor> armorAndShields;
+    private List<Equipment> equipment;
 
     private final Map<String, ArmorGroup> armorGroups = new HashMap<>();
     private final Map<String, CustomTrait> armorTraits = new HashMap<>();
@@ -100,9 +99,14 @@ public class ArmorLoader extends FileLoader<Armor> {
                     Arrays.stream(trim.split(",")).map((item)->armorTraits.get(camelCase(item.trim().split(" ")[0]))).forEachOrdered(builder::addArmorTrait);
                     break;
                 default:
-                    ItemLoader.parseTag(trim, armor, builder);
+                    ItemLoader.parseTag(trim, curr, builder);
             }
         }
         return (shieldBuilder != null) ? shieldBuilder.build() : builder.build();
+    }
+
+    public List<Equipment> getEquipmentList() {
+        if(equipment == null) equipment = parse().stream().map(a->(Equipment) a).collect(Collectors.toList());
+        return equipment;
     }
 }

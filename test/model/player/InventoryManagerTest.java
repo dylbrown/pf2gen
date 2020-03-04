@@ -6,7 +6,7 @@ import model.enums.Slot;
 import model.equipment.Armor;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
-import model.equipment.Weapon;
+import model.equipment.weapons.Weapon;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -6,7 +6,7 @@ import freemarker.template.TemplateModelException;
 import model.enums.Slot;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
-import model.equipment.Weapon;
+import model.equipment.weapons.Weapon;
 import model.util.Pair;
 import ui.Main;
 import ui.ftl.TemplateFiller;

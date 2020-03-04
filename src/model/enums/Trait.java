@@ -14,5 +14,10 @@ public enum Trait {
     Curse, Darkness, Death, Disease, Fortune, Healing, Incapacitation, Light, Misfortune, Possession, Sleep,
     Acid, Air, Chaotic, Cold, Earth, Electricity, Evil, Fire, Force, Good, Lawful, Plant, Negative, Positive, Shadow, Sonic, Water,
 
-    Oath
+    Oath,
+    Focused,Magical,Consumable,Mechanical,Precious,Invested,
+
+    Apex,Companion,Staff,Snare,Structure,Talisman,Trap,Wand,
+
+    Alchemical,Bomb,Contact,Elixir,Ingested,Inhaled,Injury,Mutagen,Oil,Potion,Splash,Virulent
 }

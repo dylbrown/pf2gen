@@ -14,8 +14,8 @@ import model.abilities.abilitySlots.SingleChoice;
 import model.enums.*;
 import model.equipment.Armor;
 import model.equipment.CustomTrait;
-import model.equipment.RangedWeapon;
-import model.equipment.Weapon;
+import model.equipment.weapons.RangedWeapon;
+import model.equipment.weapons.Weapon;
 import model.spells.Spell;
 
 import java.util.ArrayList;
@@ -188,6 +188,7 @@ public class PC {
     }
 
     public void setClass(PClass newPClass) {
+        if(newPClass == null) return;
         if(!(getPClass().equals(PClass.NO_CLASS))) {
             scores.remove(getPClass().getAbilityMods());
             for(int i=getLevel(); i>0; i--)
@@ -308,7 +309,8 @@ public class PC {
             if(attributes.getProficiency(requiredAttr.getAttr()).getValue().getMod() < requiredAttr.getMod().getMod())
                 return false;
         }
-        for (String s : ability.getPrerequisites()) {
+        for (String prereq : ability.getPrerequisites()) {
+            String[] split = prereq.split(" or ");
             boolean found=false;
 outerLoop:  for (String orClause : split) {
                 if(orClause.matches("Spell\\(.*\\)")) {

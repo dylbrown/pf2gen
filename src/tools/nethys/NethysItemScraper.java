@@ -85,13 +85,15 @@ public class NethysItemScraper extends NethysScraper {
 				e.printStackTrace();
 			}
 		});
-		for (StringBuilder value : sources.values()) {
+		for (Map.Entry<String, StringBuilder> entry : sources.entrySet()) {
 			try {
-				out.write(value.toString());
+				if(entry.getKey().equals("core rulebook"))
+					out.write(entry.getValue().toString());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+
 	}
 
 	private Pair<String, String> addItem(String href) {

@@ -1,4 +1,4 @@
-package model.equipment;
+package model.equipment.weapons;
 
 public class WeaponGroup {
     private final String effect;

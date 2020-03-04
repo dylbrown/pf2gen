@@ -1,7 +1,7 @@
 package model;
 
 import model.enums.Proficiency;
-import model.equipment.WeaponGroup;
+import model.equipment.weapons.WeaponGroup;
 
 public class WeaponGroupMod {
     private final WeaponGroup group;
