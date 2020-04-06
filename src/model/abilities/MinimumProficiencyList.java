@@ -6,7 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.TransformationList;
-import model.enums.Attribute;
+import model.attributes.Attribute;
 import model.enums.Proficiency;
 
 import java.util.Arrays;

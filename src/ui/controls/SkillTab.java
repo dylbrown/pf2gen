@@ -4,14 +4,14 @@ import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
-import model.enums.Attribute;
+import model.attributes.Attribute;
 import model.enums.Proficiency;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static model.enums.Attribute.*;
+import static model.attributes.Attribute.*;
 import static ui.Main.character;
 
 public class SkillTab extends AnchorPane {

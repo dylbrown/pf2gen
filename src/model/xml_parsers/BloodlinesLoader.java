@@ -1,12 +1,12 @@
 package model.xml_parsers;
 
-import model.AttributeMod;
+import model.attributes.AttributeMod;
 import model.abilities.Ability;
 import model.abilities.AbilitySet;
 import model.abilities.SpellAbility;
 import model.abilities.abilitySlots.FilledSlot;
 import model.data_managers.AllSpells;
-import model.enums.Attribute;
+import model.attributes.Attribute;
 import model.enums.Proficiency;
 import model.enums.Type;
 import model.spells.CasterType;

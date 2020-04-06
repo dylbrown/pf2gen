@@ -41,7 +41,7 @@ public class InventoryManager {
         unequipped.computeIfAbsent(item, (key)->new ItemCount(item, 0)).add(count);
 
         //Add To Total Weight
-        totalWeight += item.weightProperty().doubleValue() * count;
+        totalWeight += item.getWeight() * count;
         return true;
     }
 
@@ -67,7 +67,7 @@ public class InventoryManager {
         }
 
         //Remove From Total Weight
-        totalWeight -= item.weightProperty().doubleValue() * count;
+        totalWeight -= item.getWeight() * count;
         return true;
     }
 

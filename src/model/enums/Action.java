@@ -32,4 +32,36 @@ public enum Action {
     public int getCost() {
         return cost;
     }
+
+    public String getNiceString() {
+        switch (this) {
+            case Free:
+                return "Free Action";
+            case Reaction:
+                return "Reaction";
+            case One:
+                return "One Action";
+            case Two:
+                return "Two Actions";
+            case Three:
+                return "Three Actions";
+        }
+        return "";
+    }
+
+    public String getIcon() {
+        switch (this) {
+            case Free:
+                return "Ⓕ";
+            case Reaction:
+                return "Ⓡ";
+            case One:
+                return "①";
+            case Two:
+                return "②";
+            case Three:
+                return "③";
+        }
+        return "";
+    }
 }

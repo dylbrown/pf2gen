@@ -1,6 +1,8 @@
-package model.equipment;
+package model.equipment.armor;
 
 import model.enums.ArmorProficiency;
+import model.equipment.CustomTrait;
+import model.equipment.Equipment;
 
 import java.util.ArrayList;
 import java.util.Collections;

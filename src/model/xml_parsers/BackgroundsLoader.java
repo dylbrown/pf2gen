@@ -1,9 +1,9 @@
 package model.xml_parsers;
 
-import model.AttributeMod;
-import model.AttributeModSingleChoice;
+import model.attributes.AttributeMod;
+import model.attributes.AttributeModSingleChoice;
 import model.abc.Background;
-import model.enums.Attribute;
+import model.attributes.Attribute;
 import model.enums.Proficiency;
 import model.enums.Type;
 import model.util.Pair;

@@ -1,8 +1,8 @@
 package model.enums;
 
 public enum Type {
-    Initial, Ancestry, Background, Class, Feat, Heritage, General, Skill, Dedication, None,
-
+    Initial, Ancestry, Background, Class, Feat, Heritage, General, Skill, Dedication, None, Apex,
+    Item,
     Five,Ten,Fifteen,Twenty;
 
     public static Type get(int level) {

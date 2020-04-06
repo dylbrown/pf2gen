@@ -1,6 +1,8 @@
-package model.enums;
+package model.attributes;
 
 import model.ability_scores.AbilityScore;
+import model.enums.ArmorProficiency;
+import model.enums.WeaponProficiency;
 import model.util.StringUtils;
 
 import java.util.*;

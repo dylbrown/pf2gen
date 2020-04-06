@@ -1,6 +1,6 @@
 package model.abc;
 
-import model.AttributeMod;
+import model.attributes.AttributeMod;
 import model.abilities.abilitySlots.AbilitySlot;
 import model.abilities.abilitySlots.DynamicFilledSlot;
 import model.ability_scores.AbilityMod;

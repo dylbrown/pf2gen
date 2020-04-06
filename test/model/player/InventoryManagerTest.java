@@ -3,7 +3,7 @@ package model.player;
 import javafx.collections.ObservableMap;
 import model.data_managers.EquipmentManager;
 import model.enums.Slot;
-import model.equipment.Armor;
+import model.equipment.armor.Armor;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
 import model.equipment.weapons.Weapon;
@@ -250,7 +250,7 @@ class InventoryManagerTest {
         int i=1;
         for (Equipment sampleItem : sampleItems) {
             assertTrue(inventory.buy(sampleItem, i));
-            totalWeight += sampleItem.weightProperty().doubleValue() * i;
+            totalWeight += sampleItem.getWeight() * i;
             i++;
             assertEquals(totalWeight, inventory.getTotalWeight());
         }

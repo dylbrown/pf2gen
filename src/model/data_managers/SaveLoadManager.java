@@ -1,7 +1,8 @@
 package model.data_managers;
 
 import javafx.collections.ObservableList;
-import model.SkillIncrease;
+import model.attributes.Attribute;
+import model.attributes.SkillIncrease;
 import model.abc.Ancestry;
 import model.abc.Background;
 import model.abc.PClass;
@@ -108,15 +109,14 @@ public class SaveLoadManager {
             }
 
 
-        if (file != null) {
-            try {
-                ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
-                out.writeObject(map);
-                out.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            out.close();
         }
+        }
+    }
+
+    private static void writeOutLine(PrintWriter out, String s) {
+        out.write(s);
+        out.println();
     }
 
     public static void load(File file) {

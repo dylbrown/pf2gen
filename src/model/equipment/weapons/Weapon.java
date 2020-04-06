@@ -1,6 +1,5 @@
 package model.equipment.weapons;
 
-import model.enums.DamageType;
 import model.enums.Slot;
 import model.enums.WeaponProficiency;
 import model.equipment.CustomTrait;

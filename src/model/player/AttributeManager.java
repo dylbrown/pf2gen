@@ -6,12 +6,12 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import model.AttributeMod;
-import model.AttributeModSingleChoice;
-import model.SkillIncrease;
+import model.attributes.AttributeMod;
+import model.attributes.AttributeModSingleChoice;
+import model.attributes.SkillIncrease;
 import model.WeaponGroupMod;
 import model.abilities.MinimumProficiencyList;
-import model.enums.Attribute;
+import model.attributes.Attribute;
 import model.enums.Proficiency;
 import model.equipment.weapons.WeaponGroup;
 

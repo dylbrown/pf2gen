@@ -1,4 +1,4 @@
-package ui.controls.equipment;
+package ui.controls.equipment.all_items;
 
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeTableColumn;

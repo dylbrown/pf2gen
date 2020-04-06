@@ -8,7 +8,7 @@ import model.abilities.Ability;
 import model.abilities.AbilitySet;
 import model.abilities.Activity;
 import model.ability_scores.AbilityScore;
-import model.enums.Attribute;
+import model.attributes.Attribute;
 import model.enums.Slot;
 import model.equipment.ItemCount;
 import model.player.InventoryManager;

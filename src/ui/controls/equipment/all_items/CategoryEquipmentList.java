@@ -1,4 +1,4 @@
-package ui.controls.equipment;
+package ui.controls.equipment.all_items;
 
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
@@ -8,13 +8,15 @@ import model.equipment.Equipment;
 import model.xml_parsers.ItemLoader;
 
 import java.util.Comparator;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 
-public abstract class EquipmentList extends TreeTableView<ItemEntry> {
-    public static void init(TreeTableView<ItemEntry> allItems, Consumer<Equipment> handler) {
-        allItems.setShowRoot(false);
-        allItems.setRowFactory(new SelectRowFactory(handler));
-        allItems.setColumnResizePolicy(TreeTableView.CONSTRAINED_RESIZE_POLICY);
+public class CategoryEquipmentList extends TreeTableView<ItemEntry> {
+    public CategoryEquipmentList(Consumer<Equipment> handler) {
+        this.setShowRoot(false);
+        this.setRowFactory(new SelectRowFactory(handler));
+        this.setColumnResizePolicy(TreeTableView.CONSTRAINED_RESIZE_POLICY);
         TreeTableColumn<ItemEntry, String> name = new TreeTableColumn<>("Name");
         TreeTableColumn<ItemEntry, String> cost = new TreeTableColumn<>("Cost");
         TreeTableColumn<ItemEntry, String> level = new TreeTableColumn<>("Level");
@@ -30,17 +32,26 @@ public abstract class EquipmentList extends TreeTableView<ItemEntry> {
             return Double.compare(d1, d2);
         });
         //noinspection unchecked
-        allItems.getColumns().addAll(name, cost, level);
+        this.getColumns().addAll(name, cost, level);
         TreeItem<ItemEntry> root = new TreeItem<>(new ItemEntry("root"));
         for (String category : EquipmentManager.getCategories()) {
             TreeItem<ItemEntry> cat = new TreeItem<>(new ItemEntry(category));
             root.getChildren().add(cat);
+            Map<String, TreeItem<ItemEntry>> subCats = new TreeMap<>();
             for (Equipment equipment : EquipmentManager.getItems(category)) {
-                cat.getChildren().add(new TreeItem<>(new ItemEntry(equipment)));
+                String subCategory = equipment.getSubCategory();
+                if(subCategory.isBlank())
+                    cat.getChildren().add(new TreeItem<>(new ItemEntry(equipment)));
+                else {
+                    subCats.computeIfAbsent(subCategory, (s -> new TreeItem<>(new ItemEntry(s))))
+                            .getChildren()
+                            .add(new TreeItem<>(new ItemEntry(equipment)));
+                }
             }
+            cat.getChildren().addAll(subCats.values());
 
         }
-        allItems.setRoot(root);
-        name.minWidthProperty().bind(allItems.widthProperty().multiply(.6));
+        this.setRoot(root);
+        name.minWidthProperty().bind(this.widthProperty().multiply(.6));
     }
 }

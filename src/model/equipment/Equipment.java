@@ -1,6 +1,7 @@
 package model.equipment;
 
-import javafx.beans.property.*;
+import model.abilities.Ability;
+import model.attributes.AttributeBonus;
 import model.enums.Rarity;
 import model.enums.Slot;
 import model.enums.Trait;
@@ -11,64 +12,66 @@ import java.util.List;
 import java.util.Objects;
 
 public class Equipment implements Comparable<Equipment> {
-    private final ReadOnlyDoubleWrapper weight;
-    private final ReadOnlyDoubleWrapper value;
-    private final ReadOnlyStringWrapper name;
-    private final ReadOnlyStringWrapper category;
-    private final ReadOnlyStringWrapper subCategory;
-    private final ReadOnlyIntegerWrapper page;
-    private final ReadOnlyObjectWrapper<Rarity> rarity;
-    private final ReadOnlyStringWrapper description;
-    private final ReadOnlyObjectWrapper<Slot> slot;
-    private final ReadOnlyObjectWrapper<List<Trait>> traits;
+    private final double weight, value;
+    private final String name, category, subCategory;
+    private final int page;
+    private final Rarity rarity;
+    private final String description;
+    private final Slot slot;
+    private final List<Trait> traits;
     private final int hands, level;
+    private final List<AttributeBonus> bonuses;
+    private final List<Ability> abilities;
 
     protected Equipment(Equipment.Builder builder) {
-        this.weight = new ReadOnlyDoubleWrapper(builder.weight);
-        this.value = new ReadOnlyDoubleWrapper(builder.value);
-        this.name = new ReadOnlyStringWrapper(builder.name);
-        this.category = new ReadOnlyStringWrapper(builder.category);
-        this.subCategory = new ReadOnlyStringWrapper(builder.subCategory);
-        this.page = new ReadOnlyIntegerWrapper(builder.page);
-        this.description = new ReadOnlyStringWrapper(builder.description);
-        this.rarity = new ReadOnlyObjectWrapper<>(builder.rarity);
-        this.slot = new ReadOnlyObjectWrapper<>(builder.slot);
-        this.traits = new ReadOnlyObjectWrapper<>((builder.traits.size() > 0) ? builder.traits : Collections.emptyList());
+        this.weight = builder.weight;
+        this.value = builder.value;
+        this.name = builder.name;
+        this.category = builder.category;
+        this.subCategory = builder.subCategory;
+        this.page = builder.page;
+        this.description = builder.description;
+        this.rarity = builder.rarity;
+        this.slot = builder.slot;
+        this.traits = (builder.traits.size() > 0) ? builder.traits : Collections.emptyList();
         this.hands = builder.hands;
         this.level = builder.level;
+        this.bonuses = builder.bonuses;
+        this.abilities = builder.abilities;
     }
 
-    double getWeight() {
-        return weight.get();
+    public double getWeight() {
+        return weight;
     }
 
     public double getValue() {
-        return value.get();
+        return value;
     }
 
     public String getName() {
-        return name.get();
+        return name;
     }
 
-    public int getPage() {return page.get();}
+    public int getPage() {return page;}
 
     public Rarity getRarity() {
-        return rarity.get();
+        return rarity;
     }
 
     public String getPrettyWeight() {
-        if(weight.get() >= 1)
-            return String.valueOf(Math.round(weight.get()));
+        if(weight == 0) return "";
+        if(weight >= 1)
+            return String.valueOf(Math.round(weight));
         else
-            return ((weight.get() != .1) ? Math.floor(weight.get())*10 : "") +"L";
+            return ((weight != .1) ? Math.floor(weight)*10 : "") +"L";
     }
 
     public String getDesc() {
-        return description.get();
+        return description;
     }
 
     public Slot getSlot() {
-        return slot.get();
+        return slot;
     }
 
     public int getHands() {
@@ -81,36 +84,12 @@ public class Equipment implements Comparable<Equipment> {
 
     @Override
     public String toString() {
-        return name.get();
+        return name;
     }
 
-    public ReadOnlyDoubleProperty weightProperty() {
-        return weight.getReadOnlyProperty();
-    }
+    public String getCategory() {return category;}
 
-    public ReadOnlyDoubleProperty valueProperty() {
-        return value.getReadOnlyProperty();
-    }
-
-    public ReadOnlyStringProperty nameProperty() {
-        return name.getReadOnlyProperty();
-    }
-
-    public ReadOnlyObjectProperty<Rarity> rarityProperty() {
-        return rarity.getReadOnlyProperty();
-    }
-
-    String getDescription() {
-        return description.get();
-    }
-
-    public ReadOnlyStringProperty descriptionProperty() {
-        return description.getReadOnlyProperty();
-    }
-
-    public ReadOnlyObjectProperty<Slot> slotProperty() {
-        return slot.getReadOnlyProperty();
-    }
+    public String getSubCategory() {return subCategory;}
 
     public Equipment copy() {
         Builder builder = new Builder(this);
@@ -118,7 +97,15 @@ public class Equipment implements Comparable<Equipment> {
     }
 
     public List<Trait> getTraits() {
-        return Collections.unmodifiableList(traits.get());
+        return Collections.unmodifiableList(traits);
+    }
+
+    public List<AttributeBonus> getBonuses() {
+        return Collections.unmodifiableList(bonuses);
+    }
+
+    public List<Ability> getAbilities() {
+        return Collections.unmodifiableList(abilities);
     }
 
     @Override
@@ -126,17 +113,23 @@ public class Equipment implements Comparable<Equipment> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Equipment equipment = (Equipment) o;
-        return weight.equals(equipment.weight) &&
-                value.equals(equipment.value) &&
+        return Double.compare(equipment.weight, weight) == 0 &&
+                Double.compare(equipment.value, value) == 0 &&
+                page == equipment.page &&
+                hands == equipment.hands &&
+                level == equipment.level &&
                 name.equals(equipment.name) &&
-                rarity.equals(equipment.rarity) &&
+                Objects.equals(category, equipment.category) &&
+                Objects.equals(subCategory, equipment.subCategory) &&
+                rarity == equipment.rarity &&
                 Objects.equals(description, equipment.description) &&
-                slot.equals(equipment.slot);
+                slot == equipment.slot &&
+                Objects.equals(traits, equipment.traits);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(weight, value, name, rarity, description, slot);
+        return Objects.hash(weight, value, name, category, subCategory, page, rarity, description, slot, traits, hands, level);
     }
 
     @Override
@@ -157,6 +150,8 @@ public class Equipment implements Comparable<Equipment> {
         List<Trait> traits = new ArrayList<>();
         private int hands;
         private int level;
+        private List<AttributeBonus> bonuses = Collections.emptyList();
+        private List<Ability> abilities = Collections.emptyList();
 
         public Builder() {}
 
@@ -166,7 +161,7 @@ public class Equipment implements Comparable<Equipment> {
             this.name = equipment.getName();
             this.page = equipment.getPage();
             this.rarity = equipment.getRarity();
-            this.description = equipment.getDescription();
+            this.description = equipment.getDesc();
             this.slot = equipment.getSlot();
             this.traits = new ArrayList<>(equipment.getTraits());
         }
@@ -218,6 +213,16 @@ public class Equipment implements Comparable<Equipment> {
 
         public void setLevel(int level) {
             this.level = level;
+        }
+
+        public void addBonus(AttributeBonus bonus) {
+            if(bonuses.size() == 0) bonuses = new ArrayList<>();
+            bonuses.add(bonus);
+        }
+
+        public void addAbility(Ability ability) {
+            if(abilities.size() == 0) abilities = new ArrayList<>();
+            abilities.add(ability);
         }
 
         public Equipment build() {

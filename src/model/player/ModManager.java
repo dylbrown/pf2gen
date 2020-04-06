@@ -5,10 +5,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import jdk.nashorn.api.scripting.AbstractJSObject;
 import jdk.nashorn.api.scripting.JSObject;
-import model.AttributeMod;
+import model.attributes.AttributeMod;
 import model.WeaponGroupMod;
 import model.data_managers.EquipmentManager;
-import model.enums.Attribute;
+import model.attributes.Attribute;
 import model.enums.Proficiency;
 
 import javax.script.ScriptContext;

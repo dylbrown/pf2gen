@@ -1,6 +1,6 @@
 package model.data_managers;
 
-import model.equipment.Armor;
+import model.equipment.armor.Armor;
 import model.equipment.Equipment;
 import model.equipment.weapons.Weapon;
 import model.equipment.weapons.WeaponGroup;

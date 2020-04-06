@@ -2,9 +2,9 @@ package model.player;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
-import model.AttributeMod;
-import model.AttributeModSingleChoice;
-import model.enums.Attribute;
+import model.attributes.AttributeMod;
+import model.attributes.AttributeModSingleChoice;
+import model.attributes.Attribute;
 import model.enums.Proficiency;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

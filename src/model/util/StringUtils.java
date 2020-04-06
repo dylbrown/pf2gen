@@ -20,6 +20,7 @@ public class StringUtils {
     }
 
     public static String generateCostString(double cost) {
+        if(cost == 0) return "";
         if(Math.floor(cost) != cost)
             return (int)(cost * 10) + " cp";
         else if(cost < 100 || Math.floor(cost/10) != cost/10)

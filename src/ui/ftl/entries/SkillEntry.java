@@ -1,7 +1,7 @@
 package ui.ftl.entries;
 
 import model.ability_scores.AbilityScore;
-import model.enums.Attribute;
+import model.attributes.Attribute;
 
 import java.util.function.Supplier;
 

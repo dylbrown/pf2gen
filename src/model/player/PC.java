@@ -2,7 +2,8 @@ package model.player;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import model.AttributeMod;
+import model.attributes.Attribute;
+import model.attributes.AttributeMod;
 import model.abc.Ancestry;
 import model.abc.Background;
 import model.abc.PClass;
@@ -12,7 +13,7 @@ import model.abilities.abilitySlots.AbilitySlot;
 import model.abilities.abilitySlots.Choice;
 import model.abilities.abilitySlots.SingleChoice;
 import model.enums.*;
-import model.equipment.Armor;
+import model.equipment.armor.Armor;
 import model.equipment.CustomTrait;
 import model.equipment.weapons.RangedWeapon;
 import model.equipment.weapons.Weapon;

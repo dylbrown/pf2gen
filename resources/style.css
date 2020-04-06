@@ -1,10 +1,10 @@
 /* standard cell */
-.list-cell, .tree-cell, .tree-table-row-cell {
+.list-cell, .tree-cell, .tree-table-row-cell, .table-row-cell {
     -fx-background: -fx-control-inner-background;
     -fx-background-color: derive(-fx-background, -30%);
     -fx-text-fill: -fx-text-base-color;
 }
-.tree-table-cell {
+.tree-table-cell, .table-cell {
     -fx-text-fill: -fx-text-base-color;
 }
 /* Selected rows */
@@ -34,7 +34,7 @@
 .tree-table-view:focused:cell-selection > .virtual-flow > .clipped-container > .sheet > .tree-table-row-cell > .tree-table-cell:focused {
     -fx-background-color: -fx-background, -fx-cell-focus-inner-border, -fx-background;
 }
-.list-cell:odd, .tree-cell:odd, .tree-table-row-cell:odd {
+.list-cell:odd, .tree-cell:odd, .tree-table-row-cell:odd, .table-row-cell:odd {
     -fx-background: derive(-fx-control-inner-background-alt, -20%);
 }
 

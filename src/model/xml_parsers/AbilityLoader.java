@@ -1,7 +1,7 @@
 package model.xml_parsers;
 
-import model.AttributeMod;
-import model.AttributeModSingleChoice;
+import model.attributes.AttributeMod;
+import model.attributes.AttributeModSingleChoice;
 import model.abilities.*;
 import model.abilities.abilitySlots.*;
 import model.ability_scores.AbilityMod;
@@ -9,7 +9,7 @@ import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
 import model.data_managers.AllSpells;
 import model.enums.Action;
-import model.enums.Attribute;
+import model.attributes.Attribute;
 import model.enums.Proficiency;
 import model.enums.Type;
 import model.spells.CasterType;
@@ -29,7 +29,9 @@ import static model.util.StringUtils.camelCaseWord;
 
 public abstract class AbilityLoader<T> extends FileLoader<T> {
 
-    protected abstract Type getSource(Element element);
+    protected Type getSource(Element element) {
+        return null;
+    }
 
     List<Ability> makeAbilities(NodeList nodes) {
         List<Ability> choices = new ArrayList<>();
@@ -110,6 +112,9 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                         break;
                     case "GivesPrerequisites":
                         builder.setGivesPrerequisites(Arrays.asList(trim.split(", ?")));
+                        break;
+                    case "Requirements":
+                        builder.setRequirements(trim);
                         break;
                     case "Requires":
                         if(trim.matches(".*\\d.*"))
@@ -244,6 +249,11 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
             }
         }
         return mods;
+    }
+
+    public Ability makeAbility(Element curr) {
+        String level = curr.getAttribute("level");
+        return makeAbility(curr, curr.getAttribute("name"), (level.isBlank()) ? 0 : Integer.parseInt(level));
     }
 
     List<AbilityMod> getAbilityMods(String bonuses, String penalties, Type type) {

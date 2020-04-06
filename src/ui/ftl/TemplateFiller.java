@@ -8,7 +8,7 @@ import model.abilities.Ability;
 import model.abilities.AbilitySet;
 import model.abilities.Activity;
 import model.enums.Slot;
-import model.equipment.Armor;
+import model.equipment.armor.Armor;
 import model.equipment.Shield;
 import model.equipment.weapons.Weapon;
 import model.spells.CasterType;

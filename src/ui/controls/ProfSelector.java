@@ -6,7 +6,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import model.enums.Attribute;
+import model.attributes.Attribute;
 import model.enums.Proficiency;
 
 import static ui.Main.character;

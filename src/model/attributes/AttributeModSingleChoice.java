@@ -1,9 +1,8 @@
-package model;
+package model.attributes;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import model.abilities.abilitySlots.SingleChoiceList;
-import model.enums.Attribute;
 import model.enums.Proficiency;
 
 import java.util.ArrayList;

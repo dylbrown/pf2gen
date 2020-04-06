@@ -2,6 +2,8 @@ package model.xml_parsers;
 
 import model.enums.ArmorProficiency;
 import model.equipment.*;
+import model.equipment.armor.Armor;
+import model.equipment.armor.ArmorGroup;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

@@ -2,6 +2,7 @@ package model.equipment;
 
 import model.enums.ArmorProficiency;
 import model.enums.Slot;
+import model.equipment.armor.Armor;
 
 public class Shield extends Armor {
     private final int hardness;

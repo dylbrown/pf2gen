@@ -21,8 +21,8 @@ public class Activity extends Ability {
     }
 
     public static class Builder extends Ability.Builder {
-        private Action cost;
-        private String trigger;
+        private Action cost = Action.Free;
+        private String trigger = "";
 
         public void setCost(Action cost) {
             this.cost = cost;

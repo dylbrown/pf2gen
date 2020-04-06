@@ -57,7 +57,7 @@ public class NethysItemScraper extends NethysScraper {
 					Document subDoc = Jsoup.connect("https://2e.aonprd.com/"+subCat.attr("href")).get();
 					String subCatName = subDoc.getElementById("main")
 							.getElementsByClass("title").first().text();
-					out.write("<SubCategory name=\""+subCatName+"\">");
+					out.write("<SubCategory name=\""+subCatName+"\">\n");
 					parseTable(subDoc, out);
 					out.write("</SubCategory>");
 					sources = new HashMap<>();

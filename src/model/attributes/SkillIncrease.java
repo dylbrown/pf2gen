@@ -1,6 +1,5 @@
-package model;
+package model.attributes;
 
-import model.enums.Attribute;
 import model.enums.Proficiency;
 
 import java.util.Objects;

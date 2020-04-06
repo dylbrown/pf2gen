@@ -1,6 +1,6 @@
 package model.xml_parsers;
 
-import model.enums.DamageType;
+import model.equipment.weapons.DamageType;
 import model.enums.WeaponProficiency;
 import model.equipment.*;
 import model.equipment.weapons.Dice;

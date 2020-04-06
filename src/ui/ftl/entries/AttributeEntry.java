@@ -6,7 +6,7 @@ import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ObservableValue;
-import model.enums.Attribute;
+import model.attributes.Attribute;
 import model.enums.Proficiency;
 import ui.Main;
 

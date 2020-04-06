@@ -1,13 +1,15 @@
 package ui.controls.equipment;
 
+import model.abilities.Ability;
 import model.enums.ArmorProficiency;
 import model.enums.Trait;
-import model.equipment.Armor;
+import model.equipment.armor.Armor;
 import model.equipment.CustomTrait;
 import model.equipment.Equipment;
 import model.equipment.Shield;
 import model.equipment.weapons.RangedWeapon;
 import model.equipment.weapons.Weapon;
+import ui.controls.AbilityHTMLGenerator;
 
 import java.util.stream.Collectors;
 
@@ -26,12 +28,19 @@ public class EquipmentHTMLGenerator {
     private static String generateItemText(Equipment equipment) {
         StringBuilder text = new StringBuilder();
         text.append("<p><h3 style='display:inline;'>").append(equipment.getName()).append("<div style=\"padding-right:5px; float:right\">");
-        text.append("Category").append("</div></h3><br><b>Cost</b> ");
-        text.append(generateCostString(equipment.getValue())).append("; <b>Bulk</b> ");
-        text.append(equipment.getPrettyWeight()).append("; <b>Hands</b> ").append(equipment.getHands());
+        text.append(equipment.getCategory()).append("</div></h3><br><b>Cost</b> ");
+        text.append(generateCostString(equipment.getValue()));
+        if(equipment.getWeight() > 0)
+            text.append("; <b>Bulk</b> ").append(equipment.getPrettyWeight());
+        if(equipment.getHands() > 0)
+            text.append("; <b>Hands</b> ").append(equipment.getHands());
         if(equipment.getTraits().size() > 0)
             text.append("<br><b>Traits</b> ").append(equipment.getTraits().stream().map(Trait::toString).collect(Collectors.joining(", ")));
         text.append("<hr>").append(equipment.getDesc());
+        for (Ability ability : equipment.getAbilities()) {
+            text.append("<hr>").append(AbilityHTMLGenerator.generate(ability));
+        }
+
         return text.toString();
     }
 
@@ -41,7 +50,7 @@ public class EquipmentHTMLGenerator {
         if(armor.getProficiency() != ArmorProficiency.Shield)
             text.append(armor.getProficiency()).append(" Armor</div></h3><br><b>Cost</b> ");
         else
-            text.append("Shield</span><br><b>Cost</b> ");
+            text.append("Shield</div></h3><br><b>Cost</b> ");
         text.append(generateCostString(armor.getValue())).append("; <b>Bulk</b> ");
         text.append(armor.getPrettyWeight()).append("<br><b>AC Bonus</b> ");
         if(armor.getAC() >= 0)

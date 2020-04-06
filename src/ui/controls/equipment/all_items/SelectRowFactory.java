@@ -1,4 +1,4 @@
-package ui.controls.equipment;
+package ui.controls.equipment.all_items;
 
 import javafx.scene.control.TreeTableRow;
 import javafx.scene.control.TreeTableView;

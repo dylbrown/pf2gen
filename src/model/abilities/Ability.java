@@ -1,6 +1,6 @@
 package model.abilities;
 
-import model.AttributeMod;
+import model.attributes.AttributeMod;
 import model.abilities.abilitySlots.AbilitySlot;
 import model.ability_scores.AbilityMod;
 import model.enums.Type;
@@ -19,6 +19,7 @@ public class Ability implements Comparable<Ability> {
     private final List<AbilityMod> abilityMods;
     private final String name;
     private final String description;
+    private final String requirements;
     private final int level;
     private final int skillIncreases;
 
@@ -31,6 +32,7 @@ public class Ability implements Comparable<Ability> {
         this.prerequisites = builder.prerequisites;
         this.prereqStrings = builder.prereqStrings;
         this.givenPrerequisites = builder.givenPrerequisites;
+        this.requirements = builder.requirements;
         if(builder.requiredAttrs.size() == 0)
             this.requiredAttrs = Collections.emptyList();
         else
@@ -86,6 +88,10 @@ public class Ability implements Comparable<Ability> {
         return Collections.unmodifiableList(givenPrerequisites);
     }
 
+    public String getRequirements() {
+        return requirements;
+    }
+
     public String getCustomMod() {
         return customMod;
     }
@@ -137,6 +143,7 @@ public class Ability implements Comparable<Ability> {
         private String description = "";
         private int level = 1;
         private int skillIncreases = 0;
+        private String requirements = "";
 
         public Builder(){}
 
@@ -159,6 +166,10 @@ public class Ability implements Comparable<Ability> {
 
         public void setPrerequisites(List<String> prerequisites) {
             this.prerequisites = prerequisites;
+        }
+
+        public void setRequirements(String requirements) {
+            this.requirements = requirements;
         }
 
         public void setPrereqStrings(List<String> strings) {
