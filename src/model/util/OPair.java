@@ -4,9 +4,9 @@ import javafx.beans.property.SimpleObjectProperty;
 
 import java.util.Objects;
 
-public class OPair<T, U> {
-    public final SimpleObjectProperty<T> first;
-    public final SimpleObjectProperty<U> second;
+class OPair<T, U> {
+    private final SimpleObjectProperty<T> first;
+    private final SimpleObjectProperty<U> second;
 
     public OPair(T t, U u) {
         this.first = new SimpleObjectProperty<>(t);

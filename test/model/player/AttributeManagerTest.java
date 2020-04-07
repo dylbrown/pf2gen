@@ -13,12 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AttributeManagerTest {
 
-	private ReadOnlyObjectWrapper<Integer> level;
 	private AttributeManager attributes;
 
 	@BeforeEach
 	void setUp() {
-		level = new ReadOnlyObjectWrapper<>(7);
+		ReadOnlyObjectWrapper<Integer> level = new ReadOnlyObjectWrapper<>(7);
 		attributes = new AttributeManager(level, new DecisionManager(), new Applier());
 	}
 

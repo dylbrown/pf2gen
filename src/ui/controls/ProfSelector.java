@@ -11,13 +11,13 @@ import model.enums.Proficiency;
 
 import static ui.Main.character;
 
-public class ProfSelector extends HBox {
+class ProfSelector extends HBox {
     private final Attribute skill;
     private final CheckBox[] checkBoxes = {new CheckBox(), new CheckBox(), new CheckBox(), new CheckBox()};
     private final Proficiency[] profs = {Proficiency.Trained, Proficiency.Expert, Proficiency.Master, Proficiency.Legendary};
     private boolean infiniteStopper = false;
 
-    public ProfSelector(Attribute skill) {
+    ProfSelector(Attribute skill) {
         this.skill = skill;
         this.getChildren().addAll(new VBox(new Label("T"), checkBoxes[0]),new VBox(new Label("E"), checkBoxes[1]),new VBox(new Label("M"), checkBoxes[2]),new VBox(new Label("L"), checkBoxes[3]));
         for (Node child : this.getChildren()) {
@@ -27,7 +27,7 @@ public class ProfSelector extends HBox {
 
 
         character.attributes().getProficiency(skill).addListener((event)->updateSelector());
-        character.attributes().addObserver((observable, event)->updateSelector());
+        character.attributes().addListener((observable)->updateSelector());
         for (int i=0; i<checkBoxes.length;i++) {
             int finalI = i;
             checkBoxes[i].setOnAction((event)->handleClick(finalI));

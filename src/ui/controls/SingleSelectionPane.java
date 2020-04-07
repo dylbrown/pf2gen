@@ -6,7 +6,7 @@ import model.abilities.abilitySlots.SingleChoiceList;
 import static ui.Main.character;
 
 
-public class SingleSelectionPane<T> extends SelectionPane<T> {
+class SingleSelectionPane<T> extends SelectionPane<T> {
     SingleChoice<T> slot;
 
     SingleSelectionPane(SingleChoiceList<T> slot) {

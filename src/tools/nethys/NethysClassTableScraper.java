@@ -14,13 +14,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class NethysClassTableScraper extends ClassTableParser {
+class NethysClassTableScraper extends ClassTableParser {
 	public static void main(String[] args) {
 		new NethysClassTableScraper("http://2e.aonprd.com/Classes.aspx?ID=12", "generated/classTable.txt");
 	}
 
 	private Document doc;
 	private NethysClassTableScraper(String inputURL, String outputPath) {
+		super();
 		BufferedWriter out;
 		try  {
 			doc = Jsoup.connect(inputURL).get();

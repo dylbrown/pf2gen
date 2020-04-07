@@ -69,6 +69,10 @@ public class Spell implements Comparable<Spell> {
 		return description;
 	}
 
+	public String getPage() {
+		return page;
+	}
+
 	public int getLevel() {
 		return level;
 	}
@@ -106,9 +110,9 @@ public class Spell implements Comparable<Spell> {
 	public static class Builder {
 		private String name;
 		private int level;
-		private List<Trait> traits = new ArrayList<>();
+		private final List<Trait> traits = new ArrayList<>();
 		private List<Tradition> traditions = Collections.emptyList();
-		private List<SpellComponent> cast = new ArrayList<>();
+		private final List<SpellComponent> cast = new ArrayList<>();
 		private boolean isCantrip = false;
 		private String castTime = "";
 		private String requirements = "";

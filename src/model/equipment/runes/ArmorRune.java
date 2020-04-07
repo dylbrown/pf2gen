@@ -8,7 +8,7 @@ import java.util.List;
 
 public class ArmorRune extends Rune {
     private final int bonusAC;
-    ArmorRune(Builder builder) {
+    private ArmorRune(Builder builder) {
         super(builder);
         bonusAC = builder.bonusAC;
 

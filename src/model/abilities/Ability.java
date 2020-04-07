@@ -8,7 +8,7 @@ import model.enums.Type;
 import java.util.*;
 
 public class Ability implements Comparable<Ability> {
-    //TODO: Support Repeatedly Chooseable
+    //TODO: Support Repeated Choice
     private final List<String> prerequisites, prereqStrings, givenPrerequisites;
     private final List<AttributeMod> requiredAttrs;
     private final String customMod;
@@ -162,6 +162,7 @@ public class Ability implements Comparable<Ability> {
             this.description = builder.description;
             this.level = builder.level;
             this.skillIncreases = builder.skillIncreases;
+            this.requirements = builder.requirements;
         }
 
         public void setPrerequisites(List<String> prerequisites) {

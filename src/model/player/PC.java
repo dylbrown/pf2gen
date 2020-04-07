@@ -2,8 +2,6 @@ package model.player;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import model.attributes.Attribute;
-import model.attributes.AttributeMod;
 import model.abc.Ancestry;
 import model.abc.Background;
 import model.abc.PClass;
@@ -12,17 +10,23 @@ import model.abilities.AttackAbility;
 import model.abilities.abilitySlots.AbilitySlot;
 import model.abilities.abilitySlots.Choice;
 import model.abilities.abilitySlots.SingleChoice;
-import model.enums.*;
-import model.equipment.armor.Armor;
+import model.attributes.Attribute;
+import model.attributes.AttributeMod;
+import model.enums.Alignment;
+import model.enums.Language;
+import model.enums.Slot;
+import model.enums.Type;
 import model.equipment.CustomTrait;
+import model.equipment.armor.Armor;
 import model.equipment.weapons.RangedWeapon;
 import model.equipment.weapons.Weapon;
 import model.spells.Spell;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Observer;
 
 import static model.ability_scores.AbilityScore.*;
 
@@ -32,7 +36,7 @@ public class PC {
     private final ReadOnlyObjectWrapper<Background> background = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<PClass> pClass = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<Integer> level = new ReadOnlyObjectWrapper<>(0);
-    private final Eyeball ancestryWatcher = new Eyeball();
+    private final PropertyChangeSupport ancestryWatcher = new PropertyChangeSupport(ancestry);
     private final Applier applier = new Applier();
     private String name, height, weight, age, hair, eyes, gender;
     private String player;
@@ -46,14 +50,14 @@ public class PC {
     private final AbilityScoreManager scores = new AbilityScoreManager(applier);
     private final AttributeManager attributes = new AttributeManager(level.getReadOnlyProperty(), decisions, applier);
     private final SpellManager spells = new SpellManager(applier);
-    private List<Weapon> attacks = new ArrayList<>();
+    private final List<Weapon> attacks = new ArrayList<>();
 
     {
         modManager = new ModManager(this, level.getReadOnlyProperty(), applier);
     }
 
     public PC() {
-        scores.getScoreEyeball(Int).addObserver(((o, arg) -> {
+        scores.getScoreEyeball(Int).addPropertyChangeListener(((o) -> {
             if(getPClass() != null) {
                 attributes.updateSkillCount(getPClass().getSkillIncrease() + scores.getMod(Int));
             }
@@ -170,7 +174,7 @@ public class PC {
         this.ancestry.set(ancestry);
         scores.apply(ancestry.getAbilityMods());
         languages.addAll(ancestry.getLanguages());
-        ancestryWatcher.wink();
+        ancestryWatcher.firePropertyChange("ancestryChange", null, ancestry);
     }
 
     public void setBackground(Background background) {
@@ -218,8 +222,8 @@ public class PC {
     public int getHP() {
         return ((getAncestry() != null) ? getAncestry().getHP() : 0) + (((getPClass() != null) ? getPClass().getHP() : 0) + scores.getMod(Con)) * level.get() + modManager.get("hp");
     }
-    public void addAncestryObserver(Observer o) {
-        ancestryWatcher.addObserver(o); // TODO: Remove deprecated observer use
+    public void addAncestryObserver(PropertyChangeListener o) {
+        ancestryWatcher.addPropertyChangeListener(o);
     }
 
     public ReadOnlyObjectProperty<Integer> getLevelProperty() {

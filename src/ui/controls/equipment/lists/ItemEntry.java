@@ -1,4 +1,4 @@
-package ui.controls.equipment.all_items;
+package ui.controls.equipment.lists;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -7,7 +7,7 @@ import model.equipment.Equipment;
 
 import static model.util.StringUtils.generateCostString;
 
-public class ItemEntry {
+public class ItemEntry implements Comparable<ItemEntry> {
     private final Equipment item;
     private final ReadOnlyObjectWrapper<String> name;
     private final ReadOnlyObjectWrapper<String> cost;
@@ -59,6 +59,20 @@ public class ItemEntry {
             case "subCategory": return subCategoryProperty();
         }
         return null;
+    }
+
+
+    @Override
+    public int compareTo(ItemEntry o) {
+        if(this.getItem() == null && o.getItem() != null) return 1;
+        if(this.getItem() != null && o.getItem() == null) return -1;
+        return this.toString().compareTo(o.toString());
+    }
+
+    @Override
+    public String toString() {
+        if(item == null) return this.name.get();
+        else return item.toString();
     }
 }
 

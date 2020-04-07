@@ -47,16 +47,17 @@ public class Ancestry extends AC {
         return Collections.unmodifiableList(bonusLanguages);
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public static class Builder {
         private String name = "";
         private int HP = 0;
         private Size size = Size.Medium;
         private int speed = 0;
         private List<AbilityMod> abilityMods = Collections.emptyList();
-        private List<Ability> feats = new ArrayList<>();
-        private List<Ability> heritages = new ArrayList<>();
+        private final List<Ability> feats = new ArrayList<>();
+        private final List<Ability> heritages = new ArrayList<>();
         private String description = "";
-        private List<Language> languages = new ArrayList<>();
+        private final List<Language> languages = new ArrayList<>();
         private List<Language> bonusLanguages = new ArrayList<>();
 
         public Ancestry build() {

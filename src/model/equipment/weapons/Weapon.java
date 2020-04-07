@@ -105,6 +105,7 @@ public class Weapon extends Equipment {
 
         public void setProficiency(WeaponProficiency proficiency) {
             this.proficiency = proficiency;
+            this.setSubCategory(proficiency.toString());
         }
 
         public void setUncommon(boolean uncommon) {

@@ -3,12 +3,10 @@ package model.player;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-import jdk.nashorn.api.scripting.AbstractJSObject;
-import jdk.nashorn.api.scripting.JSObject;
-import model.attributes.AttributeMod;
 import model.WeaponGroupMod;
-import model.data_managers.EquipmentManager;
 import model.attributes.Attribute;
+import model.attributes.AttributeMod;
+import model.data_managers.EquipmentManager;
 import model.enums.Proficiency;
 
 import javax.script.ScriptContext;
@@ -20,20 +18,19 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 class ModManager {
-    private ScriptEngine engine;
-    private ObservableMap<String, Integer> mods = FXCollections.observableHashMap();
-    private List<String> jsStrings = new ArrayList<>();
+    private final ScriptEngine engine;
+    private final ObservableMap<String, Integer> mods = FXCollections.observableHashMap();
+    private final List<String> jsStrings = new ArrayList<>();
     private final Map<String, List<String>> choices = new HashMap<>();
-    private Map<String, ArbitraryChoice> arbitraryChoices = new HashMap<>();
+    private final Map<String, ArbitraryChoice> arbitraryChoices = new HashMap<>();
     private String currentlyChanging = "";
-    private ObservableBindings bindings = new ObservableBindings();
 
     @FunctionalInterface
-    public interface QuinConsumer<T, U, V, W, X> {
+    interface QuinConsumer<T, U, V, W, X> {
         void apply(T t, U u, V v, W w, X x);
     }
 
-    private class SpecialFunction extends AbstractJSObject {
+    /*private class SpecialFunction extends AbstractJSObject {
 
         private final BiConsumer<Object, Object> consumer;
 
@@ -51,17 +48,22 @@ class ModManager {
         public boolean isFunction() {
             return true;
         }
-    }
+    }*/
 
     ModManager(PC character, ReadOnlyObjectProperty<Integer> levelProperty, Applier applier) {
         ScriptEngineManager manager = new ScriptEngineManager();
-        engine = manager.getEngineByName("nashorn");
+        engine = manager.getEngineByName("graal.js");
+        ObservableBindings bindings = new ObservableBindings();
         engine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
-        engine.put("add",
-                new SpecialFunction((str, num) -> mods.merge((String)str, ((Number)num).intValue(), Integer::sum)));
-        engine.put("subtract",
-                new SpecialFunction((str, num) -> mods.merge((String)str, ((Number)num).intValue(), (oldInt, newInt)->oldInt-newInt)));
-        engine.put("addChoose", (QuinConsumer<String, String, JSObject, String, Integer>)
+        bindings.put("polyglot.js.allowAllAccess", true);
+
+        engine.put("add", (BiConsumer<String, Number>)
+                (str, num) -> mods.merge(str, num.intValue(), Integer::sum));
+
+        engine.put("subtract",(BiConsumer<String, Number>)
+                (str, num) -> mods.merge(str, num.intValue(), (oldInt, newInt)->oldInt-newInt));
+
+        engine.put("addChoose", (QuinConsumer<String, String, BiConsumer<Object, Object>, String, Integer>)
             (things, name, callback, secondParam, numSelections)->{
                 if(arbitraryChoices.get(name) != null){
                     add(arbitraryChoices.get(name), numSelections);
@@ -92,7 +94,7 @@ class ModManager {
                     choices.computeIfAbsent(name, (key)->new ArrayList<>()).add(response);
                     try {
                         setAdd();
-                        callback.call(null, response, secondParam);
+                        callback.accept(response, secondParam);
                     } catch (ScriptException e) {
                         e.printStackTrace();
                     }
@@ -100,7 +102,7 @@ class ModManager {
                     choices.computeIfAbsent(name, (key)->new ArrayList<>()).remove(response);
                     try {
                         setRemove();
-                        callback.call(null, response, secondParam);
+                        callback.accept(response, secondParam);
                     } catch (ScriptException e) {
                         e.printStackTrace();
                     }
@@ -111,7 +113,7 @@ class ModManager {
                         choice.addAll(choices.get(name));
             }
         );
-        engine.put("removeChoose", (QuinConsumer<String, String, JSObject, String, Integer>)
+        engine.put("removeChoose", (QuinConsumer<String, String, BiConsumer<Object, Object>, String, Integer>)
                 (things, name, callback, secondParam, numSelections)->{
                     if(arbitraryChoices.get(name).getNumSelections() > numSelections){
                         subtract(arbitraryChoices.get(name), numSelections);
@@ -122,16 +124,16 @@ class ModManager {
                 }
         );
         AttributeManager attributes = character.attributes();
-        engine.put("applyProf", new SpecialFunction((attr, prof)->
-                attributes.apply(new AttributeMod(Attribute.valueOf((String)attr), Proficiency.valueOf((String)prof)))));
-        engine.put("removeProf", new SpecialFunction((attr, prof)->
-                attributes.remove(new AttributeMod(Attribute.valueOf((String)attr), Proficiency.valueOf((String)prof)))));
-        engine.put("applyGroupProf", new SpecialFunction((group, prof)->
-                attributes.apply(new WeaponGroupMod(EquipmentManager.getWeaponGroups().get(((String)group).toLowerCase()),
-                        Proficiency.valueOf((String)prof)))));
-        engine.put("removeGroupProf", new SpecialFunction((group, prof)->
-                attributes.remove(new WeaponGroupMod(EquipmentManager.getWeaponGroups().get(((String)group).toLowerCase()),
-                        Proficiency.valueOf((String)prof)))));
+        engine.put("applyProf", (BiConsumer<String, String>)(attr, prof)->
+                attributes.apply(new AttributeMod(Attribute.valueOf(attr), Proficiency.valueOf(prof))));
+        engine.put("removeProf", (BiConsumer<String, String>)(attr, prof)->
+                attributes.remove(new AttributeMod(Attribute.valueOf(attr), Proficiency.valueOf(prof))));
+        engine.put("applyGroupProf", (BiConsumer<String, String>)(group, prof)->
+                attributes.apply(new WeaponGroupMod(EquipmentManager.getWeaponGroups().get(group.toLowerCase()),
+                        Proficiency.valueOf(prof))));
+        engine.put("removeGroupProf", (BiConsumer<String, String>)(group, prof)->
+                attributes.remove(new WeaponGroupMod(EquipmentManager.getWeaponGroups().get(group.toLowerCase()),
+                        Proficiency.valueOf(prof))));
         // TODO: Support Individual Weapon Proficiencies
         // TODO: Support Weapon Specialization
         engine.put("level", levelProperty.getValue());

@@ -30,6 +30,7 @@ public class AttributeEntry implements TemplateHashModel {
             case "attribute": return wrapper.wrap(attr);
             case "proficiency": return wrapper.wrap(prof.getValue());
             case "ability": return wrapper.wrap(attr.getKeyAbility());
+            case "level": return wrapper.wrap(level.get());
         }
         return null;
     }

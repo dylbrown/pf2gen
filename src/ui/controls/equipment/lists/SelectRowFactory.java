@@ -1,4 +1,4 @@
-package ui.controls.equipment.all_items;
+package ui.controls.equipment.lists;
 
 import javafx.scene.control.TreeTableRow;
 import javafx.scene.control.TreeTableView;
@@ -6,7 +6,7 @@ import model.equipment.Equipment;
 
 import java.util.function.Consumer;
 
-public class SelectRowFactory implements javafx.util.Callback<javafx.scene.control.TreeTableView<ItemEntry>, javafx.scene.control.TreeTableRow<ItemEntry>> {
+class SelectRowFactory implements javafx.util.Callback<javafx.scene.control.TreeTableView<ItemEntry>, javafx.scene.control.TreeTableRow<ItemEntry>> {
     private final Consumer<Equipment> handler;
 
     SelectRowFactory(Consumer<Equipment> handler) {

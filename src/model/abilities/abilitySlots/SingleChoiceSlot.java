@@ -7,7 +7,7 @@ import model.abilities.Ability;
 import java.util.Collections;
 import java.util.List;
 
-public class SingleChoiceSlot extends AbilitySlot implements ChoiceList<Ability>, AbilitySingleChoice {
+public class SingleChoiceSlot extends AbilitySlot implements AbilityChoiceList, AbilitySingleChoice {
     private final List<Ability> choices;
 
     public SingleChoiceSlot(String abilityName, int level, List<Ability> choices) {

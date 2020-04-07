@@ -9,11 +9,14 @@ import model.enums.BuySellMode;
 import model.enums.Slot;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
+import model.util.Eyeball;
+import model.util.Watcher;
 
 public class InventoryManager {
     static final Double INITIAL_AMOUNT = 150.0;
     private final ReadOnlyObjectWrapper<Double> money= new ReadOnlyObjectWrapper<>(INITIAL_AMOUNT);
     private final ObservableMap<Equipment, ItemCount> inventory = FXCollections.observableHashMap();
+    private final Eyeball<ItemCount, InventoryManager> buySellEye = new Eyeball<>(this);
     private final ObservableMap<Slot, ItemCount> equipped = FXCollections.observableHashMap();
     private final ObservableMap<Equipment, ItemCount> unequipped = FXCollections.observableHashMap();
     private double totalWeight = 0;
@@ -34,8 +37,9 @@ public class InventoryManager {
         money.set(money.get() - item.getValue() * count * buyMultiplier);
 
         //Add To Inventory
-        inventory.computeIfAbsent(item, (key)->new ItemCount(item, 0)).add(count);
-
+        ItemCount ic = inventory.computeIfAbsent(item, (key) -> new ItemCount(item, 0));
+        ic.add(count);
+        buySellEye.wink(new ItemCount(ic, ic.getCount()-count), ic);
 
         //Add To Unequipped
         unequipped.computeIfAbsent(item, (key)->new ItemCount(item, 0)).add(count);
@@ -46,12 +50,13 @@ public class InventoryManager {
     }
 
     public boolean sell(Equipment item, int count) {
-        ItemCount itemCount = inventory.get(item);
-        if(itemCount == null) return false;
-        int remaining = itemCount.getCount();
+        ItemCount ic = inventory.get(item);
+        if(ic == null) return false;
+        int remaining = ic.getCount();
         if(remaining - count < 0) return false;
         money.set(money.get() + item.getValue() * count * sellMultiplier);
-        itemCount.remove(count);
+        ic.remove(count);
+        buySellEye.wink(new ItemCount(ic, ic.getCount()+count), ic);
 
         //Unequip Some if there aren't enough unequipped
         if(unequipped.get(item).getCount() < count)
@@ -77,6 +82,10 @@ public class InventoryManager {
 
     public void addInventoryListener(MapChangeListener<Equipment, ItemCount> listener) {
         inventory.addListener(listener);
+    }
+
+    public void addBuySellWatcher(Watcher<ItemCount, InventoryManager> watcher) {
+        buySellEye.addWatcher(watcher);
     }
 
     public boolean equip(Equipment item, Slot slot, int count) {

@@ -29,7 +29,7 @@
             <SplitPane dividerPositions="0.5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <BorderPane fx:id="allItemsContainer">
                <center>
-                       <TreeTableView fx:id="allItems" />
+                       <TreeTableView />
                </center>
                <bottom>
                        <GridPane fx:id="itemGrid" alignment="CENTER" BorderPane.alignment="CENTER">
@@ -61,29 +61,23 @@
                <top>
                    <MenuBar BorderPane.alignment="CENTER">
                        <Menu mnemonicParsing="false" text="Group">
-                        <items>
                            <RadioMenuItem fx:id="groupByCategory" mnemonicParsing="false" selected="true" text="Category/Subcategory">
-                              <toggleGroup>
-                                 <ToggleGroup fx:id="groupBy" />
-                              </toggleGroup>
+                               <toggleGroup>
+                                   <ToggleGroup fx:id="groupBy" />
+                               </toggleGroup>
                            </RadioMenuItem>
                            <RadioMenuItem fx:id="groupByLevel" mnemonicParsing="false" text="Level/Category" toggleGroup="$groupBy" />
-                        </items>
                        </Menu>
-                     <Menu mnemonicParsing="false" text="Filter">
-                        <items>
+                       <Menu mnemonicParsing="false" text="Filter">
                            <Menu mnemonicParsing="false" text="Level">
-                              <items>
-                                 <RadioMenuItem mnemonicParsing="false" selected="true" text="Any Level">
-                                    <toggleGroup>
+                               <RadioMenuItem mnemonicParsing="false" selected="true" text="Any Level">
+                                   <toggleGroup>
                                        <ToggleGroup fx:id="levelFilter" />
-                                    </toggleGroup>
-                                 </RadioMenuItem>
-                                 <RadioMenuItem mnemonicParsing="false" text="Your Level or Lower" toggleGroup="$levelFilter" />
-                              </items>
+                                   </toggleGroup>
+                               </RadioMenuItem>
+                               <RadioMenuItem mnemonicParsing="false" text="Your Level or Lower" toggleGroup="$levelFilter" />
                            </Menu>
-                        </items>
-                     </Menu>
+                       </Menu>
                    </MenuBar>
                </top>
             </BorderPane>
@@ -95,6 +89,9 @@
                 </SplitPane>
             </SplitPane>
         </AnchorPane>
+    </Tab>
+    <Tab closable="false" text="Enchant">
+        <fx:include source="equip/enchantTab.fxml"/>
     </Tab>
     <Tab closable="false" text="Equip">
         <AnchorPane minHeight="0.0" minWidth="0.0">

@@ -127,6 +127,7 @@ public class Armor extends Equipment {
 
         public void setProficiency(ArmorProficiency proficiency) {
             this.proficiency = proficiency;
+            setSubCategory(proficiency.toString());
         }
 
         public void addArmorTrait(CustomTrait trait) {

@@ -20,7 +20,7 @@ public class CustomTrait {
         return name;
     }
 
-    public String getEffect() {
+    String getEffect() {
         return effect;
     }
 

@@ -24,7 +24,7 @@ public class SelectionsTab extends AnchorPane {
     private final ObservableList<Choice> boxItems = FXCollections.observableArrayList();
     private final AnchorPane container = new AnchorPane();
     private final Map<Choice, AnchorPane> panes = new HashMap<>();
-    private ObservableList<Choice> decisions;
+
     public SelectionsTab(){
         box.setVisible(false);
         GridPane grid = new GridPane();
@@ -46,7 +46,7 @@ public class SelectionsTab extends AnchorPane {
         GridPane.setHgrow(container, Priority.ALWAYS);
         GridPane.setVgrow(container, Priority.ALWAYS);
         container.getChildren().add(new Label());
-        decisions = character.decisions().getDecisions();
+        ObservableList<Choice> decisions = character.decisions().getDecisions();
         decisions.addListener((ListChangeListener<Choice>) (change)->{
             while(change.next()) {
                 boxItems.addAll(change.getAddedSubList());

@@ -1,10 +1,10 @@
-package ui.controls.equipment.all_items;
+package ui.controls.equipment.lists;
 
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeTableColumn;
 import javafx.util.Callback;
 
-public class TreeCellFactory implements Callback<TreeTableColumn.CellDataFeatures<ItemEntry, String>, ObservableValue<String>> {
+class TreeCellFactory implements Callback<TreeTableColumn.CellDataFeatures<ItemEntry, String>, ObservableValue<String>> {
     private final String propertyName;
 
     TreeCellFactory(String property) {

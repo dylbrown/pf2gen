@@ -20,9 +20,9 @@ import model.equipment.ItemCount;
 import ui.Main;
 import ui.controls.equipment.EquipmentHTMLGenerator;
 import ui.controls.equipment.EquippedEntry;
-import ui.controls.equipment.all_items.CategoryEquipmentList;
-import ui.controls.equipment.all_items.ItemEntry;
-import ui.controls.equipment.all_items.LevelEquipmentList;
+import ui.controls.equipment.lists.CategoryAllItemsList;
+import ui.controls.equipment.lists.ItemEntry;
+import ui.controls.equipment.lists.LevelAllItemsList;
 
 import java.util.*;
 import java.util.function.Function;
@@ -37,8 +37,8 @@ public class EquipTabController {
     private TableColumn<EquippedEntry, Integer> quantityCol;
     @FXML
     private BorderPane allItemsContainer;
-    private CategoryEquipmentList categoryGroup = new CategoryEquipmentList(this::tryToBuy);
-    private LevelEquipmentList levelGroup = new LevelEquipmentList(this::tryToBuy);
+    private final CategoryAllItemsList categoryGroup = new CategoryAllItemsList(this::tryToBuy);
+    private final LevelAllItemsList levelGroup = new LevelAllItemsList(this::tryToBuy);
     @FXML
     private ListView<ItemCount> inventory, unequipped;
     @FXML
@@ -57,7 +57,7 @@ public class EquipTabController {
     @FXML
     private RadioMenuItem groupByCategory, groupByLevel;
     @FXML
-    private ToggleGroup groupBy;
+    private ToggleGroup levelFilter, groupBy;
     private double value = 0;
 
     //Inventory List

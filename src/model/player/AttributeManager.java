@@ -15,6 +15,8 @@ import model.attributes.Attribute;
 import model.enums.Proficiency;
 import model.equipment.weapons.WeaponGroup;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.*;
 
 /**
@@ -35,7 +37,7 @@ public class AttributeManager {
     private final ReadOnlyObjectProperty<Integer> level;
     private final DecisionManager decisions;
     private final Map<WeaponGroup, Proficiency> groupProficiencies = new HashMap<>();
-    private final Eyeball proficiencyChange = new Eyeball();
+    private final PropertyChangeSupport proficiencyChange = new PropertyChangeSupport(this);
     private final List<AttributeModSingleChoice> choices = new ArrayList<>();
 
     AttributeManager(ReadOnlyObjectProperty<Integer> level, DecisionManager decisions, Applier applier){
@@ -75,7 +77,7 @@ public class AttributeManager {
      */
     void updateSkillCount(int numSkills) {
         skillIncreases.put(1,numSkills);
-        proficiencyChange.wink();
+        proficiencyChange.firePropertyChange("skillCount", null, null);
     }
 
     /**
@@ -111,7 +113,7 @@ public class AttributeManager {
         } else if (proficiency.getValue() == null || proficiency.getValue().getMod() < mod.getMod().getMod()) {
             proficiency.set(mod.getMod());
         }
-        proficiencyChange.wink();
+        proficiencyChange.firePropertyChange("addAttributeMod", null, null);
     }
 
     /**
@@ -186,8 +188,8 @@ public class AttributeManager {
         return proficiencies.computeIfAbsent(attr, (key) -> new ReadOnlyObjectWrapper<>(Proficiency.Untrained)).getReadOnlyProperty();
     }
 
-    public void addObserver(Observer o) {
-        proficiencyChange.addObserver(o);
+    public void addListener(PropertyChangeListener l) {
+        proficiencyChange.addPropertyChangeListener(l);
     }
 
     public boolean advanceSkill(Attribute skill) {
@@ -208,7 +210,7 @@ public class AttributeManager {
             Proficiency value = Proficiency.values()[Arrays.asList(Proficiency.values()).indexOf(prof.getValue()) + 1];
             choices.add(new SkillIncrease(skill, value, entry.getKey()));
             prof.setValue(value);
-            proficiencyChange.wink();
+            proficiencyChange.firePropertyChange("skillAdvance", null, null);
             return true;
         }
         return false;
@@ -249,7 +251,7 @@ public class AttributeManager {
                 continue;
             choices.remove(new SkillIncrease(skill, prof.getValue(), entry.getKey()));
             prof.setValue(Proficiency.values()[Arrays.asList(Proficiency.values()).indexOf(prof.getValue())-1]);
-            proficiencyChange.wink();
+            proficiencyChange.firePropertyChange("skillRegress", null, null);
             return true;
         }
 
@@ -272,7 +274,7 @@ public class AttributeManager {
 
     void addSkillIncreases(int amount, int level) {
         skillIncreases.put(level, skillIncreases.computeIfAbsent(level, (key) -> 0) + amount);
-        proficiencyChange.wink();
+        proficiencyChange.firePropertyChange("addSkillIncrease", null, null);
     }
 
     void removeSkillIncreases(int amount, int level) {
@@ -281,7 +283,7 @@ public class AttributeManager {
             SkillIncrease next = skillChoices.get(level).iterator().next();
             regressSkill(next.getAttr());
         }
-        proficiencyChange.wink();
+        proficiencyChange.firePropertyChange("removeSkillIncrease", null, null);
     }
 
     void apply(WeaponGroupMod weaponGroupMod) {

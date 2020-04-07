@@ -4,9 +4,9 @@ import javafx.collections.ListChangeListener;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import model.abilities.Ability;
-import model.abilities.abilitySlots.SingleChoice;
-import model.abilities.abilitySlots.ChoiceList;
+import model.abilities.abilitySlots.AbilityChoiceList;
 import model.abilities.abilitySlots.FeatSlot;
+import model.abilities.abilitySlots.SingleChoice;
 import model.enums.Type;
 import model.player.AbilityManager;
 
@@ -16,13 +16,14 @@ import java.util.List;
 import static ui.Main.character;
 
 class FeatSelectionPane extends SingleSelectionPane<Ability> {
-    private List<Ability> unmetPrereqs = new ArrayList<>();
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    private final List<Ability> unmetPrereqs = new ArrayList<>();
 
     FeatSelectionPane(SingleChoice<Ability> slot) {
         AbilityManager abilities = character.abilities();
         init(slot);
-        if(slot instanceof ChoiceList)
-            items.addAll(((ChoiceList<Ability>) slot).getOptions());
+        if(slot instanceof AbilityChoiceList)
+            items.addAll(((AbilityChoiceList) slot).getOptions());
         else
             items.addAll(abilities.getOptions(slot));
         Label desc = new Label();
@@ -79,10 +80,9 @@ class FeatSelectionPane extends SingleSelectionPane<Ability> {
                 desc.setText(selectedItem.getDesc());
         });
         if(slot instanceof FeatSlot) {
-            if(((FeatSlot) slot).getAllowedTypes().contains(Type.Ancestry)) {
-                character.addAncestryObserver((observable, arg) -> items.setAll(abilities.getOptions(slot)));
-            }else if(((FeatSlot) slot).getAllowedTypes().contains(Type.Heritage)){
-                character.addAncestryObserver((observable, arg) -> items.setAll(abilities.getOptions(slot)));
+            if(((FeatSlot) slot).getAllowedTypes().contains(Type.Ancestry.toString())
+                    || ((FeatSlot) slot).getAllowedTypes().contains(Type.Heritage.toString())){
+                character.addAncestryObserver((observable) -> items.setAll(abilities.getOptions(slot)));
             }
         }
     }

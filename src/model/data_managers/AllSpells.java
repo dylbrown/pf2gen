@@ -11,7 +11,7 @@ public class AllSpells {
 	private static final SortedMap<String, Spell> allFocusSpellsMap;
 	private static final Map<Tradition, SortedMap<Integer, List<Spell>>> spellsByLevel;
 	private static final SpellsLoader spells = new SpellsLoader("spells.pfdyl");
-	private static final SpellsLoader focusSpells = new SpellsLoader("focusSpells.pfdyl");
+	private static final SpellsLoader focusSpells = new SpellsLoader("focus_spells.pfdyl");
 
 	static{
 		allSpellsMap = new TreeMap<>();

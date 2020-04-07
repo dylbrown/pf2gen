@@ -18,6 +18,11 @@ public class ItemCount {
         this.count = new ReadOnlyObjectWrapper<>(source.getCount());
     }
 
+    public ItemCount(ItemCount ic, int count) {
+        this(ic);
+        setCount(count);
+    }
+
     public Equipment stats() {
         return baseItem;
     }

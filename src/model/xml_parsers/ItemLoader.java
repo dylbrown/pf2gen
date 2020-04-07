@@ -27,8 +27,8 @@ import static model.util.StringUtils.camelCaseWord;
 
 public class ItemLoader extends FileLoader<Equipment> {
     private List<Equipment> items = null;
-    private String niceTitle;
-    private static ItemAbilityLoader abilityLoader = new ItemAbilityLoader();
+    private final String niceTitle;
+    private static final ItemAbilityLoader abilityLoader = new ItemAbilityLoader();
 
     public ItemLoader(String s) {
         path = new File("data/equipment/"+s);
@@ -168,13 +168,10 @@ public class ItemLoader extends FileLoader<Equipment> {
     }
 
     private void parseRuneTag(String trim, Element curr, Rune.Builder builder) {
-        switch (curr.getTagName()) {
-            case "GrantsProperties":
-                builder.setGrantsProperties(Integer.parseInt(trim));
-                break;
-            default:
-                parseTag(trim,curr,builder);
-                break;
+        if ("GrantsProperties".equals(curr.getTagName())) {
+            builder.setGrantsProperties(Integer.parseInt(trim));
+        } else {
+            parseTag(trim, curr, builder);
         }
     }
 

@@ -15,7 +15,6 @@ import java.util.List;
 
 import static ui.Main.character;
 
-@SuppressWarnings("WeakerAccess")
 public class AbilityDisplayController {
     @FXML
     private GridPane gridPane;
@@ -32,7 +31,7 @@ public class AbilityDisplayController {
                 boxes.add((Label) node);
         }
         updateTable();
-        character.scores().addAbilityObserver((observable, arg)->updateTable());
+        character.scores().addAbilityListener((observable)->updateTable());
     }
     private final boolean[] added = {false, false, false, false, false, false, false, false};
     private void updateTable() {

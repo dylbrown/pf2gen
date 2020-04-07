@@ -12,7 +12,7 @@ import java.io.File;
 import java.util.*;
 
 public class FeatsLoader extends AbilityLoader<Ability> {
-    private Map<String, List<Ability>> featsMap = new HashMap<>();
+    private final Map<String, List<Ability>> featsMap = new HashMap<>();
     private List<Ability> feats;
     public FeatsLoader(String location) {
         path = new File(location);

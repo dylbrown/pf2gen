@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings("WeakerAccess")
 public class AbilityTabController {
     @FXML
     FlowPane abilitiesList;
@@ -25,7 +24,7 @@ public class AbilityTabController {
     @FXML
     private void initialize() {
         updateTable();
-        Main.character.scores().addAbilityObserver((observable, arg)->updateTable());
+        Main.character.scores().addAbilityListener((observable)->updateTable());
         abilitiesList.prefWrapLengthProperty().bind(abilitiesList.widthProperty());
     }
 

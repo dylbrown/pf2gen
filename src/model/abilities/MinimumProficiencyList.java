@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 public class MinimumProficiencyList extends TransformationList<String, Attribute> implements Iterable<String>, Collection<String>, List<String>, Observable, ObservableList<String> {
-    private int[] sourceIndices;
-    private boolean[] isInList;
+    private final int[] sourceIndices;
+    private final boolean[] isInList;
     private int size;
     /**
      * Creates a new Transformation list wrapped around the source list.

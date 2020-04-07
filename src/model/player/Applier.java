@@ -2,14 +2,15 @@ package model.player;
 
 import model.abilities.Ability;
 
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
 import java.util.function.Consumer;
 
-class Applier extends Observable {
-	private List<Consumer<Ability>> applyFns = new ArrayList<>();
-	private List<Consumer<Ability>> removeFns = new ArrayList<>();
+class Applier {
+	private final List<Consumer<Ability>> applyFns = new ArrayList<>();
+	private final List<Consumer<Ability>> removeFns = new ArrayList<>();
+	private PropertyChangeSupport support = new PropertyChangeSupport(this);
 
 	void apply(Ability ability) {
 		for (Consumer<Ability> applyFn : applyFns) {

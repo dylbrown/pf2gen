@@ -52,9 +52,9 @@ public class Equipment implements Comparable<Equipment> {
         return name;
     }
 
-    public int getPage() {return page;}
+    private int getPage() {return page;}
 
-    public Rarity getRarity() {
+    Rarity getRarity() {
         return rarity;
     }
 

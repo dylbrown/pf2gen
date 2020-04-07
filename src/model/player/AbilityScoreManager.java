@@ -8,6 +8,9 @@ import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
 import model.enums.Type;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.*;
 
 import static model.ability_scores.AbilityScore.Free;
@@ -16,7 +19,7 @@ import static model.ability_scores.AbilityScore.None;
 public class AbilityScoreManager {
     private final Map<AbilityScore, ObservableList<AbilityMod>> abilityScores = new HashMap<>();
     private final Map<Type, List<AbilityMod>> abilityScoresByType = new HashMap<>();
-    private final Eyeball abilityScoreChange = new Eyeball();
+    private final PropertyChangeSupport abilityScoreChange = new PropertyChangeSupport(this);
     private final List<AbilityModChoice> abilityScoreChoices = new ArrayList<>();
 
     AbilityScoreManager(Applier applier) {
@@ -32,10 +35,11 @@ public class AbilityScoreManager {
         applier.onRemove(ability -> remove(ability.getAbilityMods()));
     }
 
-    Eyeball getScoreEyeball(AbilityScore score) {
-        Eyeball eyeball = new Eyeball() {
+    PropertyChangeSupport getScoreEyeball(@SuppressWarnings("SameParameterValue") AbilityScore score) {
+        PropertyChangeSupport eyeball = new PropertyChangeSupport(this) {
         };
-        abilityScores.computeIfAbsent(score, (key)->FXCollections.observableArrayList()).addListener((ListChangeListener<? super AbilityMod>) observable1 -> eyeball.wink());
+        abilityScores.computeIfAbsent(score, (key)->FXCollections.observableArrayList()).addListener((ListChangeListener<? super AbilityMod>) observable1 ->
+                eyeball.firePropertyChange("scoreChange", null, null));
         return eyeball;
     }
     public Integer getMod(AbilityScore ability) {
@@ -63,7 +67,7 @@ public class AbilityScoreManager {
             if(mod instanceof AbilityModChoice)
                 abilityScoreChoices.add((AbilityModChoice) mod);
         }
-        abilityScoreChange.wink();
+        abilityScoreChange.firePropertyChange(new PropertyChangeEvent(this, "abilityMods", null, null));
     }
 
     void remove(List<AbilityMod> abilityMods) {
@@ -74,10 +78,10 @@ public class AbilityScoreManager {
             if(mod instanceof AbilityModChoice)
                 abilityScoreChoices.remove(mod);
         }
-        abilityScoreChange.wink();
+        abilityScoreChange.firePropertyChange(new PropertyChangeEvent(this, "abilityMods", null, null));
     }
-    public void addAbilityObserver(Observer o) {
-        abilityScoreChange.addObserver(o);
+    public void addAbilityListener(PropertyChangeListener l) {
+        abilityScoreChange.addPropertyChangeListener(l);
     }
 
     public List<AbilityModChoice> getFreeScores() {
@@ -90,7 +94,7 @@ public class AbilityScoreManager {
             abilityScores.computeIfAbsent(old, (key)->FXCollections.observableArrayList()).remove(choice);
             if(value != None && value != Free)
                 abilityScores.computeIfAbsent(value, (key)->FXCollections.observableArrayList()).add(choice);
-            abilityScoreChange.wink();
+            abilityScoreChange.firePropertyChange(new PropertyChangeEvent(this, "abilityMods", null, null));
         }
     }
 

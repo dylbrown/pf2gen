@@ -15,7 +15,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
-public class NethysItemScraper extends NethysScraper {
+class NethysItemScraper extends NethysScraper {
 	private Map<String, StringBuilder> sources = new HashMap<>();
 	private final Set<Integer> visited = new HashSet<>();
 	private static final List<Integer> extensions = new ArrayList<>(Arrays.asList(

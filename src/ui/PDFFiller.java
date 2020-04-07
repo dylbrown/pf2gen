@@ -63,7 +63,7 @@ class PDFFiller {
         }
         return pdf;
     }
-    public static void printDocument(Document doc, OutputStream out) throws TransformerException {
+    private static void printDocument(Document doc, OutputStream out) throws TransformerException {
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer transformer = tf.newTransformer();
         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");

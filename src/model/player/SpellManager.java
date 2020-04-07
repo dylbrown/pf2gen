@@ -15,15 +15,15 @@ import java.util.List;
 import java.util.Map;
 
 public class SpellManager {
-	private ObservableList<Integer> spellSlots = FXCollections.observableArrayList();
-	private ObservableList<ObservableList<Spell>> spellsKnown = FXCollections.observableArrayList();
-	private ObservableList<Integer> extraSpellsKnown = FXCollections.observableArrayList();
-	private ReadOnlyObjectWrapper<CasterType> casterType = new ReadOnlyObjectWrapper<>();
-	private ReadOnlyObjectWrapper<Tradition> tradition = new ReadOnlyObjectWrapper<>();
-	private ObservableList<Spell> focusSpells = FXCollections.observableArrayList();
-	private List<Spell> abilitySpells = new ArrayList<>();
+	private final ObservableList<Integer> spellSlots = FXCollections.observableArrayList();
+	private final ObservableList<ObservableList<Spell>> spellsKnown = FXCollections.observableArrayList();
+	private final ObservableList<Integer> extraSpellsKnown = FXCollections.observableArrayList();
+	private final ReadOnlyObjectWrapper<CasterType> casterType = new ReadOnlyObjectWrapper<>();
+	private final ReadOnlyObjectWrapper<Tradition> tradition = new ReadOnlyObjectWrapper<>();
+	private final ObservableList<Spell> focusSpells = FXCollections.observableArrayList();
+	private final List<Spell> abilitySpells = new ArrayList<>();
 
-	private ObservableList<ObservableList<Spell>> knownRetainer = FXCollections.observableArrayList();
+	private final ObservableList<ObservableList<Spell>> knownRetainer = FXCollections.observableArrayList();
 
 	SpellManager(Applier applier) {
 		for(int i = 0; i <= 10; i++){
@@ -117,17 +117,17 @@ public class SpellManager {
 		}
 	}
 
-	private ObservableList<Integer> slotsRetainer = FXCollections.unmodifiableObservableList(spellSlots);
+	private final ObservableList<Integer> slotsRetainer = FXCollections.unmodifiableObservableList(spellSlots);
 	public ObservableList<Integer> getSpellSlots() {
 		return slotsRetainer;
 	}
 
-	private ObservableList<Spell> focusRetainer = FXCollections.unmodifiableObservableList(focusSpells);
+	private final ObservableList<Spell> focusRetainer = FXCollections.unmodifiableObservableList(focusSpells);
 	public ObservableList<Spell> getFocusSpells() {
 		return focusRetainer;
 	}
 
-	private ObservableList<ObservableList<Spell>> nestedKnown = FXCollections.unmodifiableObservableList(knownRetainer);
+	private final ObservableList<ObservableList<Spell>> nestedKnown = FXCollections.unmodifiableObservableList(knownRetainer);
 	public ObservableList<ObservableList<Spell>> getSpellsKnown() {
 		return nestedKnown;
 	}

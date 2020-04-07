@@ -18,12 +18,12 @@ import java.util.Comparator;
 import static ui.Main.character;
 
 
-public class SelectionPane<T> extends AnchorPane {
-    ObservableList<T> items = FXCollections.observableArrayList();
+class SelectionPane<T> extends AnchorPane {
+    final ObservableList<T> items = FXCollections.observableArrayList();
     ObservableList<T> selections = FXCollections.observableArrayList();
-    ListView<T> choices = new ListView<>();
-    ListView<T> chosen = new ListView<>();
-    SplitPane side = new SplitPane();
+    final ListView<T> choices = new ListView<>();
+    final ListView<T> chosen = new ListView<>();
+    final SplitPane side = new SplitPane();
     private Choice<T> slot;
 
     SelectionPane(ChoiceList<T> slot) {

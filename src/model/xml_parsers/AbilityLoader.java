@@ -27,9 +27,9 @@ import java.util.stream.Collectors;
 import static model.util.StringUtils.camelCase;
 import static model.util.StringUtils.camelCaseWord;
 
-public abstract class AbilityLoader<T> extends FileLoader<T> {
+abstract class AbilityLoader<T> extends FileLoader<T> {
 
-    protected Type getSource(Element element) {
+    Type getSource(Element element) {
         return null;
     }
 
@@ -251,7 +251,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         return mods;
     }
 
-    public Ability makeAbility(Element curr) {
+    Ability makeAbility(Element curr) {
         String level = curr.getAttribute("level");
         return makeAbility(curr, curr.getAttribute("name"), (level.isBlank()) ? 0 : Integer.parseInt(level));
     }

@@ -20,7 +20,7 @@ public class SpellsTabController {
 	@FXML
 	private TreeView<String> allSpells, spellsKnown;
 
-	private ListView<String> filterList = new ListView<>();
+	private final ListView<String> filterList = new ListView<>();
 
 	@FXML
 	private BorderPane spellsContainer;

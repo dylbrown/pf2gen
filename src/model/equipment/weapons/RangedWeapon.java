@@ -29,6 +29,7 @@ public class RangedWeapon extends Weapon {
 
         public Builder(Weapon.Builder builder) {
             super(builder.build());
+            this.setCategory("Ranged Weapon");
         }
 
         @Override

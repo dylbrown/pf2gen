@@ -16,7 +16,7 @@ import static model.util.StringUtils.camelCase;
 
 public class EquipmentManager {
     private static SortedSet<Equipment> allEquipment;
-    private static SortedSet<String> categories = new TreeSet<>();
+    private static final SortedSet<String> categories = new TreeSet<>();
     private static final WeaponsLoader weaponsLoader = new WeaponsLoader();
     private static final ArmorLoader armorLoader = new ArmorLoader();
     private static final Map<String, FileLoader<Equipment>> equipmentLoaders = new HashMap<>();
@@ -50,11 +50,11 @@ public class EquipmentManager {
         return weaponsLoader.getWeaponsGroups();
     }
 
-    public static List<Armor> getArmor() {
+    private static List<Armor> getArmor() {
         return armorLoader.parse();
     }
 
-    public static List<Weapon> getWeapons() {
+    private static List<Weapon> getWeapons() {
        return weaponsLoader.parse();
     }
 

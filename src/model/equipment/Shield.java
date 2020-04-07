@@ -45,7 +45,7 @@ public class Shield extends Armor {
             init();
         }
 
-        public Builder(Shield shield) {
+        Builder(Shield shield) {
             super(shield);
             this.hardness = shield.hardness;
             this.hp = shield.hp;
@@ -59,6 +59,7 @@ public class Shield extends Armor {
 
         @Override
         public Shield build() {
+            setSubCategory("Shield");
             return new Shield(this);
         }
 

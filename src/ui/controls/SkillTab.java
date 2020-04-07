@@ -19,7 +19,7 @@ public class SkillTab extends AnchorPane {
     private final List<Label> abilities = new ArrayList<>(Arrays.asList(new Label[18]));
     private final List<Label> proficiencies = new ArrayList<>(Arrays.asList(new Label[18]));
     private final Attribute[] skills = {Acrobatics, Arcana, Athletics, Crafting, Deception, Diplomacy, Intimidation, Lore, Lore, Medicine, Nature, Occultism, Performance, Religion, Society, Stealth, Survival, Thievery};
-    private Label remainingIncreases = new Label("T:0, E:0, M:0, L:0");
+    private final Label remainingIncreases = new Label("T:0, E:0, M:0, L:0");
 
     public SkillTab() {
         BorderPane border = new BorderPane();
@@ -31,8 +31,8 @@ public class SkillTab extends AnchorPane {
         character.attributes().getSkillIncreases().addListener((MapChangeListener<Integer,Integer>) change -> updateLabel());
         character.getLevelProperty().addListener(change -> updateLabel());
         character.getPClassProperty().addListener(change -> updateLabel());
-        character.scores().addAbilityObserver((o, arg)->updateLabel());
-        character.attributes().addObserver((o, arg)->updateLabel());
+        character.scores().addAbilityListener((o)->updateLabel());
+        character.attributes().addListener((o)->updateLabel());
         updateLabel();
 
         AnchorPane.setLeftAnchor(border, 15.0);
@@ -78,8 +78,8 @@ public class SkillTab extends AnchorPane {
             abilities.get(i).setStyle("-fx-border-color:black;-fx-padding: 5;");
             proficiencies.get(i).setStyle("-fx-border-color:black;-fx-padding: 5;");
         }
-        character.scores().addAbilityObserver((observable, arg)-> updateTab());
-        character.attributes().addObserver((observable, arg)-> updateTab());
+        character.scores().addAbilityListener((observable)-> updateTab());
+        character.attributes().addListener((observable)-> updateTab());
         updateTab();
     }
 

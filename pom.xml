@@ -152,5 +152,18 @@
             <version>11.0.2</version>
             <classifier>win</classifier>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.graalvm.js/js-scriptengine -->
+        <dependency>
+            <groupId>org.graalvm.js</groupId>
+            <artifactId>js-scriptengine</artifactId>
+            <version>20.0.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.graalvm.js/js -->
+        <dependency>
+            <groupId>org.graalvm.js</groupId>
+            <artifactId>js</artifactId>
+            <version>20.0.0</version>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 </project>

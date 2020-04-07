@@ -8,7 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 
 public class AbilityEntry extends HBox {
-	private static DoubleProperty maxWidth = new SimpleDoubleProperty(0);
+	private static final DoubleProperty maxWidth = new SimpleDoubleProperty(0);
 	public AbilityEntry(Node... children) {
 		super(children);
 		this.setPadding(new Insets(10));
