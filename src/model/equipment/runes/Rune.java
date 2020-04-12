@@ -12,6 +12,8 @@ public class Rune extends Equipment {
         grantsProperty = builder.grantsProperty;
     }
 
+    public String getBaseRune() {return getName().replaceAll(" ?\\([^)]*\\)", "").trim();}
+
     public boolean isFundamental() {
         return fundamental;
     }

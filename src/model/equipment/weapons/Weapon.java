@@ -10,7 +10,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class Weapon extends Equipment {
-    private final Dice damage;
+    private final Dice damageDice;
+    private final Damage damage;
     private final DamageType damageType;
     private final WeaponGroup group;
     private final List<CustomTrait> traits;
@@ -19,21 +20,29 @@ public class Weapon extends Equipment {
 
     public Weapon(Weapon.Builder builder) {
         super(builder);
-        this.damage = builder.damage;
+        this.damageDice = builder.damageDice;
         this.damageType = builder.damageType;
         this.group = builder.group;
         this.traits = builder.traits;
         this.proficiency = builder.proficiency;
         this.uncommon = builder.uncommon;
+        damage = new Damage.Builder()
+                    .addDice(damageDice)
+                    .setDamageType(damageType)
+                    .build();
     }
 
     private static Slot getSlot(int hands) {
         return hands == 2 ? Slot.TwoHands : Slot.OneHand;
     }
 
-    public Dice getDamage() {
-        return damage;
+    public Dice getDamageDice() {
+        return damageDice;
     }
+
+    public int getAttackBonus() {return 0;}
+
+    public Damage getDamage() {return damage;}
 
     public DamageType getDamageType() {
         return damageType;
@@ -65,7 +74,7 @@ public class Weapon extends Equipment {
     }
 
     public static class Builder extends Equipment.Builder {
-        private Dice damage;
+        private Dice damageDice;
         private DamageType damageType;
         private int hands;
         private WeaponGroup group;
@@ -77,7 +86,7 @@ public class Weapon extends Equipment {
 
         public Builder(Weapon weapon) {
             super(weapon);
-            this.damage = weapon.damage;
+            this.damageDice = weapon.damageDice;
             this.damageType = weapon.damageType;
             this.group = weapon.group;
             this.traits = new ArrayList<>(weapon.traits);
@@ -91,8 +100,8 @@ public class Weapon extends Equipment {
             return new Weapon(this);
         }
 
-        public void setDamage(Dice damage) {
-            this.damage = damage;
+        public void setDamageDice(Dice damageDice) {
+            this.damageDice = damageDice;
         }
 
         public void setDamageType(DamageType damageType) {

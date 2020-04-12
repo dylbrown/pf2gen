@@ -3,10 +3,10 @@ package ui.controls.equipment;
 import model.abilities.Ability;
 import model.enums.ArmorProficiency;
 import model.enums.Trait;
-import model.equipment.armor.Armor;
 import model.equipment.CustomTrait;
 import model.equipment.Equipment;
 import model.equipment.Shield;
+import model.equipment.armor.Armor;
 import model.equipment.weapons.RangedWeapon;
 import model.equipment.weapons.Weapon;
 import ui.controls.AbilityHTMLGenerator;
@@ -24,6 +24,7 @@ public class EquipmentHTMLGenerator {
             return generateArmorText((Armor) equipment);
         return generateItemText(equipment);
     }
+
 
     private static String generateItemText(Equipment equipment) {
         StringBuilder text = new StringBuilder();
@@ -94,7 +95,7 @@ public class EquipmentHTMLGenerator {
         text.append(weapon.getProficiency().toString()).append(" Weapon</div></h3><br><b>Cost</b> ");
         text.append(generateCostString(weapon.getValue())).append("; <b>Bulk</b> ");
         text.append(weapon.getPrettyWeight()).append("; <b>Hands</b> ").append(weapon.getHands());
-        text.append("<br><b>Damage</b> ").append(weapon.getDamage()).append(" ").append(weapon.getDamageType().toString(), 0, 1).append("; <b>Group</b> ").append(weapon.getGroup().getName());
+        text.append("<br><b>Damage</b> ").append(weapon.getDamage()).append("; <b>Group</b> ").append(weapon.getGroup().getName());
         if(weapon instanceof RangedWeapon){
             text.append("<br><b>Range</b> ").append(((RangedWeapon) weapon).getRange());
             text.append("; <b>Reload</b> ").append(((RangedWeapon) weapon).getReload());

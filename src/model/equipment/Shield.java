@@ -45,7 +45,7 @@ public class Shield extends Armor {
             init();
         }
 
-        Builder(Shield shield) {
+        public Builder(Shield shield) {
             super(shield);
             this.hardness = shield.hardness;
             this.hp = shield.hp;

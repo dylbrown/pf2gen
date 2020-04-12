@@ -6,12 +6,12 @@ import javafx.scene.control.TreeItem;
 import model.equipment.Equipment;
 
 import java.util.*;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class ItemsList extends CategoryAllItemsList {
     private final ObservableList<Equipment> items;
 
-    public ItemsList(ObservableList<Equipment> items, Consumer<Equipment> handler) {
+    public ItemsList(ObservableList<Equipment> items, BiConsumer<Equipment, Integer> handler) {
         super();
         this.items = items;
         this.items.addListener((ListChangeListener<Equipment>) c -> {
@@ -45,7 +45,9 @@ public class ItemsList extends CategoryAllItemsList {
             );
             else {
                 Map<String, TreeItem<ItemEntry>> subcatMap = subcats.computeIfAbsent(category, (cat) -> new TreeMap<>());
-                subcatMap.computeIfAbsent(subCategory, subcat -> new TreeItem<>(new ItemEntry(subCategory)));
+                subcatMap.computeIfAbsent(subCategory, subcat -> new TreeItem<>(new ItemEntry(subCategory))).getChildren().add(
+                    new TreeItem<>(new ItemEntry(item))
+                );
             }
         }
         if(categories.size() == 1) {

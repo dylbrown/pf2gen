@@ -9,10 +9,10 @@ import model.xml_parsers.ItemLoader;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class CategoryAllItemsList extends AbstractItemList {
-    public CategoryAllItemsList(Consumer<Equipment> handler) {
+    public CategoryAllItemsList(BiConsumer<Equipment, Integer> handler) {
         super(handler);
     }
 

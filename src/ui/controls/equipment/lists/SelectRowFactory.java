@@ -4,12 +4,12 @@ import javafx.scene.control.TreeTableRow;
 import javafx.scene.control.TreeTableView;
 import model.equipment.Equipment;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 class SelectRowFactory implements javafx.util.Callback<javafx.scene.control.TreeTableView<ItemEntry>, javafx.scene.control.TreeTableRow<ItemEntry>> {
-    private final Consumer<Equipment> handler;
+    private final BiConsumer<Equipment, Integer> handler;
 
-    SelectRowFactory(Consumer<Equipment> handler) {
+    SelectRowFactory(BiConsumer<Equipment, Integer> handler) {
         this.handler = handler;
     }
 
@@ -17,11 +17,10 @@ class SelectRowFactory implements javafx.util.Callback<javafx.scene.control.Tree
     public TreeTableRow<ItemEntry> call(TreeTableView<ItemEntry> item) {
         TreeTableRow<ItemEntry> call = new TreeTableRow<>();
         call.setOnMouseClicked(event -> {
-            if(event.getClickCount() == 2) {
-                Equipment eq = call.getTreeItem().getValue().getItem();
-                if(eq != null)
-                    handler.accept(eq);
-            }
+            if(call.getTreeItem() == null) return;
+            Equipment eq = call.getTreeItem().getValue().getItem();
+            if(eq != null)
+                handler.accept(eq, event.getClickCount());
         });
         return call;
     }

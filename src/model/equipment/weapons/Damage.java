@@ -1,26 +1,96 @@
 package model.equipment.weapons;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Damage {
-    public static final Damage ZERO = new Damage(Dice.get(0,0), 0, null);
-    private final Dice dice;
-    private final int amount;
-    private final DamageType damageType;
+    public static final Damage ZERO = new Damage.Builder().addDice(Dice.get(0,0)).build();
+    private List<Dice> dice;
+    private int amount;
+    private DamageType damageType;
 
-    public Damage(Dice dice, int modifier, DamageType damageType) {
-        this.dice = dice;
-        this.amount = modifier;
-        this.damageType = damageType;
+    public Damage(Builder builder) {
+        this.dice = new ArrayList<>(builder.dice.values());
+        this.amount = builder.amount;
+        this.damageType = builder.damageType;
+    }
+
+    Damage() {}
+
+    public List<Dice> getDice() {
+        return Collections.unmodifiableList(dice);
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    DamageType getDamageType() {
+        return damageType;
     }
 
     @Override
     public String toString() {
         List<String> parts = new ArrayList<>();
-        if(dice.getCount() > 0 && dice.getSize() > 0) parts.add(dice.toString());
+        dice.stream().filter(d -> d.getCount() > 0 && d.getSize() > 0)
+                    .forEach(d->parts.add(d.toString()));
         if(amount != 0) parts.add(String.valueOf(amount));
         if(damageType == null) return String.join(" + ", parts);
         return String.join(" + ", parts) + " " + damageType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Damage damage = (Damage) o;
+        return amount == damage.amount &&
+                Objects.equals(dice, damage.dice) &&
+                damageType == damage.damageType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dice, amount, damageType);
+    }
+
+    public static class Builder {
+        private Map<Integer, Dice> dice = Collections.emptyMap();
+        private int amount = 0;
+        private DamageType damageType = null;
+
+        Damage.Builder addDice(List<Dice> newDice) {
+            if(dice.size() == 0) dice = new HashMap<>();
+            for (Dice die : newDice) {
+                if(die == null) continue;
+                int size = die.getSize();
+                Dice oldDie = this.dice.get(size);
+                this.dice.put(size,
+                        Dice.get(die.getCount() +
+                        ((oldDie != null) ? oldDie.getCount() : 0)
+                        , size));
+            }
+
+            return this;
+        }
+
+        public Damage.Builder addDice(Dice... newDice) {
+            addDice(Arrays.asList(newDice));
+            return this;
+        }
+
+        public Damage.Builder addAmount(int amount) {
+            this.amount += amount;
+            return this;
+        }
+
+        public Damage.Builder setDamageType(DamageType damageType) {
+            this.damageType = damageType;
+            return this;
+        }
+
+        public Damage build() {
+            return new Damage(this);
+        }
+
     }
 }

@@ -1,53 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TreeTableView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.web.WebView?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.equip.EnchantTabController">
-    <SplitPane dividerPositions="0.3" orientation="VERTICAL" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" />
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
-            <SplitPane dividerPositions="0.5" prefHeight="200.0" prefWidth="160.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-                    <BorderPane fx:id="weaponsAndArmor" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                        <top>
-                            <Label text="Weapons and Armor" BorderPane.alignment="CENTER_LEFT">
-                                <padding>
-                                    <Insets left="5.0" />
-                                </padding>
-                        <font>
-                           <Font size="14.0" />
-                        </font>
-                            </Label>
-                        </top>
-                        <center>
-                            <TreeTableView prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
-                        </center>
-                    </BorderPane>
-                </AnchorPane>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-                    <BorderPane fx:id="runes" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                        <top>
-                            <Label text="Runes" BorderPane.alignment="CENTER_LEFT">
-                                <padding>
-                                    <Insets left="5.0" />
-                                </padding>
-                        <font>
-                           <Font size="14.0" />
-                        </font>
-                            </Label>
-                        </top>
-                        <center>
-                            <TreeTableView prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
-                        </center>
-                    </BorderPane>
-                </AnchorPane>
-            </SplitPane>
-        </AnchorPane>
+    <SplitPane dividerPositions="0.7" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="160.0" prefWidth="200.0">
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                <SplitPane dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                        <WebView fx:id="itemDisplay" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                    </AnchorPane>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                        <WebView fx:id="runeDisplay" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                    </AnchorPane>
+                </SplitPane>
+            </AnchorPane>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                <SplitPane dividerPositions="0.5" prefHeight="200.0" prefWidth="160.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                        <BorderPane fx:id="weaponsAndArmor" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <top>
+                                <Label fx:id="currentWeapon" text="-No Weapon Selected-" BorderPane.alignment="CENTER_LEFT">
+                                    <padding>
+                                        <Insets left="5.0" />
+                                    </padding>
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </Label>
+                            </top>
+                            <center>
+                                <TreeTableView prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+                            </center>
+                        </BorderPane>
+                    </AnchorPane>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                        <BorderPane fx:id="runes" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <top>
+                                <Label fx:id="currentRune" text="-No Rune Selected-" BorderPane.alignment="CENTER_LEFT">
+                                    <padding>
+                                        <Insets left="5.0" />
+                                    </padding>
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </Label>
+                            </top>
+                            <center>
+                                <TreeTableView prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+                            </center>
+                        </BorderPane>
+                    </AnchorPane>
+                </SplitPane>
+            </AnchorPane>
+        </SplitPane>
+        <SplitPane dividerPositions="0.6" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                <BorderPane fx:id="currRunes" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <top>
+                        <Label text="Selected Item's Runes" BorderPane.alignment="CENTER_LEFT">
+                            <padding>
+                                <Insets left="5.0" />
+                            </padding>
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Label>
+                    </top>
+                    <center>
+                        <TreeTableView prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+                    </center>
+                </BorderPane>
+            </AnchorPane>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                <GridPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <VBox alignment="CENTER_LEFT" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                        <Button fx:id="upgradeButton" mnemonicParsing="false" text="Upgrade To"/>
+                        <Label fx:id="upgradeLabel" styleClass="dashed" text="Upgraded Rune"/>
+                    </VBox>
+                    <VBox alignment="CENTER_LEFT" GridPane.halignment="CENTER" GridPane.rowIndex="2">
+                        <Button fx:id="removeButton" mnemonicParsing="false" text="Remove Rune"/>
+                        <Label fx:id="removeLabel" alignment="CENTER" text="Price: 0 sp"/>
+                    </VBox>
+                    <Button fx:id="addButton" mnemonicParsing="false" text="Add Rune" GridPane.rowIndex="1" />
+                </GridPane>
+            </AnchorPane>
+        </SplitPane>
     </SplitPane>
 </AnchorPane>

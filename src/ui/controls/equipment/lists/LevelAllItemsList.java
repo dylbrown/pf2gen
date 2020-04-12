@@ -10,10 +10,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class LevelAllItemsList extends AbstractItemList {
-    public LevelAllItemsList(Consumer<Equipment> handler) {
+    public LevelAllItemsList(BiConsumer<Equipment, Integer> handler) {
         super(handler);
     }
 

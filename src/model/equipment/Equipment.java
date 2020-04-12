@@ -84,7 +84,7 @@ public class Equipment implements Comparable<Equipment> {
 
     @Override
     public String toString() {
-        return name;
+        return getName();
     }
 
     public String getCategory() {return category;}

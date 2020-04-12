@@ -4,7 +4,7 @@ public class RangedWeapon extends Weapon {
     private final int range;
     private final int reload;
 
-    private RangedWeapon(RangedWeapon.Builder builder) {
+    public RangedWeapon(RangedWeapon.Builder builder) {
         super(builder);
         this.range = builder.range;
         this.reload = builder.reload;
@@ -29,6 +29,13 @@ public class RangedWeapon extends Weapon {
 
         public Builder(Weapon.Builder builder) {
             super(builder.build());
+            this.setCategory("Ranged Weapon");
+        }
+
+        public Builder(RangedWeapon weapon) {
+            super(weapon);
+            range = weapon.range;
+            reload = weapon.reload;
             this.setCategory("Ranged Weapon");
         }
 

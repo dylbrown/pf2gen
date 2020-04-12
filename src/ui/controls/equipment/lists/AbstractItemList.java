@@ -4,10 +4,10 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 import model.equipment.Equipment;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 abstract class AbstractItemList extends TreeTableView<ItemEntry> {
-    AbstractItemList(Consumer<Equipment> handler) {
+    AbstractItemList(BiConsumer<Equipment, Integer> handler) {
         construct(handler);
     }
 
@@ -19,7 +19,7 @@ abstract class AbstractItemList extends TreeTableView<ItemEntry> {
 
     abstract void createColumns();
 
-    void construct(Consumer<Equipment> handler) {
+    void construct(BiConsumer<Equipment, Integer> handler) {
         this.setShowRoot(false);
         TreeItem<ItemEntry> root = new TreeItem<>(new ItemEntry("root"));
         this.setRoot(root);
@@ -27,5 +27,9 @@ abstract class AbstractItemList extends TreeTableView<ItemEntry> {
         this.setColumnResizePolicy(TreeTableView.CONSTRAINED_RESIZE_POLICY);
         createColumns();
         addItems(root);
+    }
+
+    public void removeColumn(String name) {
+        getColumns().removeIf(c->c.getText().toLowerCase().equals(name.toLowerCase()));
     }
 }

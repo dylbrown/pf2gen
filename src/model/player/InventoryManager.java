@@ -9,6 +9,12 @@ import model.enums.BuySellMode;
 import model.enums.Slot;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
+import model.equipment.armor.Armor;
+import model.equipment.runes.ArmorRune;
+import model.equipment.runes.WeaponRune;
+import model.equipment.runes.runedItems.RunedArmor;
+import model.equipment.runes.runedItems.RunedWeapon;
+import model.equipment.weapons.Weapon;
 import model.util.Eyeball;
 import model.util.Watcher;
 
@@ -35,17 +41,24 @@ public class InventoryManager {
         if(count == 0) return false;
         if(item.getValue() * count * buyMultiplier > money.get()) return false;
         money.set(money.get() - item.getValue() * count * buyMultiplier);
+        if(!add(item, count)) return false;
+        ItemCount ic = inventory.computeIfAbsent(item, (key) -> new ItemCount(item, 0));
+        return true;
+    }
 
+    private boolean add(Equipment item, int count) {
+        if(count == 0) return false;
+        if(item.getValue() * count * buyMultiplier > money.get()) return false;
         //Add To Inventory
         ItemCount ic = inventory.computeIfAbsent(item, (key) -> new ItemCount(item, 0));
         ic.add(count);
-        buySellEye.wink(new ItemCount(ic, ic.getCount()-count), ic);
 
         //Add To Unequipped
         unequipped.computeIfAbsent(item, (key)->new ItemCount(item, 0)).add(count);
 
         //Add To Total Weight
         totalWeight += item.getWeight() * count;
+        buySellEye.wink(new ItemCount(ic, ic.getCount()-count), ic);
         return true;
     }
 
@@ -55,8 +68,15 @@ public class InventoryManager {
         int remaining = ic.getCount();
         if(remaining - count < 0) return false;
         money.set(money.get() + item.getValue() * count * sellMultiplier);
+        return remove(item, count);
+    }
+
+    private boolean remove(Equipment item, int count) {
+        ItemCount ic = inventory.get(item);
+        if(ic == null) return false;
+        int remaining = ic.getCount();
+        if(remaining - count < 0) return false;
         ic.remove(count);
-        buySellEye.wink(new ItemCount(ic, ic.getCount()+count), ic);
 
         //Unequip Some if there aren't enough unequipped
         if(unequipped.get(item).getCount() < count)
@@ -73,6 +93,7 @@ public class InventoryManager {
 
         //Remove From Total Weight
         totalWeight -= item.getWeight() * count;
+        buySellEye.wink(new ItemCount(ic, ic.getCount()+count), ic);
         return true;
     }
 
@@ -197,5 +218,33 @@ public class InventoryManager {
 
     public void addMoney(double amount) {
         money.set(money.get() + amount);
+    }
+
+    public RunedArmor convertToRuned(Armor item) {
+        if(!getItems().containsKey(item)) return null;
+        remove(item, 1);
+        RunedArmor runedArmor = new RunedArmor(item);
+        add(runedArmor, 1);
+        return runedArmor;
+    }
+
+    public RunedWeapon convertToRuned(Weapon item) {
+        if(!getItems().containsKey(item)) return null;
+        remove(item, 1);
+        RunedWeapon runedWeapon = new RunedWeapon(item);
+        add(runedWeapon, 1);
+        return runedWeapon;
+    }
+
+    public boolean tryToAddRune(RunedArmor runedArmor, ArmorRune rune) {
+        if(runedArmor.getRunes().tryToAddRune(rune))
+            return remove(rune, 1);
+        return false;
+    }
+
+    public boolean tryToAddRune(RunedWeapon runedWeapon, WeaponRune rune) {
+        if(runedWeapon.getRunes().tryToAddRune(rune))
+            return remove(rune, 1);
+        return false;
     }
 }

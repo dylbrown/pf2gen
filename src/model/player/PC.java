@@ -290,12 +290,13 @@ public class PC {
 
     public int getAttackMod(Weapon weapon) {
         int mod = attributes.getProficiency(Attribute.valueOf(weapon.getProficiency()), weapon.getGroup()).getMod(level.get());
+
         if(weapon.getWeaponTraits().contains(new CustomTrait("Finesse")))
-            return mod+Math.max(scores.getMod(Str), scores.getMod(Dex));
+            return mod + weapon.getAttackBonus() + Math.max(scores.getMod(Str), scores.getMod(Dex));
         else if(weapon instanceof RangedWeapon)
-            return mod+scores.getMod(Dex);
+            return mod + weapon.getAttackBonus() + scores.getMod(Dex);
         else
-            return mod+scores.getMod(Str);
+            return mod + weapon.getAttackBonus() + scores.getMod(Str);
     }
 
     public int getDamageMod(Weapon weapon) {

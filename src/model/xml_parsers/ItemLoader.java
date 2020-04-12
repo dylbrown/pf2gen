@@ -135,6 +135,8 @@ public class ItemLoader extends FileLoader<Equipment> {
                 case "BonusDamage":
                     builder.setBonusDamage(parseDamage(trim));
                     break;
+                case "WeaponDice":
+                    builder.setBonusWeaponDice(Integer.parseInt(trim));
                 default:
                     parseRuneTag(trim, curr, builder);
             }
@@ -152,18 +154,17 @@ public class ItemLoader extends FileLoader<Equipment> {
             int flip = (damage.contains("+")) ? 1 : -1;
             String[] damageSplit = damage.split("[+-]");
             String[] diceSplit = damageSplit[0].split("d");
-            return new Damage(Dice.get(Integer.parseInt(diceSplit[0]), Integer.parseInt(diceSplit[1])),
-                        flip * Integer.valueOf(damageSplit[1]),
-                        damageType);
+            return new Damage.Builder().addDice(Dice.get(Integer.parseInt(diceSplit[0]), Integer.parseInt(diceSplit[1])))
+                    .addAmount(flip * Integer.valueOf(damageSplit[1]))
+                    .setDamageType(damageType)
+                    .build();
         }else if(damage.contains("d")) {
             String[] diceSplit = damage.trim().split("d");
-            return new Damage(Dice.get(Integer.parseInt(diceSplit[0]), Integer.parseInt(diceSplit[1])),
-                    0,
-                    damageType);
+            return new Damage.Builder().addDice(Dice.get(Integer.parseInt(diceSplit[0]), Integer.parseInt(diceSplit[1])))
+                    .setDamageType(damageType).build();
         }else{
-            return new Damage(Dice.get(0, 0),
-                    Integer.parseInt(damage),
-                    damageType);
+            return new Damage.Builder().addAmount(Integer.parseInt(damage))
+                    .setDamageType(damageType).build();
         }
     }
 

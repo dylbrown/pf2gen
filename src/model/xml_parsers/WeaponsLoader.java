@@ -74,7 +74,7 @@ public class WeaponsLoader extends FileLoader<Weapon> {
                 case "Damage":
                     String[] split = trim.split(" ");
                     String[] diceSplit = split[0].split("d");
-                    builder.setDamage(Dice.get(Integer.parseInt(diceSplit[0]), Integer.parseInt(diceSplit[1])));
+                    builder.setDamageDice(Dice.get(Integer.parseInt(diceSplit[0]), Integer.parseInt(diceSplit[1])));
                     switch(split[1].toUpperCase()) {
                         case "B":
                             builder.setDamageType(DamageType.Bludgeoning);

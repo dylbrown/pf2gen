@@ -319,7 +319,8 @@ public class EquipTabController {
         return null;
     }
 
-    private void tryToBuy(Equipment item) {
+    private void tryToBuy(Equipment item, int count) {
+        if(count != 2) return;
         if (!Main.character.inventory().buy(item, 1)) {
             new Alert(Alert.AlertType.INFORMATION, "Not Enough Money!").showAndWait();
         }else{

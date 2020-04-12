@@ -1,49 +1,53 @@
 package ui.controls.equipment.lists;
 
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
 import model.equipment.Equipment;
+import model.equipment.runes.runedItems.RunedEquipment;
 
 import static model.util.StringUtils.generateCostString;
 
 public class ItemEntry implements Comparable<ItemEntry> {
     private final Equipment item;
-    private final ReadOnlyObjectWrapper<String> name;
-    private final ReadOnlyObjectWrapper<String> cost;
-    private final ReadOnlyObjectWrapper<String> level;
-    private final ReadOnlyObjectWrapper<String> subCategory;
+    private final ReadOnlyStringProperty name;
+    private final ReadOnlyStringProperty cost;
+    private final ReadOnlyStringProperty level;
+    private final ReadOnlyStringProperty subCategory;
 
     ItemEntry(Equipment item) {
         this.item = item;
-        this.name = new ReadOnlyObjectWrapper<>(item.toString());
-        this.cost = new ReadOnlyObjectWrapper<>(generateCostString(item.getValue()));
-        this.level = new ReadOnlyObjectWrapper<>(String.valueOf(item.getLevel()));
-        this.subCategory = new ReadOnlyObjectWrapper<>(item.getSubCategory());
+        if(item instanceof RunedEquipment)
+            this.name = ((RunedEquipment) item).getRunes().getFullName();
+        else
+            this.name = new ReadOnlyStringWrapper(item.toString()).getReadOnlyProperty();
+        this.cost = new ReadOnlyStringWrapper(generateCostString(item.getValue())).getReadOnlyProperty();
+        this.level = new ReadOnlyStringWrapper(String.valueOf(item.getLevel())).getReadOnlyProperty();
+        this.subCategory = new ReadOnlyStringWrapper(item.getSubCategory()).getReadOnlyProperty();
     }
 
     ItemEntry(String label) {
         this.item = null;
-        this.name = new ReadOnlyObjectWrapper<>(label);
-        this.cost = new ReadOnlyObjectWrapper<>("");
-        this.level = new ReadOnlyObjectWrapper<>("");
-        this.subCategory = new ReadOnlyObjectWrapper<>("");
+        this.name = new ReadOnlyStringWrapper(label).getReadOnlyProperty();
+        this.cost = new ReadOnlyStringWrapper("").getReadOnlyProperty();
+        this.level = new ReadOnlyStringWrapper("").getReadOnlyProperty();
+        this.subCategory = new ReadOnlyStringWrapper("").getReadOnlyProperty();
     }
 
-    private ReadOnlyObjectProperty<String> nameProperty() {
-        return name.getReadOnlyProperty();
+    private ReadOnlyStringProperty nameProperty() {
+        return name;
     }
 
-    private ReadOnlyObjectProperty<String> costProperty() {
-        return cost.getReadOnlyProperty();
+    private ReadOnlyStringProperty costProperty() {
+        return cost;
     }
 
-    private ReadOnlyObjectProperty<String> levelProperty() {
-        return level.getReadOnlyProperty();
+    private ReadOnlyStringProperty levelProperty() {
+        return level;
     }
 
-    private ReadOnlyObjectProperty<String> subCategoryProperty() {
-        return subCategory.getReadOnlyProperty();
+    private ReadOnlyStringProperty subCategoryProperty() {
+        return subCategory;
     }
 
     public Equipment getItem() {
