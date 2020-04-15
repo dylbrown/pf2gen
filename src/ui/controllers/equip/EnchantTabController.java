@@ -11,19 +11,19 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
-import model.equipment.armor.Armor;
-import model.equipment.runes.ArmorRune;
 import model.equipment.runes.Rune;
-import model.equipment.runes.WeaponRune;
 import model.equipment.runes.runedItems.RunedArmor;
+import model.equipment.runes.runedItems.RunedRangedWeapon;
+import model.equipment.runes.runedItems.RunedShield;
 import model.equipment.runes.runedItems.RunedWeapon;
-import model.equipment.weapons.Weapon;
 import ui.Main;
 import ui.controls.equipment.EquipmentHTMLGenerator;
 import ui.controls.equipment.lists.ItemEntry;
 import ui.controls.equipment.lists.ItemsList;
 
 import java.util.Map;
+
+import static model.util.StringUtils.generateCostString;
 
 public class EnchantTabController {
     @FXML
@@ -32,7 +32,7 @@ public class EnchantTabController {
     @FXML
     private Button upgradeButton, addButton, removeButton;
     @FXML
-    private Label upgradeLabel, removeLabel, currentWeapon, currentRune;
+    private Label upgradeLabel, upgradePrice, removeLabel, currentWeapon, currentRune;
     @FXML
     private WebView itemDisplay, runeDisplay;
     private ObservableList<Equipment> itemsList = FXCollections.observableArrayList();
@@ -64,54 +64,48 @@ public class EnchantTabController {
         itemsIL = new ItemsList(itemsList, (i, count) -> {
             setItemDisplay(i);
             if(count == 2) {
-                if(i instanceof RunedArmor) setRunesList((RunedArmor) i);
-                if(i instanceof RunedWeapon) setRunesList((RunedWeapon) i);
+                typeCheckRunedItem(i);
                 selectedItem = i;
                 currentWeapon.setText(selectedItem.getName());
             }
         });
         weaponsAndArmor.setCenter(itemsIL);
-        runesIL = new ItemsList(runesList, (i, count) -> {
-            setRuneDisplay(i);
-            if(count == 2) {
-                selectedRune = i;
-                currentRune.setText(selectedRune.getName());
-            }
-        });
+        runesIL = new ItemsList(runesList, this::clickRune);
         runes.setCenter(runesIL);
+    }
+
+    private void typeCheckRunedItem(Equipment i) {
+        if(i instanceof RunedArmor) setRunesList(((RunedArmor) i).getRunes().list());
+        if(i instanceof RunedShield) setRunesList(((RunedShield) i).getRunes().list());
+        if(i instanceof RunedWeapon) setRunesList(((RunedWeapon) i).getRunes().list());
+        if(i instanceof RunedRangedWeapon) setRunesList(((RunedRangedWeapon) i).getRunes().list());
     }
 
     private void addRune(ActionEvent actionEvent) {
         if(!(selectedRune instanceof Rune)) return;
-        if(selectedRune instanceof ArmorRune) {
-            if (selectedItem instanceof RunedArmor) {
-                Main.character.inventory().tryToAddRune((RunedArmor) selectedItem, (ArmorRune) selectedRune);
-            }else if(selectedItem instanceof Armor) {
-                if(!((ArmorRune) selectedRune).isFundamental()) return;
-                RunedArmor runedArmor = Main.character.inventory().convertToRuned((Armor) selectedItem);
-                Main.character.inventory().tryToAddRune(runedArmor, (ArmorRune) selectedRune);
-                setItemDisplay(runedArmor);
-                setRunesList(runedArmor);
-                select(runedArmor, itemsIL.getRoot());
-            }
-        } else if (selectedRune instanceof WeaponRune) {
-            if (selectedItem instanceof RunedWeapon) {
-                Main.character.inventory().tryToAddRune((RunedWeapon) selectedItem, (WeaponRune) selectedRune);
-            }else if(selectedItem instanceof Weapon) {
-                if(!((WeaponRune) selectedRune).isFundamental()) return;
-                RunedWeapon runedWeapon = Main.character.inventory().convertToRuned((Weapon) selectedItem);
-                Main.character.inventory().tryToAddRune(runedWeapon, (WeaponRune) selectedRune);
-                setRuneDisplay(runedWeapon);
-                setRunesList(runedWeapon);
-                select(runedWeapon, itemsIL.getRoot());
-            }
-        }
+        Equipment item = Main.character.inventory().tryToAddRune(selectedItem, (Rune) selectedRune);
+        if(item == null) return; // TODO: Add fail popup
+        setItemDisplay(item);
+        select(item, itemsIL.getRoot());
+        typeCheckRunedItem(item);
+        selectedRune = null;
         currentWeapon.setText(selectedItem.getName());
         currentRune.setText("-No Rune Selected-");
     }
 
     private void removeRune(ActionEvent actionEvent) {
-
+        if(!(selectedRune instanceof Rune)) return;
+        Equipment item = Main.character.inventory().tryToRemoveRune(selectedItem, (Rune) selectedRune);
+        if(item == null) return; // TODO: Add fail popup
+        setItemDisplay(item);
+        select(item, itemsIL.getRoot());
+        typeCheckRunedItem(item);
+        selectedRune = null;
+        currentWeapon.setText(selectedItem.getName());
+        currentRune.setText("-No Rune Selected-");
+        removeLabel.setText("-No Rune Selected-");
+        upgradeLabel.setText("-No Rune Selected-");
+        upgradePrice.setText("-No Rune Selected-");
     }
 
     private void addItem(Equipment item, int count) {
@@ -127,22 +121,32 @@ public class EnchantTabController {
         }
     }
 
-    private void setRunesList(RunedArmor e) {
-        currentRunesIL = new ItemsList(e.getRunes().list(), this::clickRune);
+    private void setRunesList(ObservableList<Equipment> runes) {
+        currentRunesIL = new ItemsList(runes, (item, count)->{
+            clickRune(item, count);
+            if(count == 2) {
+                removeLabel.setText("Price: "+ generateCostString(item.getValue()*.1));
+                Equipment upgradedRune = getUpgradedRune(item);
+                upgradeLabel.setText(upgradedRune.getName());
+                upgradePrice.setText("Price: "+ generateCostString(upgradedRune.getValue() - item.getValue()));
+            }
+        });
         currentRunesIL.removeColumn("cost");
         currentRunesIL.removeColumn("level");
         currRunes.setCenter(currentRunesIL);
     }
 
-    private void setRunesList(RunedWeapon e) {
-        currentRunesIL = new ItemsList(e.getRunes().list(), this::clickRune);
-        currentRunesIL.removeColumn("cost");
-        currentRunesIL.removeColumn("level");
-        currRunes.setCenter(currentRunesIL);
+    private Equipment getUpgradedRune(Equipment item) {
+        // TODO: implement
+        return item;
     }
 
-    private void clickRune(Equipment equipment, Integer integer) {
+    private void clickRune(Equipment equipment, Integer count) {
         setRuneDisplay(equipment);
+        if(count == 2) {
+            selectedRune = equipment;
+            currentRune.setText(selectedRune.getName());
+        }
     }
 
     private void setItemDisplay(Equipment selectedItem) {

@@ -1,6 +1,10 @@
 package model.equipment.weapons;
 
-public class RangedWeapon extends Weapon {
+import model.equipment.Equipment;
+import model.equipment.runes.runedItems.Enchantable;
+import model.equipment.runes.runedItems.RunedRangedWeapon;
+
+public class RangedWeapon extends Weapon implements Enchantable {
     private final int range;
     private final int reload;
 
@@ -8,6 +12,11 @@ public class RangedWeapon extends Weapon {
         super(builder);
         this.range = builder.range;
         this.reload = builder.reload;
+    }
+
+    @Override
+    public Equipment makeRuned() {
+        return new RunedRangedWeapon(this);
     }
 
     @Override

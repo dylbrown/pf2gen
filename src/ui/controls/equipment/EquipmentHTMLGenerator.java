@@ -5,7 +5,7 @@ import model.enums.ArmorProficiency;
 import model.enums.Trait;
 import model.equipment.CustomTrait;
 import model.equipment.Equipment;
-import model.equipment.Shield;
+import model.equipment.armor.Shield;
 import model.equipment.armor.Armor;
 import model.equipment.weapons.RangedWeapon;
 import model.equipment.weapons.Weapon;

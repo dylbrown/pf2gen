@@ -27,6 +27,8 @@ import ui.controls.equipment.lists.LevelAllItemsList;
 import java.util.*;
 import java.util.function.Function;
 
+import static model.util.StringUtils.generateCostString;
+
 public class EquipTabController {
 
     @FXML
@@ -89,9 +91,9 @@ public class EquipTabController {
         groupByLevel.setOnAction(event->allItemsContainer.setCenter(levelGroup));
 
 
-        money.setText(Main.character.inventory().getMoneyProperty().get()+" sp");
+        money.setText(generateCostString(Main.character.inventory().getMoneyProperty().get()));
         Main.character.inventory().getMoneyProperty().addListener((event)->
-                money.setText(Main.character.inventory().getMoneyProperty().get()+" sp"));
+                money.setText(generateCostString(Main.character.inventory().getMoneyProperty().get())));
         value = Main.character.inventory().getTotalValue();
         totalValue.setText(value+" sp");
 
@@ -189,8 +191,8 @@ public class EquipTabController {
             @Override
             public String toString(BuySellMode object) {
                 switch (object) {
-                    case Normal:
-                        return "Normal";
+                    case FullPrice:
+                        return "Full Price";
                     case SellHalf:
                         return "Sell Half";
                     case Cashless:
@@ -202,8 +204,8 @@ public class EquipTabController {
             @Override
             public BuySellMode fromString(String string) {
                 switch (string) {
-                    case "Normal":
-                        return BuySellMode.Normal;
+                    case "FullPrice":
+                        return BuySellMode.FullPrice;
                     case "Sell Half":
                         return BuySellMode.SellHalf;
                     case "Cashless":

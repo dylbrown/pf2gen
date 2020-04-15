@@ -87,7 +87,7 @@ public class SaveLoadManager {
                 writeOutLine(out, " - " + builder.toString());
             }
             writeOutLine(out, "money = " + character.inventory().getMoney());
-            writeOutLine(out, "Inventory");
+            writeOutLine(out, "Inventory"); // TODO: Support enchanted items
             for (ItemCount item : character.inventory().getItems().values()) {
                 writeOutLine(out, " - "+item.getCount()+" "+item.stats().getName());
             }
@@ -269,7 +269,7 @@ public class SaveLoadManager {
                         character.inventory().buy(tailSet.first(), Integer.valueOf(split[0]));
                 }
             }
-            character.inventory().setMode(BuySellMode.Normal);
+            character.inventory().setMode(BuySellMode.FullPrice);
 
             //Equipping
             lines.second++; // Skip Section Header

@@ -9,8 +9,8 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.web.WebView?>
 
@@ -88,21 +88,31 @@
                 <GridPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <columnConstraints>
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
                     </columnConstraints>
                     <rowConstraints>
                         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
-                    <VBox alignment="CENTER_LEFT" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
-                        <Button fx:id="upgradeButton" mnemonicParsing="false" text="Upgrade To"/>
-                        <Label fx:id="upgradeLabel" styleClass="dashed" text="Upgraded Rune"/>
-                    </VBox>
-                    <VBox alignment="CENTER_LEFT" GridPane.halignment="CENTER" GridPane.rowIndex="2">
-                        <Button fx:id="removeButton" mnemonicParsing="false" text="Remove Rune"/>
-                        <Label fx:id="removeLabel" alignment="CENTER" text="Price: 0 sp"/>
-                    </VBox>
-                    <Button fx:id="addButton" mnemonicParsing="false" text="Add Rune" GridPane.rowIndex="1" />
+               <Pane styleClass="dividerPane" GridPane.rowSpan="3">
+                  <opaqueInsets>
+                     <Insets />
+                  </opaqueInsets>
+               </Pane>
+               <Pane styleClass="dividerBottom" GridPane.columnIndex="1" GridPane.rowSpan="3">
+                  <opaqueInsets>
+                     <Insets />
+                  </opaqueInsets>
+               </Pane>
+                     <Button fx:id="upgradeButton" mnemonicParsing="false" text="Upgrade To" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
+                     <Button fx:id="removeButton" mnemonicParsing="false" text="Remove Rune" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                    <Button fx:id="addButton" mnemonicParsing="false" text="Add Rune" GridPane.halignment="CENTER" />
+                     <Label fx:id="upgradeLabel" styleClass="dashed" text="-No Rune Selected-" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                     <Label fx:id="removeLabel" alignment="CENTER" text="-No Rune Selected-" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+               <Label text="Note: uses price multiplier" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+               <Label fx:id="upgradePrice" text="-No Rune Selected-" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
                 </GridPane>
             </AnchorPane>
         </SplitPane>

@@ -1,10 +1,12 @@
-package model.equipment;
+package model.equipment.armor;
 
 import model.enums.ArmorProficiency;
 import model.enums.Slot;
-import model.equipment.armor.Armor;
+import model.equipment.Equipment;
+import model.equipment.runes.runedItems.Enchantable;
+import model.equipment.runes.runedItems.RunedShield;
 
-public class Shield extends Armor {
+public class Shield extends Armor implements Enchantable {
     private final int hardness;
     private final int hp;
     private final int bt;
@@ -31,6 +33,11 @@ public class Shield extends Armor {
     @Override
     public Shield copy() {
         return new Shield.Builder(this).build();
+    }
+
+    @Override
+    public Equipment makeRuned() {
+        return new RunedShield(this);
     }
 
     public static class Builder extends Armor.Builder {

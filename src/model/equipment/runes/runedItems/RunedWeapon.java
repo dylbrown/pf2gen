@@ -15,11 +15,12 @@ public class RunedWeapon extends Weapon implements RunedEquipment<WeaponRune> {
 
     public RunedWeapon(Weapon weapon) {
         super(new Weapon.Builder(weapon));
-        runes = new Runes<>(weapon.getName());
+        runes = new Runes<>(weapon.getName(), WeaponRune.class);
         baseWeapon = weapon;
     }
 
-    public Weapon getBaseWeapon() {
+    @Override
+    public Weapon getBaseItem() {
         return baseWeapon;
     }
 

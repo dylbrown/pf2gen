@@ -19,15 +19,17 @@ import java.util.stream.Stream;
 public class Runes<T extends Rune> {
     private final String itemName;
     private final ReadOnlyStringWrapper fullName;
+    private final Class<T> clazz;
     private ObservableMap<String, T> runes = FXCollections.observableHashMap();
     private ObservableList<Equipment> runesList = FXCollections.observableArrayList();
     private ReadOnlyIntegerWrapper numProperties = new ReadOnlyIntegerWrapper(0);
     private ReadOnlyIntegerWrapper maxProperties = new ReadOnlyIntegerWrapper(0);
 
-    public Runes(String name) {
+    public Runes(String name, Class<T> clazz) {
         itemName = name;
         fullName = new ReadOnlyStringWrapper(name);
         addListener(c->fullName.set(makeRuneName(itemName)));
+        this.clazz = clazz;
     }
 
     public ObservableList<Equipment> list() {
@@ -38,8 +40,9 @@ public class Runes<T extends Rune> {
         runes.addListener(listener);
     }
 
-    public boolean tryToAddRune(T rune) {
-        if(!canAddRune(rune)) return false;
+    public boolean tryToAddRune(Rune genericRune) {
+        if(!canAddRune(genericRune)) return false;
+        T rune = clazz.cast(genericRune);
 
         boolean replace = false;
         if(runes.containsKey(rune.getBaseRune())) {
@@ -55,8 +58,9 @@ public class Runes<T extends Rune> {
         return true;
     }
 
-    public boolean tryToRemoveRune(T rune) {
-        if(!canRemoveRune(rune)) return false;
+    public boolean tryToRemoveRune(Rune genericRune) {
+        if(!canRemoveRune(genericRune)) return false;
+        T rune = clazz.cast(genericRune);
 
         maxProperties.subtract(rune.getGrantsProperty());
         numProperties.subtract((rune.isFundamental()) ? 0 : 1);
@@ -66,13 +70,15 @@ public class Runes<T extends Rune> {
         return true;
     }
 
-    public boolean canAddRune(T rune) {
+    public boolean canAddRune(Rune rune) {
+        if(!clazz.isInstance(rune)) return false;
         if(runes.containsKey(rune.getBaseRune())) return true;
         if(rune.isFundamental()) return true;
         else return numProperties.get() < maxProperties.get();
     }
 
-    public boolean canRemoveRune(T rune) {
+    public boolean canRemoveRune(Rune rune) {
+        if(!clazz.isInstance(rune)) return false;
         if(!runes.containsKey(rune.getBaseRune())) return false;
         int numProperty = maxProperties.get() - numProperties.get() - rune.getGrantsProperty() + ((rune.isFundamental()) ? 0 : 1);
         return numProperty >= 0;
@@ -84,7 +90,8 @@ public class Runes<T extends Rune> {
 
     String makeRuneName(String weapon) {
         Stream<String> stringStream = runes.values().stream()
-                .sorted(Comparator.comparingInt(Rune::getGrantsProperty))
+                .sorted(Comparator.comparingInt(Rune::getGrantsProperty).reversed()
+                        .thenComparing((o1, o2) -> Boolean.compare(o1.isFundamental(), o2.isFundamental())))
                 .map(r -> {
             String name = r.getName();
             if (name.contains("(")) {

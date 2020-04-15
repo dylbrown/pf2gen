@@ -3,12 +3,14 @@ package model.equipment.armor;
 import model.enums.ArmorProficiency;
 import model.equipment.CustomTrait;
 import model.equipment.Equipment;
+import model.equipment.runes.runedItems.Enchantable;
+import model.equipment.runes.runedItems.RunedArmor;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Armor extends Equipment {
+public class Armor extends Equipment implements Enchantable {
     private final int AC;
     private final int maxDex;
     private final int ACP;
@@ -67,6 +69,11 @@ public class Armor extends Equipment {
         return new Armor.Builder(this).build();
     }
 
+    @Override
+    public Equipment makeRuned() {
+        return new RunedArmor(this);
+    }
+
     public static class Builder extends Equipment.Builder {
         private int AC=0;
         private int maxDex=0;
@@ -90,6 +97,7 @@ public class Armor extends Equipment {
             this.traits = armor.traits;
             this.proficiency = armor.proficiency;
             this.setCategory("Armor");
+            this.setSubCategory(armor.getSubCategory());
         }
 
         @Override

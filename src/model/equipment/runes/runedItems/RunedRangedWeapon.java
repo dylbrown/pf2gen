@@ -3,7 +3,6 @@ package model.equipment.runes.runedItems;
 import model.equipment.runes.WeaponRune;
 import model.equipment.weapons.Damage;
 import model.equipment.weapons.RangedWeapon;
-import model.equipment.weapons.Weapon;
 
 public class RunedRangedWeapon extends RangedWeapon implements RunedEquipment<WeaponRune> {
     private final Runes<WeaponRune> runes;
@@ -12,11 +11,7 @@ public class RunedRangedWeapon extends RangedWeapon implements RunedEquipment<We
     public RunedRangedWeapon(RangedWeapon weapon) {
         super(new RangedWeapon.Builder(weapon));
         baseWeapon = weapon;
-        runes = new Runes<>(weapon.getName());
-    }
-
-    public Weapon getBaseWeapon() {
-        return baseWeapon;
+        runes = new Runes<>(weapon.getName(), WeaponRune.class);
     }
 
     @Override
@@ -32,6 +27,11 @@ public class RunedRangedWeapon extends RangedWeapon implements RunedEquipment<We
     @Override
     public Runes<WeaponRune> getRunes() {
         return runes;
+    }
+
+    @Override
+    public RangedWeapon getBaseItem() {
+        return baseWeapon;
     }
 
     @Override

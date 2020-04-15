@@ -4,12 +4,14 @@ import model.enums.Slot;
 import model.enums.WeaponProficiency;
 import model.equipment.CustomTrait;
 import model.equipment.Equipment;
+import model.equipment.runes.runedItems.Enchantable;
+import model.equipment.runes.runedItems.RunedWeapon;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Weapon extends Equipment {
+public class Weapon extends Equipment implements Enchantable {
     private final Dice damageDice;
     private final Damage damage;
     private final DamageType damageType;
@@ -73,6 +75,11 @@ public class Weapon extends Equipment {
         return false;
     }
 
+    @Override
+    public Equipment makeRuned() {
+        return new RunedWeapon(this);
+    }
+
     public static class Builder extends Equipment.Builder {
         private Dice damageDice;
         private DamageType damageType;
@@ -93,6 +100,7 @@ public class Weapon extends Equipment {
             this.proficiency = weapon.proficiency;
             this.uncommon = weapon.uncommon;
             this.setCategory("Weapon");
+            this.setSubCategory(weapon.getSubCategory());
         }
 
         @Override

@@ -9,12 +9,9 @@ import model.enums.BuySellMode;
 import model.enums.Slot;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
-import model.equipment.armor.Armor;
-import model.equipment.runes.ArmorRune;
-import model.equipment.runes.WeaponRune;
-import model.equipment.runes.runedItems.RunedArmor;
-import model.equipment.runes.runedItems.RunedWeapon;
-import model.equipment.weapons.Weapon;
+import model.equipment.runes.Rune;
+import model.equipment.runes.runedItems.Enchantable;
+import model.equipment.runes.runedItems.RunedEquipment;
 import model.util.Eyeball;
 import model.util.Watcher;
 
@@ -48,7 +45,6 @@ public class InventoryManager {
 
     private boolean add(Equipment item, int count) {
         if(count == 0) return false;
-        if(item.getValue() * count * buyMultiplier > money.get()) return false;
         //Add To Inventory
         ItemCount ic = inventory.computeIfAbsent(item, (key) -> new ItemCount(item, 0));
         ic.add(count);
@@ -203,7 +199,7 @@ public class InventoryManager {
 
     public void setMode(BuySellMode mode) {
         switch (mode) {
-            case Normal:
+            case FullPrice:
                 buyMultiplier = sellMultiplier = 1;
                 break;
             case SellHalf:
@@ -220,31 +216,49 @@ public class InventoryManager {
         money.set(money.get() + amount);
     }
 
-    public RunedArmor convertToRuned(Armor item) {
+    private Equipment convertToRuned(Equipment item) {
         if(!getItems().containsKey(item)) return null;
         remove(item, 1);
-        RunedArmor runedArmor = new RunedArmor(item);
-        add(runedArmor, 1);
-        return runedArmor;
+        if(!(item instanceof Enchantable)) return null;
+        Equipment runedItem = ((Enchantable) item).makeRuned();
+        add(runedItem, 1);
+        return runedItem;
     }
 
-    public RunedWeapon convertToRuned(Weapon item) {
-        if(!getItems().containsKey(item)) return null;
-        remove(item, 1);
-        RunedWeapon runedWeapon = new RunedWeapon(item);
-        add(runedWeapon, 1);
-        return runedWeapon;
+    private Equipment revertFromRuned(Equipment runedItem) {
+        if(!getItems().containsKey(runedItem) || !(runedItem instanceof RunedEquipment)) return null;
+        remove(runedItem, 1);
+        Equipment item = ((RunedEquipment) runedItem).getBaseItem();
+        add(item, 1);
+        return item;
     }
 
-    public boolean tryToAddRune(RunedArmor runedArmor, ArmorRune rune) {
-        if(runedArmor.getRunes().tryToAddRune(rune))
-            return remove(rune, 1);
-        return false;
+    public Equipment tryToAddRune(Equipment item, Rune rune) {
+        if(item instanceof RunedEquipment) {
+            if(((RunedEquipment) item).getRunes().tryToAddRune(rune)){
+                remove(rune, 1);
+            }
+            return item;
+        }
+        if(!rune.isFundamental()) return item;
+        Equipment runedItem = convertToRuned(item);
+        if(tryToAddRune(runedItem, rune) == null) {
+            return revertFromRuned(runedItem);
+        } else return runedItem;
     }
 
-    public boolean tryToAddRune(RunedWeapon runedWeapon, WeaponRune rune) {
-        if(runedWeapon.getRunes().tryToAddRune(rune))
-            return remove(rune, 1);
-        return false;
+    public Equipment tryToRemoveRune(Equipment runedItem, Rune rune) {
+        // Can we afford the rune
+        if(rune.getValue() * .1 * buyMultiplier > money.get()) return null;
+
+        if(runedItem instanceof RunedEquipment) {
+            if(((RunedEquipment) runedItem).getRunes().tryToRemoveRune(rune)){
+                add(rune, 1);
+                money.set(money.get() - rune.getValue() * .1 * buyMultiplier);
+            }
+            if(((RunedEquipment) runedItem).getRunes().getAll().size() == 0) {
+                return revertFromRuned(runedItem);
+            } else return runedItem;
+        } else return null;
     }
 }

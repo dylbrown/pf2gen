@@ -4,6 +4,7 @@ import model.enums.ArmorProficiency;
 import model.equipment.*;
 import model.equipment.armor.Armor;
 import model.equipment.armor.ArmorGroup;
+import model.equipment.armor.Shield;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
