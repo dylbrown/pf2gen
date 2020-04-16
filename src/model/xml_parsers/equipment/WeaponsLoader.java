@@ -1,4 +1,4 @@
-package model.xml_parsers;
+package model.xml_parsers.equipment;
 
 import model.equipment.weapons.DamageType;
 import model.enums.WeaponProficiency;
@@ -7,6 +7,7 @@ import model.equipment.weapons.Dice;
 import model.equipment.weapons.RangedWeapon;
 import model.equipment.weapons.Weapon;
 import model.equipment.weapons.WeaponGroup;
+import model.xml_parsers.FileLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -17,7 +18,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static model.util.StringUtils.camelCase;
-//TODO: Implement Builder Pattern
+
 public class WeaponsLoader extends FileLoader<Weapon> {
 
     private List<Weapon> weapons;
@@ -51,7 +52,7 @@ public class WeaponsLoader extends FileLoader<Weapon> {
         return Collections.unmodifiableList(weapons);
     }
 
-    static Weapon getWeapon(Element weapon) {
+    public static Weapon getWeapon(Element weapon) {
         Weapon.Builder builder = new Weapon.Builder();
         RangedWeapon.Builder rangedBuilder = null;
         Node proficiencyNode= weapon.getParentNode();

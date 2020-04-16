@@ -1,6 +1,10 @@
 package model.equipment.weapons;
 
-import java.util.*;
+import model.util.Pair;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -8,9 +12,9 @@ public class MultiDamage extends Damage {
     private List<Damage> convertedDamage;
     public MultiDamage(Damage first, List<Damage> additional) {
         super();
-        Map<DamageType, Damage.Builder> damages = new HashMap<>();
+        Map<Pair<DamageType, Boolean>, Damage.Builder> damages = new HashMap<>();
         Stream.concat(Stream.of(first), additional.stream()).forEach(dt ->
-            damages.computeIfAbsent(dt.getDamageType(), ndt->new Damage.Builder().setDamageType(ndt))
+            damages.computeIfAbsent(new Pair<>(dt.getDamageType(), dt.isPersistent()), ndt->new Damage.Builder().setDamageType(ndt.first).setPersistent(ndt.second))
                     .addDice(dt.getDice())
                     .addAmount(dt.getAmount())
         );

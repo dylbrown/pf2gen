@@ -85,12 +85,11 @@ public class AttributeManager {
      * <p>
      *     If the mod is a choice, it adds it to the decisions.
      *     If the mod would increase the character's current proficiency, do so.
-     *     Otherwise just silently adds it to their list of proficiency sources.
+     *     Otherwise store it (only if it is a Trained mod) and increase the number of free skill increases by 1
      * </p>
      * @param mod the mod to apply
      */
     void apply(AttributeMod mod) {
-        //TODO: Add support for free skill increase if redundant
         if(mod.getAttr() == null) return;
         if(mod instanceof AttributeModSingleChoice) {
             AttributeModSingleChoice choice = (AttributeModSingleChoice) mod;
@@ -112,6 +111,8 @@ public class AttributeManager {
             proficiencies.put(mod.getAttr(), new ReadOnlyObjectWrapper<>(mod.getMod()));
         } else if (proficiency.getValue() == null || proficiency.getValue().getMod() < mod.getMod().getMod()) {
             proficiency.set(mod.getMod());
+        } else if (mod.getMod().equals(Proficiency.Trained)){
+            addSkillIncreases(1, 1);
         }
         proficiencyChange.firePropertyChange("addAttributeMod", null, null);
     }
@@ -121,7 +122,7 @@ public class AttributeManager {
      * <p>
      *     If the mod is a choice, it removes it from the decisions.
      *     If removing the mod would decrease the character's current proficiency, do so.
-     *     Otherwise just silently remove it to their list of proficiency sources.
+     *     Otherwise remove it (only if it is a Trained mod) and decrease the number of free skill increases by 1
      * </p>
      * @param mod the mod to remove
      */
@@ -166,6 +167,8 @@ public class AttributeManager {
                     doLoop = doNotHaveProf(proficiencyListMap, temp);
             }
             proficiency.set(temp);
+        } else if(mod.getMod().equals(Proficiency.Trained) && attributeMods.size() > 0) {
+            removeSkillIncreases(1, 1);
         }
     }
 

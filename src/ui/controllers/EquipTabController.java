@@ -122,10 +122,10 @@ public class EquipTabController {
             }
         });
 
-        //TODO: replace click event with row click event
         equipped.setOnMouseClicked(event -> {
             if(event.getClickCount() % 2 == 0) {
                 EquippedEntry item = equipped.getSelectionModel().getSelectedItem();
+                if(item == null) return;
                 tryToUnequip(item.getItemCount(), item.slotProperty().getValue());
             }
         });

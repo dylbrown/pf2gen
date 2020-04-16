@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
@@ -14,6 +15,7 @@ import model.equipment.Equipment;
 import model.equipment.ItemCount;
 import model.equipment.runes.Rune;
 import model.equipment.runes.runedItems.*;
+import model.util.Pair;
 import ui.Main;
 import ui.controls.equipment.EquipmentHTMLGenerator;
 import ui.controls.equipment.lists.ItemEntry;
@@ -48,7 +50,6 @@ public class EnchantTabController {
         removeButton.setOnAction(this::removeRune);
         upgradeButton.setOnAction(this::upgradeRune);
 
-        //TODO: Add unmodifiableItemCount
         Main.character.inventory().addBuySellWatcher((o, oldVal, newVal) -> {
             int countChange = newVal.getCount() - oldVal.getCount();
             if(countChange < 0) {
@@ -80,25 +81,39 @@ public class EnchantTabController {
     }
 
     private void addRune(ActionEvent actionEvent) {
-        if(!(selectedRune instanceof Rune)) return;
-        Equipment item = Main.character.inventory().tryToAddRune(selectedItem, (Rune) selectedRune);
-        if(item == null) return; // TODO: Add fail popup
-        select(item, itemsIL.getRoot());
+        if(!(selectedRune instanceof Rune)) {
+            notifyFail("add rune.", "Selected Rune not a rune.");
+            return;
+        }
+        Pair<Boolean, Equipment> item = Main.character.inventory().tryToAddRune(selectedItem, (Rune) selectedRune);
+        if(!item.first)
+            notifyFail("add rune.", "Could not add rune.");
+        select(item.second, itemsIL.getRoot());
         refreshLabels();
     }
 
     private void removeRune(ActionEvent actionEvent) {
-        if(!(selectedRune instanceof Rune)) return;
-        Equipment item = Main.character.inventory().tryToRemoveRune(selectedItem, (Rune) selectedRune);
-        if(item == null) return; // TODO: Add fail popup
-        select(item, itemsIL.getRoot());
+        if(!(selectedRune instanceof Rune)) {
+            notifyFail("remove rune.", "Selected Rune not a rune.");
+            return;
+        }
+        Pair<Boolean, Equipment> item = Main.character.inventory().tryToRemoveRune(selectedItem, (Rune) selectedRune);
+        if(!item.first)
+            notifyFail("remove rune.", "Could not remove rune.");
+        select(item.second, itemsIL.getRoot());
         refreshLabels();
     }
 
     private void upgradeRune(ActionEvent actionEvent) {
-        if(!(selectedRune instanceof Rune)) return;
+        if(!(selectedRune instanceof Rune)) {
+            notifyFail("upgrade rune.", "Selected Rune not a rune.");
+            return;
+        }
         Rune upgradedRune = getUpgradedRune(selectedRune);
-        if(upgradedRune == null) return; // TODO: Add fail popup
+        if(upgradedRune == null) {
+            notifyFail("remove rune.", "No rune to upgrade to.");
+            return;
+        }
         boolean result = Main.character.inventory().tryToUpgradeRune(selectedItem, (Rune) selectedRune, upgradedRune);
         if(!result) return;
         refreshLabels();
@@ -118,7 +133,10 @@ public class EnchantTabController {
     private void addItem(Equipment item, int count) {
         if(count > 0) {
             String cat = item.getCategory();
-            if(cat.equals("Weapon") || cat.equals("Armor")) {
+            if(cat.equals("Weapon")
+                    || cat.equals("Armor")
+                    || cat.equals("Ranged Weapon")
+                    || cat.equals("Shield")) {
                 for(int i = 0; i < count; i++)
                     itemsList.add(item);
             }else if (cat.equals("Runes")) {
@@ -214,5 +232,13 @@ public class EnchantTabController {
             }else if(select(item, child)) return true;
         }
         return false;
+    }
+
+    private void notifyFail(String goal, String notice) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText("Failed to "+goal);
+        alert.setContentText(notice);
+        alert.show();
     }
 }

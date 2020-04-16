@@ -130,6 +130,7 @@ public class ItemsList extends CategoryAllItemsList {
                     retractSubcat(cat, item);
                     if(cat.getChildren().size() == 0) {
                         getRoot().getChildren().remove(cat);
+                        categoryStrings.remove(item.getCategory());
                         if(getRoot().getChildren().size() == 1) {
                             multiCategory = false;
                             ObservableList<TreeItem<ItemEntry>> children = getRoot().getChildren().get(0).getChildren();
@@ -154,9 +155,17 @@ public class ItemsList extends CategoryAllItemsList {
         else {
             for (TreeItem<ItemEntry> subcat : root.getChildren()) {
                 if(subcat.getValue().toString().equals(item.getSubCategory())) {
-                    subcat.getChildren().removeIf(ti->item.equals(ti.getValue().getItem()));
-                    if(subcat.getChildren().size() == 0)
+                    Iterator<TreeItem<ItemEntry>> iterator = subcat.getChildren().iterator();
+                    while(iterator.hasNext()) {
+                        TreeItem<ItemEntry> child = iterator.next();
+                        if(item.equals(child.getValue().getItem())) {
+                            iterator.remove();
+                            break;
+                        }
+                    }
+                    if(subcat.getChildren().size() == 0) {
                         root.getChildren().remove(subcat);
+                    }
                     return;
                 }
             }

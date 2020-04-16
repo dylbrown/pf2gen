@@ -10,10 +10,10 @@ public abstract class ABC {
     private final List<AbilityMod> abilityMods;
     private final String description;
 
-    ABC(String name, String description, List<AbilityMod> abilityMods) {
-        this.name = name;
-        this.description = description;
-        this.abilityMods = abilityMods;
+    ABC(ABC.Builder builder) {
+        this.name = builder.name;
+        this.description = builder.description;
+        this.abilityMods = builder.abilityMods;
     }
 
     @Override
@@ -29,5 +29,23 @@ public abstract class ABC {
 
     public String getDesc() {
         return description;
+    }
+
+    public static abstract class Builder {
+        private String name;
+        private List<AbilityMod> abilityMods = Collections.emptyList();
+        private String description;
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setAbilityMods(List<AbilityMod> abilityMods) {
+            this.abilityMods = abilityMods;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
     }
 }

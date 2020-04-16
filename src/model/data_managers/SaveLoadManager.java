@@ -1,8 +1,6 @@
 package model.data_managers;
 
 import javafx.collections.ObservableList;
-import model.attributes.Attribute;
-import model.attributes.SkillIncrease;
 import model.abc.Ancestry;
 import model.abc.Background;
 import model.abc.PClass;
@@ -11,16 +9,23 @@ import model.abilities.abilitySlots.ChoiceList;
 import model.abilities.abilitySlots.FeatSlot;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
-import model.enums.*;
+import model.attributes.Attribute;
+import model.attributes.SkillIncrease;
+import model.enums.Alignment;
+import model.enums.BuySellMode;
+import model.enums.Slot;
+import model.enums.Type;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
 import model.equipment.SearchItem;
+import model.equipment.runes.Rune;
+import model.equipment.runes.runedItems.RunedEquipment;
 import model.spells.Spell;
 import model.util.Pair;
 import model.util.Triple;
-import model.xml_parsers.AncestriesLoader;
-import model.xml_parsers.BackgroundsLoader;
-import model.xml_parsers.PClassesLoader;
+import model.xml_parsers.abc.AncestriesLoader;
+import model.xml_parsers.abc.BackgroundsLoader;
+import model.xml_parsers.abc.PClassesLoader;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -87,9 +92,27 @@ public class SaveLoadManager {
                 writeOutLine(out, " - " + builder.toString());
             }
             writeOutLine(out, "money = " + character.inventory().getMoney());
-            writeOutLine(out, "Inventory"); // TODO: Support enchanted items
+            writeOutLine(out, "Inventory");
             for (ItemCount item : character.inventory().getItems().values()) {
-                writeOutLine(out, " - "+item.getCount()+" "+item.stats().getName());
+                if(item.stats() instanceof RunedEquipment) {
+                    RunedEquipment stats = (RunedEquipment) item.stats();
+                    writeOutLine(out, " @ "+item.getCount()+" "+stats.getBaseItem().getName());
+                    List<Rune> fundamentalRunes = new ArrayList<>();
+                    List<Rune> propertyRunes = new ArrayList<>();
+                    for (Object o : stats.getRunes().list()) {
+                        if(o instanceof Rune) {
+                            Rune rune = (Rune) o;
+                            if(rune.isFundamental())
+                                fundamentalRunes.add(rune);
+                            else
+                                propertyRunes.add(rune);
+                        }
+                    }
+                    for (Rune rune : fundamentalRunes)
+                        writeOutLine(out, "   - " + rune.getName());
+                    for (Rune rune : propertyRunes)
+                        writeOutLine(out, "   - " + rune.getName());
+                }else writeOutLine(out, " - "+item.getCount()+" "+item.stats().getName());
             }
             writeOutLine(out, "Equipped");
             //Print items in specific slots
@@ -196,7 +219,6 @@ public class SaveLoadManager {
             }
             //Skill Increase Choices
             character.attributes().resetSkills();
-            lines.second++; // Skip Section Header
             while(true) {
                 String s = nextLine(lines);
                 if(!s.startsWith(" - ")) {
@@ -236,9 +258,11 @@ public class SaveLoadManager {
                     else options = Collections.emptyList();
                     for (Object option : options) {
                         if(selections.contains(option.toString())) {
-	                        //noinspection unchecked
-	                        character.addSelection(decision, option);
-                            successes++;
+                            int oldSize = decision.getNumSelections();
+                            //noinspection unchecked
+                            character.addSelection(decision, option);
+                            if(decision.getNumSelections() > oldSize)
+                                successes++;
                             if(decision.viewSelections().size() == selections.size())
                                 decisionStringMap.put(decision.toString(), null);
                             break;
@@ -254,19 +278,34 @@ public class SaveLoadManager {
             character.inventory().setMoney(Double.parseDouble(money));
             lines.second++; // Skip Section Header
             character.inventory().setMode(BuySellMode.Cashless);
-            while(true) {
+            while (true) {
                 String s;
-                try { s = nextLine(lines); }
-                catch(RuntimeException e) { break; }
-                if(!s.startsWith(" - ")) {
-                    lines.second--;
+                try {
+                    s = nextLine(lines);
+                } catch (RuntimeException e) {
                     break;
                 }
-                String[] split = s.substring(3).split(" ", 2);
-                SortedSet<Equipment> tailSet = EquipmentManager.getEquipment().tailSet(new SearchItem(split[1]));
-                if (!tailSet.isEmpty()) {
-                    if(tailSet.first().getName().equals(split[1]))
-                        character.inventory().buy(tailSet.first(), Integer.valueOf(split[0]));
+                if (s.startsWith(" - ")) {
+                    String[] split = s.substring(3).split(" ", 2);
+                    SortedSet<Equipment> tailSet = EquipmentManager.getEquipment().tailSet(new SearchItem(split[1]));
+                    if (!tailSet.isEmpty()) {
+                        if (tailSet.first().getName().equals(split[1]))
+                            character.inventory().buy(tailSet.first(), Integer.valueOf(split[0]));
+                    }
+                } else if (s.startsWith(" @ ")) {
+                    String itemName = s.substring(3).split(" ", 2)[1];
+                    Equipment item;
+                    SortedSet<Equipment> tailSet = EquipmentManager.getEquipment().tailSet(new SearchItem(itemName));
+                    if (!tailSet.isEmpty()) {
+                        if (tailSet.first().getName().equals(itemName)) {
+                            item = tailSet.first();
+                            character.inventory().buy(item, 1);
+                            upgradeItem(item, lines);
+                        }
+                    }
+                } else {
+                    lines.second--;
+                    break;
                 }
             }
             character.inventory().setMode(BuySellMode.FullPrice);
@@ -308,6 +347,30 @@ public class SaveLoadManager {
             }
 
             System.out.println(System.currentTimeMillis()-start+" ms");
+        }
+    }
+
+    private static void upgradeItem(Equipment item, Pair<List<String>, Integer> lines) {
+        String s;
+        while (true) {
+            Rune rune;
+            try { s = nextLine(lines); }
+            catch(RuntimeException e) { return; }
+            if(!s.startsWith("   - ")) {
+                lines.second--;
+                return;
+            }
+            String itemName = s.substring(5);
+            SortedSet<Equipment> tailSet = EquipmentManager.getEquipment().tailSet(new SearchItem(itemName));
+            if (!tailSet.isEmpty()) {
+                if(tailSet.first().getName().equals(itemName)) {
+                    if(tailSet.first() instanceof Rune) {
+                        rune = (Rune) tailSet.first();
+                        character.inventory().buy(rune, 1);
+                        item = character.inventory().tryToAddRune(item, rune).second;
+                    }
+                }
+            }
         }
     }
 

@@ -4,7 +4,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import model.data_managers.EquipmentManager;
 import model.equipment.Equipment;
-import model.xml_parsers.ItemLoader;
+import model.xml_parsers.equipment.ItemLoader;
 
 import java.util.Comparator;
 import java.util.Map;

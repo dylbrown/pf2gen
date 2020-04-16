@@ -1,10 +1,11 @@
-package model.xml_parsers;
+package model.xml_parsers.equipment;
 
 import model.enums.ArmorProficiency;
 import model.equipment.*;
 import model.equipment.armor.Armor;
 import model.equipment.armor.ArmorGroup;
 import model.equipment.armor.Shield;
+import model.xml_parsers.FileLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -15,7 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static model.util.StringUtils.camelCase;
-//TODO: Implement Builder Pattern
+
 public class ArmorLoader extends FileLoader<Armor> {
 
     private List<Armor> armorAndShields;

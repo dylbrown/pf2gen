@@ -7,11 +7,13 @@ public class Damage {
     private List<Dice> dice;
     private int amount;
     private DamageType damageType;
+    private boolean isPersistent;
 
     public Damage(Builder builder) {
         this.dice = new ArrayList<>(builder.dice.values());
         this.amount = builder.amount;
         this.damageType = builder.damageType;
+        this.isPersistent = builder.isPersistent;
     }
 
     Damage() {}
@@ -28,6 +30,10 @@ public class Damage {
         return damageType;
     }
 
+    public boolean isPersistent() {
+        return isPersistent;
+    }
+
     @Override
     public String toString() {
         List<String> parts = new ArrayList<>();
@@ -35,7 +41,7 @@ public class Damage {
                     .forEach(d->parts.add(d.toString()));
         if(amount != 0) parts.add(String.valueOf(amount));
         if(damageType == null) return String.join(" + ", parts);
-        return String.join(" + ", parts) + " " + damageType;
+        return String.join(" + ", parts) + " " + ((isPersistent) ? "persistent " : "") + damageType;
     }
 
     @Override
@@ -44,19 +50,21 @@ public class Damage {
         if (o == null || getClass() != o.getClass()) return false;
         Damage damage = (Damage) o;
         return amount == damage.amount &&
+                isPersistent == damage.isPersistent &&
                 Objects.equals(dice, damage.dice) &&
                 damageType == damage.damageType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(dice, amount, damageType);
+        return Objects.hash(dice, amount, damageType, isPersistent);
     }
 
     public static class Builder {
         private Map<Integer, Dice> dice = Collections.emptyMap();
         private int amount = 0;
         private DamageType damageType = null;
+        private boolean isPersistent = false;
 
         Damage.Builder addDice(List<Dice> newDice) {
             if(dice.size() == 0) dice = new HashMap<>();
@@ -85,6 +93,11 @@ public class Damage {
 
         public Damage.Builder setDamageType(DamageType damageType) {
             this.damageType = damageType;
+            return this;
+        }
+
+        public Damage.Builder setPersistent(boolean persistent) {
+            isPersistent = persistent;
             return this;
         }
 

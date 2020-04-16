@@ -6,10 +6,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import model.abc.Ancestry;
 import model.ability_scores.AbilityMod;
-import model.xml_parsers.AncestriesLoader;
+import model.xml_parsers.abc.AncestriesLoader;
 import ui.Main;
 
-@SuppressWarnings("WeakerAccess")
 public class AncestryTabController {
     @FXML
     private Label hp;

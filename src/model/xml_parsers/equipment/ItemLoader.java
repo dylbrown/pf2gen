@@ -1,4 +1,4 @@
-package model.xml_parsers;
+package model.xml_parsers.equipment;
 
 import model.attributes.Attribute;
 import model.attributes.AttributeBonus;
@@ -11,6 +11,7 @@ import model.equipment.runes.WeaponRune;
 import model.equipment.weapons.Damage;
 import model.equipment.weapons.DamageType;
 import model.equipment.weapons.Dice;
+import model.xml_parsers.FileLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -149,7 +150,7 @@ public class ItemLoader extends FileLoader<Equipment> {
         String[] s = trim.split(" ");
         damageType = DamageType.valueOf(camelCaseWord(s[s.length-1]));
         String damage = trim.replaceAll("( \\z| [^ ]*\\z| persistent)", "");
-        //TODO: Handle persistent
+        boolean persistent = trim.contains("persistent");
         if(damage.contains("d") && (damage.contains("+") || damage.contains("-"))) {
             int flip = (damage.contains("+")) ? 1 : -1;
             String[] damageSplit = damage.split("[+-]");
@@ -157,14 +158,17 @@ public class ItemLoader extends FileLoader<Equipment> {
             return new Damage.Builder().addDice(Dice.get(Integer.parseInt(diceSplit[0]), Integer.parseInt(diceSplit[1])))
                     .addAmount(flip * Integer.valueOf(damageSplit[1]))
                     .setDamageType(damageType)
+                    .setPersistent(persistent)
                     .build();
         }else if(damage.contains("d")) {
             String[] diceSplit = damage.trim().split("d");
             return new Damage.Builder().addDice(Dice.get(Integer.parseInt(diceSplit[0]), Integer.parseInt(diceSplit[1])))
-                    .setDamageType(damageType).build();
+                    .setDamageType(damageType)
+                    .setPersistent(persistent).build();
         }else{
             return new Damage.Builder().addAmount(Integer.parseInt(damage))
-                    .setDamageType(damageType).build();
+                    .setDamageType(damageType)
+                    .setPersistent(persistent).build();
         }
     }
 

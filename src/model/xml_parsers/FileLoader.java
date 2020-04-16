@@ -22,18 +22,18 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 public abstract class FileLoader<T> {
-    File path;
+    protected File path;
     private static final DocumentBuilderFactory factory;
 
     static{
         factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
-        EquipmentManager.getEquipment();//TODO: Separate out loading weapon groups
+        EquipmentManager.getEquipment();
     }
 
     public abstract List<T> parse();
 
-    Document getDoc(File path) {
+    protected Document getDoc(File path) {
         Document doc = null;
         if(path.exists()) {
             try {
@@ -54,7 +54,7 @@ public abstract class FileLoader<T> {
         return doc;
     }
 
-    void iterateElements(Document doc, String tagName, Consumer<Element> consumer) {
+    protected void iterateElements(Document doc, String tagName, Consumer<Element> consumer) {
         NodeList groupNodes = doc.getElementsByTagName(tagName);
         for(int i=0; i<groupNodes.getLength(); i++) {
             if(groupNodes.item(i).getNodeType() != Node.ELEMENT_NODE)
@@ -63,7 +63,7 @@ public abstract class FileLoader<T> {
         }
     }
 
-    List<Pair<Document, String>> getDocs(File path) {
+    protected List<Pair<Document, String>> getDocs(File path) {
         List<Pair<Document, String>> results = new ArrayList<>();
         if(path.exists()) {
             for (File file : Objects.requireNonNull(path.listFiles())) {

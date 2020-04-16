@@ -4,11 +4,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import model.abc.PClass;
-import model.xml_parsers.PClassesLoader;
+import model.xml_parsers.abc.PClassesLoader;
 
 import static ui.Main.character;
 
-@SuppressWarnings("WeakerAccess")
 public class ClassTabController {
     @FXML
     private ListView<PClass> classList;

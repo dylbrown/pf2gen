@@ -4,11 +4,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import model.abc.Background;
-import model.xml_parsers.BackgroundsLoader;
+import model.xml_parsers.abc.BackgroundsLoader;
 
 import static ui.Main.character;
 
-@SuppressWarnings("WeakerAccess")
 public class BackgroundTabController {
     @FXML
     private ListView<Background> backgroundList;

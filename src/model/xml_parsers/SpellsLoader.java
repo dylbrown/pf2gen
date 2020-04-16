@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-//TODO: Support Spell.Type
+
 public class SpellsLoader extends FileLoader<Spell> {
 	private List<Spell> spells = null;
 

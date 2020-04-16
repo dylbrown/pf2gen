@@ -15,6 +15,7 @@ import model.enums.Type;
 import model.spells.CasterType;
 import model.spells.SpellType;
 import model.spells.Tradition;
+import model.xml_parsers.equipment.WeaponsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -27,13 +28,13 @@ import java.util.stream.Collectors;
 import static model.util.StringUtils.camelCase;
 import static model.util.StringUtils.camelCaseWord;
 
-abstract class AbilityLoader<T> extends FileLoader<T> {
+public abstract class AbilityLoader<T> extends FileLoader<T> {
 
-    Type getSource(Element element) {
+    protected Type getSource(Element element) {
         return null;
     }
 
-    List<Ability> makeAbilities(NodeList nodes) {
+    protected List<Ability> makeAbilities(NodeList nodes) {
         List<Ability> choices = new ArrayList<>();
         for(int i=0; i<nodes.getLength(); i++) {
             if(!(nodes.item(i) instanceof Element)) continue;
@@ -46,7 +47,7 @@ abstract class AbilityLoader<T> extends FileLoader<T> {
         return choices;
     }
 
-    List<String> getTypes(String string) {
+    protected List<String> getTypes(String string) {
         List<String> results = new ArrayList<>();
         String[] split = string.trim().split(" ");
         for(String term: split) {
@@ -55,11 +56,11 @@ abstract class AbilityLoader<T> extends FileLoader<T> {
         }
         return results;
     }
-    Ability makeAbility(Element element, String name) {
+    protected Ability makeAbility(Element element, String name) {
         return makeAbility(element, name, 1);
     }
 
-    Ability makeAbility(Element element, String name, int level) {
+    protected Ability makeAbility(Element element, String name, int level) {
         if(element.getTagName().contains("Ability")) {
             Ability.Builder builder;
             Activity.Builder acBuilder = null;
@@ -217,7 +218,7 @@ abstract class AbilityLoader<T> extends FileLoader<T> {
         return null;
     }
 
-    Type getDynamicType(String type) {
+    protected Type getDynamicType(String type) {
         return Type.valueOf(type.trim().replaceAll(" [fF]eat", ""));
     }
 
@@ -251,12 +252,12 @@ abstract class AbilityLoader<T> extends FileLoader<T> {
         return mods;
     }
 
-    Ability makeAbility(Element curr) {
+    public Ability makeAbility(Element curr) {
         String level = curr.getAttribute("level");
         return makeAbility(curr, curr.getAttribute("name"), (level.isBlank()) ? 0 : Integer.parseInt(level));
     }
 
-    List<AbilityMod> getAbilityMods(String bonuses, String penalties, Type type) {
+    protected List<AbilityMod> getAbilityMods(String bonuses, String penalties, Type type) {
         List<AbilityMod> abilityMods = new ArrayList<>();
 
         String[] split = bonuses.split(",");
@@ -276,7 +277,7 @@ abstract class AbilityLoader<T> extends FileLoader<T> {
         return abilityMods;
     }
 
-    AbilityMod getAbilityBonus(String abilityString, Type type) {
+    protected AbilityMod getAbilityBonus(String abilityString, Type type) {
         String[] eachScore = abilityString.split("or|,");
         if(eachScore.length == 1) {
             AbilityScore abilityScore = AbilityScore.valueOf(camelCaseWord(abilityString));

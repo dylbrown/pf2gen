@@ -57,7 +57,7 @@ public class Runes<T extends Rune> {
         T rune = clazz.cast(genericRune);
 
         maxProperties.subtract(rune.getGrantsProperty());
-        numProperties.subtract((rune.isFundamental()) ? 0 : 1);
+        numProperties.set(numProperties.get() - ((rune.isFundamental()) ? 0 : 1));
 
         runesList.remove(runes.get(rune.getBaseRune()));
         runes.remove(rune.getBaseRune());

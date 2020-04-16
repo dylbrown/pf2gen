@@ -19,8 +19,7 @@ public class ItemCount {
     }
 
     public ItemCount(ItemCount ic, int count) {
-        this(ic);
-        setCount(count);
+        this(ic.baseItem, count);
     }
 
     public Equipment stats() {

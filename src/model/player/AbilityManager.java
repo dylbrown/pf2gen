@@ -109,7 +109,6 @@ public class AbilityManager {
 				checkAPrereq(s, needsPrereqStrings);
 			}
 			checkAPrereq(ability.getName(), needsPrerequisites);
-			//TODO: Handle invalidating your own choices
 			if (ability.getType() != Type.None)
 				abcTracker.computeIfAbsent(ability.getType(), (key) -> new HashSet<>()).add(ability);
 			if (ability instanceof AbilitySet) {

@@ -1,7 +1,6 @@
 package model.abc;
 
 import model.abilities.Ability;
-import model.ability_scores.AbilityMod;
 import model.enums.Language;
 import model.enums.Size;
 
@@ -19,7 +18,7 @@ public class Ancestry extends AC {
     private final List<Language> bonusLanguages;
 
     private Ancestry(Ancestry.Builder builder) {
-        super(builder.name, builder.description, builder.abilityMods, builder.HP, builder.feats);
+        super(builder);
         this.size = builder.size;
         this.speed = builder.speed;
         this.heritages = builder.heritages;
@@ -47,16 +46,10 @@ public class Ancestry extends AC {
         return Collections.unmodifiableList(bonusLanguages);
     }
 
-    @SuppressWarnings("UnusedReturnValue")
-    public static class Builder {
-        private String name = "";
-        private int HP = 0;
+    public static class Builder extends AC.Builder {
         private Size size = Size.Medium;
         private int speed = 0;
-        private List<AbilityMod> abilityMods = Collections.emptyList();
-        private final List<Ability> feats = new ArrayList<>();
         private final List<Ability> heritages = new ArrayList<>();
-        private String description = "";
         private final List<Language> languages = new ArrayList<>();
         private List<Language> bonusLanguages = new ArrayList<>();
 
@@ -64,59 +57,24 @@ public class Ancestry extends AC {
             return new Ancestry(this);
         }
 
-        public Ancestry.Builder setName(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public Ancestry.Builder setHP(int HP) {
-            this.HP = HP;
-            return this;
-        }
-
-        public Ancestry.Builder setSize(Size size) {
+        public void setSize(Size size) {
             this.size = size;
-            return this;
         }
 
-        public Ancestry.Builder setSpeed(int speed) {
+        public void setSpeed(int speed) {
             this.speed = speed;
-            return this;
         }
 
-        public Ancestry.Builder addFeat(Ability feat) {
-            this.feats.add(feat);
-            return this;
-        }
-
-        public Ancestry.Builder addHeritage(Ability heritage) {
+        public void addHeritage(Ability heritage) {
             this.heritages.add(heritage);
-            return this;
         }
 
-        public Ancestry.Builder setAbilityMods(List<AbilityMod> abilityMods) {
-            this.abilityMods = abilityMods;
-            return this;
-        }
-
-        public Ancestry.Builder setDescription(String description) {
-            this.description = description;
-            return this;
-        }
-
-        public Ancestry.Builder addLanguages(Language... language) {
+        public void addLanguages(Language... language) {
             this.languages.addAll(Arrays.asList(language));
-            return this;
         }
 
-        public Ancestry.Builder addBonusLanguages(Language... language) {
+        public void addBonusLanguages(Language... language) {
             this.bonusLanguages.addAll(Arrays.asList(language));
-            return this;
-        }
-
-        public Ancestry.Builder setBonusLanguages(List<Language> bonusLanguages) {
-            this.bonusLanguages = bonusLanguages;
-            return this;
         }
     }
 }

@@ -4,10 +4,10 @@ import model.equipment.armor.Armor;
 import model.equipment.Equipment;
 import model.equipment.weapons.Weapon;
 import model.equipment.weapons.WeaponGroup;
-import model.xml_parsers.ArmorLoader;
+import model.xml_parsers.equipment.ArmorLoader;
 import model.xml_parsers.FileLoader;
-import model.xml_parsers.ItemLoader;
-import model.xml_parsers.WeaponsLoader;
+import model.xml_parsers.equipment.ItemLoader;
+import model.xml_parsers.equipment.WeaponsLoader;
 
 import java.io.File;
 import java.util.*;

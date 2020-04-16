@@ -62,6 +62,7 @@ public class InfoTabController {
 
 		//Show save file dialog
 		File file = fileChooser.showOpenDialog(load.getScene().getWindow());
+		if(file == null) return;
 		loadLocation = file.getParentFile();
 		SaveLoadManager.load(file);
 

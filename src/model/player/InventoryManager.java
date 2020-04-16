@@ -9,10 +9,12 @@ import model.enums.BuySellMode;
 import model.enums.Slot;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
+import model.equipment.UnmodifiableItemCount;
 import model.equipment.runes.Rune;
 import model.equipment.runes.runedItems.Enchantable;
 import model.equipment.runes.runedItems.RunedEquipment;
 import model.util.Eyeball;
+import model.util.Pair;
 import model.util.Watcher;
 
 public class InventoryManager {
@@ -89,7 +91,7 @@ public class InventoryManager {
 
         //Remove From Total Weight
         totalWeight -= item.getWeight() * count;
-        buySellEye.wink(new ItemCount(ic, ic.getCount()+count), ic);
+        buySellEye.wink(new UnmodifiableItemCount(ic, ic.getCount()+count), new UnmodifiableItemCount(ic));
         return true;
     }
 
@@ -234,23 +236,25 @@ public class InventoryManager {
         return item;
     }
 
-    public Equipment tryToAddRune(Equipment item, Rune rune) {
+    public Pair<Boolean, Equipment> tryToAddRune(Equipment item, Rune rune) {
         if(item instanceof RunedEquipment) {
             if(((RunedEquipment) item).getRunes().tryToAddRune(rune)){
                 remove(rune, 1);
-            }
-            return item;
+                return new Pair<>(true, item);
+            }else return new Pair<>(false, item);
         }
-        if(!rune.isFundamental()) return item;
+        if(!rune.isFundamental()) return new Pair<>(false, item);
         Equipment runedItem = convertToRuned(item);
-        if(tryToAddRune(runedItem, rune) == null) {
-            return revertFromRuned(runedItem);
-        } else return runedItem;
+        if(runedItem == null) return new Pair<>(false, item);
+        Pair<Boolean, Equipment> result = tryToAddRune(runedItem, rune);
+        if(result.first)
+            return result;
+        else return new Pair<>(false, revertFromRuned(runedItem));
     }
 
-    public Equipment tryToRemoveRune(Equipment runedItem, Rune rune) {
+    public Pair<Boolean, Equipment> tryToRemoveRune(Equipment runedItem, Rune rune) {
         // Can we afford the rune
-        if(rune.getValue() * .1 * buyMultiplier > money.get()) return null;
+        if(rune.getValue() * .1 * buyMultiplier > money.get()) return new Pair<>(false, runedItem);
 
         if(runedItem instanceof RunedEquipment) {
             if(((RunedEquipment) runedItem).getRunes().tryToRemoveRune(rune)){
@@ -258,9 +262,9 @@ public class InventoryManager {
                 money.set(money.get() - rune.getValue() * .1 * buyMultiplier);
             }
             if(((RunedEquipment) runedItem).getRunes().getAll().size() == 0) {
-                return revertFromRuned(runedItem);
-            } else return runedItem;
-        } else return null;
+                return new Pair<>(true, revertFromRuned(runedItem));
+            } else return new Pair<>(true, runedItem);
+        } else return new Pair<>(false, runedItem);
     }
 
     public boolean tryToUpgradeRune(Equipment runedItem, Rune rune, Rune upgradedRune) {
