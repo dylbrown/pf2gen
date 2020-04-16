@@ -44,14 +44,8 @@ public class Runes<T extends Rune> {
         if(!canAddRune(genericRune)) return false;
         T rune = clazz.cast(genericRune);
 
-        boolean replace = false;
-        if(runes.containsKey(rune.getBaseRune())) {
-            maxProperties.subtract(rune.getGrantsProperty());
-            runesList.remove(runes.get(rune.getBaseRune()));
-            replace = true;
-        }
         maxProperties.set(maxProperties.get() + rune.getGrantsProperty());
-        numProperties.set(numProperties.get() + ((replace || rune.isFundamental()) ? 0 : 1));
+        numProperties.set(numProperties.get() + ((rune.isFundamental()) ? 0 : 1));
 
         runes.put(rune.getBaseRune(), rune);
         runesList.add(rune);
@@ -70,18 +64,42 @@ public class Runes<T extends Rune> {
         return true;
     }
 
-    public boolean canAddRune(Rune rune) {
+    public boolean tryToUpgradeRune(Rune genericRune, Rune genericUpgradedRune) {
+        if(!canUpgradeRune(genericRune, genericUpgradedRune)) return false;
+        T rune = clazz.cast(genericRune);
+        T upgradedRune = clazz.cast(genericUpgradedRune);
+
+        maxProperties.set(maxProperties.get() - rune.getGrantsProperty() + upgradedRune.getGrantsProperty());
+
+        runes.put(rune.getBaseRune(), upgradedRune);
+        runesList.remove(rune);
+        runesList.add(upgradedRune);
+        return true;
+    }
+
+    private boolean canAddRune(Rune rune) {
         if(!clazz.isInstance(rune)) return false;
-        if(runes.containsKey(rune.getBaseRune())) return true;
+        if(hasRune(rune)) return false;
         if(rune.isFundamental()) return true;
         else return numProperties.get() < maxProperties.get();
     }
 
-    public boolean canRemoveRune(Rune rune) {
+    private boolean canRemoveRune(Rune rune) {
         if(!clazz.isInstance(rune)) return false;
-        if(!runes.containsKey(rune.getBaseRune())) return false;
+        if(!hasExactRune(rune)) return false;
         int numProperty = maxProperties.get() - numProperties.get() - rune.getGrantsProperty() + ((rune.isFundamental()) ? 0 : 1);
         return numProperty >= 0;
+    }
+
+    private boolean canUpgradeRune(Rune rune, Rune upgradedRune) {
+        if(!clazz.isInstance(rune) || !clazz.isInstance(upgradedRune)) return false;
+        if(!hasExactRune(rune)) return false;
+        if(!hasRune(upgradedRune)) return false;
+        else return maxProperties.get()
+                - numProperties.get()
+                - rune.getGrantsProperty()
+                + upgradedRune.getGrantsProperty()
+                >= 0;
     }
 
     public Collection<T> getAll() {
@@ -111,5 +129,23 @@ public class Runes<T extends Rune> {
 
     public double getValue() {
         return runes.values().stream().map(Equipment::getValue).reduce(0.0, Double::sum);
+    }
+
+    private boolean hasRune(Rune rune) {
+        return runes.get(rune.getBaseRune()) != null;
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean hasExactRune(Rune rune) {
+        T t = runes.get(rune.getBaseRune());
+        return t != null && t.equals(rune);
+    }
+
+    public int getNumProperties() {
+        return numProperties.get();
+    }
+
+    public int getMaxProperties() {
+        return maxProperties.get();
     }
 }

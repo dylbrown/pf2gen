@@ -181,6 +181,7 @@ public class InventoryManager {
         totalWeight = 0;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public double getTotalWeight() {
         return totalWeight;
     }
@@ -260,5 +261,17 @@ public class InventoryManager {
                 return revertFromRuned(runedItem);
             } else return runedItem;
         } else return null;
+    }
+
+    public boolean tryToUpgradeRune(Equipment runedItem, Rune rune, Rune upgradedRune) {
+        if((upgradedRune.getValue() - rune.getValue()) * buyMultiplier > money.get()) return false;
+
+        if(runedItem instanceof RunedEquipment) {
+            if(((RunedEquipment) runedItem).getRunes().tryToUpgradeRune(rune, upgradedRune)){
+                money.set(money.get() - (upgradedRune.getValue() - rune.getValue()) * buyMultiplier);
+                return true;
+            }
+        }
+        return false;
     }
 }

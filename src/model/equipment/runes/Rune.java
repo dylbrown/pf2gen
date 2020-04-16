@@ -22,6 +22,10 @@ public class Rune extends Equipment {
         return grantsProperty;
     }
 
+    public String getTier() {
+        return getName().replaceAll("(.*\\(|\\).*)", "").trim();
+    }
+
     public static class Builder extends Equipment.Builder {
         private boolean fundamental = false;
         private int grantsProperty = 0;

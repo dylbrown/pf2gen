@@ -73,12 +73,12 @@
 
 .dividerPane {
     -fx-border-color: black;
-    -fx-border-width: 0 2 2 0;
+    -fx-border-width: 2 2 2 0;
     -fx-border-style: solid;
 }
 
-.dividerBottom {
+.dividerVert {
     -fx-border-color: black;
-    -fx-border-width: 0 0 2 0;
+    -fx-border-width: 2 0 2 0;
     -fx-border-style: solid;
 }

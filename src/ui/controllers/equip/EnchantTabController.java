@@ -9,13 +9,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
+import model.data_managers.EquipmentManager;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
 import model.equipment.runes.Rune;
-import model.equipment.runes.runedItems.RunedArmor;
-import model.equipment.runes.runedItems.RunedRangedWeapon;
-import model.equipment.runes.runedItems.RunedShield;
-import model.equipment.runes.runedItems.RunedWeapon;
+import model.equipment.runes.runedItems.*;
 import ui.Main;
 import ui.controls.equipment.EquipmentHTMLGenerator;
 import ui.controls.equipment.lists.ItemEntry;
@@ -32,7 +30,7 @@ public class EnchantTabController {
     @FXML
     private Button upgradeButton, addButton, removeButton;
     @FXML
-    private Label upgradeLabel, upgradePrice, removeLabel, currentWeapon, currentRune;
+    private Label upgradeLabel, upgradePrice, removeLabel, currentItem, currentRune, propertyCount;
     @FXML
     private WebView itemDisplay, runeDisplay;
     private ObservableList<Equipment> itemsList = FXCollections.observableArrayList();
@@ -48,6 +46,7 @@ public class EnchantTabController {
         }
         addButton.setOnAction(this::addRune);
         removeButton.setOnAction(this::removeRune);
+        upgradeButton.setOnAction(this::upgradeRune);
 
         //TODO: Add unmodifiableItemCount
         Main.character.inventory().addBuySellWatcher((o, oldVal, newVal) -> {
@@ -65,8 +64,7 @@ public class EnchantTabController {
             setItemDisplay(i);
             if(count == 2) {
                 typeCheckRunedItem(i);
-                selectedItem = i;
-                currentWeapon.setText(selectedItem.getName());
+                selectItem(i);
             }
         });
         weaponsAndArmor.setCenter(itemsIL);
@@ -85,23 +83,32 @@ public class EnchantTabController {
         if(!(selectedRune instanceof Rune)) return;
         Equipment item = Main.character.inventory().tryToAddRune(selectedItem, (Rune) selectedRune);
         if(item == null) return; // TODO: Add fail popup
-        setItemDisplay(item);
         select(item, itemsIL.getRoot());
-        typeCheckRunedItem(item);
-        selectedRune = null;
-        currentWeapon.setText(selectedItem.getName());
-        currentRune.setText("-No Rune Selected-");
+        refreshLabels();
     }
 
     private void removeRune(ActionEvent actionEvent) {
         if(!(selectedRune instanceof Rune)) return;
         Equipment item = Main.character.inventory().tryToRemoveRune(selectedItem, (Rune) selectedRune);
         if(item == null) return; // TODO: Add fail popup
-        setItemDisplay(item);
         select(item, itemsIL.getRoot());
-        typeCheckRunedItem(item);
+        refreshLabels();
+    }
+
+    private void upgradeRune(ActionEvent actionEvent) {
+        if(!(selectedRune instanceof Rune)) return;
+        Rune upgradedRune = getUpgradedRune(selectedRune);
+        if(upgradedRune == null) return; // TODO: Add fail popup
+        boolean result = Main.character.inventory().tryToUpgradeRune(selectedItem, (Rune) selectedRune, upgradedRune);
+        if(!result) return;
+        refreshLabels();
+    }
+
+    private void refreshLabels() {
+        setItemDisplay(selectedItem);
+        typeCheckRunedItem(selectedItem);
         selectedRune = null;
-        currentWeapon.setText(selectedItem.getName());
+        selectItem(selectedItem);
         currentRune.setText("-No Rune Selected-");
         removeLabel.setText("-No Rune Selected-");
         upgradeLabel.setText("-No Rune Selected-");
@@ -127,18 +134,46 @@ public class EnchantTabController {
             if(count == 2) {
                 removeLabel.setText("Price: "+ generateCostString(item.getValue()*.1));
                 Equipment upgradedRune = getUpgradedRune(item);
-                upgradeLabel.setText(upgradedRune.getName());
-                upgradePrice.setText("Price: "+ generateCostString(upgradedRune.getValue() - item.getValue()));
+                if(upgradedRune == null) {
+                    upgradeLabel.setText("-Not Upgradeable-");
+                    upgradePrice.setText("-Not Upgradeable-");
+                }else{
+                    upgradeLabel.setText(upgradedRune.getName());
+                    upgradePrice.setText("Price: "+ generateCostString(upgradedRune.getValue() - item.getValue()));
+                }
             }
         });
         currentRunesIL.removeColumn("cost");
         currentRunesIL.removeColumn("level");
+        currentRunesIL.expandAll();
         currRunes.setCenter(currentRunesIL);
     }
 
-    private Equipment getUpgradedRune(Equipment item) {
-        // TODO: implement
-        return item;
+    private Rune getUpgradedRune(Equipment item) {
+        if(!(item instanceof Rune)) return null;
+        Rune rune = (Rune) item;
+        String currTier = rune.getTier();
+        if(currTier.equals("Major") || currTier.equals("+3")) return null;
+        String newTier;
+        switch (currTier) {
+            case "": newTier = "Greater";
+                break;
+            case "Greater": newTier = "Major";
+                break;
+            case "+1": newTier = "\\+2";
+                break;
+            case "+2": newTier = "\\+3";
+            break;
+            default: return null;
+        }
+        String target = rune.getBaseRune()+" ?\\("+newTier+"\\) ?";
+        for (Equipment newRune : EquipmentManager.getItems("Runes")) {
+            if(newRune.getName().matches(target)) {
+                if(!(newRune instanceof Rune)) continue;
+                return (Rune) newRune;
+            }
+        }
+        return null;
     }
 
     private void clickRune(Equipment equipment, Integer count) {
@@ -146,6 +181,17 @@ public class EnchantTabController {
         if(count == 2) {
             selectedRune = equipment;
             currentRune.setText(selectedRune.getName());
+        }
+    }
+
+    private void selectItem(Equipment item) {
+        selectedItem = item;
+        currentItem.setText(selectedItem.getName());
+        if(!(selectedItem instanceof RunedEquipment)) {
+            propertyCount.setText("0/0 Property Runes");
+        }else{
+            Runes runes = ((RunedEquipment) selectedItem).getRunes();
+            propertyCount.setText(runes.getNumProperties() + "/" + runes.getMaxProperties()+" Property Runes");
         }
     }
 
@@ -160,8 +206,7 @@ public class EnchantTabController {
     }
 
     private boolean select(Equipment item, TreeItem<ItemEntry> node) {
-        selectedItem = item;
-        currentWeapon.setText(selectedItem.getName());
+        selectItem(item);
         for (TreeItem<ItemEntry> child : node.getChildren()) {
             if(child.getValue().getItem() == item) {
                 itemsIL.getSelectionModel().select(child);

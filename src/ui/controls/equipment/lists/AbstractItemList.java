@@ -32,4 +32,16 @@ abstract class AbstractItemList extends TreeTableView<ItemEntry> {
     public void removeColumn(String name) {
         getColumns().removeIf(c->c.getText().toLowerCase().equals(name.toLowerCase()));
     }
+
+    public void expandAll() {
+        expand(getRoot());
+    }
+
+    private void expand(TreeItem<ItemEntry> root) {
+        root.setExpanded(true);
+        for (TreeItem<ItemEntry> child : root.getChildren()) {
+            expand(child);
+        }
+
+    }
 }
