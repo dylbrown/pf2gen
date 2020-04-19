@@ -80,11 +80,11 @@ public class SaveLoadManager {
             //Decisions
             writeOutLine(out, "Decisions");
             for (Choice decision : character.decisions().getDecisions()) {
-                if(decision.viewSelections().size() == 0) continue;
+                if(decision.getSelections().size() == 0) continue;
                 StringBuilder builder = new StringBuilder();
                 builder.append(decision.toString()).append(" : ");
                 boolean first = true;
-                for (Object selection : decision.viewSelections()) {
+                for (Object selection : decision.getSelections()) {
                     if(first) first = false;
                     else builder.append(" ^ ");
                     builder.append(selection.toString());
@@ -258,12 +258,12 @@ public class SaveLoadManager {
                     else options = Collections.emptyList();
                     for (Object option : options) {
                         if(selections.contains(option.toString())) {
-                            int oldSize = decision.getNumSelections();
+                            int oldSize = decision.getSelections().size();
                             //noinspection unchecked
                             character.addSelection(decision, option);
-                            if(decision.getNumSelections() > oldSize)
+                            if(decision.getSelections().size() > oldSize)
                                 successes++;
-                            if(decision.viewSelections().size() == selections.size())
+                            if(decision.getSelections().size() == selections.size())
                                 decisionStringMap.put(decision.toString(), null);
                             break;
                         }

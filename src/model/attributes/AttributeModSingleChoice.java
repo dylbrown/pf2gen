@@ -2,6 +2,8 @@ package model.attributes;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import model.abilities.abilitySlots.SingleChoiceList;
 import model.enums.Proficiency;
 
@@ -13,6 +15,7 @@ import java.util.List;
 public class AttributeModSingleChoice extends AttributeMod implements SingleChoiceList<Attribute> {
     private final List<Attribute> choices = new ArrayList<>();
     private final ReadOnlyObjectWrapper<Attribute> choiceProperty = new ReadOnlyObjectWrapper<>();
+    private final ObservableList<Attribute> list = FXCollections.observableArrayList();
 
     public AttributeModSingleChoice(Attribute first, Attribute second, Proficiency prof) {
         super(Attribute.None,prof);
@@ -31,7 +34,11 @@ public class AttributeModSingleChoice extends AttributeMod implements SingleChoi
 
     @Override
     public void fill(Attribute choice) {
+        if(!choices.contains(choice)) return;
         this.choiceProperty.set(choice);
+        list.clear();
+        if(choice != null)
+            list.add(choice);
     }
 
     @Override
@@ -49,8 +56,29 @@ public class AttributeModSingleChoice extends AttributeMod implements SingleChoi
     }
 
     @Override
+    public String getName() {
+        return "Attribute Mod Choice";
+    }
+
+    @Override
+    public void add(Attribute choice) {
+        if(list.size() == 0) fill(choice);
+    }
+
+    @Override
+    public void remove(Attribute choice) {
+        if(list.contains(choice)) fill(null);
+    }
+
+    @Override
     public void empty() {
-        choiceProperty.set(null);
+        fill(null);
+    }
+
+    private ObservableList<Attribute> unmodifiable = FXCollections.unmodifiableObservableList(list);
+    @Override
+    public ObservableList<Attribute> getSelections() {
+        return unmodifiable;
     }
 
     @Override

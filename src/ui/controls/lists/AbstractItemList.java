@@ -1,8 +1,9 @@
-package ui.controls.equipment.lists;
+package ui.controls.lists;
 
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
 import model.equipment.Equipment;
+import ui.controls.lists.entries.ItemEntry;
 
 import java.util.function.BiConsumer;
 
@@ -23,7 +24,7 @@ abstract class AbstractItemList extends TreeTableView<ItemEntry> {
         this.setShowRoot(false);
         TreeItem<ItemEntry> root = new TreeItem<>(new ItemEntry("root"));
         this.setRoot(root);
-        this.setRowFactory(new SelectRowFactory(handler));
+        this.setRowFactory(new SelectRowFactory<>((ie, i) -> handler.accept(ie.getItem(), i)));
         this.setColumnResizePolicy(TreeTableView.CONSTRAINED_RESIZE_POLICY);
         createColumns();
         addItems(root);

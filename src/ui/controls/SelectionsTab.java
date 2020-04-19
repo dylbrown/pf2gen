@@ -1,4 +1,4 @@
-package ui.controls;
+/*package ui.controls;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -78,3 +78,4 @@ public class SelectionsTab extends AnchorPane {
         });
     }
 }
+*/

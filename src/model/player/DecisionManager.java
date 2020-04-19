@@ -9,13 +9,13 @@ import model.abilities.abilitySlots.Choice;
 import java.util.*;
 
 public class DecisionManager {
-    private final ObservableList<Choice> decisions;
+    private final ObservableList<Choice> decisions = FXCollections.observableArrayList();
+    private final ObservableList<Choice> unmodifiableDecisions = FXCollections.unmodifiableObservableList(decisions);
     private final FilteredList<Choice> unmade;
     private final SortedList<Choice> unmadeByLevel;
 
     DecisionManager() {
-        decisions = FXCollections.observableArrayList();
-        unmade = new FilteredList<>(decisions, choice -> choice.viewSelections().size() < choice.getNumSelections());
+        unmade = new FilteredList<>(decisions, choice -> choice.getSelections().size() < choice.getNumSelections());
         unmadeByLevel = new SortedList<>(unmade, Comparator.comparingInt(Choice::getLevel));
     }
 
@@ -28,7 +28,7 @@ public class DecisionManager {
     }
 
     public ObservableList<Choice> getDecisions() {
-        return FXCollections.unmodifiableObservableList(decisions);
+        return unmodifiableDecisions;
     }
 
     public Choice getNextUnmadeDecision() {

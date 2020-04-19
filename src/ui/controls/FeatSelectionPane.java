@@ -1,8 +1,12 @@
 package ui.controls;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
-import javafx.scene.control.Label;
-import javafx.scene.layout.AnchorPane;
+import javafx.collections.ObservableList;
+import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.web.WebView;
 import model.abilities.Ability;
 import model.abilities.abilitySlots.AbilityChoiceList;
 import model.abilities.abilitySlots.FeatSlot;
@@ -15,25 +19,22 @@ import java.util.List;
 
 import static ui.Main.character;
 
-class FeatSelectionPane extends SingleSelectionPane<Ability> {
+public class FeatSelectionPane extends SingleSelectionPane<Ability> {
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final List<Ability> unmetPrereqs = new ArrayList<>();
+    private final ObservableList<Ability> allItems = FXCollections.observableArrayList();
 
-    FeatSelectionPane(SingleChoice<Ability> slot) {
+    public FeatSelectionPane(SingleChoice<Ability> slot, WebView display, ToggleGroup filterChoices) {
+        this.display = display;
         AbilityManager abilities = character.abilities();
         init(slot);
-        if(slot instanceof AbilityChoiceList)
+        if(slot instanceof AbilityChoiceList) {
+            allItems.addAll(((AbilityChoiceList) slot).getOptions());
             items.addAll(((AbilityChoiceList) slot).getOptions());
-        else
+        }else{
+            allItems.addAll(abilities.getOptions(slot));
             items.addAll(abilities.getOptions(slot));
-        Label desc = new Label();
-        desc.setWrapText(true);
-        AnchorPane.setLeftAnchor(desc, 0.0);
-        AnchorPane.setRightAnchor(desc, 0.0);
-        AnchorPane.setTopAnchor(desc, 0.0);
-        AnchorPane.setBottomAnchor(desc, 0.0);
-        side.getItems().add(new AnchorPane(desc));
-        side.setDividerPositions(.25);
+        }
         items.removeIf((item)->{
             if(!character.meetsPrerequisites(item)){
                 unmetPrereqs.add(item);
@@ -74,10 +75,10 @@ class FeatSelectionPane extends SingleSelectionPane<Ability> {
                 }
             }
         });
-        choices.getSelectionModel().selectedItemProperty().addListener((event)->{
-            Ability selectedItem = choices.getSelectionModel().getSelectedItem();
+        getSelectionModel().selectedItemProperty().addListener((event)->{
+            Ability selectedItem = getSelectionModel().getSelectedItem();
             if(selectedItem != null)
-                desc.setText(selectedItem.getDesc());
+                display.getEngine().loadContent(AbilityHTMLGenerator.generate(selectedItem));
         });
         if(slot instanceof FeatSlot) {
             if(((FeatSlot) slot).getAllowedTypes().contains(Type.Ancestry.toString())
@@ -85,13 +86,21 @@ class FeatSelectionPane extends SingleSelectionPane<Ability> {
                 character.addAncestryObserver((observable) -> items.setAll(abilities.getOptions(slot)));
             }
         }
+        filterChoices.selectedToggleProperty().addListener((o, oldVal, newVal)-> setContents(newVal));
+        setContents(filterChoices.getSelectedToggle());
+    }
+
+    private void setContents(Toggle newVal) {
+        if(newVal instanceof RadioMenuItem && ((RadioMenuItem) newVal).getText().equals("All")) {
+            setItems(allItems);
+        } else setItems(sortedItems);
     }
 
     @Override
     void setupChoicesListener() {
-        choices.setOnMouseClicked((event) -> {
+        setOnMouseClicked((event) -> {
             if(event.getClickCount() == 2) {
-                Ability selectedItem = choices.getSelectionModel().getSelectedItem();
+                Ability selectedItem = getSelectionModel().getSelectedItem();
                 if(selectedItem != null && character.meetsPrerequisites(selectedItem) &&
                         (selectedItem.isMultiple() || !character.abilities().haveAbility(selectedItem))) {
                     character.choose(slot, selectedItem);

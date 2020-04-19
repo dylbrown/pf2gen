@@ -1,10 +1,11 @@
-package ui.controls.equipment.lists;
+package ui.controls.lists;
 
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import model.data_managers.EquipmentManager;
 import model.equipment.Equipment;
 import model.xml_parsers.equipment.ItemLoader;
+import ui.controls.lists.entries.ItemEntry;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -22,10 +23,10 @@ public class LevelAllItemsList extends AbstractItemList {
         TreeTableColumn<ItemEntry, String> name = new TreeTableColumn<>("Name");
         TreeTableColumn<ItemEntry, String> cost = new TreeTableColumn<>("Cost");
         TreeTableColumn<ItemEntry, String> subCat = new TreeTableColumn<>("Subcategory");
-        name.setCellValueFactory(new TreeCellFactory("name"));
-        cost.setCellValueFactory(new TreeCellFactory("cost"));
+        name.setCellValueFactory(new TreeCellFactory<>("name"));
+        cost.setCellValueFactory(new TreeCellFactory<>("cost"));
         cost.setStyle( "-fx-alignment: CENTER;");
-        subCat.setCellValueFactory(new TreeCellFactory("subCategory"));
+        subCat.setCellValueFactory(new TreeCellFactory<>("subCategory"));
         subCat.setStyle( "-fx-alignment: CENTER;");
         cost.setComparator(Comparator.comparingDouble(ItemLoader::getPrice));
         //noinspection unchecked

@@ -4,7 +4,6 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.web.WebView?>
-<?import ui.controls.SelectionsTab?>
 <?import ui.controls.SkillTab?>
 <AnchorPane minHeight="720.0" minWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.Controller">
     <TabPane fx:id="rootTabs" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -12,25 +11,25 @@
             <fx:include source="infoTab.fxml" />
         </Tab>
         <Tab closable="false" text="Ancestry">
-            <fx:include source="ancestryTab.fxml" />
+            <fx:include source="abc/ancestryTab.fxml" />
         </Tab>
         <Tab closable="false" text="Background">
-            <fx:include source="backgroundTab.fxml" />
+            <fx:include source="abc/backgroundTab.fxml" />
         </Tab>
         <Tab closable="false" text="Class">
-            <fx:include source="classTab.fxml" />
+            <fx:include source="abc/classTab.fxml" />
         </Tab>
         <Tab closable="false" text="Ability Scores">
-            <fx:include source="abilityTab.fxml" />
+            <fx:include source="abilityScoreTab.fxml" />
         </Tab>
         <Tab closable="false" text="Skills">
             <SkillTab />
         </Tab>
-        <Tab closable="false" text="Feats">
-            <SelectionsTab />
+        <Tab closable="false" text="Decisions">
+            <fx:include source="decisionsTab.fxml" />
         </Tab>
         <Tab closable="false" text="Equipment">
-            <fx:include source="equipTab.fxml" />
+            <fx:include source="equip/equipTab.fxml" />
         </Tab>
         <Tab closable="false" text="Spells">
             <fx:include source="spellsTab.fxml" />

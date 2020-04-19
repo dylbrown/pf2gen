@@ -20,9 +20,9 @@ import model.equipment.ItemCount;
 import ui.Main;
 import ui.controls.equipment.EquipmentHTMLGenerator;
 import ui.controls.equipment.EquippedEntry;
-import ui.controls.equipment.lists.CategoryAllItemsList;
-import ui.controls.equipment.lists.ItemEntry;
-import ui.controls.equipment.lists.LevelAllItemsList;
+import ui.controls.lists.CategoryAllItemsList;
+import ui.controls.lists.entries.ItemEntry;
+import ui.controls.lists.LevelAllItemsList;
 
 import java.util.*;
 import java.util.function.Function;
@@ -53,7 +53,8 @@ public class EquipTabController {
     private ComboBox<BuySellMode> multiplier;
     @FXML
     private Button addMoney;
-
+    @FXML
+    private TextField search;
     @FXML
     private WebView itemDisplay;
     @FXML

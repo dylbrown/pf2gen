@@ -2,6 +2,8 @@ package model.abilities.abilitySlots;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import model.abilities.Ability;
 
 import java.util.Collections;
@@ -9,6 +11,7 @@ import java.util.List;
 
 public class SingleChoiceSlot extends AbilitySlot implements AbilityChoiceList, AbilitySingleChoice {
     private final List<Ability> choices;
+    private final ObservableList<Ability> list = FXCollections.observableArrayList();
 
     public SingleChoiceSlot(String abilityName, int level, List<Ability> choices) {
         super(abilityName, level);
@@ -22,11 +25,12 @@ public class SingleChoiceSlot extends AbilitySlot implements AbilityChoiceList, 
 
     @Override
     public void fill(Ability choice) {
-        if(choices.contains(choice)){
-            if(currentAbility == null)
-                currentAbility = new ReadOnlyObjectWrapper<>(choice);
-            else
-                currentAbility.set(choice);
+        if(currentAbility == null) currentAbility = new ReadOnlyObjectWrapper<>(choice);
+        else if(currentAbility.get() != choice) {
+            currentAbility.set(choice);
+            list.clear();
+            if(choice != null)
+                list.add(choice);
         }
     }
 
@@ -45,4 +49,19 @@ public class SingleChoiceSlot extends AbilitySlot implements AbilityChoiceList, 
         currentAbility =null;
     }
 
+    @Override
+    public void add(Ability choice) {
+        if(list.size() == 0) fill(choice);
+    }
+
+    @Override
+    public void remove(Ability choice) {
+        if(list.size() == 0 && currentAbility.get().equals(choice)) fill(null);
+    }
+
+    private ObservableList<Ability> unmodifiable = FXCollections.unmodifiableObservableList(list);
+    @Override
+    public ObservableList<Ability> getSelections() {
+        return unmodifiable;
+    }
 }

@@ -1,9 +1,10 @@
-package ui.controls.equipment.lists;
+package ui.controls.lists;
 
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import model.equipment.Equipment;
+import ui.controls.lists.entries.ItemEntry;
 
 import java.util.*;
 import java.util.function.BiConsumer;

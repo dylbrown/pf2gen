@@ -18,8 +18,8 @@ import model.equipment.runes.runedItems.*;
 import model.util.Pair;
 import ui.Main;
 import ui.controls.equipment.EquipmentHTMLGenerator;
-import ui.controls.equipment.lists.ItemEntry;
-import ui.controls.equipment.lists.ItemsList;
+import ui.controls.lists.entries.ItemEntry;
+import ui.controls.lists.ItemsList;
 
 import java.util.Map;
 

@@ -19,7 +19,7 @@ public class ArbitraryChoice implements ChoiceList<String> {
     private final ObservableList<String> selections = FXCollections.observableArrayList();
     private int numSelections;
 
-    public ArbitraryChoice(String name, List<String> choices, Consumer<String> fillFunction, Consumer<String> emptyFunction, int numSelections) {
+    ArbitraryChoice(String name, List<String> choices, Consumer<String> fillFunction, Consumer<String> emptyFunction, int numSelections) {
         this.name = name;
         this.choices = choices;
         this.fillFunction = fillFunction;
@@ -75,8 +75,13 @@ public class ArbitraryChoice implements ChoiceList<String> {
     }
 
     @Override
-    public String toString() {
+    public String getName() {
         return name;
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 
     @Override
@@ -92,11 +97,11 @@ public class ArbitraryChoice implements ChoiceList<String> {
         return Objects.hash(name);
     }
 
-    public void increaseChoices(int amount) {
+    void increaseChoices(int amount) {
         numSelections += amount;
     }
 
-    public void decreaseChoices(int amount) {
+    void decreaseChoices(int amount) {
         numSelections = Math.max(0, numSelections-amount);
         Iterator<String> iterator = selections.iterator();
         while(selections.size() > numSelections && iterator.hasNext()){

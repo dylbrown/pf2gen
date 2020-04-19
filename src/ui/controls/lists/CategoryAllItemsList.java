@@ -1,10 +1,11 @@
-package ui.controls.equipment.lists;
+package ui.controls.lists;
 
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import model.data_managers.EquipmentManager;
 import model.equipment.Equipment;
 import model.xml_parsers.equipment.ItemLoader;
+import ui.controls.lists.entries.ItemEntry;
 
 import java.util.Comparator;
 import java.util.Map;
@@ -46,11 +47,11 @@ public class CategoryAllItemsList extends AbstractItemList {
         TreeTableColumn<ItemEntry, String> name = new TreeTableColumn<>("Name");
         TreeTableColumn<ItemEntry, String> cost = new TreeTableColumn<>("Cost");
         TreeTableColumn<ItemEntry, String> level = new TreeTableColumn<>("Level");
-        name.setCellValueFactory(new TreeCellFactory("name"));
+        name.setCellValueFactory(new TreeCellFactory<>("name"));
         name.minWidthProperty().bind(this.widthProperty().multiply(.6));
-        cost.setCellValueFactory(new TreeCellFactory("cost"));
+        cost.setCellValueFactory(new TreeCellFactory<>("cost"));
         cost.setStyle( "-fx-alignment: CENTER;");
-        level.setCellValueFactory(new TreeCellFactory("level"));
+        level.setCellValueFactory(new TreeCellFactory<>("level"));
         level.setStyle( "-fx-alignment: CENTER;");
         cost.setComparator(Comparator.comparingDouble(ItemLoader::getPrice));
         level.setComparator((s1,s2)->{

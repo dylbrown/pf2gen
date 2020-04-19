@@ -1,15 +1,17 @@
 package ui.controls;
 
+import javafx.scene.web.WebView;
 import model.abilities.abilitySlots.SingleChoice;
 import model.abilities.abilitySlots.SingleChoiceList;
 
 import static ui.Main.character;
 
 
-class SingleSelectionPane<T> extends SelectionPane<T> {
+public class SingleSelectionPane<T> extends SelectionPane<T> {
     SingleChoice<T> slot;
 
-    SingleSelectionPane(SingleChoiceList<T> slot) {
+    public SingleSelectionPane(SingleChoiceList<T> slot, WebView display) {
+        this.display = display;
         init(slot);
         items.addAll(slot.getOptions());
     }
@@ -30,9 +32,9 @@ class SingleSelectionPane<T> extends SelectionPane<T> {
 
     @Override
     void setupChoicesListener() {
-        choices.setOnMouseClicked((event) -> {
+        setOnMouseClicked((event) -> {
             if(event.getClickCount() == 2) {
-                T selectedItem = choices.getSelectionModel().getSelectedItem();
+                T selectedItem = getSelectionModel().getSelectedItem();
                 if(selectedItem != null) {
                     character.choose(slot, selectedItem);
                 }

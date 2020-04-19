@@ -10,7 +10,7 @@
                 AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <BorderPane prefHeight="200.0" prefWidth="200.0">
            <top>
-               <fx:include source="abilityDisplay.fxml"/>
+               <fx:include source="abilityScoreDisplay.fxml"/>
            </top>
            <center>
                <FlowPane fx:id="abilitiesList" alignment="CENTER" columnHalignment="CENTER"

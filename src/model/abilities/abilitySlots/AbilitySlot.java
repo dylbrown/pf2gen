@@ -16,7 +16,7 @@ public abstract class AbilitySlot {
         currentAbility = new ReadOnlyObjectWrapper<>(null);
     }
 
-    String getName() {
+    public String getName() {
         return name;
     }
 

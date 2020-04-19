@@ -10,7 +10,12 @@ import java.util.Collections;
 import java.util.List;
 
 public class Ancestry extends AC {
-    public static final Ancestry NO_ANCESTRY = new Ancestry.Builder().build();
+    public static final Ancestry NO_ANCESTRY;
+    static{
+        Builder builder = new Builder();
+        builder.setName("No Ancestry");
+        NO_ANCESTRY = builder.build();
+    }
     private final Size size;
     private final int speed;
     private final List<Ability> heritages;

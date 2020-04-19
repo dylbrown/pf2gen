@@ -1,4 +1,4 @@
-package ui.controls.equipment.lists;
+package ui.controls.lists.entries;
 
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -8,14 +8,14 @@ import model.equipment.runes.runedItems.RunedEquipment;
 
 import static model.util.StringUtils.generateCostString;
 
-public class ItemEntry implements Comparable<ItemEntry> {
+public class ItemEntry implements Comparable<ItemEntry>, TreeTableEntry {
     private final Equipment item;
     private final ReadOnlyStringProperty name;
     private final ReadOnlyStringProperty cost;
     private final ReadOnlyStringProperty level;
     private final ReadOnlyStringProperty subCategory;
 
-    ItemEntry(Equipment item) {
+    public ItemEntry(Equipment item) {
         this.item = item;
         if(item instanceof RunedEquipment)
             this.name = ((RunedEquipment) item).getRunes().getFullName();
@@ -26,7 +26,7 @@ public class ItemEntry implements Comparable<ItemEntry> {
         this.subCategory = new ReadOnlyStringWrapper(item.getSubCategory()).getReadOnlyProperty();
     }
 
-    ItemEntry(String label) {
+    public ItemEntry(String label) {
         this.item = null;
         this.name = new ReadOnlyStringWrapper(label).getReadOnlyProperty();
         this.cost = new ReadOnlyStringWrapper("").getReadOnlyProperty();

@@ -1,10 +1,11 @@
-package ui.controls.equipment.lists;
+package ui.controls.lists;
 
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeTableColumn;
 import javafx.util.Callback;
+import ui.controls.lists.entries.TreeTableEntry;
 
-class TreeCellFactory implements Callback<TreeTableColumn.CellDataFeatures<ItemEntry, String>, ObservableValue<String>> {
+public class TreeCellFactory<T extends TreeTableEntry> implements Callback<TreeTableColumn.CellDataFeatures<T, String>, ObservableValue<String>> {
     private final String propertyName;
 
     TreeCellFactory(String property) {
@@ -12,7 +13,7 @@ class TreeCellFactory implements Callback<TreeTableColumn.CellDataFeatures<ItemE
     }
 
     @Override
-    public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<ItemEntry, String> f) {
+    public ObservableValue<String> call(TreeTableColumn.CellDataFeatures<T, String> f) {
         return f.getValue().getValue().get(propertyName);
     }
 }

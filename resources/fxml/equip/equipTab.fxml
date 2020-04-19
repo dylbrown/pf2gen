@@ -13,12 +13,14 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.control.TreeTableView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.web.WebView?>
@@ -59,26 +61,32 @@
                        </GridPane>
                </bottom>
                <top>
-                   <MenuBar BorderPane.alignment="CENTER">
-                       <Menu mnemonicParsing="false" text="Group">
-                           <RadioMenuItem fx:id="groupByCategory" mnemonicParsing="false" selected="true" text="Category/Subcategory">
-                               <toggleGroup>
-                                   <ToggleGroup fx:id="groupBy" />
-                               </toggleGroup>
-                           </RadioMenuItem>
-                           <RadioMenuItem fx:id="groupByLevel" mnemonicParsing="false" text="Level/Category" toggleGroup="$groupBy" />
-                       </Menu>
-                       <Menu mnemonicParsing="false" text="Filter">
-                           <Menu mnemonicParsing="false" text="Level">
-                               <RadioMenuItem mnemonicParsing="false" selected="true" text="Any Level">
+                   <HBox BorderPane.alignment="CENTER">
+                       <TextField fx:id="search" promptText="Search" HBox.hgrow="SOMETIMES"/>
+                       <MenuBar HBox.hgrow="SOMETIMES">
+                           <Menu mnemonicParsing="false" text="Group">
+                               <RadioMenuItem fx:id="groupByCategory" mnemonicParsing="false" selected="true"
+                                              text="Category/Subcategory">
                                    <toggleGroup>
-                                       <ToggleGroup fx:id="levelFilter" />
+                                       <ToggleGroup fx:id="groupBy"/>
                                    </toggleGroup>
                                </RadioMenuItem>
-                               <RadioMenuItem mnemonicParsing="false" text="Your Level or Lower" toggleGroup="$levelFilter" />
+                               <RadioMenuItem fx:id="groupByLevel" mnemonicParsing="false" text="Level/Category"
+                                              toggleGroup="$groupBy"/>
                            </Menu>
-                       </Menu>
-                   </MenuBar>
+                           <Menu mnemonicParsing="false" text="Filter">
+                               <Menu mnemonicParsing="false" text="Level">
+                                   <RadioMenuItem mnemonicParsing="false" selected="true" text="Any Level">
+                                       <toggleGroup>
+                                           <ToggleGroup fx:id="levelFilter"/>
+                                       </toggleGroup>
+                                   </RadioMenuItem>
+                                   <RadioMenuItem mnemonicParsing="false" text="Your Level or Lower"
+                                                  toggleGroup="$levelFilter"/>
+                               </Menu>
+                           </Menu>
+                       </MenuBar>
+                   </HBox>
                </top>
             </BorderPane>
                 <SplitPane dividerPositions="0.5" orientation="VERTICAL">
@@ -91,7 +99,7 @@
         </AnchorPane>
     </Tab>
     <Tab closable="false" text="Enchant">
-        <fx:include source="equip/enchantTab.fxml"/>
+        <fx:include source="enchantTab.fxml" />
     </Tab>
     <Tab closable="false" text="Equip">
         <AnchorPane minHeight="0.0" minWidth="0.0">
