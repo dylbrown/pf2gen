@@ -34,8 +34,9 @@ public class Weapon extends Equipment implements Enchantable {
                     .build();
     }
 
-    private static Slot getSlot(int hands) {
-        return hands == 2 ? Slot.TwoHands : Slot.OneHand;
+    @Override
+    public Slot getSlot() {
+        return getHands() == 2 ? Slot.TwoHands : Slot.OneHand;
     }
 
     public Dice getDamageDice() {
@@ -83,7 +84,6 @@ public class Weapon extends Equipment implements Enchantable {
     public static class Builder extends Equipment.Builder {
         private Dice damageDice;
         private DamageType damageType;
-        private int hands;
         private WeaponGroup group;
         private List<CustomTrait> traits = new ArrayList<>();
         private WeaponProficiency proficiency;

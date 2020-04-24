@@ -154,7 +154,7 @@ public class TemplateFiller {
         wrapper.refresh();
         Template template;
         try {
-            template = cfg.getTemplate("csheet_jquery.ftl");
+            template = cfg.getTemplate("printableSheet.html.ftl");
         } catch (IOException e) {
             e.printStackTrace();
             return "";

@@ -27,6 +27,7 @@ public class EquipmentHTMLGenerator {
 
 
     private static String generateItemText(Equipment equipment) {
+        if(equipment == null) return null;
         StringBuilder text = new StringBuilder();
         text.append("<p><h3 style='display:inline;'>").append(equipment.getName()).append("<div style=\"padding-right:5px; float:right\">");
         text.append(equipment.getCategory()).append("</div></h3><br><b>Cost</b> ");

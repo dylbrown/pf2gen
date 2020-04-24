@@ -3,8 +3,10 @@ package model.player;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
+import model.attributes.AttributeBonus;
 import model.enums.BuySellMode;
 import model.enums.Slot;
 import model.equipment.Equipment;
@@ -12,6 +14,7 @@ import model.equipment.ItemCount;
 import model.equipment.UnmodifiableItemCount;
 import model.equipment.runes.Rune;
 import model.equipment.runes.runedItems.Enchantable;
+import model.equipment.runes.runedItems.RunedArmor;
 import model.equipment.runes.runedItems.RunedEquipment;
 import model.util.Eyeball;
 import model.util.Pair;
@@ -24,9 +27,14 @@ public class InventoryManager {
     private final Eyeball<ItemCount, InventoryManager> buySellEye = new Eyeball<>(this);
     private final ObservableMap<Slot, ItemCount> equipped = FXCollections.observableHashMap();
     private final ObservableMap<Equipment, ItemCount> unequipped = FXCollections.observableHashMap();
+    private final AttributeManager attributes;
     private double totalWeight = 0;
     private double sellMultiplier = 1;
     private double buyMultiplier = 1;
+
+    InventoryManager(AttributeManager attributes) {
+        this.attributes = attributes;
+    }
 
     public ItemCount getEquipped(Slot slot) {
         return equipped.get(slot);
@@ -77,7 +85,9 @@ public class InventoryManager {
         ic.remove(count);
 
         //Unequip Some if there aren't enough unequipped
-        if(unequipped.get(item).getCount() < count)
+        if(unequipped.get(item) == null)
+            unequip(item, count);
+        else if(unequipped.get(item).getCount() < count)
             unequip(item, count - unequipped.get(item).getCount());
 
         //Remove from Unequipped
@@ -135,6 +145,17 @@ public class InventoryManager {
         if(unequipped.get(item).getCount() <= 0) {
             unequipped.remove(item);
         }
+        attributes.apply(item.getBonuses());
+        if(item instanceof RunedArmor) {
+            ((RunedArmor) item).getBonuses().addListener((ListChangeListener<AttributeBonus>) c->{
+                while(c.next()) {
+                    if(c.wasAdded())
+                        attributes.apply(c.getAddedSubList());
+                    if(c.wasRemoved())
+                        attributes.remove(c.getRemoved());
+                }
+            });
+        }
         return true;
     }
 
@@ -160,6 +181,7 @@ public class InventoryManager {
             unequipped.computeIfAbsent(item, (key)->new ItemCount(item, 0)).add(count);
             return true;
         }
+        attributes.remove(item.getBonuses());
         return false;
     }
 
@@ -221,18 +243,22 @@ public class InventoryManager {
 
     private Equipment convertToRuned(Equipment item) {
         if(!getItems().containsKey(item)) return null;
-        remove(item, 1);
         if(!(item instanceof Enchantable)) return null;
+        boolean equip = (getEquipped(item.getSlot()) != null) && item.equals(getEquipped(item.getSlot()).stats());
+        remove(item, 1);
         Equipment runedItem = ((Enchantable) item).makeRuned();
         add(runedItem, 1);
+        if(equip) equip(runedItem, runedItem.getSlot(), 1);
         return runedItem;
     }
 
     private Equipment revertFromRuned(Equipment runedItem) {
         if(!getItems().containsKey(runedItem) || !(runedItem instanceof RunedEquipment)) return null;
+        boolean equip = (getEquipped(runedItem.getSlot()) != null) && runedItem.equals(getEquipped(runedItem.getSlot()).stats());
         remove(runedItem, 1);
         Equipment item = ((RunedEquipment) runedItem).getBaseItem();
         add(item, 1);
+        if(equip) equip(item, item.getSlot(), 1);
         return item;
     }
 

@@ -42,13 +42,13 @@ public class PC {
     private String player;
     private Alignment alignment;
     private final List<Language> languages = new ArrayList<>();
-    private final InventoryManager inventory = new InventoryManager();
     private final ModManager modManager;
     private final DecisionManager decisions = new DecisionManager();
     private final AbilityManager abilities = new AbilityManager(decisions, getAncestryProperty(),
             getPClassProperty(), getLevelProperty(), applier, this::meetsPrerequisites);
     private final AbilityScoreManager scores = new AbilityScoreManager(applier);
     private final AttributeManager attributes = new AttributeManager(level.getReadOnlyProperty(), decisions, applier);
+    private final InventoryManager inventory = new InventoryManager(attributes);
     private final SpellManager spells = new SpellManager(applier);
     private final List<Weapon> attacks = new ArrayList<>();
 
@@ -266,14 +266,36 @@ public class PC {
     public int getAC() {
         if(inventory.getEquipped(Slot.Armor) != null) {
             Armor armor = (Armor) inventory.getEquipped(Slot.Armor).stats();
-            if(armor != null)
-                return 10 + attributes().getProficiency(Attribute.valueOf(armor.getProficiency())).getValue().getMod(level.get()) + armor.getAC() + Math.max(scores.getMod(Dex), armor.getMaxDex());
+            if(armor != null) {
+                int dexMod = scores.getMod(Dex);
+                if(scores.getScore(Str) < armor.getStrength())
+                    dexMod = Math.min(dexMod, armor.getMaxDex());
+                return 10 + attributes().getProficiency(Attribute.valueOf(armor.getProficiency())).getValue().getMod(level.get()) + armor.getAC() + dexMod;
+            }
         }
         return 10 + attributes().getProficiency(Attribute.Unarmored).getValue().getMod(level.get()) + scores.getMod(Dex);
     }
 
+    public int getArmorProficiency() {
+        if(inventory.getEquipped(Slot.Armor) != null) {
+            Armor armor = (Armor) inventory.getEquipped(Slot.Armor).stats();
+            if(armor != null)
+                return attributes().getProficiency(Attribute.valueOf(armor.getProficiency())).getValue().getMod(level.get());
+        }
+        return attributes().getProficiency(Attribute.Unarmored).getValue().getMod(level.get());
+    }
+
+    public Armor getArmor() {
+        if(inventory.getEquipped(Slot.Armor) != null) {
+            return (Armor) inventory.getEquipped(Slot.Armor).stats();
+        }
+        return null;
+    }
+
     public int getTotalMod(Attribute attribute) {
-        return scores.getMod(attribute.getKeyAbility())+attributes.getProficiency(attribute).getValue().getMod(level.get());
+        return scores.getMod(attribute.getKeyAbility())
+                + attributes.getProficiency(attribute).getValue().getMod(level.get())
+                + attributes.getBonus(attribute);
     }
 
     public int getSpeed() {

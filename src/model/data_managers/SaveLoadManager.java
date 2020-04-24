@@ -322,10 +322,11 @@ public class SaveLoadManager {
                 }
                 String[] slotSplit = s.substring(3).split(" ?: ?", 2);
                 String[] split = slotSplit[1].split(" ", 2);
-                SortedSet<Equipment> tailSet = EquipmentManager.getEquipment().tailSet(new SearchItem(split[1]));
-                if (!tailSet.isEmpty()) {
-                    if(tailSet.first().getName().equals(split[1]))
-                        character.inventory().equip(tailSet.first(),Slot.valueOf(slotSplit[0]),  Integer.valueOf(split[0]));
+                for (ItemCount value : character.inventory().getItems().values()) {
+                    if(value.stats().getName().equals(split[1])) {
+                        character.inventory().equip(value.stats(),Slot.valueOf(slotSplit[0]),  Integer.valueOf(split[0]));
+                        break;
+                    }
                 }
             }
 

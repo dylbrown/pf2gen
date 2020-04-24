@@ -1,4 +1,4 @@
-package ui.controllers;
+package ui.controllers.equip;
 
 import javafx.beans.Observable;
 import javafx.beans.value.ChangeListener;

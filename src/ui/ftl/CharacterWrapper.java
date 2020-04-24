@@ -10,12 +10,12 @@ import model.abilities.Activity;
 import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
 import model.enums.Slot;
+import model.enums.Type;
 import model.equipment.ItemCount;
 import model.player.InventoryManager;
 import model.player.PC;
 import ui.ftl.entries.AttributeEntry;
 import ui.ftl.entries.ItemCountWrapper;
-import ui.ftl.entries.SkillEntry;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -35,6 +35,14 @@ class CharacterWrapper implements TemplateHashModel {
         this.cfg = cfg;
 
         //map.put("totalweight", (NumberSupplier) ()->character.inventory().getTotalWeight());
+        for (Ability ability : character.abilities().getAbilities()) {
+            if(ability.getType().equals(Type.Heritage)){
+                map.put("heritage", ability);
+                break;
+            }
+        }
+        if(!map.containsKey("heritage"))
+            map.put("heritage", "No Heritage");
 
         map.put("attributes", getAttributeMap());
         map.put("attacks", character.getAttacks().stream()
@@ -85,8 +93,21 @@ class CharacterWrapper implements TemplateHashModel {
         return map;
     }
 
+    private List<AttributeEntry> getSkills() {
+        List<AttributeEntry> entries = new ArrayList<>();
+        for (Attribute value : Attribute.getSkills()) {
+            entries.add(new AttributeEntry(value,
+                    character.attributes().getProficiency(value),
+                    character.getLevelProperty(),
+                    cfg.getObjectWrapper()));
+        }
+        return entries;
+    }
+
     void refresh() {
         updateAbilities();
+        //TODO: Replace this with something listener-based
+        map.put("attributes", getAttributeMap());
         map.put("inventory", character.inventory().getItems().values().stream().map(ItemCountWrapper::new).collect(Collectors.toList()));
     }
 
@@ -113,14 +134,6 @@ class CharacterWrapper implements TemplateHashModel {
 
         }
         return items;
-    }
-
-    private List<SkillEntry> getSkills() {
-        List<SkillEntry> entries = new ArrayList<>();
-        for (Attribute attribute : Attribute.getSkills()) {
-            entries.add(new SkillEntry(attribute, ()->character.getTotalMod(attribute)));
-        }
-        return entries;
     }
 
     @Override

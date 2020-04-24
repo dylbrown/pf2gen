@@ -6,13 +6,11 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import model.attributes.AttributeMod;
-import model.attributes.AttributeModSingleChoice;
-import model.attributes.SkillIncrease;
 import model.WeaponGroupMod;
 import model.abilities.MinimumProficiencyList;
-import model.attributes.Attribute;
+import model.attributes.*;
 import model.enums.Proficiency;
+import model.enums.Type;
 import model.equipment.weapons.WeaponGroup;
 
 import java.beans.PropertyChangeListener;
@@ -39,6 +37,7 @@ public class AttributeManager {
     private final Map<WeaponGroup, Proficiency> groupProficiencies = new HashMap<>();
     private final PropertyChangeSupport proficiencyChange = new PropertyChangeSupport(this);
     private final List<AttributeModSingleChoice> choices = new ArrayList<>();
+    private final Map<Attribute, Map<Type, NavigableSet<AttributeBonus>>> attributeBonuses = new HashMap<>();
 
     AttributeManager(ReadOnlyObjectProperty<Integer> level, DecisionManager decisions, Applier applier){
         this.level = level;
@@ -328,5 +327,35 @@ public class AttributeManager {
 
     ObservableList<String> getMinList(Proficiency min) {
         return minLists.get(min);
+    }
+
+    public void apply(List<? extends AttributeBonus> bonuses) {
+        for (AttributeBonus bonus : bonuses) {
+            attributeBonuses
+                    .computeIfAbsent(bonus.getTarget(), k->new HashMap<>())
+                    .computeIfAbsent(bonus.getSource(), k->new TreeSet<>())
+                    .add(bonus);
+        }
+        proficiencyChange.firePropertyChange("addBonuses", null, null);
+    }
+
+    public void remove(List<? extends AttributeBonus> bonuses) {
+        for (AttributeBonus bonus : bonuses) {
+            Map<Type, NavigableSet<AttributeBonus>> typeMap = attributeBonuses.get(bonus.getTarget());
+            if(typeMap == null) continue;
+            NavigableSet<AttributeBonus> bonusSet = typeMap.get(bonus.getSource());
+            bonusSet.remove(bonus);
+            if(bonusSet.size() == 0) typeMap.remove(bonus.getSource());
+            if(typeMap.size() == 0) attributeBonuses.remove(bonus.getTarget());
+        }
+        proficiencyChange.firePropertyChange("removeBonuses", null, null);
+    }
+
+    public int getBonus(Attribute attribute) {
+        int bonus = 0;
+        for (NavigableSet<AttributeBonus> bonusSet : attributeBonuses.getOrDefault(attribute, Collections.emptyMap()).values()) {
+            bonus += bonusSet.descendingIterator().next().getBonus();
+        }
+        return bonus;
     }
 }

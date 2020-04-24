@@ -2,7 +2,7 @@ package model.attributes;
 
 import model.enums.Type;
 
-public class AttributeBonus {
+public class AttributeBonus implements Comparable<AttributeBonus> {
     private final Attribute target;
     private final int bonus;
     private final Type source;
@@ -23,5 +23,11 @@ public class AttributeBonus {
 
     public Type getSource() {
         return source;
+    }
+
+
+    @Override
+    public int compareTo(AttributeBonus o) {
+        return Integer.compare(bonus, o.bonus);
     }
 }

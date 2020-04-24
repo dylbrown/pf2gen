@@ -1,16 +1,15 @@
 package model.equipment.runes.runedItems;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import model.attributes.AttributeBonus;
 import model.equipment.armor.Armor;
 import model.equipment.runes.ArmorRune;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class RunedArmor extends Armor implements RunedEquipment<ArmorRune> {
     private final Runes<ArmorRune> runes;
     private final Armor baseArmor;
-    private final List<AttributeBonus> bonuses = new ArrayList<>();
+    private final ObservableList<AttributeBonus> bonuses = FXCollections.observableArrayList();
 
     public RunedArmor(Armor armor) {
         super(new Armor.Builder(armor));
@@ -56,7 +55,7 @@ public class RunedArmor extends Armor implements RunedEquipment<ArmorRune> {
 
 
     @Override
-    public List<AttributeBonus> getBonuses() {
+    public ObservableList<AttributeBonus> getBonuses() {
         return bonuses;
     }
 

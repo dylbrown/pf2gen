@@ -24,7 +24,7 @@ class InventoryManagerTest {
 
     @BeforeEach
     void setUp() {
-        inventory = new InventoryManager();
+        inventory = new InventoryManager(null);
         inventory.setMoney(30000000);
         sampleItems = new ArrayList<>();
         int i=0;

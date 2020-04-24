@@ -93,6 +93,9 @@ public class WeaponsLoader extends FileLoader<Weapon> {
                         builder = rangedBuilder = new RangedWeapon.Builder(builder);
                     rangedBuilder.setRange(Integer.parseInt(trim.split(" ")[0]));
                     break;
+                case "Hands":
+                    builder.setHands(Integer.parseInt(trim));
+                    break;
                 case "Reload":
                     if(rangedBuilder == null)
                         builder = rangedBuilder = new RangedWeapon.Builder(builder);

@@ -134,7 +134,7 @@ public class Equipment implements Comparable<Equipment> {
 
     @Override
     public int compareTo(Equipment o) {
-        return this.getName().compareTo(o.getName());
+        return this.name.compareTo(o.name);
     }
 
     public static class Builder {

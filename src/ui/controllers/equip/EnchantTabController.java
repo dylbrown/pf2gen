@@ -203,6 +203,7 @@ public class EnchantTabController {
     }
 
     private void selectItem(Equipment item) {
+        if(item == null) return;
         selectedItem = item;
         currentItem.setText(selectedItem.getName());
         if(!(selectedItem instanceof RunedEquipment)) {
@@ -214,11 +215,13 @@ public class EnchantTabController {
     }
 
     private void setItemDisplay(Equipment selectedItem) {
+        if(selectedItem == null) return;
         String s = EquipmentHTMLGenerator.generateText(selectedItem);
         itemDisplay.getEngine().loadContent(s);
     }
 
     private void setRuneDisplay(Equipment selectedItem) {
+        if(selectedItem == null) return;
         String s = EquipmentHTMLGenerator.generateText(selectedItem);
         runeDisplay.getEngine().loadContent(s);
     }

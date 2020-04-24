@@ -1,6 +1,7 @@
 package model.equipment.armor;
 
 import model.enums.ArmorProficiency;
+import model.enums.Slot;
 import model.equipment.CustomTrait;
 import model.equipment.Equipment;
 import model.equipment.runes.runedItems.Enchantable;
@@ -84,7 +85,8 @@ public class Armor extends Equipment implements Enchantable {
         private List<CustomTrait> traits= new ArrayList<>();
         private ArmorProficiency proficiency = null;
 
-        public Builder() {this.setCategory("Armor");}
+        public Builder() {this.setCategory("Armor");
+        this.setSlot(Slot.Armor);}
 
         public Builder(Armor armor) {
             super(armor);
