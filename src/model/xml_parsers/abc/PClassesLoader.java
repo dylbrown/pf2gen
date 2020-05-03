@@ -21,8 +21,6 @@ public class PClassesLoader extends ACLoader<PClass, PClass.Builder> {
     private static final PClassesLoader instance;
     static{instance = new PClassesLoader();}
 
-    private List<DynamicFilledSlot> dynSlots;
-
     private PClassesLoader() {
         path = new File("data/classes");
     }

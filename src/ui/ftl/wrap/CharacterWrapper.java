@@ -1,9 +1,6 @@
-package ui.ftl;
+package ui.ftl.wrap;
 
-import freemarker.template.Configuration;
-import freemarker.template.TemplateHashModel;
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
+import freemarker.template.*;
 import model.abilities.Ability;
 import model.abilities.AbilitySet;
 import model.abilities.Activity;
@@ -14,8 +11,9 @@ import model.enums.Type;
 import model.equipment.ItemCount;
 import model.player.InventoryManager;
 import model.player.PC;
+import ui.ftl.EquipmentList;
+import ui.ftl.FIHash;
 import ui.ftl.entries.AttributeEntry;
-import ui.ftl.entries.ItemCountWrapper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -28,11 +26,11 @@ import java.util.stream.Collectors;
 import static model.util.StringUtils.camelCaseWord;
 import static ui.Main.character;
 
-class CharacterWrapper implements TemplateHashModel {
+public class CharacterWrapper implements TemplateHashModel {
     private final Map<String, Object> map = new HashMap<>();
-    private final Configuration cfg;
-    CharacterWrapper(PC character, Configuration cfg) {
-        this.cfg = cfg;
+    private final ObjectWrapper wrapper;
+    public CharacterWrapper(PC character, ObjectWrapper wrapper) {
+        this.wrapper = wrapper;
 
         //map.put("totalweight", (NumberSupplier) ()->character.inventory().getTotalWeight());
         for (Ability ability : character.abilities().getAbilities()) {
@@ -46,29 +44,28 @@ class CharacterWrapper implements TemplateHashModel {
 
         map.put("attributes", getAttributeMap());
         map.put("attacks", character.getAttacks().stream()
-                .map((o)->new ItemCountWrapper(new ItemCount(o, 1))).collect(Collectors.toList()));
+                .map((o)->new ItemCountWrapper(new ItemCount(o, 1), wrapper)).collect(Collectors.toList()));
 
         map.put("getSlot", new FIHash((s)->{
             ItemCount count = character.inventory().getEquipped(Slot.valueOf(s));
-            return (count != null) ? new ItemCountWrapper(count) : null;
+            return (count != null) ? new ItemCountWrapper(count, wrapper) : null;
         },
-                ()->character.inventory().getEquipped().size()>0, cfg.getObjectWrapper()));
+                ()->character.inventory().getEquipped().size()>0, wrapper));
 
         map.put("abilityMod", new FIHash((s)->
                 character.scores().getMod(
                     AbilityScore.valueOf(camelCaseWord(s))),
-                ()->false, cfg.getObjectWrapper()));
+                ()->false, wrapper));
 
         map.put("abilityScore", new FIHash((s)->
                 character.scores().getScore(AbilityScore.valueOf(camelCaseWord(s))),
-                ()->false, cfg.getObjectWrapper()));
+                ()->false, wrapper));
 
 
-        map.put("items", new EquipmentList(character.inventory().getUnequipped(), character.inventory().getEquipped()));
+        map.put("items", new EquipmentList(character.inventory().getUnequipped(), character.inventory().getEquipped(), wrapper));
 
 
-        map.put("inventory", character.inventory().getItems().values().stream()
-                .map(ItemCountWrapper::new).collect(Collectors.toList()));
+        map.put("inventory", character.inventory().getItems().values());
 
         map.put("skills", getSkills());
 
@@ -86,7 +83,7 @@ class CharacterWrapper implements TemplateHashModel {
             map.put(value.toString().toLowerCase(), new AttributeEntry(value,
                     character.attributes().getProficiency(value),
                     character.getLevelProperty(),
-                    cfg.getObjectWrapper()));
+                    wrapper));
         }
 
 
@@ -99,16 +96,16 @@ class CharacterWrapper implements TemplateHashModel {
             entries.add(new AttributeEntry(value,
                     character.attributes().getProficiency(value),
                     character.getLevelProperty(),
-                    cfg.getObjectWrapper()));
+                    wrapper));
         }
         return entries;
     }
 
-    void refresh() {
+    public void refresh() {
         updateAbilities();
         //TODO: Replace this with something listener-based
         map.put("attributes", getAttributeMap());
-        map.put("inventory", character.inventory().getItems().values().stream().map(ItemCountWrapper::new).collect(Collectors.toList()));
+        map.put("inventory", character.inventory().getItems().values());
     }
 
     private void updateAbilities() {
@@ -143,7 +140,7 @@ class CharacterWrapper implements TemplateHashModel {
                 if (method.getName().toLowerCase().equals("get" + s.toLowerCase())
                         && method.getParameterCount() == 0) {
                     try {
-                        return cfg.getObjectWrapper().wrap(method.invoke(character));
+                        return wrapper.wrap(method.invoke(character));
                     } catch (IllegalAccessException | InvocationTargetException e) {
                         e.printStackTrace();
                     }
@@ -154,14 +151,14 @@ class CharacterWrapper implements TemplateHashModel {
                 if (method.getName().toLowerCase().equals("get" + s.toLowerCase())
                         && method.getParameterCount() == 0) {
                     try {
-                        return cfg.getObjectWrapper().wrap(method.invoke(character.inventory()));
+                        return wrapper.wrap(method.invoke(character.inventory()));
                     } catch (IllegalAccessException | InvocationTargetException e) {
                         e.printStackTrace();
                     }
                 }
             }
         }
-        return cfg.getObjectWrapper().wrap(map.get(s));
+        return wrapper.wrap(map.get(s));
     }
 
     @Override

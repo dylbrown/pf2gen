@@ -30,6 +30,8 @@ import static model.util.StringUtils.camelCaseWord;
 
 public abstract class AbilityLoader<T> extends FileLoader<T> {
 
+    protected List<DynamicFilledSlot> dynSlots;
+
     protected Type getSource(Element element) {
         return null;
     }
@@ -204,9 +206,13 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                 }else{
                     String type = propElem.getAttribute("type");
                     if(type.equals("")) type = "General";
-                    return new DynamicFilledSlot(abilityName, slotLevel,
+                    Type dynamicType = getDynamicType(type);
+                    DynamicFilledSlot contents = new DynamicFilledSlot(abilityName, slotLevel,
                             propElem.getAttribute("contents"),
-                            getDynamicType(type), false);
+                            dynamicType, dynamicType.equals(Type.Class));
+                    if(dynamicType.equals(Type.Class))
+                        dynSlots.add(contents);
+                    return contents;
                 }
             case "feat":
                 return new FeatSlot(abilityName, slotLevel,

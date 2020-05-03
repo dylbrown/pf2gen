@@ -34,6 +34,10 @@ public class Damage {
         return isPersistent;
     }
 
+    public List<Damage> asList() {
+        return Collections.singletonList(this);
+    }
+
     @Override
     public String toString() {
         List<String> parts = new ArrayList<>();
@@ -41,7 +45,7 @@ public class Damage {
                     .forEach(d->parts.add(d.toString()));
         if(amount != 0) parts.add(String.valueOf(amount));
         if(damageType == null) return String.join(" + ", parts);
-        return String.join(" + ", parts) + " " + ((isPersistent) ? "persistent " : "") + damageType;
+        return String.join(" + ", parts) + " " + ((isPersistent) ? "persistent " : "") + damageType.toString().toLowerCase();
     }
 
     @Override
@@ -60,11 +64,23 @@ public class Damage {
         return Objects.hash(dice, amount, damageType, isPersistent);
     }
 
+    public Damage add(int damageMod, DamageType damageType) {
+        return new Damage.Builder(this).addAmount(damageMod).build();
+    }
+
     public static class Builder {
         private Map<Integer, Dice> dice = Collections.emptyMap();
         private int amount = 0;
         private DamageType damageType = null;
         private boolean isPersistent = false;
+
+        public Builder() {}
+
+        public Builder(Damage damage) {
+            this.addDice(damage.getDice());
+            this.damageType = damage.damageType;
+            this.isPersistent = damage.isPersistent;
+        }
 
         Damage.Builder addDice(List<Dice> newDice) {
             if(dice.size() == 0) dice = new HashMap<>();

@@ -10,11 +10,12 @@ import model.abilities.Activity;
 import model.enums.Slot;
 import model.equipment.armor.Armor;
 import model.equipment.armor.Shield;
+import model.equipment.weapons.RangedWeapon;
 import model.equipment.weapons.Weapon;
 import model.spells.CasterType;
+import ui.ftl.wrap.CharacterWrapper;
+import ui.ftl.wrap.PF2GenObjectWrapper;
 
-import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -86,19 +87,9 @@ public class TemplateFiller {
         cfg.setLogTemplateExceptions(false);
         cfg.setWrapUncheckedExceptions(true);
 
-        DefaultObjectWrapperBuilder owb = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_28);
-        owb.setMethodAppearanceFineTuner((input, output) -> {
-            String name = input.getMethod().getName();
-            if(input.getMethod().getParameterCount() == 0 && name.substring(0, 3).equals("get") && name.length() > 3){
-                try {
-                    output.setExposeAsProperty(new PropertyDescriptor(name.substring(3).toLowerCase(),input.getMethod(), null));
-                } catch (IntrospectionException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
 
-        cfg.setObjectWrapper(owb.build());
+
+        cfg.setObjectWrapper(new PF2GenObjectWrapper(Configuration.VERSION_2_3_29));
         Map<String, TemplateNumberFormatFactory> customNumberFormats = new HashMap<>();
         customNumberFormats.put("s", SignedTemplateNumberFormatFactory.INSTANCE);
         cfg.setCustomNumberFormats(customNumberFormats);
@@ -107,9 +98,10 @@ public class TemplateFiller {
     private Map<String, Object> root;
     private TemplateFiller() {
         root = new HashMap<>();
-        wrapper = new CharacterWrapper(character, cfg);
+        wrapper = new CharacterWrapper(character, cfg.getObjectWrapper());
         root.put("character", wrapper);
         root.put("Weapon", Weapon.class);
+        root.put("RangedWeapon", RangedWeapon.class);
         root.put("Armor", Armor.class);
         root.put("Shield", Shield.class);
         root.put("Ability", Ability.class);

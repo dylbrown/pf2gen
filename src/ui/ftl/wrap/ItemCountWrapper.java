@@ -1,5 +1,6 @@
-package ui.ftl.entries;
+package ui.ftl.wrap;
 
+import freemarker.template.ObjectWrapper;
 import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
@@ -16,12 +17,15 @@ import java.lang.reflect.Method;
 
 public class ItemCountWrapper implements TemplateHashModel {
     private final ItemCount itemCount;
+    private final ObjectWrapper wrapper;
     private Slot slot = null;
-    public ItemCountWrapper(ItemCount itemCount) {
+    public ItemCountWrapper(ItemCount itemCount, ObjectWrapper wrapper) {
+        this.wrapper = wrapper;
         this.itemCount = itemCount;
     }
 
-    public ItemCountWrapper(Pair<Slot, ItemCount> pair) {
+    public ItemCountWrapper(Pair<Slot, ItemCount> pair, ObjectWrapper wrapper) {
+        this.wrapper = wrapper;
         this.slot = pair.first;
         this.itemCount = pair.second;
     }
@@ -60,22 +64,10 @@ public class ItemCountWrapper implements TemplateHashModel {
                 }
             }
         }
-        if(s.equals("name")){
-            System.out.println("Test");
-        }
-        for (Method method : itemCount.stats().getClass().getMethods()) {
-            if(method.getParameterCount() == 0
-                    && (method.getName().toLowerCase().equals("get" + s.toLowerCase())
-                        || method.getName().toLowerCase().equals(s.toLowerCase()))){
-                try {
-                    return TemplateFiller.getWrapper().wrap(method.invoke(itemCount.stats()));
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        throw new TemplateModelException("Not Found");
+        TemplateModel model = wrapper.wrap(itemCount.stats());
+        if(model instanceof TemplateHashModel)
+            return ((TemplateHashModel) model).get(s);
+        throw new TemplateModelException("Could not find member "+s+" of ItemCount");
     }
 
     @Override

@@ -2,14 +2,12 @@ package model.equipment.weapons;
 
 import model.util.Pair;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MultiDamage extends Damage {
-    private List<Damage> convertedDamage;
+    private final List<Damage> convertedDamage;
     public MultiDamage(Damage first, List<Damage> additional) {
         super();
         Map<Pair<DamageType, Boolean>, Damage.Builder> damages = new HashMap<>();
@@ -34,6 +32,27 @@ public class MultiDamage extends Damage {
             }
         }
 
+    }
+
+    private MultiDamage(List<Damage> convertedDamage) {
+        this.convertedDamage = convertedDamage;
+    }
+
+    @Override
+    public MultiDamage add(int damageMod, DamageType damageType) {
+        List<Damage> newDamage = new ArrayList<>(this.convertedDamage);
+        newDamage.replaceAll(d->{
+            if(d.getDamageType().equals(damageType)) {
+                return d.add(damageMod, damageType);
+            }
+            return d;
+        });
+        return new MultiDamage(newDamage);
+    }
+
+    @Override
+    public List<Damage> asList() {
+        return Collections.unmodifiableList(convertedDamage);
     }
 
     @Override

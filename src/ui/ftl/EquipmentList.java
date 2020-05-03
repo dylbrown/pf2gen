@@ -1,9 +1,6 @@
 package ui.ftl;
 
-import freemarker.template.Configuration;
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
-import freemarker.template.TemplateSequenceModel;
+import freemarker.template.*;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
@@ -13,19 +10,21 @@ import model.enums.Slot;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
 import model.util.Pair;
-import ui.ftl.entries.ItemCountWrapper;
+import ui.ftl.wrap.ItemCountWrapper;
 
 import java.util.Comparator;
 import java.util.Map;
 
-class EquipmentList implements TemplateSequenceModel {
+public class EquipmentList implements TemplateSequenceModel {
     private final ObservableList<Pair<Slot, ItemCount>> equipList = FXCollections.observableArrayList();
     private final ObservableList<ItemCount> unequipList = FXCollections.observableArrayList();
     private final SortedList<Pair<Slot, ItemCount>> equip = new SortedList<>(equipList,
             (Comparator.comparing(o -> o.second.stats())));
     private final SortedList<ItemCount> unequip = new SortedList<>(unequipList, Comparator.comparing(ItemCount::stats));
+    private final ObjectWrapper wrapper;
 
-    EquipmentList(ObservableMap<Equipment, ItemCount> unequipped, ObservableMap<Slot, ItemCount> equipped) {
+    public EquipmentList(ObservableMap<Equipment, ItemCount> unequipped, ObservableMap<Slot, ItemCount> equipped, ObjectWrapper wrapper) {
+        this.wrapper = wrapper;
         for (Map.Entry<Slot, ItemCount> entry : equipped.entrySet()) {
             equipList.add(new Pair<>(entry.getKey(), entry.getValue()));
         }
@@ -50,15 +49,13 @@ class EquipmentList implements TemplateSequenceModel {
     }
 
     @Override
-    public TemplateModel get(int i) throws TemplateModelException {
+    public TemplateModel get(int i) {
         if(i > equipList.size() + unequipList.size()) throw new ArrayIndexOutOfBoundsException();
-        ItemCountWrapper wrapper;
         if(i < equipList.size()) {
-            wrapper = new ItemCountWrapper(equipList.get(i));
+            return new ItemCountWrapper(equipList.get(i), wrapper);
         }else{
-            wrapper = new ItemCountWrapper(unequipList.get(i - equipList.size()));
+            return new ItemCountWrapper(unequipList.get(i - equipList.size()), wrapper);
         }
-        return Configuration.getDefaultObjectWrapper(Configuration.getVersion()).wrap(wrapper);
     }
 
     @Override

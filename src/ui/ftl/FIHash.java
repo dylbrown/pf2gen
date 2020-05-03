@@ -5,11 +5,11 @@ import freemarker.template.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-class FIHash implements TemplateHashModel {
+public class FIHash implements TemplateHashModel {
     private final ObjectWrapper wrapper;
     private final Function<String, Object> getter;
     private final Supplier<Boolean> empty;
-    FIHash(Function<String, Object> getter, Supplier<Boolean> empty, ObjectWrapper objectWrapper){
+    public FIHash(Function<String, Object> getter, Supplier<Boolean> empty, ObjectWrapper objectWrapper){
         this.getter = getter;
         this.empty = empty;
         this.wrapper = objectWrapper;
