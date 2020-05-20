@@ -28,4 +28,12 @@ public class StringUtils {
         else
             return (int)(cost / 10) + " gp";
     }
+
+    public static String intialism(String str) {
+        StringBuilder initialism = new StringBuilder();
+        for (String s : str.split(" ")) {
+            initialism.append(Character.toUpperCase(s.charAt(0)));
+        }
+        return initialism.toString();
+    }
 }

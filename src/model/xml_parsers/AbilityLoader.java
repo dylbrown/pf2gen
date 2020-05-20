@@ -11,6 +11,7 @@ import model.data_managers.AllSpells;
 import model.enums.Action;
 import model.attributes.Attribute;
 import model.enums.Proficiency;
+import model.enums.Trait;
 import model.enums.Type;
 import model.spells.CasterType;
 import model.spells.SpellType;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static model.util.StringUtils.camelCase;
 import static model.util.StringUtils.camelCaseWord;
@@ -74,6 +76,8 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                 builder = acBuilder;
             }else builder = new Ability.Builder();
             builder.setName(name);
+            if(!element.getAttribute("page").equals(""))
+                builder.setPageNo(Integer.parseInt(element.getAttribute("page")));
             if(!element.getAttribute("level").equals("")) {
                 builder.setLevel(Integer.parseInt(element.getAttribute("level")));
             }else builder.setLevel(level);
@@ -178,6 +182,12 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                         break;
                     case "AbilitySlot":
                         builder.addAbilitySlot(makeAbilitySlot(propElem, level));
+                        break;
+                    case "Traits":
+                        builder.addTraits(
+                                Stream.of(trim.split(" ?, ?"))
+                                        .map(s-> Trait.valueOf(camelCaseWord(s.trim())))
+                                        .collect(Collectors.toList()));
                 }
             }
             builder.setType(getSource(element));
@@ -245,7 +255,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     mods.add(new AttributeModSingleChoice(Attribute.robustValueOf(orCheck[0]),
                             Attribute.robustValueOf(orCheck[1]), prof));
                 }else {
-                    if (camelCaseWord(str.trim()).substring(0, 4).equals("Lore")) {
+                    if (camelCaseWord(str.trim()).startsWith("Lore")) {
                         Attribute skill = Attribute.Lore;
                         String data = camelCase(str.trim().substring(4).trim().replaceAll("[()]", ""));
                         mods.add(new AttributeMod(skill, prof, data));

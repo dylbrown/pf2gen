@@ -8,8 +8,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class Spell implements Comparable<Spell> {
-	private final String name, castTime, requirements, range, area, targets, duration, save, description, page;
-	private final int level;
+	private final String name, castTime, requirements, range, area, targets, duration, save, description, sourceBook;
+	private final int level, page;
 	private final List<Trait> traits;
 	private final List<Tradition> traditions;
 	private final List<SpellComponent> cast;
@@ -30,6 +30,7 @@ public class Spell implements Comparable<Spell> {
 		this.save = builder.save;
 		this.description = builder.description;
 		this.page = builder.page;
+		this.sourceBook = builder.sourceBook;
 		this.isCantrip = builder.isCantrip;
 	}
 
@@ -69,8 +70,13 @@ public class Spell implements Comparable<Spell> {
 		return description;
 	}
 
-	public String getPage() {
+	public int getPage() {
 		return page;
+	}
+
+	public String getSource() {
+		if(page == -1) return StringUtils.intialism(sourceBook);
+		return StringUtils.intialism(sourceBook) + " pg. " + page;
 	}
 
 	public int getLevel() {
@@ -121,7 +127,8 @@ public class Spell implements Comparable<Spell> {
 		private String targets = "";
 		private String duration = "";
 		private String save = "";
-		private String page = "";
+		private int page = -1;
+		private String sourceBook = "Core Rulebook"; // TODO: Collect this in loader
 		private String description;
 
 		public void setName(String name) {
@@ -142,7 +149,7 @@ public class Spell implements Comparable<Spell> {
 			}
 		}
 
-		public void setPage(String page) {
+		public void setPage(int page) {
 			this.page = page;
 		}
 

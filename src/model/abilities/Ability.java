@@ -1,11 +1,16 @@
 package model.abilities;
 
-import model.attributes.AttributeMod;
 import model.abilities.abilitySlots.AbilitySlot;
 import model.ability_scores.AbilityMod;
+import model.attributes.AttributeMod;
+import model.enums.Trait;
 import model.enums.Type;
+import model.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 public class Ability implements Comparable<Ability> {
     //TODO: Support Repeated Choice
@@ -17,11 +22,14 @@ public class Ability implements Comparable<Ability> {
     private final boolean multiple;
     private final List<AttributeMod> modifiers;
     private final List<AbilityMod> abilityMods;
+    private final List<Trait> traits;
     private final String name;
     private final String description;
     private final String requirements;
     private final int level;
     private final int skillIncreases;
+    private final String sourceBook;
+    private final int pageNo;
 
 
     protected Ability(Ability.Builder builder) {
@@ -33,16 +41,16 @@ public class Ability implements Comparable<Ability> {
         this.prereqStrings = builder.prereqStrings;
         this.givenPrerequisites = builder.givenPrerequisites;
         this.requirements = builder.requirements;
-        if(builder.requiredAttrs.size() == 0)
-            this.requiredAttrs = Collections.emptyList();
-        else
-            this.requiredAttrs = builder.requiredAttrs;
+        this.requiredAttrs = builder.requiredAttrs;
+        this.traits = builder.traits;
         this.customMod = builder.customMod;
         this.abilityMods = builder.abilityMods;
         this.abilitySlots = builder.abilitySlots;
         this.type = builder.type;
         this.multiple = builder.multiple;
         this.skillIncreases = builder.skillIncreases;
+        this.sourceBook = builder.sourceBook;
+        this.pageNo = builder.pageNo;
     }
 
     public List<AttributeMod> getModifiers() {
@@ -128,11 +136,21 @@ public class Ability implements Comparable<Ability> {
         return Objects.hash(type, name);
     }
 
+    public List<Trait> getTraits() {
+        return traits;
+    }
+
+    public String getSource() {
+        if(pageNo == -1) return StringUtils.intialism(sourceBook);
+        return StringUtils.intialism(sourceBook) + " pg. " + pageNo;
+    }
+
     public static class Builder {
         private List<String> prerequisites = Collections.emptyList();
         private List<String> prereqStrings = Collections.emptyList();
         private List<String> givenPrerequisites = Collections.emptyList();
         private List<AttributeMod> requiredAttrs = Collections.emptyList();
+        private List<Trait> traits = Collections.emptyList();
         private String customMod = "";
         private List<AbilitySlot> abilitySlots = Collections.emptyList();
         private Type type;
@@ -144,6 +162,8 @@ public class Ability implements Comparable<Ability> {
         private int level = 1;
         private int skillIncreases = 0;
         private String requirements = "";
+        private String sourceBook = "Core Rulebook"; // TODO: Collect this in loader
+        private int pageNo = -1;
 
         public Builder(){}
 
@@ -155,6 +175,7 @@ public class Ability implements Comparable<Ability> {
             this.customMod = builder.customMod;
             this.abilitySlots = builder.abilitySlots;
             this.type = builder.type;
+            this.traits = builder.traits;
             this.multiple = builder.multiple;
             this.modifiers = builder.modifiers;
             this.abilityMods = builder.abilityMods;
@@ -163,6 +184,8 @@ public class Ability implements Comparable<Ability> {
             this.level = builder.level;
             this.skillIncreases = builder.skillIncreases;
             this.requirements = builder.requirements;
+            this.sourceBook = builder.sourceBook;
+            this.pageNo = builder.pageNo;
         }
 
         public void setPrerequisites(List<String> prerequisites) {
@@ -180,7 +203,10 @@ public class Ability implements Comparable<Ability> {
         public void setGivesPrerequisites(List<String> given) {this.givenPrerequisites = given;}
 
         public void setRequiredAttrs(List<AttributeMod> requiredAttrs) {
-            this.requiredAttrs = requiredAttrs;
+            if(requiredAttrs.isEmpty())
+                this.requiredAttrs = Collections.emptyList();
+            else
+                this.requiredAttrs = requiredAttrs;
         }
 
         public void setCustomMod(String customMod) {
@@ -190,6 +216,12 @@ public class Ability implements Comparable<Ability> {
         public void addAbilitySlot(AbilitySlot abilitySlot) {
             if(abilitySlots.size() == 0) abilitySlots = new ArrayList<>();
             abilitySlots.add(abilitySlot);
+        }
+
+        public void addTraits(List<Trait> traits) {
+            if(traits.isEmpty()) return;
+            if(this.traits.isEmpty()) this.traits = new ArrayList<>();
+            this.traits.addAll(traits);
         }
 
         public void setAbilitySlots(List<AbilitySlot> abilitySlots) {
@@ -219,6 +251,14 @@ public class Ability implements Comparable<Ability> {
 
         public void setName(String name) {
             this.name = name;
+        }
+
+        public void setSourceBook(String sourceBook) {
+            this.sourceBook = sourceBook;
+        }
+
+        public void setPageNo(int pageNo) {
+            this.pageNo = pageNo;
         }
 
         public void setDescription(String description) {
