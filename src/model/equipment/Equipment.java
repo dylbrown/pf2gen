@@ -156,14 +156,20 @@ public class Equipment implements Comparable<Equipment> {
         public Builder() {}
 
         public Builder(Equipment equipment) {
-            this.weight = equipment.getWeight();
-            this.value = equipment.getValue();
-            this.name = equipment.getName();
-            this.page = equipment.getPage();
-            this.rarity = equipment.getRarity();
-            this.description = equipment.getDesc();
-            this.slot = equipment.getSlot();
-            this.traits = new ArrayList<>(equipment.getTraits());
+            this.weight = equipment.weight;
+            this.value = equipment.value;
+            this.name = equipment.name;
+            this.category = equipment.category;
+            this.subCategory = equipment.subCategory;
+            this.page = equipment.page;
+            this.description = equipment.description;
+            this.rarity = equipment.rarity;
+            this.slot = equipment.slot;
+            this.traits = (equipment.traits.size() > 0) ? new ArrayList<>(equipment.traits) : Collections.emptyList();
+            this.hands = equipment.hands;
+            this.level = equipment.level;
+            this.bonuses = new ArrayList<>(equipment.bonuses);
+            this.abilities = new ArrayList<>(equipment.abilities);
         }
 
         public void setWeight(double weight) {

@@ -72,8 +72,8 @@ public class CharacterWrapper implements TemplateHashModel {
         map.put("spellsKnown", character.spells().getSpellsKnown());
         map.put("focusSpells", character.spells().getFocusSpells());
         map.put("spellSlots", character.spells().getSpellSlots());
-        map.put("casterType", character.spells().getCasterType());
-        map.put("tradition", character.spells().getTradition());
+        map.put("casterType", character.spells().getCasterType().get());
+        map.put("tradition", character.spells().getTradition().get());
         refresh();
     }
 
@@ -106,6 +106,8 @@ public class CharacterWrapper implements TemplateHashModel {
         //TODO: Replace this with something listener-based
         map.put("attributes", getAttributeMap());
         map.put("inventory", character.inventory().getItems().values());
+        map.put("casterType", character.spells().getCasterType().get());
+        map.put("tradition", character.spells().getTradition().get());
     }
 
     private void updateAbilities() {
