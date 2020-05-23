@@ -1,5 +1,6 @@
 package model.abilities.abilitySlots;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import model.abilities.Ability;
 
@@ -27,6 +28,10 @@ public abstract class AbilitySlot {
     public Ability getCurrentAbility() {
         if(currentAbility == null) return null;
         return currentAbility.get();
+    }
+
+    public ReadOnlyObjectProperty<Ability> currentAbilityProperty() {
+        return currentAbility.getReadOnlyProperty();
     }
 
     @Override

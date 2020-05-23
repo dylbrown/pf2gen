@@ -103,7 +103,7 @@ public class FeatSelectionPane extends SingleSelectionPane<Ability> {
                 Ability selectedItem = getSelectionModel().getSelectedItem();
                 if(selectedItem != null && character.meetsPrerequisites(selectedItem) &&
                         (selectedItem.isMultiple() || !character.abilities().haveAbility(selectedItem))) {
-                    character.choose(slot, selectedItem);
+                    slot.fill(selectedItem);
                 }
             }
         });

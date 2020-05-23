@@ -85,7 +85,13 @@ public class AbilityManager {
 
 	void apply(AbilitySlot slot) {
 		if (slot instanceof SingleChoice)
+			//noinspection rawtypes
 			decisions.add((SingleChoice) slot);
+
+		slot.currentAbilityProperty().addListener((o, oldVal, newVal)->{
+			remove(oldVal);
+			apply(newVal);
+		});
 
 		Ability ability = slot.getCurrentAbility();
 
@@ -159,7 +165,9 @@ public class AbilityManager {
 		} else remove(ability);
 
 		if (slot instanceof SingleChoice) {
+			//noinspection rawtypes
 			decisions.remove((SingleChoice) slot);
+			//noinspection rawtypes
 			((SingleChoice) slot).empty();
 		}
 	}
@@ -204,15 +212,6 @@ public class AbilityManager {
 				remove(ability);
 			}
 		}
-	}
-
-	void changeSlot(AbilitySlot slot, Ability selectedItem) {
-		Ability oldItem = slot.getCurrentAbility();
-		if (oldItem != null)
-			remove(oldItem);
-		if (slot instanceof AbilitySingleChoice)
-			((AbilitySingleChoice) slot).fill(selectedItem);
-		apply(selectedItem);
 	}
 
 	public boolean haveAbility(Ability ability) {

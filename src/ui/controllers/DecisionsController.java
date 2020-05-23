@@ -28,8 +28,11 @@ public class DecisionsController {
 
     @FXML
     private void initialize() {
-        DecisionsList decisionsList = new DecisionsList((choice, i) ->
-                setChoices(choice), Main.character.decisions().getDecisions());
+        DecisionsList decisionsList = new DecisionsList((treeItem, i) -> {
+            DecisionEntry choice = treeItem.getValue();
+            if(choice != null)
+                setChoices(choice);
+        }, Main.character.decisions().getDecisions());
         decisionsPaneContainer.setCenter(decisionsList);
         decisionsList.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal)->{
             if(newVal != null)
@@ -40,7 +43,7 @@ public class DecisionsController {
     }
 
     private void setChoices(DecisionEntry entry) {
-        Choice choice = entry.getChoice();
+        @SuppressWarnings("rawtypes") Choice choice = entry.getChoice();
         if(choice == null) return;
         if(choice instanceof FeatSlot) {
             choicesContainer.setCenter(new FeatSelectionPane((FeatSlot)choice, display, filterChoices));

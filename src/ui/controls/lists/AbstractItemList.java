@@ -5,6 +5,7 @@ import javafx.scene.control.TreeTableView;
 import model.equipment.Equipment;
 import ui.controls.lists.entries.ItemEntry;
 
+import java.util.Collections;
 import java.util.function.BiConsumer;
 
 abstract class AbstractItemList extends TreeTableView<ItemEntry> {
@@ -24,7 +25,11 @@ abstract class AbstractItemList extends TreeTableView<ItemEntry> {
         this.setShowRoot(false);
         TreeItem<ItemEntry> root = new TreeItem<>(new ItemEntry("root"));
         this.setRoot(root);
-        this.setRowFactory(new SelectRowFactory<>((ie, i) -> handler.accept(ie.getItem(), i)));
+        this.setRowFactory(new SelectRowFactory<>(Collections.singletonList((treeItem, i) -> {
+            ItemEntry ie = treeItem.getValue();
+            if(ie != null)
+                handler.accept(ie.getItem(), i);
+        })));
         this.setColumnResizePolicy(TreeTableView.CONSTRAINED_RESIZE_POLICY);
         createColumns();
         addItems(root);

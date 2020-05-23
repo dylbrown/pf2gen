@@ -8,16 +8,18 @@ import javafx.scene.control.TreeTableView;
 import model.abilities.abilitySlots.Choice;
 import ui.controls.lists.entries.DecisionEntry;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.BiConsumer;
 //TODO: Make parent class for DecisionsList and AbstractItemList
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class DecisionsList extends TreeTableView<DecisionEntry> {
 
-    public DecisionsList(BiConsumer<DecisionEntry, Integer> handler, ObservableList<Choice> choices) {
+    public DecisionsList(BiConsumer<TreeItem<DecisionEntry>, Integer> handler, ObservableList<Choice> choices) {
         this.setShowRoot(false);
-        TreeItem<DecisionEntry> root = new TreeItem<>(new DecisionEntry("root", -1));
+        TreeItem<DecisionEntry> root = new TreeItem<>(new DecisionEntry(null, "root", -1));
         this.setRoot(root);
-        this.setRowFactory(new SelectRowFactory<>(handler));
+        this.setRowFactory(new SelectRowFactory<>(Arrays.asList(handler, DecisionsList::attemptRemove)));
         this.setColumnResizePolicy(TreeTableView.CONSTRAINED_RESIZE_POLICY);
         createColumns();
         addItems(root, choices);
@@ -42,10 +44,9 @@ public class DecisionsList extends TreeTableView<DecisionEntry> {
             TreeItem<DecisionEntry> node = new TreeItem<>(new DecisionEntry(choice));
             root.getChildren().add(node);
             for (Object o : choice.getSelections()) {
-                node.getChildren().add(new TreeItem<>(new DecisionEntry(o.toString(), -1)));
+                node.getChildren().add(new TreeItem<>(new DecisionEntry(o, o.toString(), -1)));
             }
 
-            //noinspection unchecked
             choice.getSelections().addListener(getListener(node));
         }
         choices.addListener((ListChangeListener<Choice>) c->{
@@ -53,7 +54,6 @@ public class DecisionsList extends TreeTableView<DecisionEntry> {
                 for (Choice choice : c.getAddedSubList()) {
                     TreeItem<DecisionEntry> node = new TreeItem<>(new DecisionEntry(choice));
                     root.getChildren().add(node);
-                    //noinspection unchecked
                     choice.getSelections().addListener(getListener(node));
                 }
                 for (Choice choice : c.getRemoved()) {
@@ -71,17 +71,17 @@ public class DecisionsList extends TreeTableView<DecisionEntry> {
         });
     }
 
-    private ListChangeListener getListener(TreeItem<DecisionEntry> node) {
+    private ListChangeListener<Object> getListener(TreeItem<DecisionEntry> node) {
         return c->{
             while(c.next()) {
                 for (Object o : c.getAddedSubList()) {
-                    node.getChildren().add(new TreeItem<>(new DecisionEntry(o.toString(), -1)));
+                    node.getChildren().add(new TreeItem<>(new DecisionEntry(o, o.toString(), -1)));
                 }
                 for (Object o : c.getRemoved()) {
                     Iterator<TreeItem<DecisionEntry>> iterator = node.getChildren().iterator();
                     while(iterator.hasNext()) {
                         TreeItem<DecisionEntry> item = iterator.next();
-                        if(item.getValue().getName().equals(o.toString())){
+                        if(item.getValue().getChosenValue().equals(o)){
                             iterator.remove();
                             break;
                         }
@@ -90,6 +90,19 @@ public class DecisionsList extends TreeTableView<DecisionEntry> {
 
             }
         };
+    }
+
+    private static void attemptRemove(TreeItem<DecisionEntry> treeItem, int count) {
+        if(treeItem.getValue() == null || count != 2) return;
+        Object value = treeItem.getValue().getChosenValue();
+        if(value == null) return; // Haven't selected a chosen value
+        Choice choice = treeItem.getParent().getValue().getChoice();
+        if(choice == null) return;
+        try{
+            choice.remove(value);
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void expandAll() {

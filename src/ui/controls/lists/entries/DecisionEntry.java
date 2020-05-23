@@ -8,16 +8,19 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import model.abilities.abilitySlots.Choice;
 
+@SuppressWarnings("rawtypes")
 public class DecisionEntry implements Comparable<DecisionEntry>, TreeTableEntry {
     private final ReadOnlyStringProperty name;
     private final ReadOnlyStringProperty level;
+    private final Object chosenValue;
     private ReadOnlyIntegerProperty remaining;
     private ReadOnlyIntegerWrapper remainingWrapper;
-    private static ReadOnlyStringProperty empty = new ReadOnlyStringWrapper("").getReadOnlyProperty();
+    private static final ReadOnlyStringProperty empty = new ReadOnlyStringWrapper("").getReadOnlyProperty();
     private final Choice choice;
 
     public DecisionEntry(Choice choice) {
         this.choice = choice;
+        chosenValue = null;
         name = new ReadOnlyStringWrapper(choice.getName()).getReadOnlyProperty();
         level = new ReadOnlyStringWrapper(String.valueOf(choice.getLevel())).getReadOnlyProperty();
         remainingWrapper = new ReadOnlyIntegerWrapper(choice.getNumSelections());
@@ -34,8 +37,9 @@ public class DecisionEntry implements Comparable<DecisionEntry>, TreeTableEntry 
         });
     }
 
-    public DecisionEntry(String name, int level) {
+    public DecisionEntry(Object chosenValue, String name, int level) {
         this.choice = null;
+        this.chosenValue = chosenValue;
         this.name = new ReadOnlyStringWrapper(name).getReadOnlyProperty();
         this.level = new ReadOnlyStringWrapper((level == -1) ? "" : String.valueOf(level)).getReadOnlyProperty();
     }
@@ -43,6 +47,10 @@ public class DecisionEntry implements Comparable<DecisionEntry>, TreeTableEntry 
     @Override
     public int compareTo(DecisionEntry o) {
         return name.get().compareTo(o.name.get());
+    }
+
+    public Object getChosenValue() {
+        return chosenValue;
     }
 
     @Override

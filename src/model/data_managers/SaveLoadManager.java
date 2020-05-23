@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 
 import static ui.Main.character;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class SaveLoadManager {
     public static void save(File file){
         PrintWriter out = null;
@@ -191,7 +192,7 @@ public class SaveLoadManager {
                             }
                         } break;
                     case "level":
-                        Integer lvl = Integer.valueOf(afterEq);
+                        int lvl = Integer.parseInt(afterEq);
                         while (character.getLevel() < lvl)
                             character.levelUp();
                         break;
@@ -259,8 +260,7 @@ public class SaveLoadManager {
                     for (Object option : options) {
                         if(selections.contains(option.toString())) {
                             int oldSize = decision.getSelections().size();
-                            //noinspection unchecked
-                            character.addSelection(decision, option);
+                            decision.add(option);
                             if(decision.getSelections().size() > oldSize)
                                 successes++;
                             if(decision.getSelections().size() == selections.size())
@@ -290,7 +290,7 @@ public class SaveLoadManager {
                     SortedSet<Equipment> tailSet = EquipmentManager.getEquipment().tailSet(new SearchItem(split[1]));
                     if (!tailSet.isEmpty()) {
                         if (tailSet.first().getName().equals(split[1]))
-                            character.inventory().buy(tailSet.first(), Integer.valueOf(split[0]));
+                            character.inventory().buy(tailSet.first(), Integer.parseInt(split[0]));
                     }
                 } else if (s.startsWith(" @ ")) {
                     String itemName = s.substring(3).split(" ", 2)[1];
@@ -324,7 +324,7 @@ public class SaveLoadManager {
                 String[] split = slotSplit[1].split(" ", 2);
                 for (ItemCount value : character.inventory().getItems().values()) {
                     if(value.stats().getName().equals(split[1])) {
-                        character.inventory().equip(value.stats(),Slot.valueOf(slotSplit[0]),  Integer.valueOf(split[0]));
+                        character.inventory().equip(value.stats(),Slot.valueOf(slotSplit[0]),  Integer.parseInt(split[0]));
                         break;
                     }
                 }

@@ -4,8 +4,6 @@ import javafx.scene.web.WebView;
 import model.abilities.abilitySlots.SingleChoice;
 import model.abilities.abilitySlots.SingleChoiceList;
 
-import static ui.Main.character;
-
 
 public class SingleSelectionPane<T> extends SelectionPane<T> {
     SingleChoice<T> slot;
@@ -36,7 +34,7 @@ public class SingleSelectionPane<T> extends SelectionPane<T> {
             if(event.getClickCount() == 2) {
                 T selectedItem = getSelectionModel().getSelectedItem();
                 if(selectedItem != null) {
-                    character.choose(slot, selectedItem);
+                    slot.fill(selectedItem);
                 }
             }
         });
@@ -46,7 +44,7 @@ public class SingleSelectionPane<T> extends SelectionPane<T> {
     void setupChosenListener() {
         chosen.setOnMouseClicked((event) -> {
             if(event.getClickCount() == 2) {
-                character.choose(slot, null);
+                slot.fill(null);
             }
         });
     }

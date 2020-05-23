@@ -56,7 +56,7 @@ public class SingleChoiceSlot extends AbilitySlot implements AbilityChoiceList, 
 
     @Override
     public void remove(Ability choice) {
-        if(list.size() == 0 && currentAbility.get().equals(choice)) fill(null);
+        if(list.size() == 1 && currentAbility.get().equals(choice)) fill(null);
     }
 
     private ObservableList<Ability> unmodifiable = FXCollections.unmodifiableObservableList(list);

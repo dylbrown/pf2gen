@@ -8,8 +8,6 @@ import model.abc.PClass;
 import model.abilities.Ability;
 import model.abilities.AttackAbility;
 import model.abilities.abilitySlots.AbilitySlot;
-import model.abilities.abilitySlots.Choice;
-import model.abilities.abilitySlots.SingleChoice;
 import model.attributes.Attribute;
 import model.attributes.AttributeMod;
 import model.enums.Alignment;
@@ -232,35 +230,6 @@ public class PC {
 
     public int getLevel(){
         return level.get();
-    }
-
-    public <U , T extends SingleChoice<U>> void choose(T slot, U selectedItem) {
-        if(slot instanceof AbilitySlot && (selectedItem == null || selectedItem instanceof Ability)) {
-            if(selectedItem == null || (meetsPrerequisites((Ability) selectedItem) &&
-                    (((Ability) selectedItem).isMultiple() || !abilities().haveAbility((Ability) selectedItem)))){
-                if(slot.getChoice() != null) {
-                    abilities.changeSlot((AbilitySlot) slot, null);
-                    choose(slot, selectedItem);
-                }else abilities.changeSlot((AbilitySlot) slot, (Ability) selectedItem);
-            }
-        }else{
-            slot.fill(selectedItem);
-        }
-    }
-
-
-
-    public <T> void addSelection(Choice<T> slot, T selectedItem) {
-        if(slot instanceof SingleChoice){
-            choose((SingleChoice<T>) slot, selectedItem);
-        }else{
-            if(slot.getSelections().size() >= slot.getNumSelections()) return;
-            slot.add(selectedItem);
-        }
-    }
-
-    public <T> void removeSelection(Choice<T> slot, T selectedItem) {
-        slot.remove(selectedItem);
     }
 
     public int getAC() {

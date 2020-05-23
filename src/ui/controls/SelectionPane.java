@@ -12,8 +12,6 @@ import model.abilities.abilitySlots.ChoiceList;
 
 import java.util.Comparator;
 
-import static ui.Main.character;
-
 
 public class SelectionPane<T> extends ListView<T> {
     final ObservableList<T> items = FXCollections.observableArrayList();
@@ -54,7 +52,7 @@ public class SelectionPane<T> extends ListView<T> {
             if(event.getClickCount() == 2) {
                 T selectedItem = getSelectionModel().getSelectedItem();
                 if(selectedItem != null && slot.getNumSelections() > slot.getSelections().size()) {
-                    character.addSelection(slot, selectedItem);
+                    slot.add(selectedItem);
                 }
             }
         });
@@ -63,7 +61,7 @@ public class SelectionPane<T> extends ListView<T> {
         chosen.setOnMouseClicked((event) -> {
             if(event.getClickCount() == 2) {
                 T selectedItem = chosen.getSelectionModel().getSelectedItem();
-                character.removeSelection(slot, selectedItem);
+                slot.remove(selectedItem);
             }
         });
     }
