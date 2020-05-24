@@ -100,7 +100,7 @@ public class BackgroundsLoader extends ABCLoader<Background, Background.Builder>
 
     private Pair<Attribute, String> makeAttribute(String source) {
         if (source.contains("Lore")) {
-            return new Pair<>(Attribute.Lore, source.replaceFirst("Lore ?\\(", "").replaceAll("\\).*", ""));
+            return new Pair<>(Attribute.Lore, source.replaceFirst("Lore ?\\(", "").replaceAll("\\).*", "").trim());
         }else return new Pair<>(Attribute.valueOf(camelCaseWord(source.trim())), "");
     }
 }

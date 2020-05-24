@@ -20,6 +20,13 @@ public class Armor extends Equipment implements Enchantable {
     private final ArmorGroup group;
     private final List<CustomTrait> traits;
     private final ArmorProficiency proficiency;
+    public static final Armor NO_ARMOR;
+
+    static{
+        Builder builder = new Builder();
+        builder.setProficiency(ArmorProficiency.Unarmored);
+        NO_ARMOR = builder.build();
+    }
 
     public Armor(Armor.Builder builder) {
         super(builder);

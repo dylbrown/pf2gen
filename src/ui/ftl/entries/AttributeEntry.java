@@ -15,9 +15,11 @@ public class AttributeEntry implements TemplateHashModel {
     private final ObservableValue<Proficiency> prof;
     private final ObjectWrapper wrapper;
     private final ReadOnlyObjectProperty<Integer> level;
+    private final String data;
 
-    public AttributeEntry(Attribute attr, ObservableValue<Proficiency> prof, ReadOnlyObjectProperty<Integer> levelProperty, ObjectWrapper objectWrapper) {
-        this.attr= attr;
+    public AttributeEntry(Attribute attr, String data, ObservableValue<Proficiency> prof, ReadOnlyObjectProperty<Integer> levelProperty, ObjectWrapper objectWrapper) {
+        this.attr = attr;
+        this.data = data;
         this.prof = prof;
         this.level = levelProperty;
         this.wrapper = objectWrapper;
@@ -26,14 +28,14 @@ public class AttributeEntry implements TemplateHashModel {
     @Override
     public TemplateModel get(String s) throws TemplateModelException {
         switch(s.toLowerCase()) {
-            case "total": return wrapper.wrap(Main.character.getTotalMod(attr));//TODO: Remove call to main
+            case "total": return wrapper.wrap(Main.character.getTotalMod(attr, data)); // TODO: Remove call to main
             case "attribute": return wrapper.wrap(attr);
             case "proficiency": return wrapper.wrap(prof.getValue());
             case "proficiencymod": return wrapper.wrap(prof.getValue().getMod(level.get()));
             case "ability": return wrapper.wrap(attr.getKeyAbility());
             case "itembonus": return wrapper.wrap(Main.character.attributes().getBonus(attr)); // TODO: Support general bonuses
             case "level": return wrapper.wrap(level.get());
-            case "name": return wrapper.wrap(attr.name());
+            case "name": return wrapper.wrap(toString());
         }
         return null;
     }
@@ -45,6 +47,7 @@ public class AttributeEntry implements TemplateHashModel {
 
     @Override
     public String toString() {
+        if(data != null && data.length() > 0) return attr.toString() + " (" + data + ")";
         return attr.toString();
     }
 }

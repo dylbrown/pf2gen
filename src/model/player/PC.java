@@ -239,31 +239,31 @@ public class PC {
                 int dexMod = scores.getMod(Dex);
                 if(scores.getScore(Str) < armor.getStrength())
                     dexMod = Math.min(dexMod, armor.getMaxDex());
-                return 10 + attributes().getProficiency(Attribute.valueOf(armor.getProficiency())).getValue().getMod(level.get()) + armor.getAC() + dexMod;
+                return 10 + attributes().getProficiency(Attribute.valueOf(armor.getProficiency()), "").getValue().getMod(level.get()) + armor.getAC() + dexMod;
             }
         }
-        return 10 + attributes().getProficiency(Attribute.Unarmored).getValue().getMod(level.get()) + scores.getMod(Dex);
+        return 10 + attributes().getProficiency(Attribute.Unarmored, "").getValue().getMod(level.get()) + scores.getMod(Dex);
     }
 
     public int getArmorProficiency() {
         if(inventory.getEquipped(Slot.Armor) != null) {
             Armor armor = (Armor) inventory.getEquipped(Slot.Armor).stats();
             if(armor != null)
-                return attributes().getProficiency(Attribute.valueOf(armor.getProficiency())).getValue().getMod(level.get());
+                return attributes().getProficiency(Attribute.valueOf(armor.getProficiency()), "").getValue().getMod(level.get());
         }
-        return attributes().getProficiency(Attribute.Unarmored).getValue().getMod(level.get());
+        return attributes().getProficiency(Attribute.Unarmored, "").getValue().getMod(level.get());
     }
 
     public Armor getArmor() {
         if(inventory.getEquipped(Slot.Armor) != null) {
             return (Armor) inventory.getEquipped(Slot.Armor).stats();
         }
-        return null;
+        return Armor.NO_ARMOR;
     }
 
-    public int getTotalMod(Attribute attribute) {
+    public int getTotalMod(Attribute attribute, String data) {
         return scores.getMod(attribute.getKeyAbility())
-                + attributes.getProficiency(attribute).getValue().getMod(level.get())
+                + attributes.getProficiency(attribute, data).getValue().getMod(level.get())
                 + attributes.getBonus(attribute);
     }
 
@@ -303,7 +303,7 @@ public class PC {
 
     public boolean meetsPrerequisites(Ability ability) {
         for (AttributeMod requiredAttr : ability.getRequiredAttrs()) {
-            if(attributes.getProficiency(requiredAttr.getAttr()).getValue().getMod() < requiredAttr.getMod().getMod())
+            if(attributes.getProficiency(requiredAttr.getAttr(), requiredAttr.getData()).getValue().getMod() < requiredAttr.getMod().getMod())
                 return false;
         }
         for (String prereq : ability.getPrerequisites()) {

@@ -80,8 +80,8 @@ public class CharacterWrapper implements TemplateHashModel {
     private Map<String, AttributeEntry> getAttributeMap() {
         Map<String, AttributeEntry> map = new HashMap<>();
         for (Attribute value : Attribute.values()) {
-            map.put(value.toString().toLowerCase(), new AttributeEntry(value,
-                    character.attributes().getProficiency(value),
+            map.put(value.toString().toLowerCase(), new AttributeEntry(value, "",
+                    character.attributes().getProficiency(value, ""),
                     character.getLevelProperty(),
                     wrapper));
         }
@@ -93,8 +93,16 @@ public class CharacterWrapper implements TemplateHashModel {
     private List<AttributeEntry> getSkills() {
         List<AttributeEntry> entries = new ArrayList<>();
         for (Attribute value : Attribute.getSkills()) {
-            entries.add(new AttributeEntry(value,
-                    character.attributes().getProficiency(value),
+            if(value.equals(Attribute.Lore)) {
+                for (String lore : character.attributes().lores()) {
+                    entries.add(new AttributeEntry(value, lore,
+                            character.attributes().getProficiency(value, lore),
+                            character.getLevelProperty(),
+                            wrapper));
+                }
+            }
+            entries.add(new AttributeEntry(value, "",
+                    character.attributes().getProficiency(value, ""),
                     character.getLevelProperty(),
                     wrapper));
         }

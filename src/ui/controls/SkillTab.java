@@ -9,16 +9,20 @@ import model.enums.Proficiency;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import static model.attributes.Attribute.*;
 import static ui.Main.character;
 
 public class SkillTab extends AnchorPane {
+    private final List<Label> labels = new ArrayList<>(Arrays.asList(new Label[18]));
+    private final List<ProfSelector> profSelectors = new ArrayList<>(Arrays.asList(new ProfSelector[18]));
     private final List<Label> totals = new ArrayList<>(Arrays.asList(new Label[18]));
     private final List<Label> abilities = new ArrayList<>(Arrays.asList(new Label[18]));
     private final List<Label> proficiencies = new ArrayList<>(Arrays.asList(new Label[18]));
     private final Attribute[] skills = {Acrobatics, Arcana, Athletics, Crafting, Deception, Diplomacy, Intimidation, Lore, Lore, Medicine, Nature, Occultism, Performance, Religion, Society, Stealth, Survival, Thievery};
+    String lore1, lore2;
     private final Label remainingIncreases = new Label("T:0, E:0, M:0, L:0");
 
     public SkillTab() {
@@ -34,6 +38,9 @@ public class SkillTab extends AnchorPane {
         character.scores().addAbilityListener((o)->updateLabel());
         character.attributes().addListener((o)->updateLabel());
         updateLabel();
+        Iterator<String> iterator = character.attributes().lores().iterator();
+        lore1 = (iterator.hasNext()) ? iterator.next() : "";
+        lore2 = (iterator.hasNext()) ? iterator.next() : "";
 
         AnchorPane.setLeftAnchor(border, 15.0);
         AnchorPane.setRightAnchor(border, 15.0);
@@ -52,6 +59,17 @@ public class SkillTab extends AnchorPane {
         for(int i=0; i<9; i++) {
             Attribute leftSkill = skills[i];
             Attribute rightSkill = skills[i+9];
+            String leftData = leftSkill.equals(Lore) ? lore1 : "";
+            String rightData = rightSkill.equals(Lore) ? lore2 : "";
+            String leftName = (leftData.equals("")) ? leftSkill.toString()
+                    : leftSkill.toString() + " (" + leftData + ")";
+            String rightName = (rightData.equals("")) ? rightSkill.toString()
+                    : rightSkill.toString() + " (" + rightData + ")";
+
+            labels.set(i, new Label(leftName));
+            labels.set(i+9, new Label(rightName));
+            profSelectors.set(i, new ProfSelector(leftSkill, leftData));
+            profSelectors.set(i+9, new ProfSelector(rightSkill, rightData));
             totals.set(i, new Label());
             totals.get(i).setStyle("-fx-border-color:black;");
             totals.set(i+9, new Label());
@@ -59,19 +77,19 @@ public class SkillTab extends AnchorPane {
             abilities.set(i+9, new Label());
             proficiencies.set(i, new Label());
             proficiencies.set(i+9, new Label());
-            grid.addRow(i,new Label(), new Label(leftSkill.toString()), new VBox(new Label("Total"),totals.get(i)),
+            grid.addRow(i,new Label(), labels.get(i), new VBox(new Label("Total"),totals.get(i)),
                     new Label("="),
                     new VBox(new Label(leftSkill.getKeyAbility().toString()),abilities.get(i)),
                     new Label("+"),
                     new VBox(new Label("Prof"),proficiencies.get(i)),
-                    new ProfSelector(leftSkill),
+                    profSelectors.get(i),
                     new Label(),//Right Side
-                    new Label(rightSkill.toString()), new VBox(new Label("Total"),totals.get(i+9)),
+                    labels.get(i+9), new VBox(new Label("Total"),totals.get(i+9)),
                     new Label("="),
                     new VBox(new Label(rightSkill.getKeyAbility().toString()),abilities.get(i+9)),
                     new Label("+"),
                     new VBox(new Label("Prof"),proficiencies.get(i+9)),
-                    new ProfSelector(rightSkill),new Label());
+                    profSelectors.get(i+9));
         }
         for(int i=0; i<18; i++) {
             totals.get(i).setStyle("-fx-border-color:black;-fx-padding: 5;");
@@ -84,9 +102,23 @@ public class SkillTab extends AnchorPane {
     }
 
     private void updateTab() {
+        Iterator<String> iterator = character.attributes().lores().iterator();
+        lore1 = (iterator.hasNext()) ? iterator.next() : "";
+        lore2 = (iterator.hasNext()) ? iterator.next() : "";
+        int loreIndex = 1;
         for(int i=0; i<skills.length; i++) {
             int abilityMod = character.scores().getMod(skills[i].getKeyAbility());
-            int proficiencyMod = character.attributes().getProficiency(skills[i]).getValue().getMod(character.getLevel());
+            String currLore = ((loreIndex == 1) ? lore1 : lore2);
+            String data = skills[i].equals(Lore) ? currLore : "";
+            if(skills[i].equals(Lore)) {
+                if(currLore.length() > 0)
+                    labels.get(i).setText("Lore (" + currLore + ")");
+                else
+                    labels.get(i).setText("Lore");
+                profSelectors.get(i).setData(currLore);
+                loreIndex++;
+            }
+            int proficiencyMod = character.attributes().getProficiency(skills[i], data).getValue().getMod(character.getLevel());
             totals.get(i).setText(String.valueOf(abilityMod+proficiencyMod));
             abilities.get(i).setText(String.valueOf(abilityMod));
             proficiencies.get(i).setText(String.valueOf(proficiencyMod));

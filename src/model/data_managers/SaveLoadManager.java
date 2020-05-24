@@ -228,8 +228,12 @@ public class SaveLoadManager {
                 }
                 String[] split = s.split(" ?: ?");
                 if(split.length < 2) continue;
-                for (String attribute : split[1].split(" ?, ?")) {
-                    character.attributes().advanceSkill(Attribute.valueOf(attribute));
+                for (String skill : split[1].split(" ?, ?")) {
+                    String attribute = skill.replaceAll("\\([^)]*\\)", "").trim();
+                    String data;
+                    if(!skill.contains("(")) data = null;
+                    else data = skill.replaceAll("([^(]*\\(|\\).*)", "").trim();
+                    character.attributes().advanceSkill(Attribute.valueOf(attribute), data);
                 }
             }
 

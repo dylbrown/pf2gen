@@ -74,6 +74,7 @@ public enum Attribute {
         public static Attribute valueOf(ArmorProficiency proficiency) {
             switch(proficiency) {
                 default:
+                case Unarmored:
                     return Unarmored;
                 case Light:
                     return LightArmor;
