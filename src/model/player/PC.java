@@ -262,9 +262,12 @@ public class PC {
     }
 
     public int getTotalMod(Attribute attribute, String data) {
+        int acp = 0;
+        if(attribute.hasACP() && getArmor().getStrength() > scores.getScore(Str))
+            acp -= getArmor().getACP();
         return scores.getMod(attribute.getKeyAbility())
                 + attributes.getProficiency(attribute, data).getValue().getMod(level.get())
-                + attributes.getBonus(attribute);
+                + attributes.getBonus(attribute) + acp;
     }
 
     public int getSpeed() {

@@ -9,10 +9,17 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Background extends ABC {
+    private static final Background NO_BACKGROUND;
     private final AttributeMod mod1;
     private final AttributeMod mod2;
     private final AbilitySlot freeFeat;
     private final String modString;
+
+    static{
+        Builder builder = new Builder();
+        builder.setName("No Background");
+        NO_BACKGROUND = builder.build();
+    }
     
     private Background(Background.Builder builder) {
         super(builder);
@@ -35,9 +42,9 @@ public class Background extends ABC {
     }
 
     public static class Builder extends ABC.Builder {
-        private AttributeMod mod1;
-        private AttributeMod mod2;
-        private String feat;
+        private AttributeMod mod1 = AttributeMod.NONE;
+        private AttributeMod mod2 = AttributeMod.NONE;
+        private String feat = "";
         private String modString;
 
         public void setMod1(AttributeMod mod1) {

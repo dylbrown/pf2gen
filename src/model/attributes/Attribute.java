@@ -58,6 +58,10 @@ public enum Attribute {
         return Collections.unmodifiableList(skillsByScore.get(score));
     }
 
+    public boolean hasACP() {
+        return this.getKeyAbility().equals(Str) || this.getKeyAbility().equals(Dex);
+    }
+
     public static Attribute valueOf(WeaponProficiency proficiency) {
         switch(proficiency) {
             default:

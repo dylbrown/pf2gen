@@ -5,6 +5,7 @@ import model.enums.Proficiency;
 import java.util.Objects;
 
 public class AttributeMod {
+    public static final AttributeMod NONE = new AttributeMod(Attribute.None, Proficiency.Untrained);
     private String data;
     private final Attribute attr;
     private final Proficiency mod;
