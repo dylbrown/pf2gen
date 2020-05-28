@@ -18,7 +18,7 @@ public class SpellManager {
 	private final ObservableList<Integer> spellSlots = FXCollections.observableArrayList();
 	private final ObservableList<ObservableList<Spell>> spellsKnown = FXCollections.observableArrayList();
 	private final ObservableList<Integer> extraSpellsKnown = FXCollections.observableArrayList();
-	private final ReadOnlyObjectWrapper<CasterType> casterType = new ReadOnlyObjectWrapper<>();
+	private final ReadOnlyObjectWrapper<CasterType> casterType = new ReadOnlyObjectWrapper<>(CasterType.None);
 	private final ReadOnlyObjectWrapper<Tradition> tradition = new ReadOnlyObjectWrapper<>();
 	private final ObservableList<Spell> focusSpells = FXCollections.observableArrayList();
 	private final List<Spell> abilitySpells = new ArrayList<>();

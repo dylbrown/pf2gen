@@ -34,6 +34,10 @@ public class TemplateFiller {
         return cfg.getObjectWrapper();
     }
 
+    public static TemplateFiller getInstance() {
+        return instance;
+    }
+
 
     static{
         cfg = new Configuration(Configuration.VERSION_2_3_28);
@@ -116,18 +120,14 @@ public class TemplateFiller {
     }
 
     public static String getStatBlock() {
-        return instance.statBlock();
+        return instance.getSheet("statblock.ftl");
     }
 
-    public static String getSheet() {
-        return instance.sheet();
-    }
-
-    private String statBlock() {
+    public String getSheet(String templatePath) {
         wrapper.refresh();
         Template template;
         try {
-            template = cfg.getTemplate("statblock.ftl");
+            template = cfg.getTemplate(templatePath);
         } catch (IOException e) {
             e.printStackTrace();
             return "";
@@ -138,26 +138,6 @@ public class TemplateFiller {
         } catch (TemplateException | IOException e) {
             e.printStackTrace();
         }
-        return results.toString();
-    }
-
-    private String sheet() {
-        long start = System.currentTimeMillis();
-        wrapper.refresh();
-        Template template;
-        try {
-            template = cfg.getTemplate("csheet_jquery.html.ftl");
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "";
-        }
-        StringWriter results = new StringWriter();
-        try {
-            template.process(root, results);
-        } catch (TemplateException | IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println(System.currentTimeMillis()-start+" ms");
         return results.toString();
     }
 }

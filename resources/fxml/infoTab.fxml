@@ -47,17 +47,6 @@
          </HBox.margin></Button>
         <Button fx:id="levelDown" alignment="CENTER_RIGHT" mnemonicParsing="false" text="↓" />
     </HBox>
- <GridPane GridPane.columnIndex="5" GridPane.rowIndex="1">
-     <columnConstraints>
-         <ColumnConstraints hgrow="SOMETIMES" />
-         <ColumnConstraints hgrow="SOMETIMES" />
-     </columnConstraints>
-     <rowConstraints>
-         <RowConstraints vgrow="SOMETIMES" />
-     </rowConstraints>
-     <Button fx:id="save" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" text="Save" GridPane.halignment="CENTER" />
-     <Button fx:id="load" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" text="Load" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
- </GridPane>
    <Label text="Height" GridPane.columnIndex="2" GridPane.rowIndex="2" />
    <Label text="Weight" GridPane.columnIndex="2" GridPane.rowIndex="3" />
    <Label text="Age" GridPane.columnIndex="2" GridPane.rowIndex="4" />

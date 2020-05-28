@@ -1,5 +1,6 @@
 package model.data_managers;
 
+import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import model.abc.Ancestry;
 import model.abc.Background;
@@ -48,15 +49,9 @@ public class SaveLoadManager {
             e.printStackTrace();
         }
         if (out != null) {
-            writeOutLine(out, "name = "+character.getName());
-            writeOutLine(out, "player = "+character.getPlayer());
-            if(character.getHeight() != null) writeOutLine(out, "height = "+character.getHeight());
-            if(character.getWeight() != null) writeOutLine(out, "weight = "+character.getWeight());
-            if(character.getAge() != null) writeOutLine(out, "age = "+character.getAge());
-            if(character.getHair() != null) writeOutLine(out, "hair = "+character.getHair());
-            if(character.getEyes() != null) writeOutLine(out, "eyes = "+character.getEyes());
-            if(character.getGender() != null) writeOutLine(out, "gender = "+character.getGender());
-            if(character.getAlignment() != null) writeOutLine(out, "alignment = "+character.getAlignment());
+            writeOutLine(out, "name = "+character.qualities().get("name"));
+            writeOutLine(out, "player = "+character.qualities().get("player"));
+            writeOutLine(out, "alignment = "+character.getAlignment());
             writeOutLine(out, "ancestry = "+character.getAncestry().getName());
             writeOutLine(out, "background = "+character.getBackground().getName());
             writeOutLine(out, "class = "+character.getPClass().getName());
@@ -72,6 +67,11 @@ public class SaveLoadManager {
                             return choice.getType() + ":" + choice.getTarget().toString();
                     }
                 ).collect(Collectors.joining(", ")));
+
+            writeOutLine(out, "Qualities");
+            for (Map.Entry<String, StringProperty> entry : character.qualities().map().entrySet()) {
+                writeOutLine(out, entry.getKey() + " = " + entry.getValue().get());
+            }
 
             writeOutLine(out, "Skill Choices");
             for (Map.Entry<Integer, Set<SkillIncrease>> level : character.attributes().getSkillChoices().entrySet()) {
@@ -161,14 +161,8 @@ public class SaveLoadManager {
                 String afterEq = split[1];
                 if(afterEq.length() == 0) afterEq = "";
                 switch (split[0].trim()) {
-                    case "name": character.setName(afterEq); break;
-                    case "player": character.setPlayer(afterEq); break;
-                    case "height": character.setHeight(afterEq); break;
-                    case "weight": character.setWeight(afterEq); break;
-                    case "age": character.setAge(afterEq); break;
-                    case "eyes": character.setEyes(afterEq); break;
-                    case "hair": character.setHair(afterEq); break;
-                    case "gender": character.setGender(afterEq); break;
+                    case "name": character.qualities().set("name", afterEq); break;
+                    case "player": character.qualities().set("player", afterEq); break;
                     case "alignment": character.setAlignment(Alignment.valueOf(afterEq)); break;
                     case "ancestry":
                         for (Ancestry ancestry : AncestriesLoader.instance().parse()) {
@@ -218,6 +212,17 @@ public class SaveLoadManager {
                 }
                 curr = nextLine(lines);
             }
+
+            //Qualities
+            curr = nextLine(lines);
+            while(curr.contains("=")) {
+                String[] split = curr.split(" ?= ?", 2);
+                String afterEq = split[1];
+                if (afterEq.length() == 0) afterEq = "";
+                character.qualities().getProperty(split[0].trim()).set(afterEq);
+                curr = nextLine(lines);
+            }
+
             //Skill Increase Choices
             character.attributes().resetSkills();
             while(true) {

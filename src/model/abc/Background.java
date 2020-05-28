@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Background extends ABC {
-    private static final Background NO_BACKGROUND;
+    public static final Background NO_BACKGROUND;
     private final AttributeMod mod1;
     private final AttributeMod mod2;
     private final AbilitySlot freeFeat;

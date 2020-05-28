@@ -1,26 +1,22 @@
 package ui.controllers;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.web.WebView;
-import javafx.stage.FileChooser;
 import ui.Main;
+import ui.controls.SaveLoadController;
 import ui.ftl.TemplateFiller;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.util.Objects;
 
 import static ui.Main.character;
 
 public class Controller {
     @FXML
-    private Button export;
+    private MenuItem open_menu, save_menu, saveAs_menu,
+            statblock_menu, printableSheet_menu, jquerySheet_menu, about_menu;
     @FXML
     private Tab displayTab;
     @FXML
@@ -39,29 +35,6 @@ public class Controller {
                 rootTabs.fireEvent(event);
             }
         });
-        export.setOnAction((event -> {
-            FileChooser fileChooser = new FileChooser();
-            if(!Objects.equals(character.getName(), ""))
-                fileChooser.setInitialFileName(character.getName().replaceAll("[ ?!]",""));
-            fileChooser.setInitialDirectory(new File("./"));
-            //Set extension filter for text files
-            fileChooser.getExtensionFilters().add(
-                    new FileChooser.ExtensionFilter("HTML files", "*.html")
-            );
-
-            //Show save file dialog
-            File file = fileChooser.showSaveDialog(export.getScene().getWindow());
-
-            if (file != null) {
-                try {
-                    PrintWriter out = new PrintWriter(file);
-                    out.println(TemplateFiller.getSheet());
-                    out.close();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        }));
         displayTab.setOnSelectionChanged((event) -> {
             if(displayTab.isSelected()) {
                 htmlContent = TemplateFiller.getStatBlock();
@@ -70,6 +43,23 @@ public class Controller {
                         + "/\"/>");
                 display.getEngine().loadContent(htmlContent);
             }
+        });
+
+        open_menu.setOnAction(e -> SaveLoadController.getInstance().load(display.getScene()));
+        save_menu.setOnAction(e -> SaveLoadController.getInstance().save(character.qualities().get("name"), display.getScene()));
+        saveAs_menu.setOnAction(e -> SaveLoadController.getInstance().saveAs(character.qualities().get("name"), display.getScene()));
+        statblock_menu.setOnAction(e ->
+                SaveLoadController.getInstance().export("statblock.ftl", display.getScene()));
+        printableSheet_menu.setOnAction(e ->
+                SaveLoadController.getInstance().export("printableSheet.html.ftl", display.getScene()));
+        jquerySheet_menu.setOnAction(e ->
+                SaveLoadController.getInstance().export("csheet_jquery.html.ftl", display.getScene()));
+        about_menu.setOnAction(e -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("About");
+            alert.setHeaderText("PF2Gen v1.0.0-SNAPSHOT");
+            alert.setContentText("Created by Dylan Brown.");
+            alert.show();
         });
     }
 }

@@ -36,7 +36,7 @@ public class PC {
     private final ReadOnlyObjectWrapper<Integer> level = new ReadOnlyObjectWrapper<>(0);
     private final PropertyChangeSupport ancestryWatcher = new PropertyChangeSupport(ancestry);
     private final Applier applier = new Applier();
-    private String name, height, weight, age, hair, eyes, gender;
+    private String name;
     private String player;
     private Alignment alignment;
     private final List<Language> languages = new ArrayList<>();
@@ -47,6 +47,7 @@ public class PC {
     private final AbilityScoreManager scores = new AbilityScoreManager(applier);
     private final AttributeManager attributes = new AttributeManager(level.getReadOnlyProperty(), decisions, applier);
     private final InventoryManager inventory = new InventoryManager(attributes);
+    private final QualityManager qualities = new QualityManager();
     private final SpellManager spells = new SpellManager(applier);
     private final List<Weapon> attacks = new ArrayList<>();
 
@@ -74,76 +75,12 @@ public class PC {
         });
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return (name != null) ? name : "Unnamed";
-    }
-
-    public String getHeight() {
-        return height;
-    }
-
-    public void setHeight(String height) {
-        this.height = height;
-    }
-
-    public String getWeight() {
-        return weight;
-    }
-
-    public void setWeight(String weight) {
-        this.weight = weight;
-    }
-
-    public String getAge() {
-        return age;
-    }
-
-    public void setAge(String age) {
-        this.age = age;
-    }
-
-    public String getHair() {
-        return hair;
-    }
-
-    public void setHair(String hair) {
-        this.hair = hair;
-    }
-
-    public String getEyes() {
-        return eyes;
-    }
-
-    public void setEyes(String eyes) {
-        this.eyes = eyes;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
     public Alignment getAlignment() {
-        return alignment;
+        return (alignment != null) ? alignment : Alignment.TN;
     }
 
     public void setAlignment(Alignment alignment) {
         this.alignment = alignment;
-    }
-
-    public void setPlayer(String name) {
-        this.player = name;
-    }
-
-    public String getPlayer() {
-        return (player != null) ? player : "Unknown";
     }
 
     public void levelUp(){
@@ -348,7 +285,7 @@ outerLoop:  for (String orClause : split) {
         return (pClass.get() != null) ? pClass.get() : PClass.NO_CLASS;
     }
 
-    public InventoryManager inventory   () {return inventory;}
+    public InventoryManager inventory() {return inventory;}
 
     public AttributeManager attributes() {
         return attributes;
@@ -358,8 +295,10 @@ outerLoop:  for (String orClause : split) {
         return abilities;
     }
 
+    public QualityManager qualities() { return qualities; }
+
     public Background getBackground() {
-        return background.get();
+        return (background.get() != null) ? background.get() : Background.NO_BACKGROUND;
     }
 
     public ReadOnlyObjectProperty<Ancestry> getAncestryProperty() {
