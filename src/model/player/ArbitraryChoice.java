@@ -1,5 +1,7 @@
 package model.player;
 
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -17,14 +19,20 @@ public class ArbitraryChoice implements ChoiceList<String> {
     private final Consumer<String> emptyFunction;
     private final String name;
     private final ObservableList<String> selections = FXCollections.observableArrayList();
-    private int numSelections;
+    private final ReadOnlyIntegerWrapper numSelections;
+    private final boolean multipleSelect;
 
-    ArbitraryChoice(String name, List<String> choices, Consumer<String> fillFunction, Consumer<String> emptyFunction, int numSelections) {
+    ArbitraryChoice(String name, List<String> choices, int numSelections, boolean multipleSelect) {
+        this(name ,choices, s->{}, s -> {}, numSelections, multipleSelect);
+    }
+
+    ArbitraryChoice(String name, List<String> choices, Consumer<String> fillFunction, Consumer<String> emptyFunction, int numSelections, boolean multipleSelect) {
         this.name = name;
         this.choices = choices;
         this.fillFunction = fillFunction;
         this.emptyFunction = emptyFunction;
-        this.numSelections = numSelections;
+        this.numSelections = new ReadOnlyIntegerWrapper(numSelections);
+        this.multipleSelect = multipleSelect;
         if(choices instanceof ObservableList)
             ((ObservableList<String>) choices).addListener((ListChangeListener<String>) change->{
                 while(change.next())
@@ -41,24 +49,33 @@ public class ArbitraryChoice implements ChoiceList<String> {
 
     @Override
     public void add(String choice) {
-        this.selections.add(choice);
-        fillFunction.accept(choice);
+        if(this.selections.size() < numSelections.get() && this.choices.contains(choice) &&
+                (this.multipleSelect || !this.selections.contains(choice))) {
+            this.selections.add(choice);
+            fillFunction.accept(choice);
+        }
     }
 
     @Override
     public void remove(String choice) {
-        this.selections.remove(choice);
-        emptyFunction.accept(choice);
+        boolean remove = this.selections.remove(choice);
+        if(remove) emptyFunction.accept(choice);
     }
 
     @Override
     public int getNumSelections() {
-        return numSelections;
+        return numSelections.get();
     }
 
     @Override
+    public ReadOnlyIntegerProperty numSelectionsProperty() {
+        return numSelections.getReadOnlyProperty();
+    }
+
+    private final ObservableList<String> unmodifiableSelections = FXCollections.unmodifiableObservableList(selections);
+    @Override
     public ObservableList<String> getSelections() {
-        return FXCollections.unmodifiableObservableList(selections);
+        return unmodifiableSelections;
     }
 
     @Override
@@ -98,13 +115,14 @@ public class ArbitraryChoice implements ChoiceList<String> {
     }
 
     void increaseChoices(int amount) {
-        numSelections += amount;
+        if(amount < 0) decreaseChoices(-1 * amount);
+        else numSelections.set(numSelections.get() + amount);
     }
 
     void decreaseChoices(int amount) {
-        numSelections = Math.max(0, numSelections-amount);
+        numSelections.set(Math.max(0, numSelections.get()-amount));
         Iterator<String> iterator = selections.iterator();
-        while(selections.size() > numSelections && iterator.hasNext()){
+        while(selections.size() > numSelections.get() && iterator.hasNext()){
             iterator.next();
             iterator.remove();
         }

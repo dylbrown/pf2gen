@@ -25,16 +25,10 @@ public class DecisionEntry implements Comparable<DecisionEntry>, TreeTableEntry 
         level = new ReadOnlyStringWrapper(String.valueOf(choice.getLevel())).getReadOnlyProperty();
         remainingWrapper = new ReadOnlyIntegerWrapper(choice.getNumSelections());
         remaining = remainingWrapper.getReadOnlyProperty();
-        remainingWrapper.set(remaining.get() - choice.getSelections().size());
+        remainingWrapper.bind(choice.numSelectionsProperty().subtract(choice.getSelections().size()));
         //noinspection unchecked
-        choice.getSelections().addListener((ListChangeListener) c->{
-            int change = 0;
-            while(c.next()) {
-                change += c.getAddedSize();
-                change -= c.getRemovedSize();
-            }
-            remainingWrapper.set(remaining.get() - change);
-        });
+        choice.getSelections().addListener((ListChangeListener) c->
+                remainingWrapper.bind(choice.numSelectionsProperty().subtract(choice.getSelections().size())));
     }
 
     public DecisionEntry(Object chosenValue, String name, int level) {

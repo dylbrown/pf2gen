@@ -56,7 +56,7 @@ public class Ancestry extends AC {
         private int speed = 0;
         private final List<Ability> heritages = new ArrayList<>();
         private final List<Language> languages = new ArrayList<>();
-        private List<Language> bonusLanguages = new ArrayList<>();
+        private final List<Language> bonusLanguages = new ArrayList<>();
 
         public Ancestry build() {
             return new Ancestry(this);
@@ -76,6 +76,7 @@ public class Ancestry extends AC {
 
         public void addLanguages(Language... language) {
             this.languages.addAll(Arrays.asList(language));
+            this.bonusLanguages.removeAll(Arrays.asList(language));
         }
 
         public void addBonusLanguages(Language... language) {

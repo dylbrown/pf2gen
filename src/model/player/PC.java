@@ -11,7 +11,6 @@ import model.abilities.abilitySlots.AbilitySlot;
 import model.attributes.Attribute;
 import model.attributes.AttributeMod;
 import model.enums.Alignment;
-import model.enums.Language;
 import model.enums.Slot;
 import model.enums.Type;
 import model.equipment.CustomTrait;
@@ -36,10 +35,7 @@ public class PC {
     private final ReadOnlyObjectWrapper<Integer> level = new ReadOnlyObjectWrapper<>(0);
     private final PropertyChangeSupport ancestryWatcher = new PropertyChangeSupport(ancestry);
     private final Applier applier = new Applier();
-    private String name;
-    private String player;
     private Alignment alignment;
-    private final List<Language> languages = new ArrayList<>();
     private final ModManager modManager;
     private final DecisionManager decisions = new DecisionManager();
     private final AbilityManager abilities = new AbilityManager(decisions, getAncestryProperty(),
@@ -47,7 +43,7 @@ public class PC {
     private final AbilityScoreManager scores = new AbilityScoreManager(applier);
     private final AttributeManager attributes = new AttributeManager(level.getReadOnlyProperty(), decisions, applier);
     private final InventoryManager inventory = new InventoryManager(attributes);
-    private final QualityManager qualities = new QualityManager();
+    private final QualityManager qualities = new QualityManager(decisions::add, decisions::remove);
     private final SpellManager spells = new SpellManager(applier);
     private final List<Weapon> attacks = new ArrayList<>();
 
@@ -57,9 +53,8 @@ public class PC {
 
     public PC() {
         scores.getScoreEyeball(Int).addPropertyChangeListener(((o) -> {
-            if(getPClass() != null) {
-                attributes.updateSkillCount(getPClass().getSkillIncrease() + scores.getMod(Int));
-            }
+            attributes.updateSkillCount(getPClass().getSkillIncrease() + scores.getMod(Int));
+            qualities.updateInt(scores.getMod(Int));
         }));
 
         applier.onApply(ability -> {
@@ -101,14 +96,14 @@ public class PC {
 
     public void setAncestry(Ancestry ancestry) {
         if(ancestry == null) return;
-        if(getAncestry() != null) {
-            scores.remove(getAncestry().getAbilityMods());
-            languages.removeAll(getAncestry().getLanguages());
+        Ancestry oldAncestry = getAncestry();
+        if(oldAncestry != null) {
+            scores.remove(oldAncestry.getAbilityMods());
             abilities.removeAll(Type.Ancestry);
         }
         this.ancestry.set(ancestry);
         scores.apply(ancestry.getAbilityMods());
-        languages.addAll(ancestry.getLanguages());
+        qualities.update(ancestry, oldAncestry);
         ancestryWatcher.firePropertyChange("ancestryChange", null, ancestry);
     }
 
@@ -213,10 +208,6 @@ public class PC {
 
     public PClass currentClass() {
         return pClass.get();
-    }
-
-    public List<Language> getLanguages() {
-        return Collections.unmodifiableList(languages);
     }
 
     public int getAttackMod(Weapon weapon) {

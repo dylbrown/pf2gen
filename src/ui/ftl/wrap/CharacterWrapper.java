@@ -66,7 +66,7 @@ public class CharacterWrapper implements TemplateHashModel {
 
 
         map.put("inventory", character.inventory().getItems().values());
-        map.put("qualities", character.qualities().map());
+        map.put("qualities", character.qualities());
 
         map.put("skills", getSkills());
 

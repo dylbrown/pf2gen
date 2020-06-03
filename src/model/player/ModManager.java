@@ -104,7 +104,7 @@ class ModManager {
                     } catch (ScriptException e) {
                         e.printStackTrace();
                     }
-                }, numSelections);
+                }, numSelections, false);
                 arbitraryChoices.put(name, choice);
                 character.decisions().add(choice);
                 if(choices.get(name) != null)
