@@ -19,6 +19,7 @@ public class QualitiesWrapper implements TemplateHashModel {
     public TemplateModel get(String s) throws TemplateModelException {
         s = s.toLowerCase();
         if(s.equals("languages")) return wrapper.wrap(manager.getLanguages());
+        if(s.equals("senses")) return wrapper.wrap(manager.getSenses());
         return wrapper.wrap(manager.get(s));
     }
 

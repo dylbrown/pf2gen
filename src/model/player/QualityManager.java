@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 public class QualityManager {
     private final Map<String, StringProperty> qualities = new HashMap<>();
     private final Set<Language> languages = new TreeSet<>();
+    private final Set<String> senses = new TreeSet<>();
     private final ObservableList<String> bonusLanguages = FXCollections.observableArrayList();
     private final ArbitraryChoice bonusLanguageChoice = new ArbitraryChoice("Bonus Languages",
             bonusLanguages, this::addBonusLanguage,  this::removeBonusLanguage, 0, false);
@@ -63,13 +64,11 @@ public class QualityManager {
                 bonusLanguages.add(bonusLanguage.toString());
         }
         int bonusLanguageIncrease = 0;
-        if (oldAncestry != null) {
-            for (Language language : oldAncestry.getLanguages()) {
-                if(language.equals(Language.Free))
-                    bonusLanguageIncrease -= 1;
-                else
-                    languages.remove(language);
-            }
+        for (Language language : oldAncestry.getLanguages()) {
+            if(language.equals(Language.Free))
+                bonusLanguageIncrease -= 1;
+            else
+                languages.remove(language);
         }
         for (Language language : ancestry.getLanguages()) {
             if(language.equals(Language.Free))
@@ -78,7 +77,12 @@ public class QualityManager {
                 languages.add(language);
         }
         bonusLanguageChoice.increaseChoices(bonusLanguageIncrease);
+
+        senses.removeAll(oldAncestry.getSenses());
+        senses.addAll(ancestry.getSenses());
+
         set("languages", languages.stream().map(Enum::toString).collect(Collectors.joining(", ")));
+        set("senses", String.join(", ", senses));
     }
 
     private int previousInt = 0;
@@ -88,6 +92,10 @@ public class QualityManager {
     }
 
     public Set<Language> getLanguages() {
-        return languages;
+        return Collections.unmodifiableSet(languages);
+    }
+
+    public Set<String> getSenses() {
+        return Collections.unmodifiableSet(senses);
     }
 }

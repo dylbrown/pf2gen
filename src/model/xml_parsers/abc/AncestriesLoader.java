@@ -74,6 +74,9 @@ public class AncestriesLoader extends ABCLoader<Ancestry, Ancestry.Builder> {
                     builder.addBonusLanguages(Language.valueOf(s.trim()));
                 }
                 break;
+            case "Senses":
+                builder.addSenses(trim.split(" ?, ?"));
+                break;
             case "Size":
                 builder.setSize(Size.valueOf(camelCaseWord(trim)));
                 break;
