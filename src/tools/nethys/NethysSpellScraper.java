@@ -2,22 +2,17 @@ package tools.nethys;
 
 import model.util.Pair;
 import model.util.StringUtils;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class NethysSpellScraper extends NethysScraper {
+class NethysSpellScraper extends NethysListScraper {
 	private final Map<String, StringBuilder> sources = new HashMap<>();
 
 	public static void main(String[] args) {
@@ -25,51 +20,11 @@ class NethysSpellScraper extends NethysScraper {
 	}
 
 	private NethysSpellScraper(String inputURL, String outputPath) {
-		Document doc;
-		BufferedWriter out;
-		try  {
-			doc = Jsoup.connect(inputURL).get();
-			out = new BufferedWriter(new FileWriter(new File(outputPath)));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		}
-		doc.getElementById("ctl00_MainContent_DetailedOutput").getElementsByTag("a").forEach(element -> {
-			String href = "";
-			try {
-				href = element.attr("href");
-				if(href.contains("ID")) {
-					Pair<String, String> pair = addSpell(href);
-					if (!pair.first.equals(""))
-						sources.computeIfAbsent(pair.second.toLowerCase(), key -> new StringBuilder())
-								.append(pair.first);
-				}
-			} catch (Exception e) {
-				System.out.println(href);
-				e.printStackTrace();
-			}
-		});
-		for (StringBuilder value : sources.values()) {
-			try {
-				out.write(value.toString());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		try {
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		super(inputURL, outputPath, "ctl00_MainContent_DetailedOutput", href -> href.contains("ID"));
 	}
-	private Pair<String, String> addSpell(String href) {
-		Document doc;
-		try  {
-			doc = Jsoup.connect("http://2e.aonprd.com/"+href).get();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return new Pair<>("", "");
-		}
+
+	@Override
+	Pair<String, String> addItem(Document doc) {
 		Element output = doc.getElementById("ctl00_MainContent_DetailedOutput");
 
 		String spellName = output.getElementsByClass("title").first().ownText();
