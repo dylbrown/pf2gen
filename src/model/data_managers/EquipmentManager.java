@@ -64,6 +64,8 @@ public class EquipmentManager {
         categories.add("Weapons");
     }
 
+    private EquipmentManager() {}
+
     public static SortedSet<Equipment> getEquipment() {
         if(allEquipment == null) {
             allEquipment = new TreeSet<>((Comparator.comparing(Equipment::getName)));

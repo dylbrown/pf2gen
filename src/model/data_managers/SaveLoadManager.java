@@ -40,6 +40,7 @@ import static ui.Main.character;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class SaveLoadManager {
+    private SaveLoadManager() {}
     public static void save(File file){
         PrintWriter out = null;
         if (file != null) {
@@ -52,6 +53,7 @@ public class SaveLoadManager {
             writeOutLine(out, "name = "+character.qualities().get("name"));
             writeOutLine(out, "player = "+character.qualities().get("player"));
             writeOutLine(out, "alignment = "+character.getAlignment());
+            writeOutLine(out, "deity = "+character.getDeity());
             writeOutLine(out, "ancestry = "+character.getAncestry().getName());
             writeOutLine(out, "background = "+character.getBackground().getName());
             writeOutLine(out, "class = "+character.getPClass().getName());
@@ -164,6 +166,7 @@ public class SaveLoadManager {
                     case "name": character.qualities().set("name", afterEq); break;
                     case "player": character.qualities().set("player", afterEq); break;
                     case "alignment": character.setAlignment(Alignment.valueOf(afterEq)); break;
+                    case "deity": character.setDeity(AllDeities.find(afterEq));
                     case "ancestry":
                         for (Ancestry ancestry : AncestriesLoader.instance().parse()) {
                             if (ancestry.getName().equals(afterEq)) {
@@ -181,7 +184,7 @@ public class SaveLoadManager {
                     case "class":
                         for (PClass pClass : PClassesLoader.instance().parse()) {
                             if (pClass.getName().equals(afterEq)) {
-                                character.setClass(pClass);
+                                character.setPClass(pClass);
                                 break;
                             }
                         } break;

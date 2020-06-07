@@ -13,6 +13,7 @@ import model.abilities.abilitySlots.FeatSlot;
 import model.abilities.abilitySlots.SingleChoice;
 import model.enums.Type;
 import model.player.AbilityManager;
+import ui.html.AbilityHTMLGenerator;
 
 import java.util.ArrayList;
 import java.util.List;

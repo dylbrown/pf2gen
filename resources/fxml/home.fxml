@@ -12,14 +12,8 @@
               <Tab closable="false" text="Home">
                   <fx:include source="infoTab.fxml" />
               </Tab>
-              <Tab closable="false" text="Ancestry">
-                  <fx:include source="abc/ancestryTab.fxml" />
-              </Tab>
-              <Tab closable="false" text="Background">
-                  <fx:include source="abc/backgroundTab.fxml" />
-              </Tab>
-              <Tab closable="false" text="Class">
-                  <fx:include source="abc/classTab.fxml" />
+              <Tab closable="false" text="Starting Choices">
+                  <fx:include source="starting.fxml" />
               </Tab>
               <Tab closable="false" text="Ability Scores">
                   <fx:include source="abilityScoreTab.fxml" />

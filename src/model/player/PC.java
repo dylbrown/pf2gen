@@ -18,6 +18,7 @@ import model.equipment.armor.Armor;
 import model.equipment.weapons.RangedWeapon;
 import model.equipment.weapons.Weapon;
 import model.spells.Spell;
+import setting.Deity;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -32,6 +33,7 @@ public class PC {
     private final ReadOnlyObjectWrapper<Ancestry> ancestry = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<Background> background = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<PClass> pClass = new ReadOnlyObjectWrapper<>();
+    private final ReadOnlyObjectWrapper<Deity> deity = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<Integer> level = new ReadOnlyObjectWrapper<>(0);
     private final PropertyChangeSupport ancestryWatcher = new PropertyChangeSupport(ancestry);
     private final Applier applier = new Applier();
@@ -71,7 +73,7 @@ public class PC {
     }
 
     public Alignment getAlignment() {
-        return (alignment != null) ? alignment : Alignment.TN;
+        return (alignment != null) ? alignment : Alignment.N;
     }
 
     public void setAlignment(Alignment alignment) {
@@ -122,7 +124,7 @@ public class PC {
         abilities.apply(background.getFreeFeat());
     }
 
-    public void setClass(PClass newPClass) {
+    public void setPClass(PClass newPClass) {
         if(newPClass == null) return;
         if(!(getPClass().equals(PClass.NO_CLASS))) {
             scores.remove(getPClass().getAbilityMods());
@@ -135,6 +137,10 @@ public class PC {
         attributes.updateSkillCount(newPClass.getSkillIncrease() + scores.getMod(Int));
         pClass.set(newPClass);
         level.set(1);
+    }
+
+    public void setDeity(Deity newDeity) {
+        deity.set(newDeity);
     }
 
     private void removeLevel(List<AbilitySlot> level) {
@@ -275,6 +281,9 @@ outerLoop:  for (String orClause : split) {
     public PClass getPClass() {
         return (pClass.get() != null) ? pClass.get() : PClass.NO_CLASS;
     }
+    public Deity getDeity() {
+        return (deity.get() != null) ? deity.get() : Deity.NO_DEITY;
+    }
 
     public InventoryManager inventory() {return inventory;}
 
@@ -302,6 +311,10 @@ outerLoop:  for (String orClause : split) {
 
     public ReadOnlyObjectProperty<PClass> getPClassProperty() {
         return pClass.getReadOnlyProperty();
+    }
+
+    public ReadOnlyObjectProperty<Deity> getDeityProperty() {
+        return deity.getReadOnlyProperty();
     }
 
     public DecisionManager decisions() {

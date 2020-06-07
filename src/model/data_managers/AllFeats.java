@@ -9,6 +9,8 @@ public class AllFeats {
     private static final SortedMap<String, Ability> allFeatsMap;
     private static final FeatsLoader feats = new FeatsLoader("data/feats");
 
+    private AllFeats(){}
+
     static{
         allFeatsMap = new TreeMap<>();
         for (Ability feat : feats.parse()) {

@@ -20,18 +20,18 @@ public class NethysDomainScraper extends NethysListScraper {
     Pair<String, String> addItem(Document doc) {
         Element output = doc.getElementById("ctl00_MainContent_DetailedOutput");
         String domainName = output.getElementsByTag("h1")
-                .first().text().replaceAll(" Domain", "");
+                .first().text().replaceAll(" Domain", "").trim();
         String sourceAndPage = output.getElementsMatchingText("\\ASource\\z")
                 .first().nextElementSibling().text().replaceAll(";", "");
         String source = sourceAndPage.replaceAll(" pg.*", "");
         String pageNo = sourceAndPage.replaceAll(".*pg\\. ", "");
         String domainSpell = output.getElementsMatchingText("\\ADomain Spell\\z")
-                .first().nextElementSibling().text().replaceAll(";", "");
+                .first().nextElementSibling().text().replaceAll(";", "").trim();
         String advDomainSpell = output.getElementsMatchingText("\\AAdvanced Domain Spell\\z")
-                .first().nextElementSibling().text().replaceAll(";", "");
+                .first().nextElementSibling().text().replaceAll(";", "").trim();
         Node descNode = output.getElementsByTag("br").last().nextSibling();
 
-        String desc = (descNode instanceof TextNode) ? ((TextNode) descNode).getWholeText() : "";
+        String desc = (descNode instanceof TextNode) ? ((TextNode) descNode).getWholeText().trim() : "";
         String results = String.format("<Domain page=\"%s\">\n" +
                         "\t<Name>%s</Name>\n" +
                         "\t<DomainSpell>%s</DomainSpell>\n" +

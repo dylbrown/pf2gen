@@ -31,6 +31,7 @@ public abstract class AbilitySlot {
     }
 
     public ReadOnlyObjectProperty<Ability> currentAbilityProperty() {
+        if(currentAbility == null) currentAbility = new ReadOnlyObjectWrapper<>(null);
         return currentAbility.getReadOnlyProperty();
     }
 

@@ -32,6 +32,8 @@ public class AllSpells {
 
 	}
 
+	private AllSpells() {}
+
 	public static List<Spell> getAllSpells() {
 		return spells.parse();
 	}
@@ -45,7 +47,7 @@ public class AllSpells {
 		return Collections.unmodifiableList(spellsByLevel.get(tradition).get(level));}
 
 	public static Spell find(String contents) {
-		Spell spell = allSpellsMap.get(contents.toLowerCase());
+		Spell spell = allSpellsMap.get(contents.toLowerCase().trim());
 		return (spell == null) ? allFocusSpellsMap.get(contents.toLowerCase()): spell;
 	}
 }

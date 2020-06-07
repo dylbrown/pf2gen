@@ -1,5 +1,5 @@
 package model.enums;
 
 public enum Alignment {
-	LG, NG, CG, LN, TN, CN, LE, NE, CE
+	LG, NG, CG, LN, N, CN, LE, NE, CE
 }

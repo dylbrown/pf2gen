@@ -17,7 +17,7 @@ import model.equipment.runes.Rune;
 import model.equipment.runes.runedItems.*;
 import model.util.Pair;
 import ui.Main;
-import ui.controls.equipment.EquipmentHTMLGenerator;
+import ui.html.EquipmentHTMLGenerator;
 import ui.controls.lists.entries.ItemEntry;
 import ui.controls.lists.ItemsList;
 
@@ -209,7 +209,7 @@ public class EnchantTabController {
         if(!(selectedItem instanceof RunedEquipment)) {
             propertyCount.setText("0/0 Property Runes");
         }else{
-            Runes runes = ((RunedEquipment) selectedItem).getRunes();
+            @SuppressWarnings("rawtypes") Runes runes = ((RunedEquipment) selectedItem).getRunes();
             propertyCount.setText(runes.getNumProperties() + "/" + runes.getMaxProperties()+" Property Runes");
         }
     }

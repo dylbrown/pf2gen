@@ -1,4 +1,4 @@
-package ui.controls;
+package ui.html;
 
 import model.abilities.Ability;
 import model.abilities.Activity;

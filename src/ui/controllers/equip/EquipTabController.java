@@ -18,7 +18,7 @@ import model.enums.Slot;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
 import ui.Main;
-import ui.controls.equipment.EquipmentHTMLGenerator;
+import ui.html.EquipmentHTMLGenerator;
 import ui.controls.equipment.EquippedEntry;
 import ui.controls.lists.CategoryAllItemsList;
 import ui.controls.lists.entries.ItemEntry;
