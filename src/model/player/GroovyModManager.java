@@ -99,9 +99,11 @@ public class GroovyModManager {
                     arbitraryChoices.get(name).decreaseChoices(numSelections);
                     return;
                 }
-                List<String> strings = new ArrayList<>(choices.get(name));
-                arbitraryChoices.get(name).clear();
-                choices.get(name).addAll(strings);
+                if(choices.get(name) != null) {
+                    List<String> strings = new ArrayList<>(choices.get(name));
+                    arbitraryChoices.get(name).clear();
+                    choices.get(name).addAll(strings);
+                }
                 decisions.remove(arbitraryChoices.get(name));
                 arbitraryChoices.remove(name);
             }
