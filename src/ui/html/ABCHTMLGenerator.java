@@ -153,7 +153,7 @@ public class ABCHTMLGenerator {
                 deity.getFollowerAlignments().stream().map(Alignment::name).collect(Collectors.joining(", ")),
                 font,
                 deity.getDivineSkillChoices().stream().map(Attribute::name).collect(Collectors.joining(" or ")),
-                "TODO",
+                deity.getFavoredWeapon().getName(),
                 deity.getDomains().stream().map(Domain::getName).collect(Collectors.joining(", ")),
                 String.join(", ", spells));
     }

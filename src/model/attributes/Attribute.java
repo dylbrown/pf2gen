@@ -65,6 +65,7 @@ public enum Attribute {
     public static Attribute valueOf(WeaponProficiency proficiency) {
         switch(proficiency) {
             default:
+            case Unarmed:
                 return Unarmed;
             case Simple:
                 return SimpleWeapons;

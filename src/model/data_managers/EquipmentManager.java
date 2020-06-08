@@ -1,6 +1,7 @@
 package model.data_managers;
 
 import model.equipment.Equipment;
+import model.equipment.SearchItem;
 import model.equipment.armor.Armor;
 import model.equipment.weapons.Weapon;
 import model.equipment.weapons.WeaponGroup;
@@ -20,8 +21,8 @@ import java.util.*;
 import static model.util.StringUtils.camelCase;
 
 public class EquipmentManager {
-    private static SortedSet<Equipment> allEquipment;
-    private static final SortedSet<String> categories = new TreeSet<>();
+    private static NavigableSet<Equipment> allEquipment;
+    private static final SortedSet<String> categories = new TreeSet<>(Comparator.comparing(String::toLowerCase));
     private static final WeaponsLoader weaponsLoader = new WeaponsLoader();
     private static final ArmorLoader armorLoader = new ArmorLoader();
     private static final Map<String, FileLoader<Equipment>> equipmentLoaders = new HashMap<>();
@@ -68,7 +69,7 @@ public class EquipmentManager {
 
     public static SortedSet<Equipment> getEquipment() {
         if(allEquipment == null) {
-            allEquipment = new TreeSet<>((Comparator.comparing(Equipment::getName)));
+            allEquipment = new TreeSet<>(Comparator.comparing(o -> o.getName().toLowerCase()));
             allEquipment.addAll(getWeapons());
             allEquipment.addAll(getArmor());
             for (FileLoader<Equipment> loader : equipmentLoaders.values()) {
@@ -101,5 +102,12 @@ public class EquipmentManager {
         FileLoader<Equipment> loader = equipmentLoaders.get(category);
         if(loader == null) return Collections.emptyList();
         return Collections.unmodifiableList(loader.parse());
+    }
+
+    public static Equipment find(String name) {
+        Equipment item = allEquipment.ceiling(new SearchItem(name));
+        if(item != null && item.getName().toLowerCase().equals(name.toLowerCase()))
+            return item;
+        return null;
     }
 }

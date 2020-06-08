@@ -8,6 +8,7 @@ import model.abilities.abilitySlots.Choice;
 
 import java.util.*;
 
+@SuppressWarnings("rawtypes")
 public class DecisionManager {
     private final ObservableList<Choice> decisions = FXCollections.observableArrayList();
     private final ObservableList<Choice> unmodifiableDecisions = FXCollections.unmodifiableObservableList(decisions);
@@ -21,6 +22,7 @@ public class DecisionManager {
 
     public void remove(Choice choice) {
         decisions.remove(choice);
+
     }
 
     public void add(Choice choice) {

@@ -1,5 +1,9 @@
 package model.enums;
 
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.stream.Stream;
+
 public enum Proficiency {
     Untrained(0), Trained(2), Expert(4), Master(6), Legendary(8);
 
@@ -9,10 +13,9 @@ public enum Proficiency {
         this.mod = mod;
     }
 
-    public static Proficiency max(Proficiency oldProf, Proficiency newProf) {
-        if(oldProf.getMod(0) > newProf.getMod(0))
-            return oldProf;
-        return newProf;
+    public static Proficiency max(Proficiency... profs) {
+        Optional<Proficiency> max = Stream.of(profs).max(Comparator.comparingInt(Proficiency::getMod));
+        return max.orElse(Proficiency.Untrained);
     }
 
     public int getMod(){

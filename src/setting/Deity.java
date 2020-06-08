@@ -2,6 +2,7 @@ package setting;
 
 import model.attributes.Attribute;
 import model.enums.Alignment;
+import model.equipment.weapons.Weapon;
 import model.spells.Spell;
 
 import java.util.*;
@@ -21,7 +22,7 @@ public class Deity {
     private final List<Alignment> followerAlignments;
     private final boolean harmFont, healFont;
     private final List<Attribute> divineSkillChoices;
-    // TODO: Favored Weapon
+    private final Weapon favoredWeapon;
     private final List<Domain> domains;
     private final Map<Integer, Spell> spells;
     private final int page;
@@ -38,6 +39,7 @@ public class Deity {
         this.harmFont = builder.harmFont;
         this.healFont = builder.healFont;
         this.divineSkillChoices = builder.divineSkillChoices;
+        this.favoredWeapon = builder.favoredWeapon;
         this.domains = builder.domains;
         this.spells = builder.spells;
         this.page = builder.page;
@@ -90,6 +92,10 @@ public class Deity {
         return divineSkillChoices;
     }
 
+    public Weapon getFavoredWeapon() {
+        return favoredWeapon;
+    }
+
     public List<Domain> getDomains() {
         return Collections.unmodifiableList(domains);
     }
@@ -108,7 +114,7 @@ public class Deity {
         private List<Alignment> followerAlignments = Collections.emptyList();
         private boolean harmFont = false, healFont = false;
         private List<Attribute> divineSkillChoices = Collections.emptyList();
-        // TODO: Favored Weapon
+        private Weapon favoredWeapon = null;
         private List<Domain> domains = Collections.emptyList();
         private Map<Integer, Spell> spells = Collections.emptyMap();
         private int page = -1;
@@ -154,6 +160,10 @@ public class Deity {
 
         public void setDivineSkills(List<Attribute> divineSkills) {
             divineSkillChoices = divineSkills;
+        }
+
+        public void setFavoredWeapon(Weapon favoredWeapon) {
+            this.favoredWeapon = favoredWeapon;
         }
 
         public void addDomains(Domain... domains) {

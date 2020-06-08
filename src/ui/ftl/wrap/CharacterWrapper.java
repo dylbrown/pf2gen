@@ -43,7 +43,7 @@ public class CharacterWrapper implements TemplateHashModel {
             map.put("heritage", "No Heritage");
 
         map.put("attributes", getAttributeMap());
-        map.put("attacks", character.getAttacks().stream()
+        map.put("attacks", character.combat().getAttacks().stream()
                 .map((o)->new ItemCountWrapper(new ItemCount(o, 1), wrapper)).collect(Collectors.toList()));
 
         map.put("getSlot", new FIHash((s)->{
@@ -67,6 +67,7 @@ public class CharacterWrapper implements TemplateHashModel {
 
         map.put("inventory", character.inventory().getItems().values());
         map.put("qualities", character.qualities());
+        map.put("combat", character.combat());
 
         map.put("skills", getSkills());
 

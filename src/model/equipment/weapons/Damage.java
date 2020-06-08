@@ -64,8 +64,28 @@ public class Damage {
         return Objects.hash(dice, amount, damageType, isPersistent);
     }
 
-    public Damage add(int damageMod, DamageType damageType) {
+    public Damage increaseSize(Dice dice) {
+        List<Dice> newDice = new ArrayList<>(this.dice);
+        newDice.replaceAll(d->{
+            if(d.getSize() == dice.getSize())
+                return Dice.increase(d);
+            return d;
+        });
+        return new Builder(this).setDice(newDice).build();
+    }
+
+    public Damage increaseSize(Dice dice, DamageType damageType) {
+        return increaseSize(dice);
+    }
+
+    public Damage add(int damageMod) {
         return new Damage.Builder(this).addAmount(damageMod).build();
+    }
+
+    public Damage add(int damageMod, DamageType damageType) {
+        if(damageType != this.damageType)
+            return new MultiDamage(this, Collections.emptyList()).add(damageMod, damageType);
+        return add(damageMod);
     }
 
     public static class Builder {
@@ -121,5 +141,9 @@ public class Damage {
             return new Damage(this);
         }
 
+        public Builder setDice(List<Dice> newDice) {
+            dice.clear();
+            return addDice(newDice);
+        }
     }
 }

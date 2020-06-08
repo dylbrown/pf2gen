@@ -8,8 +8,11 @@ import java.util.stream.Stream;
 
 public class MultiDamage extends Damage {
     private final List<Damage> convertedDamage;
+    private final DamageType firstDamageType;
+
     public MultiDamage(Damage first, List<Damage> additional) {
         super();
+        this.firstDamageType = first.getDamageType();
         Map<Pair<DamageType, Boolean>, Damage.Builder> damages = new HashMap<>();
         Stream.concat(Stream.of(first), additional.stream()).forEach(dt ->
             damages.computeIfAbsent(new Pair<>(dt.getDamageType(), dt.isPersistent()), ndt->new Damage.Builder().setDamageType(ndt.first).setPersistent(ndt.second))
@@ -35,7 +38,13 @@ public class MultiDamage extends Damage {
     }
 
     private MultiDamage(List<Damage> convertedDamage) {
+        this.firstDamageType = convertedDamage.get(0).getDamageType();
         this.convertedDamage = convertedDamage;
+    }
+
+    @Override
+    public Damage add(int damageMod) {
+        return add(damageMod, firstDamageType);
     }
 
     @Override
@@ -44,6 +53,23 @@ public class MultiDamage extends Damage {
         newDamage.replaceAll(d->{
             if(d.getDamageType().equals(damageType)) {
                 return d.add(damageMod, damageType);
+            }
+            return d;
+        });
+        return new MultiDamage(newDamage);
+    }
+
+    @Override
+    public Damage increaseSize(Dice dice) {
+        return increaseSize(dice, firstDamageType);
+    }
+
+    @Override
+    public Damage increaseSize(Dice dice, DamageType damageType) {
+        List<Damage> newDamage = new ArrayList<>(this.convertedDamage);
+        newDamage.replaceAll(d->{
+            if(d.getDamageType().equals(damageType)) {
+                return d.increaseSize(dice);
             }
             return d;
         });

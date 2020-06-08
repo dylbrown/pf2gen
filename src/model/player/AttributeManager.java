@@ -7,10 +7,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import model.WeaponGroupMod;
+import model.WeaponMod;
 import model.abilities.MinimumProficiencyList;
 import model.attributes.*;
 import model.enums.Proficiency;
 import model.enums.Type;
+import model.equipment.weapons.Weapon;
 import model.equipment.weapons.WeaponGroup;
 
 import java.beans.PropertyChangeListener;
@@ -36,12 +38,16 @@ public class AttributeManager {
     private final Map<Proficiency, MinimumProficiencyList> minLists = new HashMap<>();
     private final ReadOnlyObjectProperty<Integer> level;
     private final DecisionManager decisions;
+    private final Map<String, Proficiency> weaponProficiencies = new HashMap<>();
+    private final List<String> customWeaponStrings = new ArrayList<>();
     private final Map<WeaponGroup, Proficiency> groupProficiencies = new HashMap<>();
     private final PropertyChangeSupport proficiencyChange = new PropertyChangeSupport(this);
     private final List<AttributeModSingleChoice> choices = new ArrayList<>();
     private final Map<Attribute, Map<Type, NavigableSet<AttributeBonus>>> attributeBonuses = new HashMap<>();
+    private final CustomGetter customGetter;
 
-    AttributeManager(ReadOnlyObjectProperty<Integer> level, DecisionManager decisions, Applier applier){
+    AttributeManager(CustomGetter customGetter, ReadOnlyObjectProperty<Integer> level, DecisionManager decisions, Applier applier){
+        this.customGetter = customGetter;
         this.level = level;
         this.decisions = decisions;
         for (Attribute skill : Attribute.getSkills()) {
@@ -331,6 +337,20 @@ public class AttributeManager {
         proficiencyChange.firePropertyChange("removeSkillIncrease", null, null);
     }
 
+    void apply(WeaponMod weaponMod) {
+        weaponProficiencies.merge(weaponMod.getWeaponName().toLowerCase(),
+                weaponMod.getProficiency(), Proficiency::max);
+        if(weaponMod.getWeaponName().contains("{")) {
+            customWeaponStrings.add(weaponMod.getWeaponName());
+        }
+    }
+    void remove(WeaponMod weaponMod) {
+        weaponProficiencies.put(weaponMod.getWeaponName().toLowerCase(), null);
+        if(weaponMod.getWeaponName().contains("{")) {
+            customWeaponStrings.remove(weaponMod.getWeaponName());
+        }
+    }
+
     void apply(WeaponGroupMod weaponGroupMod) {
         groupProficiencies.merge(weaponGroupMod.getGroup(), weaponGroupMod.getProficiency(), Proficiency::max);
     }
@@ -338,8 +358,23 @@ public class AttributeManager {
         groupProficiencies.put(weaponGroupMod.getGroup(), null);
     }
 
-    Proficiency getProficiency(Attribute attr, WeaponGroup group) {
-        return Proficiency.max(getProficiency(attr, "").getValue(), groupProficiencies.getOrDefault(group, Proficiency.Untrained));
+    Proficiency getProficiency(Attribute attr, Weapon weapon) {
+        return Proficiency.max(getProficiency(attr, "").getValue(),
+                groupProficiencies.getOrDefault(weapon.getGroup(), Proficiency.Untrained),
+                getSpecificWeaponProficiency(weapon));
+    }
+
+    private Proficiency getSpecificWeaponProficiency(Weapon weapon) {
+        for (String customWeaponString : customWeaponStrings) {
+            Object o = customGetter.get(customWeaponString);
+            if(o instanceof Weapon && weapon.getName().equals(((Weapon) o).getName())) {
+                return Proficiency.max(
+                        weaponProficiencies.getOrDefault(customWeaponString.toLowerCase(), Proficiency.Untrained),
+                        weaponProficiencies.getOrDefault(weapon.getName().toLowerCase(), Proficiency.Untrained)
+                );
+            }
+        }
+        return weaponProficiencies.getOrDefault(weapon.getName().toLowerCase(), Proficiency.Untrained);
     }
 
     public SortedMap<Integer, Set<SkillIncrease>> getSkillChoices() {

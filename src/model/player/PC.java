@@ -11,19 +11,12 @@ import model.abilities.abilitySlots.AbilitySlot;
 import model.attributes.Attribute;
 import model.attributes.AttributeMod;
 import model.enums.Alignment;
-import model.enums.Slot;
 import model.enums.Type;
-import model.equipment.CustomTrait;
-import model.equipment.armor.Armor;
-import model.equipment.weapons.RangedWeapon;
-import model.equipment.weapons.Weapon;
 import model.spells.Spell;
 import setting.Deity;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static model.ability_scores.AbilityScore.*;
@@ -38,19 +31,21 @@ public class PC {
     private final PropertyChangeSupport ancestryWatcher = new PropertyChangeSupport(ancestry);
     private final Applier applier = new Applier();
     private Alignment alignment;
-    private final ModManager modManager;
+    private final GroovyModManager modManager;
     private final DecisionManager decisions = new DecisionManager();
     private final AbilityManager abilities = new AbilityManager(decisions, getAncestryProperty(),
             getPClassProperty(), getLevelProperty(), applier, this::meetsPrerequisites);
     private final AbilityScoreManager scores = new AbilityScoreManager(applier);
-    private final AttributeManager attributes = new AttributeManager(level.getReadOnlyProperty(), decisions, applier);
+    private final CustomGetter customGetter = new CustomGetter(this);
+    private final AttributeManager attributes =
+            new AttributeManager(customGetter, level.getReadOnlyProperty(), decisions, applier);
     private final InventoryManager inventory = new InventoryManager(attributes);
     private final QualityManager qualities = new QualityManager(decisions::add, decisions::remove);
     private final SpellManager spells = new SpellManager(applier);
-    private final List<Weapon> attacks = new ArrayList<>();
+    private final CombatManager combat = new CombatManager(scores, attributes, inventory, level.getReadOnlyProperty());
 
     {
-        modManager = new ModManager(this, level.getReadOnlyProperty(), applier);
+        modManager = new GroovyModManager(customGetter, attributes, decisions, combat, level.getReadOnlyProperty(), applier);
     }
 
     public PC() {
@@ -61,13 +56,13 @@ public class PC {
 
         applier.onApply(ability -> {
             if(ability instanceof AttackAbility) {
-                addAttacks(((AttackAbility) ability).getAttacks());
+                combat.addAttacks(((AttackAbility) ability).getAttacks());
             }
         });
 
         applier.onRemove(ability -> {
             if(ability instanceof AttackAbility) {
-                removeAttacks(((AttackAbility) ability).getAttacks());
+                combat.removeAttacks(((AttackAbility) ability).getAttacks());
             }
         });
     }
@@ -170,39 +165,10 @@ public class PC {
         return level.get();
     }
 
-    public int getAC() {
-        if(inventory.getEquipped(Slot.Armor) != null) {
-            Armor armor = (Armor) inventory.getEquipped(Slot.Armor).stats();
-            if(armor != null) {
-                int dexMod = scores.getMod(Dex);
-                if(scores.getScore(Str) < armor.getStrength())
-                    dexMod = Math.min(dexMod, armor.getMaxDex());
-                return 10 + attributes().getProficiency(Attribute.valueOf(armor.getProficiency()), "").getValue().getMod(level.get()) + armor.getAC() + dexMod;
-            }
-        }
-        return 10 + attributes().getProficiency(Attribute.Unarmored, "").getValue().getMod(level.get()) + scores.getMod(Dex);
-    }
-
-    public int getArmorProficiency() {
-        if(inventory.getEquipped(Slot.Armor) != null) {
-            Armor armor = (Armor) inventory.getEquipped(Slot.Armor).stats();
-            if(armor != null)
-                return attributes().getProficiency(Attribute.valueOf(armor.getProficiency()), "").getValue().getMod(level.get());
-        }
-        return attributes().getProficiency(Attribute.Unarmored, "").getValue().getMod(level.get());
-    }
-
-    public Armor getArmor() {
-        if(inventory.getEquipped(Slot.Armor) != null) {
-            return (Armor) inventory.getEquipped(Slot.Armor).stats();
-        }
-        return Armor.NO_ARMOR;
-    }
-
     public int getTotalMod(Attribute attribute, String data) {
         int acp = 0;
-        if(attribute.hasACP() && getArmor().getStrength() > scores.getScore(Str))
-            acp -= getArmor().getACP();
+        if(attribute.hasACP() && combat.getArmor().getStrength() > scores.getScore(Str))
+            acp -= combat.getArmor().getACP();
         return scores.getMod(attribute.getKeyAbility())
                 + attributes.getProficiency(attribute, data).getValue().getMod(level.get())
                 + attributes.getBonus(attribute) + acp;
@@ -214,28 +180,6 @@ public class PC {
 
     public PClass currentClass() {
         return pClass.get();
-    }
-
-    public int getAttackMod(Weapon weapon) {
-        int mod = attributes.getProficiency(Attribute.valueOf(weapon.getProficiency()), weapon.getGroup()).getMod(level.get());
-
-        if(weapon.getWeaponTraits().contains(new CustomTrait("Finesse")))
-            return mod + weapon.getAttackBonus() + Math.max(scores.getMod(Str), scores.getMod(Dex));
-        else if(weapon instanceof RangedWeapon)
-            return mod + weapon.getAttackBonus() + scores.getMod(Dex);
-        else
-            return mod + weapon.getAttackBonus() + scores.getMod(Str);
-    }
-
-    public int getDamageMod(Weapon weapon) {
-        if(weapon.getWeaponTraits().contains(new CustomTrait("Thrown")))
-            return scores.getMod(Str);
-        else if(weapon instanceof RangedWeapon)
-            return 0;
-        else if(weapon.getHands() == 2)
-            return (int) (scores.getMod(Str) * 1.5);
-        else
-            return scores.getMod(Str);
     }
 
     public boolean meetsPrerequisites(Ability ability) {
@@ -297,6 +241,10 @@ outerLoop:  for (String orClause : split) {
 
     public QualityManager qualities() { return qualities; }
 
+    public CombatManager combat() {
+        return combat;
+    }
+
     public Background getBackground() {
         return (background.get() != null) ? background.get() : Background.NO_BACKGROUND;
     }
@@ -323,7 +271,7 @@ outerLoop:  for (String orClause : split) {
 
     public SpellManager spells() {return spells;}
 
-    ModManager mods() {
+    GroovyModManager mods() {
         return modManager;
     }
 
@@ -333,17 +281,5 @@ outerLoop:  for (String orClause : split) {
 
     public void reset() {
         while(getLevel() > 1) levelDown();
-    }
-
-    private void addAttacks(List<Weapon> attacks) {
-        this.attacks.addAll(attacks);
-    }
-
-    private void removeAttacks(List<Weapon> attacks) {
-        this.attacks.removeAll(attacks);
-    }
-
-    public List<Weapon> getAttacks() {
-        return Collections.unmodifiableList(attacks);
     }
 }

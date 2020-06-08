@@ -3,7 +3,10 @@ package model.xml_parsers;
 import model.attributes.Attribute;
 import model.data_managers.AllDomains;
 import model.data_managers.AllSpells;
+import model.data_managers.EquipmentManager;
 import model.enums.Alignment;
+import model.equipment.Equipment;
+import model.equipment.weapons.Weapon;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -84,6 +87,11 @@ public class DeityLoader extends FileLoader<Deity> {
                     break;
                 case "divineskill":
                     builder.setDivineSkills(Stream.of(trim.split(" or ")).map(Attribute::robustValueOf).collect(Collectors.toList()));
+                    break;
+                case "favoredweapon":
+                    Equipment equipment = EquipmentManager.find(trim);
+                    if(equipment instanceof Weapon)
+                        builder.setFavoredWeapon((Weapon) equipment);
                     break;
                 case "domains":
                     for (String s : trim.split(", ?")) {

@@ -129,6 +129,15 @@ public class ArbitraryChoice implements ChoiceList<String> {
     }
 
     public void addAll(List<String> strings) {
-        selections.addAll(strings);
+        for (String string : strings) {
+            add(string);
+        }
+
+    }
+
+    public void clear() {
+        while(selections.size() > 0) {
+            remove(selections.get(0));
+        }
     }
 }

@@ -27,7 +27,7 @@ abstract class AbstractItemList extends TreeTableView<ItemEntry> {
         this.setRoot(root);
         this.setRowFactory(new SelectRowFactory<>(Collections.singletonList((treeItem, i) -> {
             ItemEntry ie = treeItem.getValue();
-            if(ie != null)
+            if(ie != null && ie.getItem() != null)
                 handler.accept(ie.getItem(), i);
         })));
         this.setColumnResizePolicy(TreeTableView.CONSTRAINED_RESIZE_POLICY);

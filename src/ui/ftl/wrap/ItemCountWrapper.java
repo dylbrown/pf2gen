@@ -45,11 +45,7 @@ public class ItemCountWrapper implements TemplateHashModel {
     }
 
     public int attack() {
-        return Main.character.getAttackMod((Weapon) itemCount.stats());
-    }
-
-    public int damageMod() {
-        return Main.character.getDamageMod((Weapon) itemCount.stats());
+        return Main.character.combat().getAttackMod((Weapon) itemCount.stats());
     }
 
     @Override
