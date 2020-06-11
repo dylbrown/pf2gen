@@ -1,52 +1,29 @@
 package model.xml_parsers;
 
 import model.attributes.Attribute;
-import model.data_managers.AllDomains;
-import model.data_managers.AllSpells;
-import model.data_managers.EquipmentManager;
+import model.data_managers.sources.SourceConstructor;
+import model.data_managers.sources.SourcesLoader;
 import model.enums.Alignment;
-import model.equipment.Equipment;
-import model.equipment.weapons.Weapon;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import setting.Deity;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class DeityLoader extends FileLoader<Deity> {
-    private List<Deity> deities = null;
+public class DeitiesLoader extends FileLoader<Deity> {
 
-    public DeityLoader(String location) {
-        path = new File(location);
+    public DeitiesLoader(SourceConstructor sourceConstructor, File root) {
+        super(sourceConstructor, root);
     }
 
     @Override
-    public List<Deity> parse() {
-        if (deities == null) {
-            deities = new ArrayList<>();
-            Document doc = getDoc(path);
-            NodeList spellNodes = doc.getElementsByTagName("Deity");
-            for (int i = 0; i < spellNodes.getLength(); i++) {
-                if (spellNodes.item(i).getNodeType() != Node.ELEMENT_NODE)
-                    continue;
-                Element curr = (Element) spellNodes.item(i);
-                deities.add(getDeity(curr));
-            }
-        }
-        return Collections.unmodifiableList(deities);
-    }
-
-    private Deity getDeity(Element domain) {
-        NodeList nodeList = domain.getChildNodes();
+    protected Deity parseItem(String filename, Element deity) {
+        NodeList nodeList = deity.getChildNodes();
         Deity.Builder builder = new Deity.Builder();
-        builder.setPage(Integer.parseInt(domain.getAttribute("page")));
+        builder.setPage(Integer.parseInt(deity.getAttribute("page")));
         for (int i = 0; i < nodeList.getLength(); i++) {
             if (nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)
                 continue;
@@ -89,13 +66,13 @@ public class DeityLoader extends FileLoader<Deity> {
                     builder.setDivineSkills(Stream.of(trim.split(" or ")).map(Attribute::robustValueOf).collect(Collectors.toList()));
                     break;
                 case "favoredweapon":
-                    Equipment equipment = EquipmentManager.find(trim);
-                    if(equipment instanceof Weapon)
-                        builder.setFavoredWeapon((Weapon) equipment);
+                        builder.setFavoredWeapon(SourcesLoader.instance().find("Core Rulebook")
+                                .getWeapons().find(trim));
                     break;
                 case "domains":
                     for (String s : trim.split(", ?")) {
-                        builder.addDomains(AllDomains.find(s));
+                        builder.addDomains(SourcesLoader.instance().find("Core Rulebook")
+                                        .getDomains().find(s));
                     }
                     break;
                 case "spells":
@@ -105,7 +82,8 @@ public class DeityLoader extends FileLoader<Deity> {
                             continue;
                         Element currSpell = (Element) spellsList.item(j);
                         builder.addSpell(Integer.parseInt(currSpell.getAttribute("level")),
-                                AllSpells.find(currSpell.getAttribute("name")));
+                                SourcesLoader.instance().find("Core Rulebook")
+                                        .getSpells().find(currSpell.getAttribute("name")));
                     }
                     break;
             }

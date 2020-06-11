@@ -3,6 +3,10 @@ package model.util;
 public class StringUtils {
     private StringUtils(){}
 
+    public static String clean(String src) {
+        return src.toLowerCase().trim().replaceAll(" ", "_");
+    }
+
     public static String camelCase(String str) {
         if(str.length() == 0) return str;
         String[] split = str.split(" ");
@@ -35,5 +39,9 @@ public class StringUtils {
             initialism.append(Character.toUpperCase(s.charAt(0)));
         }
         return initialism.toString();
+    }
+
+    public static String unclean(String filename) {
+        return camelCase(filename.replaceAll("_", " "));
     }
 }

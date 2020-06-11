@@ -1,10 +1,17 @@
 package model.xml_parsers.abc;
 
 import model.abc.AC;
+import model.data_managers.sources.SourceConstructor;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import java.io.File;
+
 abstract class ACLoader<T extends AC, U extends AC.Builder> extends ABCLoader<T, U> {
+    public ACLoader(SourceConstructor sourceConstructor, File root) {
+        super(sourceConstructor, root);
+    }
+
     void parseElement(Element curr, String trim, U builder) {
         switch (curr.getTagName()) {
             case "HP":

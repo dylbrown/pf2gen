@@ -1,15 +1,16 @@
 package model.xml_parsers;
 
-import model.attributes.AttributeMod;
-import model.attributes.AttributeModSingleChoice;
 import model.abilities.*;
 import model.abilities.abilitySlots.*;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
-import model.data_managers.AllSpells;
-import model.enums.Action;
 import model.attributes.Attribute;
+import model.attributes.AttributeMod;
+import model.attributes.AttributeModSingleChoice;
+import model.data_managers.sources.SourceConstructor;
+import model.data_managers.sources.SourcesLoader;
+import model.enums.Action;
 import model.enums.Proficiency;
 import model.enums.Trait;
 import model.enums.Type;
@@ -21,9 +22,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,13 +35,16 @@ import static model.util.StringUtils.camelCaseWord;
 
 public abstract class AbilityLoader<T> extends FileLoader<T> {
 
-    protected List<DynamicFilledSlot> dynSlots;
+    protected static List<DynamicFilledSlot> dynSlots;
 
-    protected Type getSource(Element element) {
-        return null;
+    public AbilityLoader(SourceConstructor sourceConstructor, File root) {
+        super(sourceConstructor, root);
     }
 
-    protected List<Ability> makeAbilities(NodeList nodes) {
+   protected static Function<Element, Type> source = (e)->null;
+
+
+    protected static List<Ability> makeAbilities(NodeList nodes) {
         List<Ability> choices = new ArrayList<>();
         for(int i=0; i<nodes.getLength(); i++) {
             if(!(nodes.item(i) instanceof Element)) continue;
@@ -51,7 +57,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         return choices;
     }
 
-    protected List<String> getTypes(String string) {
+    protected static List<String> getTypes(String string) {
         List<String> results = new ArrayList<>();
         String[] split = string.trim().split(" ");
         for(String term: split) {
@@ -60,11 +66,11 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         }
         return results;
     }
-    protected Ability makeAbility(Element element, String name) {
+    protected static Ability makeAbility(Element element, String name) {
         return makeAbility(element, name, 1);
     }
 
-    protected Ability makeAbility(Element element, String name, int level) {
+    protected static Ability makeAbility(Element element, String name, int level) {
         if(element.getTagName().contains("Ability")) {
             Ability.Builder builder;
             Activity.Builder acBuilder = null;
@@ -178,7 +184,8 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                             case "Focus": spellType = SpellType.Focus; break;
                             case "Focus Cantrip": spellType = SpellType.FocusCantrip; break;
                         }
-                        spBuilder.addBonusSpell(spellType, AllSpells.find(propElem.getAttribute("name")));
+                        spBuilder.addBonusSpell(spellType, SourcesLoader.instance().find("Core Rulebook")
+                                .getSpells().find(propElem.getAttribute("name")));
                         break;
                     case "AbilitySlot":
                         builder.addAbilitySlot(makeAbilitySlot(propElem, level));
@@ -190,7 +197,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                                         .collect(Collectors.toList()));
                 }
             }
-            builder.setType(getSource(element));
+            builder.setType(source.apply(element));
             if(element.getTagName().equals("AbilitySet")){
                 AbilitySet.Builder setBuilder = new AbilitySet.Builder(builder);
                 setBuilder.setAbilities(makeAbilities(element.getChildNodes()));
@@ -201,7 +208,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         return null;
     }
 
-    AbilitySlot makeAbilitySlot(Element propElem, int level) {
+    static AbilitySlot makeAbilitySlot(Element propElem, int level) {
         String abilityName = propElem.getAttribute("name");
         int slotLevel = level;
         if(!propElem.getAttribute("level").equals(""))
@@ -234,18 +241,18 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         return null;
     }
 
-    protected Type getDynamicType(String type) {
+    protected static Type getDynamicType(String type) {
         return Type.valueOf(type.trim().replaceAll(" [fF]eat", ""));
     }
 
-    private List<AbilityMod> getBoosts(int count, int level) {
+    private static List<AbilityMod> getBoosts(int count, int level) {
         List<AbilityMod> boosts = new ArrayList<>(count);
         for(int i=0; i<count; i++)
             boosts.add(new AbilityModChoice(Type.get(level)));
         return boosts;
     }
 
-    private List<AttributeMod> addMods(String textContent, Proficiency prof) {
+    private static List<AttributeMod> addMods(String textContent, Proficiency prof) {
         List<AttributeMod> mods = new ArrayList<>();
         String[] split = textContent.split(",");
         for(String str: split) {

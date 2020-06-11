@@ -2,6 +2,7 @@ package model.xml_parsers.equipment;
 
 import model.attributes.Attribute;
 import model.attributes.AttributeBonus;
+import model.data_managers.sources.SourceConstructor;
 import model.enums.Trait;
 import model.enums.Type;
 import model.equipment.Equipment;
@@ -11,69 +12,45 @@ import model.equipment.runes.WeaponRune;
 import model.equipment.weapons.Damage;
 import model.equipment.weapons.DamageType;
 import model.equipment.weapons.Dice;
+import model.util.StringUtils;
 import model.xml_parsers.FileLoader;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
-import static model.util.StringUtils.camelCase;
 import static model.util.StringUtils.camelCaseWord;
 
-public class ItemLoader extends FileLoader<Equipment> {
-    private List<Equipment> items = null;
-    private final String niceTitle;
-    private static final ItemAbilityLoader abilityLoader = new ItemAbilityLoader();
+public class EquipmentLoader extends FileLoader<Equipment> {
+    private static final ItemAbilityLoader abilityLoader = new ItemAbilityLoader(null, null);
 
-    public ItemLoader(String s) {
-        path = new File("data/equipment/"+s);
-        niceTitle = camelCase(s.replace(".pfdyl","").replaceAll("_"," "));
+    public EquipmentLoader(SourceConstructor sourceConstructor, File root) {
+        super(sourceConstructor, root);
     }
+
+
     @Override
-    public List<Equipment> parse() {
-        if(items == null) {
-            items = new ArrayList<>();
-            Document doc = getDoc(path);
-            NodeList nodes = doc.getElementsByTagName("Item");
-            for(int i=0; i<nodes.getLength(); i++) {
-                if(nodes.item(i).getNodeType() != Node.ELEMENT_NODE)
-                    continue;
-                Element curr = (Element) nodes.item(i);
-                items.add(makeItem(curr));
-            }
-            nodes = doc.getElementsByTagName("WeaponRune");
-            for(int i=0; i<nodes.getLength(); i++) {
-                if(nodes.item(i).getNodeType() != Node.ELEMENT_NODE)
-                    continue;
-                Element curr = (Element) nodes.item(i);
-                items.add(makeWeaponRune(curr));
-            }
-            nodes = doc.getElementsByTagName("ArmorRune");
-            for(int i=0; i<nodes.getLength(); i++) {
-                if(nodes.item(i).getNodeType() != Node.ELEMENT_NODE)
-                    continue;
-                Element curr = (Element) nodes.item(i);
-                items.add(makeArmorRune(curr));
-            }
+    protected Equipment parseItem(String filename, Element item) {
+        String niceName = StringUtils.unclean(filename);
+        switch(StringUtils.clean(item.getTagName())) {
+            case "weaponrune": return makeWeaponRune(niceName, item);
+            case "armorrune": return makeArmorRune(niceName, item);
         }
-        return items;
+        return makeItem(niceName, item);
     }
 
-    private Equipment makeItem(Element item) {
+    private Equipment makeItem(String niceName, Element item) {
         Equipment.Builder builder = new Equipment.Builder();
-        builder.setCategory(niceTitle);
+        builder.setCategory(niceName);
         Node parentNode = item.getParentNode();
         if(parentNode instanceof Element && ((Element) parentNode).getTagName().equals("SubCategory")) {
             builder.setSubCategory(((Element) parentNode).getAttribute("name"));
         }
         if(item.hasAttribute("level"))
-            builder.setLevel(Integer.valueOf(item.getAttribute("level")));
+            builder.setLevel(Integer.parseInt(item.getAttribute("level")));
         NodeList nodeList = item.getChildNodes();
         for(int i=0; i<nodeList.getLength(); i++) {
             if(nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)
@@ -86,15 +63,15 @@ public class ItemLoader extends FileLoader<Equipment> {
     }
 
 
-    private Equipment makeArmorRune(Element item) {
+    private Equipment makeArmorRune(String niceName, Element item) {
         ArmorRune.Builder builder = new ArmorRune.Builder();
-        builder.setCategory(niceTitle);
+        builder.setCategory(niceName);
         Node parentNode = item.getParentNode();
         if(parentNode instanceof Element && ((Element) parentNode).getTagName().equals("SubCategory")) {
             builder.setSubCategory(((Element) parentNode).getAttribute("name"));
         }
         if(item.hasAttribute("level"))
-            builder.setLevel(Integer.valueOf(item.getAttribute("level")));
+            builder.setLevel(Integer.parseInt(item.getAttribute("level")));
         if(item.hasAttribute("fundamental"))
             builder.setFundamental(true);
         NodeList nodeList = item.getChildNodes();
@@ -112,15 +89,15 @@ public class ItemLoader extends FileLoader<Equipment> {
         return builder.build();
     }
 
-    private Equipment makeWeaponRune(Element item) {
+    private Equipment makeWeaponRune(String niceName, Element item) {
         WeaponRune.Builder builder = new WeaponRune.Builder();
-        builder.setCategory(niceTitle);
+        builder.setCategory(niceName);
         Node parentNode = item.getParentNode();
         if(parentNode instanceof Element && ((Element) parentNode).getTagName().equals("SubCategory")) {
             builder.setSubCategory(((Element) parentNode).getAttribute("name"));
         }
         if(item.hasAttribute("level"))
-            builder.setLevel(Integer.valueOf(item.getAttribute("level")));
+            builder.setLevel(Integer.parseInt(item.getAttribute("level")));
         if(item.hasAttribute("fundamental"))
             builder.setFundamental(true);
         NodeList nodeList = item.getChildNodes();
@@ -156,7 +133,7 @@ public class ItemLoader extends FileLoader<Equipment> {
             String[] damageSplit = damage.split("[+-]");
             String[] diceSplit = damageSplit[0].split("d");
             return new Damage.Builder().addDice(Dice.get(Integer.parseInt(diceSplit[0]), Integer.parseInt(diceSplit[1])))
-                    .addAmount(flip * Integer.valueOf(damageSplit[1]))
+                    .addAmount(flip * Integer.parseInt(damageSplit[1]))
                     .setDamageType(damageType)
                     .setPersistent(persistent)
                     .build();

@@ -1,60 +1,32 @@
 package model.xml_parsers.abc;
 
 import model.abc.Ancestry;
+import model.data_managers.sources.SourceConstructor;
 import model.enums.Language;
 import model.enums.Size;
 import model.enums.Type;
-import model.util.Pair;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import static model.util.StringUtils.camelCaseWord;
 
 public class AncestriesLoader extends ABCLoader<Ancestry, Ancestry.Builder> {
 
-    private static final AncestriesLoader instance;
-    static{instance = new AncestriesLoader();}
+    static{
+        source = element -> {
+            if (element.getAttribute("type").trim().toLowerCase().equals("heritage"))
+                return Type.Heritage;
+            else return Type.Ancestry;
+        };
+    }
 
     private String bonuses, penalties;
 
-    private AncestriesLoader() {
-        path = new File("data/ancestries");
-    }
-    private List<Ancestry> ancestries;
-
-    public static AncestriesLoader instance() {
-        return instance;
-    }
-
-    @Override
-    public List<Ancestry> parse() {
-        if(ancestries == null) {
-            ancestries = new ArrayList<>();
-            for (Pair<Document, String> docEntry : getDocs(path)) {
-                Document doc = docEntry.first;
-                NodeList classProperties = doc.getElementsByTagName("ancestry").item(0).getChildNodes();
-
-                Ancestry.Builder builder = new Ancestry.Builder();
-                this.bonuses = ""; this.penalties = "";
-
-                for(int i=0; i<classProperties.getLength(); i++) {
-                    if(classProperties.item(i).getNodeType() != Node.ELEMENT_NODE)
-                        continue;
-                    Element curr = (Element) classProperties.item(i);
-                    parseElement(curr, curr.getTextContent().trim(), builder);
-                }
-                builder.setAbilityMods(getAbilityMods(bonuses, penalties, Type.Ancestry));
-                ancestries.add(builder.build());
-            }
-        }
-        return Collections.unmodifiableList(ancestries);
+    public AncestriesLoader(SourceConstructor sourceConstructor, File root) {
+        super(sourceConstructor, root);
     }
 
     @Override
@@ -108,9 +80,19 @@ public class AncestriesLoader extends ABCLoader<Ancestry, Ancestry.Builder> {
     }
 
     @Override
-    protected Type getSource(Element element) {
-        if (element.getAttribute("type").trim().toLowerCase().equals("heritage"))
-            return Type.Heritage;
-        else return Type.Ancestry;
+    protected Ancestry parseItem(String filename, Element item) {
+        NodeList classProperties = item.getChildNodes();
+
+        Ancestry.Builder builder = new Ancestry.Builder();
+        this.bonuses = ""; this.penalties = "";
+
+        for(int i=0; i<classProperties.getLength(); i++) {
+            if(classProperties.item(i).getNodeType() != Node.ELEMENT_NODE)
+                continue;
+            Element curr = (Element) classProperties.item(i);
+            parseElement(curr, curr.getTextContent().trim(), builder);
+        }
+        builder.setAbilityMods(getAbilityMods(bonuses, penalties, Type.Ancestry));
+        return builder.build();
     }
 }

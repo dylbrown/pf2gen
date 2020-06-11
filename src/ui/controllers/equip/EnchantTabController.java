@@ -10,16 +10,16 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
-import model.data_managers.EquipmentManager;
+import model.data_managers.sources.SourcesLoader;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
 import model.equipment.runes.Rune;
 import model.equipment.runes.runedItems.*;
 import model.util.Pair;
 import ui.Main;
-import ui.html.EquipmentHTMLGenerator;
-import ui.controls.lists.entries.ItemEntry;
 import ui.controls.lists.ItemsList;
+import ui.controls.lists.entries.ItemEntry;
+import ui.html.EquipmentHTMLGenerator;
 
 import java.util.Map;
 
@@ -185,7 +185,8 @@ public class EnchantTabController {
             default: return null;
         }
         String target = rune.getBaseRune()+" ?\\("+newTier+"\\) ?";
-        for (Equipment newRune : EquipmentManager.getItems("Runes")) {
+        for (Equipment newRune : SourcesLoader.instance().find("Core Rulebook")
+                .getEquipment().getCategory("Runes").values()) {
             if(newRune.getName().matches(target)) {
                 if(!(newRune instanceof Rune)) continue;
                 return (Rune) newRune;

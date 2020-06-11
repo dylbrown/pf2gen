@@ -1,7 +1,8 @@
 package model.xml_parsers;
 
+import model.data_managers.sources.SourceConstructor;
 import model.spells.Spell;
-import org.w3c.dom.Document;
+import model.spells.Tradition;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -9,34 +10,31 @@ import org.w3c.dom.NodeList;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class SpellsLoader extends FileLoader<Spell> {
-	private List<Spell> spells = null;
+	private final Map<Tradition, SortedMap<Integer, List<Spell>>> spellsByLevel = new HashMap<>();
 
-	public SpellsLoader(String s) {
-		path = new File("data/spells/"+s);
+	public SpellsLoader(SourceConstructor sourceConstructor, File root) {
+		super(sourceConstructor, root);
+	}
+
+	public List<Spell> getSpells(Tradition tradition, int level) {
+		if(tradition == null) return Collections.emptyList();
+		if(spellsByLevel.isEmpty()) {
+			for (Spell spell : getAll().values()) {
+				for (Tradition curr : spell.getTraditions()) {
+					spellsByLevel.computeIfAbsent(curr, s->new TreeMap<>())
+							.computeIfAbsent(spell.getLevelOrCantrip(), (key)->new ArrayList<>())
+							.add(spell);
+				}
+			}
+		}
+		return Collections.unmodifiableList(spellsByLevel.get(tradition).get(level));
 	}
 
 	@Override
-	public List<Spell> parse() {
-		if(spells == null) {
-			spells = new ArrayList<>();
-			Document doc = getDoc(path);
-			NodeList spellNodes = doc.getElementsByTagName("Spell");
-			for (int i = 0; i < spellNodes.getLength(); i++) {
-				if (spellNodes.item(i).getNodeType() != Node.ELEMENT_NODE)
-					continue;
-				Element curr = (Element) spellNodes.item(i);
-				spells.add(getSpell(curr));
-			}
-		}
-		return Collections.unmodifiableList(spells);
-	}
-
-	private Spell getSpell(Element spell) {
+	protected Spell parseItem(String category, Element spell) {
 		NodeList nodeList = spell.getChildNodes();
 		Spell.Builder builder = new Spell.Builder();
 		builder.setPage(Integer.parseInt(spell.getAttribute("page")));

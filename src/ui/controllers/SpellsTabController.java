@@ -6,7 +6,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
-import model.data_managers.AllSpells;
+import model.data_managers.sources.SourcesLoader;
 import model.player.SpellManager;
 import model.spells.Spell;
 import model.spells.Tradition;
@@ -105,7 +105,8 @@ public class SpellsTabController {
 				String item = allSpells.getSelectionModel().getSelectedItem().getValue();
 				if (!item.matches("\\d{1,2}")) {
 					if (event.getClickCount() == 2) {
-						spells.addSpell(AllSpells.find(item));
+						spells.addSpell(SourcesLoader.instance().find("Core Rulebook")
+								.getSpells().find(item));
 					}
 				}
 			}
@@ -115,7 +116,8 @@ public class SpellsTabController {
 			if(allSpells.getSelectionModel().getSelectedItem() != null) {
 				String item = allSpells.getSelectionModel().getSelectedItem().getValue();
 				if (!item.matches("\\d{1,2}")) {
-					renderSpell(AllSpells.find(item));
+					renderSpell(SourcesLoader.instance().find("Core Rulebook")
+							.getSpells().find(item));
 				}
 			}
 		});
@@ -124,7 +126,8 @@ public class SpellsTabController {
 			if(spellsKnown.getSelectionModel().getSelectedItem() != null) {
 				String item = spellsKnown.getSelectionModel().getSelectedItem().getValue();
 				if (!item.matches("\\d{1,2}")) {
-					renderSpell(AllSpells.find(item));
+					renderSpell(SourcesLoader.instance().find("Core Rulebook")
+							.getSpells().find(item));
 				}
 			}
 		});
@@ -133,7 +136,8 @@ public class SpellsTabController {
 			if(spellsKnown.getSelectionModel().getSelectedItem() != null) {
 				String item = spellsKnown.getSelectionModel().getSelectedItem().getValue();
 				if (!item.matches("\\d{1,2}")) {
-					Spell spell = AllSpells.find(item);
+					Spell spell = SourcesLoader.instance().find("Core Rulebook")
+							.getSpells().find(item);
 					if (event.getClickCount() == 2) {
 						spells.removeSpell(spell);
 					}
@@ -145,7 +149,8 @@ public class SpellsTabController {
 			if(allSpells.getSelectionModel().getSelectedItem() != null) {
 				String item = spellsKnown.getSelectionModel().getSelectedItem().getValue();
 				if (!item.matches("\\d{1,2}")) {
-					renderSpell(AllSpells.find(item));
+					renderSpell(SourcesLoader.instance().find("Core Rulebook")
+							.getSpells().find(item));
 				}
 			}
 		});
@@ -154,7 +159,8 @@ public class SpellsTabController {
 			if(!newValue.equals(oldValue)){
 				if(!newValue.equals("")) {
 					filterList.getItems().setAll(
-							AllSpells.getAllSpells().stream()
+							SourcesLoader.instance().find("Core Rulebook")
+									.getSpells().getAll().values().stream()
 									.map(Spell::getName)
 									.filter(s -> s.toLowerCase().contains(newValue.toLowerCase()))
 									.collect(Collectors.toList()));
@@ -171,7 +177,8 @@ public class SpellsTabController {
 		for(int i=0; i <= 10; i++) {
 			allSpells.getRoot().getChildren().add(new TreeItem<>(String.valueOf(i)));
 			allSpells.getRoot().getChildren().get(i).getChildren().addAll(
-					AllSpells.getSpells(tradition, i).stream().map(s->
+					SourcesLoader.instance().find("Core Rulebook")
+							.getSpells().getSpells(tradition, i).stream().map(s->
 							new TreeItem<>(s.getName())).collect(Collectors.toList()));
 			allSpells.getRoot().getChildren().get(i).getChildren().sort(
 					Comparator.comparing(TreeItem::getValue));

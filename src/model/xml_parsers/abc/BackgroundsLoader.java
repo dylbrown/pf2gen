@@ -4,17 +4,15 @@ import model.abc.Background;
 import model.attributes.Attribute;
 import model.attributes.AttributeMod;
 import model.attributes.AttributeModSingleChoice;
+import model.data_managers.sources.SourceConstructor;
 import model.enums.Proficiency;
 import model.enums.Type;
 import model.util.Pair;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static model.util.StringUtils.camelCase;
@@ -23,40 +21,12 @@ import static model.util.StringUtils.camelCaseWord;
 public class BackgroundsLoader extends ABCLoader<Background, Background.Builder> {
     private List<Background> backgrounds;
 
-    private static final BackgroundsLoader instance;
-    static{instance = new BackgroundsLoader();}
-
-    private BackgroundsLoader() {
-        this.path = new File("data/backgrounds");
+    static{
+        source = e -> Type.Background;
     }
 
-    public static BackgroundsLoader instance() {
-        return instance;
-    }
-
-    @Override
-    public List<Background> parse() {
-        if(backgrounds == null) {
-            backgrounds = new ArrayList<>();
-            for (Pair<Document, String> docEntry : getDocs(path)) {
-                Document doc = docEntry.first;
-                NodeList backgroundNodes = doc.getElementsByTagName("background");
-                for(int b=0; b<backgroundNodes.getLength(); b++) {
-                    NodeList classProperties = backgroundNodes.item(b).getChildNodes();
-
-                    Background.Builder builder = new Background.Builder();
-
-                    for (int i = 0; i < classProperties.getLength(); i++) {
-                        if (classProperties.item(i).getNodeType() != Node.ELEMENT_NODE)
-                            continue;
-                        Element curr = (Element) classProperties.item(i);
-                        parseElement(curr, curr.getTextContent().trim(), builder);
-                    }
-                    backgrounds.add(builder.build());
-                }
-            }
-        }
-        return Collections.unmodifiableList(backgrounds);
+    public BackgroundsLoader(SourceConstructor sourceConstructor, File root) {
+        super(sourceConstructor, root);
     }
 
     @Override
@@ -93,14 +63,24 @@ public class BackgroundsLoader extends ABCLoader<Background, Background.Builder>
         }
     }
 
-    @Override
-    protected Type getSource(Element element) {
-        return Type.Background;
-    }
-
     private Pair<Attribute, String> makeAttribute(String source) {
         if (source.contains("Lore")) {
             return new Pair<>(Attribute.Lore, source.replaceFirst("Lore ?\\(", "").replaceAll("\\).*", "").trim());
         }else return new Pair<>(Attribute.valueOf(camelCaseWord(source.trim())), "");
+    }
+
+    @Override
+    protected Background parseItem(String filename, Element item) {
+        NodeList classProperties = item.getChildNodes();
+
+        Background.Builder builder = new Background.Builder();
+
+        for (int i = 0; i < classProperties.getLength(); i++) {
+            if (classProperties.item(i).getNodeType() != Node.ELEMENT_NODE)
+                continue;
+            Element curr = (Element) classProperties.item(i);
+            parseElement(curr, curr.getTextContent().trim(), builder);
+        }
+        return builder.build();
     }
 }

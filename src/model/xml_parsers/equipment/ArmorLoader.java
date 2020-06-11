@@ -1,7 +1,8 @@
 package model.xml_parsers.equipment;
 
+import model.data_managers.sources.SourceConstructor;
 import model.enums.ArmorProficiency;
-import model.equipment.*;
+import model.equipment.CustomTrait;
 import model.equipment.armor.Armor;
 import model.equipment.armor.ArmorGroup;
 import model.equipment.armor.Shield;
@@ -12,43 +13,47 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.File;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static model.util.StringUtils.camelCase;
 
 public class ArmorLoader extends FileLoader<Armor> {
 
-    private List<Armor> armorAndShields;
-    private List<Equipment> equipment;
-
     private final Map<String, ArmorGroup> armorGroups = new HashMap<>();
     private final Map<String, CustomTrait> armorTraits = new HashMap<>();
 
-    public ArmorLoader() {
-        path = new File("data/equipment/armor_and_shields.pfdyl");
+    public ArmorLoader(SourceConstructor sourceConstructor, File root) {
+        super(sourceConstructor, root);
     }
+
     @Override
-    public List<Armor> parse() {
-        if(armorAndShields == null) {
-            armorAndShields = new ArrayList<>();
-            Document doc = getDoc(path);
+    protected void loadMultiple(String category, String location) {
 
-            iterateElements(doc, "ArmorGroup", (curr)->{
-                String name = curr.getElementsByTagName("Name").item(0).getTextContent().trim();
-                String effect = curr.getElementsByTagName("Effect").item(0).getTextContent().trim();
-                armorGroups.put(name.toLowerCase(), new ArmorGroup(effect, name));
-            });
+        loadTracker.setLoaded(location);
+        File subFile = getSubFile(location);
+        Document doc = getDoc(subFile);
+        iterateElements(doc, "ArmorGroup", (curr)->{
+            String name = curr.getElementsByTagName("Name").item(0).getTextContent().trim();
+            String effect = curr.getElementsByTagName("Effect").item(0).getTextContent().trim();
+            armorGroups.put(name.toLowerCase(), new ArmorGroup(effect, name));
+        });
 
-            iterateElements(doc, "ArmorTrait", (curr)->{
-                String name = curr.getElementsByTagName("Name").item(0).getTextContent().trim();
-                String desc = curr.getElementsByTagName("Description").item(0).getTextContent().trim();
-                armorTraits.put(name, new CustomTrait(name, desc));
-            });
+        iterateElements(doc, "ArmorTrait", (curr)->{
+            String name = curr.getElementsByTagName("Name").item(0).getTextContent().trim();
+            String desc = curr.getElementsByTagName("Description").item(0).getTextContent().trim();
+            armorTraits.put(name, new CustomTrait(name, desc));
+        });
+        iterateElements(doc, "Armor", (curr)->{
+            Armor armor = getArmor(curr);
+            addItem(armor.getSubCategory(), armor);
+        });
+    }
 
-            iterateElements(doc, "Armor", (curr)-> armorAndShields.add(getArmor(curr)));
-        }
-        return Collections.unmodifiableList(armorAndShields);
+    @Override
+    protected Armor parseItem(String filename, Element item) {
+        return getArmor(item);
     }
 
     private Armor getArmor(Element armor) {
@@ -103,14 +108,9 @@ public class ArmorLoader extends FileLoader<Armor> {
                     Arrays.stream(trim.split(",")).map((item)->armorTraits.get(camelCase(item.trim().split(" ")[0]))).forEachOrdered(builder::addArmorTrait);
                     break;
                 default:
-                    ItemLoader.parseTag(trim, curr, builder);
+                    EquipmentLoader.parseTag(trim, curr, builder);
             }
         }
         return (shieldBuilder != null) ? shieldBuilder.build() : builder.build();
-    }
-
-    public List<Equipment> getEquipmentList() {
-        if(equipment == null) equipment = parse().stream().map(a->(Equipment) a).collect(Collectors.toList());
-        return equipment;
     }
 }

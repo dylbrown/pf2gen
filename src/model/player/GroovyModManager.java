@@ -12,7 +12,7 @@ import model.WeaponGroupMod;
 import model.WeaponMod;
 import model.attributes.Attribute;
 import model.attributes.AttributeMod;
-import model.data_managers.EquipmentManager;
+import model.data_managers.sources.SourcesLoader;
 import model.enums.Proficiency;
 import model.equipment.weapons.Damage;
 import model.util.StringUtils;
@@ -61,7 +61,8 @@ public class GroovyModManager {
                 String[] words = listSplit[0].split(" ");
                 switch (words[0].toLowerCase()){
                     case "weapongroup":
-                        selections = EquipmentManager.getWeaponGroups().keySet()
+                        selections = SourcesLoader.instance().find("Core Rulebook").getWeapons()
+                                .getWeaponsGroups().keySet()
                                 .stream().map(StringUtils::camelCase).collect(Collectors.toList());
                         break;
                     case "skill":
@@ -111,12 +112,14 @@ public class GroovyModManager {
         public void weaponGroupProficiency(String group, String prof) {
             if(applying.get()) {
                 attributes.apply(new WeaponGroupMod(
-                        EquipmentManager.getWeaponGroups().get(group.toLowerCase()),
+                        SourcesLoader.instance().find("Core Rulebook").getWeapons()
+                                .getWeaponsGroups().get(group.toLowerCase()),
                         Proficiency.valueOf(StringUtils.camelCaseWord(prof.trim()))
                 ));
             } else {
                 attributes.remove(new WeaponGroupMod(
-                        EquipmentManager.getWeaponGroups().get(group.toLowerCase()),
+                        SourcesLoader.instance().find("Core Rulebook").getWeapons()
+                                .getWeaponsGroups().get(group.toLowerCase()),
                         Proficiency.valueOf(StringUtils.camelCaseWord(prof.trim()))
                 ));
             }

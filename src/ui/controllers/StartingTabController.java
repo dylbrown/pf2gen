@@ -8,15 +8,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import model.data_managers.AllDeities;
-import model.xml_parsers.abc.AncestriesLoader;
-import model.xml_parsers.abc.BackgroundsLoader;
-import model.xml_parsers.abc.PClassesLoader;
+import model.data_managers.sources.SourcesLoader;
 import setting.Deity;
 import ui.Main;
 import ui.html.ABCHTMLGenerator;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -28,26 +26,29 @@ public class StartingTabController {
     @FXML
     private void initialize() {
         addTab("Ancestry", FXCollections.unmodifiableObservableList(
-                    FXCollections.observableList(AncestriesLoader.instance().parse())
+                    FXCollections.observableList(new ArrayList<>(SourcesLoader.instance().find("Core Rulebook")
+                            .getAncestries().getAll().values()))
                 ),
                 Main.character.getAncestryProperty(),
                 Main.character::setAncestry,
                 ABCHTMLGenerator::parseAncestry);
         addTab("Background", FXCollections.unmodifiableObservableList(
-                FXCollections.observableList(BackgroundsLoader.instance().parse())
+                FXCollections.observableList(new ArrayList<>(SourcesLoader.instance().find("Core Rulebook")
+                        .getBackgrounds().getAll().values()))
                 ),
                 Main.character.getBackgroundProperty(),
                 Main.character::setBackground,
                 ABCHTMLGenerator::parseBackground);
         addTab("Class", FXCollections.unmodifiableObservableList(
-                FXCollections.observableList(PClassesLoader.instance().parse())
+                FXCollections.observableList(new ArrayList<>(SourcesLoader.instance().find("Core Rulebook")
+                        .getClasses().getAll().values()))
                 ),
                 Main.character.getPClassProperty(),
                 Main.character::setPClass,
                 ABCHTMLGenerator::parsePClass);
         ObservableList<Deity> deities = FXCollections.observableArrayList();
         deities.add(Deity.NO_DEITY);
-        deities.addAll(AllDeities.list());
+        deities.addAll(SourcesLoader.instance().find("Core Rulebook").getDeities().getAll().values());
         addTab("Deity", FXCollections.unmodifiableObservableList(
                 deities
                 ),

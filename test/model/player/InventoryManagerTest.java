@@ -1,11 +1,11 @@
 package model.player;
 
 import javafx.collections.ObservableMap;
-import model.data_managers.EquipmentManager;
+import model.data_managers.sources.SourcesLoader;
 import model.enums.Slot;
-import model.equipment.armor.Armor;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
+import model.equipment.armor.Armor;
 import model.equipment.weapons.Weapon;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,8 @@ class InventoryManagerTest {
         inventory.setMoney(30000000);
         sampleItems = new ArrayList<>();
         int i=0;
-        for (Equipment equipment : EquipmentManager.getEquipment()) {
+        for (Equipment equipment : SourcesLoader.instance().find("Core Rulebook").getEquipment()
+                .getAll().values()) {
             sampleItems.add(equipment);
             if(i>=20) break;
             i++;

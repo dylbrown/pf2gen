@@ -1,60 +1,31 @@
 package model.xml_parsers;
 
 import model.abilities.Ability;
+import model.data_managers.sources.SourceConstructor;
 import model.enums.Type;
-import model.util.Pair;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class FeatsLoader extends AbilityLoader<Ability> {
     private final Map<String, List<Ability>> featsMap = new HashMap<>();
     private List<Ability> feats;
-    public FeatsLoader(String location) {
-        path = new File(location);
+
+    static{
+        source = e-> Type.General;
+    }
+
+    public FeatsLoader(SourceConstructor sourceConstructor, File root) {
+        super(sourceConstructor, root);
     }
 
     @Override
-    public List<Ability> parse() {
-        if(feats == null) {
-            feats = new ArrayList<>();
-            for (Pair<Document, String> docEntry : getDocs(path)) {
-                Document doc = docEntry.first;
-                String file = docEntry.second;
-                if(file.equals("bloodline.pfdyl")) {
-                    for (Ability ability : new BloodlinesLoader(doc).parse()) {
-                        this.feats.add(ability);
-                        this.featsMap.computeIfAbsent(file.replaceAll(".pfdyl", "").toLowerCase(),
-                                s->new ArrayList<>()).add(ability);
-                    }
-                    continue;
-                }
-                NodeList abilities = doc.getElementsByTagName("pf2:feats").item(0).getChildNodes();
-                for(int i=0; i<abilities.getLength(); i++) {
-                    if(abilities.item(i).getNodeType() == Node.ELEMENT_NODE){
-                        Ability ability = makeAbility((Element) abilities.item(i),
-                                ((Element) abilities.item(i)).getAttribute("name"));
-                        this.feats.add(ability);
-                        this.featsMap.computeIfAbsent(file.replaceAll(".pfdyl", "").toLowerCase().replaceAll(" ", ""),
-                                s->new ArrayList<>()).add(ability);
-                    }
-                }
-            }
-        }
-        return Collections.unmodifiableList(feats);
-    }
-
-    @Override
-    protected Type getSource(Element element) {
-        return Type.General;
-    }
-
-    public List<Ability> getFeats(String type) {
-        parse();
-        return Collections.unmodifiableList(featsMap.getOrDefault(type.toLowerCase().replaceAll(" ", ""), Collections.emptyList()));
+    protected Ability parseItem(String filename, Element item) {
+        if(filename.toLowerCase().contains("bloodline"))
+            return BloodlinesLoader.makeBloodline(item);
+        return makeAbility(item,  item.getAttribute("name"));
     }
 }

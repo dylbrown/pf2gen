@@ -8,8 +8,11 @@ import model.abc.Ancestry;
 import model.abc.PClass;
 import model.abilities.Ability;
 import model.abilities.AbilitySet;
-import model.abilities.abilitySlots.*;
-import model.data_managers.AllFeats;
+import model.abilities.abilitySlots.AbilitySlot;
+import model.abilities.abilitySlots.FeatSlot;
+import model.abilities.abilitySlots.FilledSlot;
+import model.abilities.abilitySlots.SingleChoice;
+import model.data_managers.sources.SourcesLoader;
 import model.enums.Type;
 
 import java.util.*;
@@ -74,7 +77,7 @@ public class AbilityManager {
 							results.addAll(ancestry.get().getHeritages());
 						break;
 					default:
-						results.addAll(AllFeats.getFeats(allowedType));
+						results.addAll(SourcesLoader.instance().find("Core Rulebook").getFeats().getCategory(allowedType).values());
 						break;
 				}
 			}

@@ -1,12 +1,10 @@
 package model.xml_parsers.equipment;
 
-import model.equipment.weapons.DamageType;
+import model.data_managers.sources.SourceConstructor;
 import model.enums.WeaponProficiency;
-import model.equipment.*;
-import model.equipment.weapons.Dice;
-import model.equipment.weapons.RangedWeapon;
-import model.equipment.weapons.Weapon;
-import model.equipment.weapons.WeaponGroup;
+import model.equipment.CustomTrait;
+import model.equipment.SpecialCustomTrait;
+import model.equipment.weapons.*;
 import model.xml_parsers.FileLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -14,42 +12,47 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.File;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static model.util.StringUtils.camelCase;
 
 public class WeaponsLoader extends FileLoader<Weapon> {
 
-    private List<Weapon> weapons;
-    private List<Equipment> equipment;
     private static final Map<String, WeaponGroup> weaponGroups = new HashMap<>();
     private static final Map<String, CustomTrait> weaponTraits = new HashMap<>();
 
-    public WeaponsLoader() {
-        path = new File("data/equipment/weapons.pfdyl");
+    public WeaponsLoader(SourceConstructor sourceConstructor, File root) {
+        super(sourceConstructor, root);
     }
 
-    public List<Weapon> parse() {
-        if(weapons == null) {
-            weapons = new ArrayList<>();
-            Document doc = getDoc(path);
+    @Override
+    protected void loadMultiple(String category, String location) {
+        loadTracker.setLoaded(location);
+        File subFile = getSubFile(location);
+        Document doc = getDoc(subFile);
+        iterateElements(doc, "WeaponGroup", (curr)->{
+            String name = curr.getElementsByTagName("Name").item(0).getTextContent().trim();
+            String critEffect = curr.getElementsByTagName("CritEffect").item(0).getTextContent().trim();
+            weaponGroups.put(name.toLowerCase(), new WeaponGroup(critEffect, name));
+        });
 
-            iterateElements(doc, "WeaponGroup", (curr)->{
-                String name = curr.getElementsByTagName("Name").item(0).getTextContent().trim();
-                String critEffect = curr.getElementsByTagName("CritEffect").item(0).getTextContent().trim();
-                weaponGroups.put(name.toLowerCase(), new WeaponGroup(critEffect, name));
-            });
+        iterateElements(doc, "WeaponTrait", (curr)->{
+            String name = curr.getElementsByTagName("Name").item(0).getTextContent().trim();
+            String desc = curr.getElementsByTagName("Description").item(0).getTextContent().trim();
+            weaponTraits.put(camelCase(name), new CustomTrait(name, desc));
+        });
+        iterateElements(doc, "Weapon", (curr)->{
+            Weapon weapon = getWeapon(curr);
+            addItem(weapon.getSubCategory(), weapon);
+        });
+    }
 
-            iterateElements(doc, "WeaponTrait", (curr)->{
-                String name = curr.getElementsByTagName("Name").item(0).getTextContent().trim();
-                String desc = curr.getElementsByTagName("Description").item(0).getTextContent().trim();
-                weaponTraits.put(camelCase(name), new CustomTrait(name, desc));
-            });
-
-            iterateElements(doc, "Weapon", (curr)-> weapons.add(getWeapon(curr)));
-        }
-        return Collections.unmodifiableList(weapons);
+    @Override
+    protected Weapon parseItem(String filename, Element item) {
+        return getWeapon(item);
     }
 
     public static Weapon getWeapon(Element weapon) {
@@ -120,7 +123,7 @@ public class WeaponsLoader extends FileLoader<Weapon> {
                     }).forEachOrdered(builder::addWeaponTrait);
                     break;
                 default:
-                    ItemLoader.parseTag(trim, curr, builder);
+                    EquipmentLoader.parseTag(trim, curr, builder);
                     break;
             }
         }
@@ -128,12 +131,7 @@ public class WeaponsLoader extends FileLoader<Weapon> {
     }
 
     public Map<String, WeaponGroup> getWeaponsGroups() {
-        if(weapons == null) parse();
+        getAll();
         return Collections.unmodifiableMap(weaponGroups);
-    }
-
-    public List<Equipment> getEquipmentList() {
-        if(equipment == null) equipment = parse().stream().map(a->(Equipment) a).collect(Collectors.toList());
-        return equipment;
     }
 }

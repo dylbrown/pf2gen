@@ -2,9 +2,6 @@ package model.data_managers;
 
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
-import model.abc.Ancestry;
-import model.abc.Background;
-import model.abc.PClass;
 import model.abilities.abilitySlots.Choice;
 import model.abilities.abilitySlots.ChoiceList;
 import model.abilities.abilitySlots.FeatSlot;
@@ -12,21 +9,19 @@ import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
 import model.attributes.SkillIncrease;
+import model.data_managers.sources.SourcesLoader;
 import model.enums.Alignment;
 import model.enums.BuySellMode;
 import model.enums.Slot;
 import model.enums.Type;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
-import model.equipment.SearchItem;
 import model.equipment.runes.Rune;
 import model.equipment.runes.runedItems.RunedEquipment;
 import model.spells.Spell;
 import model.util.Pair;
+import model.util.StringUtils;
 import model.util.Triple;
-import model.xml_parsers.abc.AncestriesLoader;
-import model.xml_parsers.abc.BackgroundsLoader;
-import model.xml_parsers.abc.PClassesLoader;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -166,28 +161,21 @@ public class SaveLoadManager {
                     case "name": character.qualities().set("name", afterEq); break;
                     case "player": character.qualities().set("player", afterEq); break;
                     case "alignment": character.setAlignment(Alignment.valueOf(afterEq)); break;
-                    case "deity": character.setDeity(AllDeities.find(afterEq));
+                    case "deity": character.setDeity(SourcesLoader.instance().find("Core Rulebook")
+                            .getDeities().find(afterEq));
+                        break;
                     case "ancestry":
-                        for (Ancestry ancestry : AncestriesLoader.instance().parse()) {
-                            if (ancestry.getName().equals(afterEq)) {
-                                character.setAncestry(ancestry);
-                                break;
-                            }
-                        } break;
+                        character.setAncestry(SourcesLoader.instance().find("Core Rulebook")
+                                .getAncestries().find(afterEq));
+                        break;
                     case "background":
-                        for (Background background : BackgroundsLoader.instance().parse()) {
-                            if (background.getName().equals(afterEq)) {
-                                character.setBackground(background);
-                                break;
-                            }
-                        } break;
+                        character.setBackground(SourcesLoader.instance().find("Core Rulebook")
+                                .getBackgrounds().find(afterEq));
+                        break;
                     case "class":
-                        for (PClass pClass : PClassesLoader.instance().parse()) {
-                            if (pClass.getName().equals(afterEq)) {
-                                character.setPClass(pClass);
-                                break;
-                            }
-                        } break;
+                        character.setPClass(SourcesLoader.instance().find("Core Rulebook")
+                                .getClasses().find(afterEq));
+                        break;
                     case "level":
                         int lvl = Integer.parseInt(afterEq);
                         while (character.getLevel() < lvl)
@@ -299,18 +287,20 @@ public class SaveLoadManager {
                 }
                 if (s.startsWith(" - ")) {
                     String[] split = s.substring(3).split(" ", 2);
-                    SortedSet<Equipment> tailSet = EquipmentManager.getEquipment().tailSet(new SearchItem(split[1]));
-                    if (!tailSet.isEmpty()) {
-                        if (tailSet.first().getName().equals(split[1]))
-                            character.inventory().buy(tailSet.first(), Integer.parseInt(split[0]));
+                    SortedMap<String, Equipment> tailMap = SourcesLoader.instance().find("Core Rulebook")
+                            .getEquipment().getAll().tailMap(StringUtils.clean(split[1]));
+                    if (!tailMap.isEmpty()) {
+                        if (tailMap.get(tailMap.firstKey()).getName().equals(split[1]))
+                            character.inventory().buy(tailMap.get(tailMap.firstKey()), Integer.parseInt(split[0]));
                     }
                 } else if (s.startsWith(" @ ")) {
                     String itemName = s.substring(3).split(" ", 2)[1];
                     Equipment item;
-                    SortedSet<Equipment> tailSet = EquipmentManager.getEquipment().tailSet(new SearchItem(itemName));
-                    if (!tailSet.isEmpty()) {
-                        if (tailSet.first().getName().equals(itemName)) {
-                            item = tailSet.first();
+                    SortedMap<String, Equipment> tailMap = SourcesLoader.instance().find("Core Rulebook")
+                            .getEquipment().getAll().tailMap(StringUtils.clean(itemName));
+                    if (!tailMap.isEmpty()) {
+                        if (tailMap.get(tailMap.firstKey()).getName().equals(itemName)) {
+                            item = tailMap.get(tailMap.firstKey());
                             character.inventory().buy(item, 1);
                             upgradeItem(item, lines);
                         }
@@ -355,7 +345,8 @@ public class SaveLoadManager {
                         lines.second--;
                         break;
                     }
-                    character.spells().addSpell(AllSpells.find(s.substring(5)));
+                    character.spells().addSpell(SourcesLoader.instance().find("Core Rulebook")
+                            .getSpells().find("Focus Spells", s.substring(5)));
                 }
             }
 
@@ -374,11 +365,12 @@ public class SaveLoadManager {
                 return;
             }
             String itemName = s.substring(5);
-            SortedSet<Equipment> tailSet = EquipmentManager.getEquipment().tailSet(new SearchItem(itemName));
-            if (!tailSet.isEmpty()) {
-                if(tailSet.first().getName().equals(itemName)) {
-                    if(tailSet.first() instanceof Rune) {
-                        rune = (Rune) tailSet.first();
+            SortedMap<String, Equipment> tailMap = SourcesLoader.instance().find("Core Rulebook")
+                    .getEquipment().getAll().tailMap(StringUtils.clean(itemName));
+            if (!tailMap.isEmpty()) {
+                if(tailMap.get(tailMap.firstKey()).getName().equals(itemName)) {
+                    if(tailMap.get(tailMap.firstKey()) instanceof Rune) {
+                        rune = (Rune) tailMap.get(tailMap.firstKey());
                         character.inventory().buy(rune, 1);
                         item = character.inventory().tryToAddRune(item, rune).second;
                     }

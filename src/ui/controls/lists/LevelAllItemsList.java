@@ -2,9 +2,9 @@ package ui.controls.lists;
 
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
-import model.data_managers.EquipmentManager;
+import model.data_managers.sources.SourcesLoader;
 import model.equipment.Equipment;
-import model.xml_parsers.equipment.ItemLoader;
+import model.xml_parsers.equipment.EquipmentLoader;
 import ui.controls.lists.entries.ItemEntry;
 
 import java.util.Comparator;
@@ -28,7 +28,7 @@ public class LevelAllItemsList extends AbstractItemList {
         cost.setStyle( "-fx-alignment: CENTER;");
         subCat.setCellValueFactory(new TreeCellFactory<>("subCategory"));
         subCat.setStyle( "-fx-alignment: CENTER;");
-        cost.setComparator(Comparator.comparingDouble(ItemLoader::getPrice));
+        cost.setComparator(Comparator.comparingDouble(EquipmentLoader::getPrice));
         //noinspection unchecked
         this.getColumns().addAll(name, cost, subCat);
         name.minWidthProperty().bind(this.widthProperty().multiply(.5));
@@ -37,7 +37,8 @@ public class LevelAllItemsList extends AbstractItemList {
     @Override
     void addItems(TreeItem<ItemEntry> root) {
         Map<Integer, Map<String, TreeItem<ItemEntry>>> cats = new TreeMap<>();
-        for (Equipment equipment : EquipmentManager.getEquipment()) {
+        for (Equipment equipment : SourcesLoader.instance().find("Core Rulebook")
+                .getEquipment().getAll().values()) {
             int level = equipment.getLevel();
             cats.computeIfAbsent(level, (s)->new HashMap<>())
                     .computeIfAbsent(equipment.getCategory(), (s)->new TreeItem<>(new ItemEntry(s)))
