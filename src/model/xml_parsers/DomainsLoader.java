@@ -16,7 +16,7 @@ public class DomainsLoader extends FileLoader<Domain> {
     }
 
     @Override
-    protected Domain parseItem(String filename, Element domain) {
+    protected Domain parseItem(File file, Element domain) {
         NodeList nodeList = domain.getChildNodes();
         Domain.Builder builder = new Domain.Builder();
         builder.setPage(Integer.parseInt(domain.getAttribute("page")));
@@ -30,12 +30,10 @@ public class DomainsLoader extends FileLoader<Domain> {
                     builder.setName(trim);
                     break;
                 case "domainspell":
-                    builder.setDomainSpell(SourcesLoader.instance().find("Core Rulebook")
-                            .getSpells().find(trim));
+                    builder.setDomainSpell(SourcesLoader.instance().spells().find(trim));
                     break;
                 case "advanceddomainspell":
-                    builder.setAdvancedDomainSpell(SourcesLoader.instance().find("Core Rulebook")
-                            .getSpells().find(trim));
+                    builder.setAdvancedDomainSpell(SourcesLoader.instance().spells().find(trim));
                     break;
             }
         }

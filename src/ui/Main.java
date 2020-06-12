@@ -24,6 +24,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
+        long startTime = System.currentTimeMillis();
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/home.fxml"));
         primaryStage.setTitle("PF2Gen");
         scene.setValue(new Scene(root, 900, 600));
@@ -31,6 +32,7 @@ public class Main extends Application {
         primaryStage.setScene(scene.getValue());
         root.setStyle("-fx-base: rgba(45, 49, 50, 255);");
         primaryStage.getScene().getStylesheets().add("/style.css");
+        System.out.println(System.currentTimeMillis() - startTime + " ms");
         primaryStage.show();
         // primaryStage.setMaximized(true);
     }

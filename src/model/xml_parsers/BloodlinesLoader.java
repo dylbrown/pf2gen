@@ -52,8 +52,7 @@ public abstract class BloodlinesLoader extends AbilityLoader<Ability> {
 			SpellAbility.Builder builder = new SpellAbility.Builder(); builder.setName(split[0]+"-level granted spells");
 			if(!split[0].equals("") && !split[0].equals("1st"))
 				builder.setPrerequisites(Collections.singletonList(split[0]+"-level spells"));
-			builder.addBonusSpell(SpellType.Spell, SourcesLoader.instance().find("Core Rulebook")
-					.getSpells().find(split[1]));
+			builder.addBonusSpell(SpellType.Spell, SourcesLoader.instance().spells().find(split[1]));
 			grantedAbilities.add(builder.build());
 		}
 		AbilitySet.Builder grantedSet = new AbilitySet.Builder();
@@ -62,14 +61,11 @@ public abstract class BloodlinesLoader extends AbilityLoader<Ability> {
 
 		//Bloodline Spells
 		String[] bSpells = item.getElementsByTagName("BloodlineSpells").item(0).getTextContent().split(", ?");
-		bloodline.addBonusSpell(SpellType.Focus, SourcesLoader.instance().find("Core Rulebook")
-				.getSpells().find(bSpells[0].split(": ")[1]));
+		bloodline.addBonusSpell(SpellType.Focus, SourcesLoader.instance().spells().find(bSpells[0].split(": ")[1]));
 		SpellAbility.Builder advanced = new SpellAbility.Builder(); advanced.setName("Advanced Bloodline Spell");
 		SpellAbility.Builder greater = new SpellAbility.Builder();  greater.setName("Greater Bloodline Spell");
-		advanced.addBonusSpell(SpellType.Focus, SourcesLoader.instance().find("Core Rulebook")
-				.getSpells().find(bSpells[1].split(": ")[1]));
-		greater.addBonusSpell(SpellType.Focus, SourcesLoader.instance().find("Core Rulebook")
-				.getSpells().find(bSpells[2].split(": ")[1]));
+		advanced.addBonusSpell(SpellType.Focus, SourcesLoader.instance().spells().find(bSpells[1].split(": ")[1]));
+		greater.addBonusSpell(SpellType.Focus, SourcesLoader.instance().spells().find(bSpells[2].split(": ")[1]));
 		advanced.setPrerequisites(Collections.singletonList("Advanced Bloodline"));
 		advanced.setPrerequisites(Collections.singletonList("Greater Bloodline"));
 		bloodline.addAbilitySlot(new FilledSlot("Advanced Bloodline Spell", 1, advanced.build()));

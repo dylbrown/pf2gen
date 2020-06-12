@@ -26,29 +26,30 @@ public class StartingTabController {
     @FXML
     private void initialize() {
         addTab("Ancestry", FXCollections.unmodifiableObservableList(
-                    FXCollections.observableList(new ArrayList<>(SourcesLoader.instance().find("Core Rulebook")
-                            .getAncestries().getAll().values()))
+                    FXCollections.observableList(new ArrayList<>(SourcesLoader.instance()
+                            .ancestries().getAll().values()))
                 ),
                 Main.character.getAncestryProperty(),
                 Main.character::setAncestry,
                 ABCHTMLGenerator::parseAncestry);
         addTab("Background", FXCollections.unmodifiableObservableList(
-                FXCollections.observableList(new ArrayList<>(SourcesLoader.instance().find("Core Rulebook")
-                        .getBackgrounds().getAll().values()))
+                FXCollections.observableList(new ArrayList<>(SourcesLoader.instance()
+                        .backgrounds().getAll().values()))
                 ),
                 Main.character.getBackgroundProperty(),
                 Main.character::setBackground,
                 ABCHTMLGenerator::parseBackground);
         addTab("Class", FXCollections.unmodifiableObservableList(
-                FXCollections.observableList(new ArrayList<>(SourcesLoader.instance().find("Core Rulebook")
-                        .getClasses().getAll().values()))
+                FXCollections.observableList(new ArrayList<>(SourcesLoader.instance()
+                        .classes().getAll().values()))
                 ),
                 Main.character.getPClassProperty(),
                 Main.character::setPClass,
                 ABCHTMLGenerator::parsePClass);
         ObservableList<Deity> deities = FXCollections.observableArrayList();
         deities.add(Deity.NO_DEITY);
-        deities.addAll(SourcesLoader.instance().find("Core Rulebook").getDeities().getAll().values());
+        deities.addAll(SourcesLoader.instance()
+                .deities().getAll().values());
         addTab("Deity", FXCollections.unmodifiableObservableList(
                 deities
                 ),

@@ -37,8 +37,7 @@ public class LevelAllItemsList extends AbstractItemList {
     @Override
     void addItems(TreeItem<ItemEntry> root) {
         Map<Integer, Map<String, TreeItem<ItemEntry>>> cats = new TreeMap<>();
-        for (Equipment equipment : SourcesLoader.instance().find("Core Rulebook")
-                .getEquipment().getAll().values()) {
+        for (Equipment equipment : SourcesLoader.instance().equipment().getAll().values()) {
             int level = equipment.getLevel();
             cats.computeIfAbsent(level, (s)->new HashMap<>())
                     .computeIfAbsent(equipment.getCategory(), (s)->new TreeItem<>(new ItemEntry(s)))

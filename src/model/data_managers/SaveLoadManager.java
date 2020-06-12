@@ -161,20 +161,16 @@ public class SaveLoadManager {
                     case "name": character.qualities().set("name", afterEq); break;
                     case "player": character.qualities().set("player", afterEq); break;
                     case "alignment": character.setAlignment(Alignment.valueOf(afterEq)); break;
-                    case "deity": character.setDeity(SourcesLoader.instance().find("Core Rulebook")
-                            .getDeities().find(afterEq));
+                    case "deity": character.setDeity(SourcesLoader.instance().deities().find(afterEq));
                         break;
                     case "ancestry":
-                        character.setAncestry(SourcesLoader.instance().find("Core Rulebook")
-                                .getAncestries().find(afterEq));
+                        character.setAncestry(SourcesLoader.instance().ancestries().find(afterEq));
                         break;
                     case "background":
-                        character.setBackground(SourcesLoader.instance().find("Core Rulebook")
-                                .getBackgrounds().find(afterEq));
+                        character.setBackground(SourcesLoader.instance().backgrounds().find(afterEq));
                         break;
                     case "class":
-                        character.setPClass(SourcesLoader.instance().find("Core Rulebook")
-                                .getClasses().find(afterEq));
+                        character.setPClass(SourcesLoader.instance().classes().find(afterEq));
                         break;
                     case "level":
                         int lvl = Integer.parseInt(afterEq);
@@ -287,8 +283,8 @@ public class SaveLoadManager {
                 }
                 if (s.startsWith(" - ")) {
                     String[] split = s.substring(3).split(" ", 2);
-                    SortedMap<String, Equipment> tailMap = SourcesLoader.instance().find("Core Rulebook")
-                            .getEquipment().getAll().tailMap(StringUtils.clean(split[1]));
+                    SortedMap<String, Equipment> tailMap = SourcesLoader.instance().equipment()
+                            .getAll().tailMap(StringUtils.clean(split[1]));
                     if (!tailMap.isEmpty()) {
                         if (tailMap.get(tailMap.firstKey()).getName().equals(split[1]))
                             character.inventory().buy(tailMap.get(tailMap.firstKey()), Integer.parseInt(split[0]));
@@ -296,8 +292,8 @@ public class SaveLoadManager {
                 } else if (s.startsWith(" @ ")) {
                     String itemName = s.substring(3).split(" ", 2)[1];
                     Equipment item;
-                    SortedMap<String, Equipment> tailMap = SourcesLoader.instance().find("Core Rulebook")
-                            .getEquipment().getAll().tailMap(StringUtils.clean(itemName));
+                    SortedMap<String, Equipment> tailMap = SourcesLoader.instance().equipment()
+                            .getAll().tailMap(StringUtils.clean(itemName));
                     if (!tailMap.isEmpty()) {
                         if (tailMap.get(tailMap.firstKey()).getName().equals(itemName)) {
                             item = tailMap.get(tailMap.firstKey());
@@ -345,8 +341,8 @@ public class SaveLoadManager {
                         lines.second--;
                         break;
                     }
-                    character.spells().addSpell(SourcesLoader.instance().find("Core Rulebook")
-                            .getSpells().find("Focus Spells", s.substring(5)));
+                    character.spells().addSpell(SourcesLoader.instance().spells()
+                            .find("Focus Spells", s.substring(5)));
                 }
             }
 
@@ -365,8 +361,8 @@ public class SaveLoadManager {
                 return;
             }
             String itemName = s.substring(5);
-            SortedMap<String, Equipment> tailMap = SourcesLoader.instance().find("Core Rulebook")
-                    .getEquipment().getAll().tailMap(StringUtils.clean(itemName));
+            SortedMap<String, Equipment> tailMap = SourcesLoader.instance().equipment()
+                    .getAll().tailMap(StringUtils.clean(itemName));
             if (!tailMap.isEmpty()) {
                 if(tailMap.get(tailMap.firstKey()).getName().equals(itemName)) {
                     if(tailMap.get(tailMap.firstKey()) instanceof Rune) {

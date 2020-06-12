@@ -20,7 +20,7 @@ public class DeitiesLoader extends FileLoader<Deity> {
     }
 
     @Override
-    protected Deity parseItem(String filename, Element deity) {
+    protected Deity parseItem(File file, Element deity) {
         NodeList nodeList = deity.getChildNodes();
         Deity.Builder builder = new Deity.Builder();
         builder.setPage(Integer.parseInt(deity.getAttribute("page")));
@@ -66,13 +66,11 @@ public class DeitiesLoader extends FileLoader<Deity> {
                     builder.setDivineSkills(Stream.of(trim.split(" or ")).map(Attribute::robustValueOf).collect(Collectors.toList()));
                     break;
                 case "favoredweapon":
-                        builder.setFavoredWeapon(SourcesLoader.instance().find("Core Rulebook")
-                                .getWeapons().find(trim));
+                        builder.setFavoredWeapon(SourcesLoader.instance().weapons().find(trim));
                     break;
                 case "domains":
                     for (String s : trim.split(", ?")) {
-                        builder.addDomains(SourcesLoader.instance().find("Core Rulebook")
-                                        .getDomains().find(s));
+                        builder.addDomains(SourcesLoader.instance().domains().find(s));
                     }
                     break;
                 case "spells":
@@ -82,8 +80,7 @@ public class DeitiesLoader extends FileLoader<Deity> {
                             continue;
                         Element currSpell = (Element) spellsList.item(j);
                         builder.addSpell(Integer.parseInt(currSpell.getAttribute("level")),
-                                SourcesLoader.instance().find("Core Rulebook")
-                                        .getSpells().find(currSpell.getAttribute("name")));
+                                SourcesLoader.instance().spells().find(currSpell.getAttribute("name")));
                     }
                     break;
             }

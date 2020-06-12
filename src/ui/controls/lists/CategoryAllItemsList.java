@@ -23,13 +23,11 @@ public class CategoryAllItemsList extends AbstractItemList {
 
     @Override
     void addItems(TreeItem<ItemEntry> root) {
-        for (String category : SourcesLoader.instance().find("Core Rulebook")
-                .getEquipment().getCategories()) {
+        for (String category : SourcesLoader.instance().equipment().getCategories()) {
             TreeItem<ItemEntry> cat = new TreeItem<>(new ItemEntry(category));
             root.getChildren().add(cat);
             Map<String, TreeItem<ItemEntry>> subCats = new TreeMap<>();
-            for (Equipment equipment : SourcesLoader.instance().find("Core Rulebook")
-                    .getEquipment().getCategory(category).values()) {
+            for (Equipment equipment : SourcesLoader.instance().equipment().getCategory(category).values()) {
                 String subCategory = equipment.getSubCategory();
                 if(subCategory.isBlank())
                     cat.getChildren().add(new TreeItem<>(new ItemEntry(equipment)));

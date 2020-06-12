@@ -23,8 +23,8 @@ public class FeatsLoader extends AbilityLoader<Ability> {
     }
 
     @Override
-    protected Ability parseItem(String filename, Element item) {
-        if(filename.toLowerCase().contains("bloodline"))
+    protected Ability parseItem(File file, Element item) {
+        if(file.getName().toLowerCase().contains("bloodline"))
             return BloodlinesLoader.makeBloodline(item);
         return makeAbility(item,  item.getAttribute("name"));
     }

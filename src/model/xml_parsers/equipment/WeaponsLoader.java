@@ -51,7 +51,7 @@ public class WeaponsLoader extends FileLoader<Weapon> {
     }
 
     @Override
-    protected Weapon parseItem(String filename, Element item) {
+    protected Weapon parseItem(File file, Element item) {
         return getWeapon(item);
     }
 

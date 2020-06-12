@@ -70,7 +70,7 @@ public class BackgroundsLoader extends ABCLoader<Background, Background.Builder>
     }
 
     @Override
-    protected Background parseItem(String filename, Element item) {
+    protected Background parseItem(File file, Element item) {
         NodeList classProperties = item.getChildNodes();
 
         Background.Builder builder = new Background.Builder();

@@ -52,7 +52,7 @@ public class ArmorLoader extends FileLoader<Armor> {
     }
 
     @Override
-    protected Armor parseItem(String filename, Element item) {
+    protected Armor parseItem(File file, Element item) {
         return getArmor(item);
     }
 

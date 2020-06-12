@@ -28,7 +28,7 @@ class InventoryManagerTest {
         inventory.setMoney(30000000);
         sampleItems = new ArrayList<>();
         int i=0;
-        for (Equipment equipment : SourcesLoader.instance().find("Core Rulebook").getEquipment()
+        for (Equipment equipment : SourcesLoader.instance().equipment()
                 .getAll().values()) {
             sampleItems.add(equipment);
             if(i>=20) break;

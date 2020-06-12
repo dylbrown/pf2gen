@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 
 import static model.util.StringUtils.clean;
@@ -45,16 +46,29 @@ public abstract class FileLoader<T> {
         return root;
     }
 
+    public boolean isNotAllLoaded() {
+        return loadTracker.isNotAllLoaded();
+    }
+
     public NavigableMap<String, T> getAll() {
         if(loadTracker.isNotAllLoaded()) {
             if(sourceConstructor.getType() == SourceConstructor.Type.SingleFileMultiItem) {
                 load("");
             } else {
+                CountDownLatch latch = new CountDownLatch(sourceConstructor.map().size());
                 for (Map.Entry<String, String> entry : sourceConstructor.map().entrySet()) {
-                    if(sourceConstructor.isMultiplePerFile())
-                        loadMultiple(entry.getKey(), entry.getValue());
-                    else
-                        loadSingle(entry.getValue());
+                    new Thread(()->{
+                        if(sourceConstructor.isMultiplePerFile())
+                            loadMultiple(entry.getKey(), entry.getValue());
+                        else
+                            loadSingle(entry.getValue());
+                        latch.countDown();
+                    }).start();
+                }
+                try {
+                    latch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -118,7 +132,7 @@ public abstract class FileLoader<T> {
         loadTracker.setLoaded(location);
         File subFile = getSubFile(location);
         Document doc = getDoc(subFile);
-        T t = parseItem(subFile.getName(), doc.getDocumentElement());
+        T t = parseItem(subFile, doc.getDocumentElement());
         addItem("", t);
     }
 
@@ -131,18 +145,20 @@ public abstract class FileLoader<T> {
             Node item = childNodes.item(i);
             if(item.getNodeType() != Node.ELEMENT_NODE)
                 continue;
-            T t = parseItem(subFile.getName(), (Element) item);
+            T t = parseItem(subFile, (Element) item);
             addItem(category, t);
         }
     }
 
     protected void addItem(String category, T t) {
-        allItems.put(clean(t.toString()), t);
-        if(category != null && category.length() > 0)
-            getCategoryInternal(category).put(clean(t.toString()), t);
+        synchronized (this) {
+            allItems.put(clean(t.toString()), t);
+            if(category != null && category.length() > 0)
+                getCategoryInternal(category).put(clean(t.toString()), t);
+        }
     }
 
-    protected abstract T parseItem(String filename, Element item);
+    protected abstract T parseItem(File file, Element item);
 
     protected Document getDoc(File path) {
         Document doc = null;
@@ -200,6 +216,9 @@ public abstract class FileLoader<T> {
     }
 
     public Set<String> getCategories() {
+        if(sourceConstructor.getType() == SourceConstructor.Type.MultiItemMultiFile) {
+            return Collections.unmodifiableSet(sourceConstructor.map().keySet());
+        }
         return Collections.unmodifiableSet(categorizedItems.keySet());
     }
 }

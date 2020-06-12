@@ -61,8 +61,8 @@ public class GroovyModManager {
                 String[] words = listSplit[0].split(" ");
                 switch (words[0].toLowerCase()){
                     case "weapongroup":
-                        selections = SourcesLoader.instance().find("Core Rulebook").getWeapons()
-                                .getWeaponsGroups().keySet()
+                        selections = SourcesLoader.instance().weapons()
+                                .getWeaponGroups().keySet()
                                 .stream().map(StringUtils::camelCase).collect(Collectors.toList());
                         break;
                     case "skill":
@@ -112,14 +112,13 @@ public class GroovyModManager {
         public void weaponGroupProficiency(String group, String prof) {
             if(applying.get()) {
                 attributes.apply(new WeaponGroupMod(
-                        SourcesLoader.instance().find("Core Rulebook").getWeapons()
-                                .getWeaponsGroups().get(group.toLowerCase()),
+                        SourcesLoader.instance().weapons().getWeaponGroups().get(group.toLowerCase()),
                         Proficiency.valueOf(StringUtils.camelCaseWord(prof.trim()))
                 ));
             } else {
                 attributes.remove(new WeaponGroupMod(
-                        SourcesLoader.instance().find("Core Rulebook").getWeapons()
-                                .getWeaponsGroups().get(group.toLowerCase()),
+                        SourcesLoader.instance().weapons()
+                                .getWeaponGroups().get(group.toLowerCase()),
                         Proficiency.valueOf(StringUtils.camelCaseWord(prof.trim()))
                 ));
             }

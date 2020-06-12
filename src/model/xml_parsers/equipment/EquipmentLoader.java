@@ -33,8 +33,8 @@ public class EquipmentLoader extends FileLoader<Equipment> {
 
 
     @Override
-    protected Equipment parseItem(String filename, Element item) {
-        String niceName = StringUtils.unclean(filename);
+    protected Equipment parseItem(File file, Element item) {
+        String niceName = StringUtils.unclean(file.getName());
         switch(StringUtils.clean(item.getTagName())) {
             case "weaponrune": return makeWeaponRune(niceName, item);
             case "armorrune": return makeArmorRune(niceName, item);

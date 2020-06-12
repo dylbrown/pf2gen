@@ -184,8 +184,8 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                             case "Focus": spellType = SpellType.Focus; break;
                             case "Focus Cantrip": spellType = SpellType.FocusCantrip; break;
                         }
-                        spBuilder.addBonusSpell(spellType, SourcesLoader.instance().find("Core Rulebook")
-                                .getSpells().find(propElem.getAttribute("name")));
+                        spBuilder.addBonusSpell(spellType, SourcesLoader.instance()
+                                .spells().find(propElem.getAttribute("name")));
                         break;
                     case "AbilitySlot":
                         builder.addAbilitySlot(makeAbilitySlot(propElem, level));

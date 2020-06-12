@@ -185,8 +185,7 @@ public class EnchantTabController {
             default: return null;
         }
         String target = rune.getBaseRune()+" ?\\("+newTier+"\\) ?";
-        for (Equipment newRune : SourcesLoader.instance().find("Core Rulebook")
-                .getEquipment().getCategory("Runes").values()) {
+        for (Equipment newRune : SourcesLoader.instance().equipment().getCategory("Runes").values()) {
             if(newRune.getName().matches(target)) {
                 if(!(newRune instanceof Rune)) continue;
                 return (Rune) newRune;

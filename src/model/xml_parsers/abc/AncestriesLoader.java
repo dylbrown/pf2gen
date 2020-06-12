@@ -80,7 +80,7 @@ public class AncestriesLoader extends ABCLoader<Ancestry, Ancestry.Builder> {
     }
 
     @Override
-    protected Ancestry parseItem(String filename, Element item) {
+    protected Ancestry parseItem(File file, Element item) {
         NodeList classProperties = item.getChildNodes();
 
         Ancestry.Builder builder = new Ancestry.Builder();

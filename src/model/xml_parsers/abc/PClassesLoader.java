@@ -74,7 +74,7 @@ public class PClassesLoader extends ACLoader<PClass, PClass.Builder> {
     }
 
     @Override
-    protected PClass parseItem(String filename, Element item) {
+    protected PClass parseItem(File file, Element item) {
         NodeList classProperties = item.getChildNodes();
 
         PClass.Builder builder = new PClass.Builder();

@@ -77,7 +77,7 @@ public class AbilityManager {
 							results.addAll(ancestry.get().getHeritages());
 						break;
 					default:
-						results.addAll(SourcesLoader.instance().find("Core Rulebook").getFeats().getCategory(allowedType).values());
+						results.addAll(SourcesLoader.instance().feats().getCategory(allowedType).values());
 						break;
 				}
 			}

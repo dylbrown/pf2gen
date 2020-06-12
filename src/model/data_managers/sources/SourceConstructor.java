@@ -4,6 +4,7 @@ import model.util.StringUtils;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 public class SourceConstructor {
@@ -13,7 +14,11 @@ public class SourceConstructor {
     private final boolean multiplePerFile, singleFile;
 
     public SourceConstructor(Map<String, String> map, boolean isMultiMulti) {
-        this.locationMap = map;
+        locationMap = new HashMap<>();
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            locationMap.put(StringUtils.clean(entry.getKey()), entry.getValue());
+        }
+
         this.type = (isMultiMulti) ? Type.MultiItemMultiFile : Type.MultiFileSingleItem;
         multiplePerFile = isMultiMulti;
         singleFile = false;

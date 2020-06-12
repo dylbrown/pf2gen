@@ -28,7 +28,7 @@ public class DynamicFilledSlot extends AbilitySlot {
         switch(type){
             case General:
             case Skill:
-                return SourcesLoader.instance().find("Core Rulebook").getFeats().find(contents);
+                return SourcesLoader.instance().feats().find(contents);
             case Class:
                 if(hasClass){
                     return pClass.findFeat(contents);
