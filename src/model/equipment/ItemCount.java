@@ -50,4 +50,8 @@ public class ItemCount {
     public String toString() {
         return count.get() + " " + baseItem.toString();
     }
+
+    public ItemCount copy() {
+        return new ItemCount(this.baseItem, this.count.get());
+    }
 }

@@ -14,6 +14,7 @@ public class EquippedEntry {
     public EquippedEntry(ItemCount itemCount, Slot slot) {
         this.itemCount = itemCount;
         this.name = new ReadOnlyStringWrapper(itemCount.toString());
+        itemCount.countProperty().addListener(c->name.set(itemCount.toString()));
         this.weight = new ReadOnlyStringWrapper(itemCount.stats().getPrettyWeight());
         this.count = itemCount.countProperty();
         this.slot = new ReadOnlyObjectWrapper<>(slot);

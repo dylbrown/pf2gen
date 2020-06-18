@@ -44,4 +44,13 @@ public class StringUtils {
     public static String unclean(String filename) {
         return camelCase(filename.replaceAll("_", " "));
     }
+
+    public static boolean containsIgnoreCase(String string, String searchString) {
+        if(string.length() < searchString.length()) return false;
+        if(searchString.length() == 0) return true;
+        for(int i = 0; i <= string.length() - searchString.length(); i++)
+            if(string.regionMatches(true, i, searchString, 0, searchString.length()))
+                return true;
+        return false;
+    }
 }

@@ -25,7 +25,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.web.WebView?>
 
-<TabPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.equip.EquipTabController">
+<TabPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.equip.EquipTabController">
     <Tab closable="false" text="Purchase">
         <AnchorPane minWidth="600.0">
             <SplitPane dividerPositions="0.5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -62,27 +62,25 @@
                </bottom>
                <top>
                    <HBox BorderPane.alignment="CENTER">
-                       <TextField fx:id="search" promptText="Search" HBox.hgrow="SOMETIMES"/>
+                       <TextField fx:id="search" promptText="Search" HBox.hgrow="SOMETIMES" />
                        <MenuBar HBox.hgrow="SOMETIMES">
                            <Menu mnemonicParsing="false" text="Group">
-                               <RadioMenuItem fx:id="groupByCategory" mnemonicParsing="false" selected="true"
-                                              text="Category/Subcategory">
+                               <RadioMenuItem fx:id="groupByCategory" mnemonicParsing="false" selected="true" text="Category/Subcategory">
                                    <toggleGroup>
-                                       <ToggleGroup fx:id="groupBy"/>
+                                       <ToggleGroup fx:id="groupBy" />
                                    </toggleGroup>
                                </RadioMenuItem>
-                               <RadioMenuItem fx:id="groupByLevel" mnemonicParsing="false" text="Level/Category"
-                                              toggleGroup="$groupBy"/>
+                               <RadioMenuItem fx:id="groupByLevel" mnemonicParsing="false" text="Level/Category" toggleGroup="$groupBy" />
                            </Menu>
                            <Menu mnemonicParsing="false" text="Filter">
                                <Menu mnemonicParsing="false" text="Level">
-                                   <RadioMenuItem mnemonicParsing="false" selected="true" text="Any Level">
+                                   <RadioMenuItem mnemonicParsing="false" selected="true" text="Any Level"
+                                        fx:id="anyLevel">
                                        <toggleGroup>
-                                           <ToggleGroup fx:id="levelFilter"/>
+                                           <ToggleGroup fx:id="levelFilter" />
                                        </toggleGroup>
                                    </RadioMenuItem>
-                                   <RadioMenuItem mnemonicParsing="false" text="Your Level or Lower"
-                                                  toggleGroup="$levelFilter"/>
+                                   <RadioMenuItem mnemonicParsing="false" text="Your Level or Lower" toggleGroup="$levelFilter" fx:id="yourLevelLower" />
                                </Menu>
                            </Menu>
                        </MenuBar>
@@ -110,13 +108,13 @@
                 <AnchorPane minHeight="0.0" minWidth="0.0">
                     <TableView fx:id="equipped" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                         <columns>
-                            <TableColumn fx:id="nameCol" editable="false" text="Item">
+                            <TableColumn fx:id="nameCol" editable="false" maxWidth="-1.0" minWidth="-1.0" prefWidth="-1.0" text="Item">
                             </TableColumn>
-                            <TableColumn fx:id="slotCol" editable="false" text="Slot">
+                            <TableColumn fx:id="slotCol" editable="false" maxWidth="-1.0" minWidth="-1.0" prefWidth="-1.0" text="Slot">
                             </TableColumn>
-                            <TableColumn fx:id="weightCol" editable="false" text="Weight">
+                            <TableColumn fx:id="weightCol" editable="false" maxWidth="-1.0" minWidth="-1.0" prefWidth="-1.0" text="Weight">
                             </TableColumn>
-                            <TableColumn fx:id="quantityCol" editable="false" text="Quantity">
+                            <TableColumn fx:id="quantityCol" editable="false" maxWidth="-1.0" minWidth="-1.0" prefWidth="-1.0" text="Quantity">
                             </TableColumn>
                         </columns>
                   <columnResizePolicy>

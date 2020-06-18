@@ -38,16 +38,26 @@ public class LevelAllItemsList extends AbstractItemList {
     void addItems(TreeItem<ItemEntry> root) {
         Map<Integer, Map<String, TreeItem<ItemEntry>>> cats = new TreeMap<>();
         for (Equipment equipment : SourcesLoader.instance().equipment().getAll().values()) {
-            int level = equipment.getLevel();
-            cats.computeIfAbsent(level, (s)->new HashMap<>())
-                    .computeIfAbsent(equipment.getCategory(), (s)->new TreeItem<>(new ItemEntry(s)))
-                    .getChildren().add(new TreeItem<>(new ItemEntry(equipment)));
+            addItem(cats, equipment);
+        }
+        for (Equipment equipment : SourcesLoader.instance().armor().getAll().values()) {
+            addItem(cats, equipment);
+        }
+        for (Equipment equipment : SourcesLoader.instance().weapons().getAll().values()) {
+            addItem(cats, equipment);
         }
         for (Map.Entry<Integer, Map<String, TreeItem<ItemEntry>>> entry : cats.entrySet()) {
             TreeItem<ItemEntry> level = new TreeItem<>(new ItemEntry(String.valueOf(entry.getKey())));
             root.getChildren().add(level);
             level.getChildren().addAll(entry.getValue().values());
         }
+    }
+
+    private void addItem(Map<Integer, Map<String, TreeItem<ItemEntry>>> cats, Equipment equipment) {
+        int level = equipment.getLevel();
+        cats.computeIfAbsent(level, (s)->new HashMap<>())
+                .computeIfAbsent(equipment.getCategory(), (s)->new TreeItem<>(new ItemEntry(s)))
+                .getChildren().add(new TreeItem<>(new ItemEntry(equipment)));
     }
 
 

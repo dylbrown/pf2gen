@@ -4,6 +4,8 @@ import model.abc.Ancestry;
 import model.abc.Background;
 import model.abc.PClass;
 import model.abilities.Ability;
+import model.abilities.abilitySlots.AbilitySlot;
+import model.abilities.abilitySlots.FilledSlot;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
@@ -96,9 +98,12 @@ public class ABCHTMLGenerator {
 
     public static String parsePClass(PClass pClass) {
         List<String> proficiencies = new ArrayList<>();
-        for (Ability feat : pClass.getFeats(1)) {
-            if(feat.getName().trim().toLowerCase().equals("initial proficiencies")) {
-                for (AttributeMod modifier : feat.getModifiers()) {
+        for (AbilitySlot slot : pClass.getLevel(1)) {
+            if(!(slot instanceof FilledSlot))
+                continue;
+            Ability currentAbility = slot.getCurrentAbility();
+            if(currentAbility.getName().trim().toLowerCase().equals("initial proficiencies")) {
+                for (AttributeMod modifier : currentAbility.getModifiers()) {
                     proficiencies.add(modifier.getMod().name() + " in " + modifier.toNiceAttributeString());
                 }
                 break;

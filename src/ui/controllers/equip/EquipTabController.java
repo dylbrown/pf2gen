@@ -1,6 +1,7 @@
 package ui.controllers.equip;
 
 import javafx.beans.Observable;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -17,6 +18,7 @@ import model.enums.BuySellMode;
 import model.enums.Slot;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
+import model.util.StringUtils;
 import ui.Main;
 import ui.html.EquipmentHTMLGenerator;
 import ui.controls.equipment.EquippedEntry;
@@ -26,11 +28,13 @@ import ui.controls.lists.LevelAllItemsList;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static model.util.StringUtils.generateCostString;
 
 public class EquipTabController {
 
+    public RadioMenuItem anyLevel, yourLevelLower;
     @FXML
     private TableColumn<EquippedEntry, String> nameCol,weightCol;
     @FXML
@@ -39,6 +43,8 @@ public class EquipTabController {
     private TableColumn<EquippedEntry, Integer> quantityCol;
     @FXML
     private BorderPane allItemsContainer;
+    @FXML
+    private TextField search;
     private final CategoryAllItemsList categoryGroup = new CategoryAllItemsList(this::tryToBuy);
     private final LevelAllItemsList levelGroup = new LevelAllItemsList(this::tryToBuy);
     @FXML
@@ -53,8 +59,6 @@ public class EquipTabController {
     private ComboBox<BuySellMode> multiplier;
     @FXML
     private Button addMoney;
-    @FXML
-    private TextField search;
     @FXML
     private WebView itemDisplay;
     @FXML
@@ -91,6 +95,24 @@ public class EquipTabController {
         groupByCategory.setOnAction(event->allItemsContainer.setCenter(categoryGroup));
         groupByLevel.setOnAction(event->allItemsContainer.setCenter(levelGroup));
 
+        ReadOnlyObjectWrapper<Predicate<ItemEntry>> wrapper = new ReadOnlyObjectWrapper<>();
+
+        Runnable resetFilter = () -> {
+            boolean filterLevel = !levelFilter.getSelectedToggle().equals(anyLevel);
+            if (search.getText().length() == 0 && !filterLevel)
+                wrapper.set(null);
+            else
+                wrapper.set(itemEntry -> StringUtils.containsIgnoreCase(itemEntry.toString(), search.getText())
+                        && (!filterLevel || (itemEntry.getItem() != null &&
+                        itemEntry.getItem().getLevel() <= Main.character.getLevel())));
+        };
+        resetFilter.run();
+        levelFilter.selectedToggleProperty().addListener(c->resetFilter.run());
+        search.textProperty().addListener(c->resetFilter.run());
+        Main.character.levelProperty().addListener(c->resetFilter.run());
+
+        categoryGroup.setFilter(wrapper.getReadOnlyProperty());
+        levelGroup.setFilter(wrapper.getReadOnlyProperty());
 
         money.setText(generateCostString(Main.character.inventory().getMoneyProperty().get()));
         Main.character.inventory().getMoneyProperty().addListener((event)->
@@ -101,6 +123,7 @@ public class EquipTabController {
         //Set up sort options
 
         ChangeListener<TreeItem<ItemEntry>> listener = (obs, oldVal, selectedItem) -> {
+            if(selectedItem == null || selectedItem.getValue() == null) return;
             Equipment item = selectedItem.getValue().getItem();
             if (item != null) setDisplay(item);
         };
@@ -279,7 +302,7 @@ public class EquipTabController {
             }
         }
         if(!alreadyEquipped) {
-            EquippedEntry entry = new EquippedEntry(new ItemCount(unequippedItem.stats(), 1), slot);
+            EquippedEntry entry = new EquippedEntry(unequippedItem.copy(), slot);
             equipList.add(entry);
         } else {
             ItemCount equippedItem = find(equipFilter, unequippedItem.stats(), EquippedEntry::getItemCount);
@@ -287,7 +310,7 @@ public class EquipTabController {
                 equippedItem.add(1);
             }
         }
-        unequippedItem.remove(1);
+        unequippedItem.remove(unequippedItem.getCount());
     }
 
     private void tryToUnequip(ItemCount equippedItem, Slot slot) {
@@ -299,6 +322,7 @@ public class EquipTabController {
             if(equippedItem.getCount() == 0)
                 equipList.removeIf(entry->(entry.getItemCount() == equippedItem) && (entry.getSlot() == slot));
             unequipped.refresh();
+            equipped.refresh();
         }
     }
 

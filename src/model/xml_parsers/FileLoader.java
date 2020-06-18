@@ -2,7 +2,6 @@ package model.xml_parsers;
 
 import model.data_managers.sources.SourceConstructor;
 import model.data_managers.sources.SourceLoadTracker;
-import model.util.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -11,14 +10,10 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 
 import static model.util.StringUtils.clean;
@@ -55,20 +50,11 @@ public abstract class FileLoader<T> {
             if(sourceConstructor.getType() == SourceConstructor.Type.SingleFileMultiItem) {
                 load("");
             } else {
-                CountDownLatch latch = new CountDownLatch(sourceConstructor.map().size());
                 for (Map.Entry<String, String> entry : sourceConstructor.map().entrySet()) {
-                    new Thread(()->{
-                        if(sourceConstructor.isMultiplePerFile())
-                            loadMultiple(entry.getKey(), entry.getValue());
-                        else
-                            loadSingle(entry.getValue());
-                        latch.countDown();
-                    }).start();
-                }
-                try {
-                    latch.await();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    if(sourceConstructor.isMultiplePerFile())
+                        loadMultiple(entry.getKey(), entry.getValue());
+                    else
+                        loadSingle(entry.getValue());
                 }
             }
         }
@@ -129,6 +115,8 @@ public abstract class FileLoader<T> {
     }
 
     private void loadSingle(String location) {
+        if(!loadTracker.isNotLoaded(location))
+            return;
         loadTracker.setLoaded(location);
         File subFile = getSubFile(location);
         Document doc = getDoc(subFile);
@@ -137,6 +125,8 @@ public abstract class FileLoader<T> {
     }
 
     protected void loadMultiple(String category, String location) {
+        if(!loadTracker.isNotLoaded(location))
+            return;
         loadTracker.setLoaded(location);
         File subFile = getSubFile(location);
         Document doc = getDoc(subFile);
@@ -170,7 +160,9 @@ public abstract class FileLoader<T> {
             }
         }else{
             try {
-                URL url = new URL("https://dylbrown.github.io/pf2gen_data/"+path.toString().replaceAll("\\\\", "/"));
+                URL url = new URL("https://dylbrown.github.io/pf2gen_data/" + path.toString()
+                                .replaceAll("\\\\", "/")
+                                .replaceAll(" ", "%20"));
                 System.out.println("Could not find "+path.getName()+" on disk, loading from repository.");
                 doc= factory.newDocumentBuilder().parse(url.openStream());
             } catch ( SAXException|IOException|ParserConfigurationException e) {
@@ -188,31 +180,6 @@ public abstract class FileLoader<T> {
                 continue;
             consumer.accept((Element) groupNodes.item(i));
         }
-    }
-
-    protected List<Pair<Document, String>> getDocs(File path) {
-        List<Pair<Document, String>> results = new ArrayList<>();
-        if(path.exists()) {
-            for (File file : Objects.requireNonNull(path.listFiles())) {
-                if(file.getName().endsWith("pfdyl"))
-                    results.add(new Pair<>(getDoc(file), file.getName()));
-            }
-
-        }else{
-            try {
-                URL index = new URL("https://dylbrown.github.io/pf2gen_data/"+path.toString().replaceAll("\\\\", "/")+"/index.txt"+ "?_=" + System.currentTimeMillis() );
-                URLConnection urlConnection = index.openConnection();
-                urlConnection.setDefaultUseCaches(false);
-                urlConnection.setUseCaches(false);
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                String temp;
-                while((temp = bufferedReader.readLine()) != null)
-                    results.add(new Pair<>(getDoc(new File(path.toString()+"\\"+temp+".pfdyl")), temp+".pfdyl"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return results;
     }
 
     public Set<String> getCategories() {

@@ -2,11 +2,12 @@ package model.equipment.weapons;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Dice {
     private final int count;
     private final int size;
-    private static final Map<Integer, Map<Integer, Dice>> dice = new HashMap<>();
+    private static final Map<Integer, Map<Integer, Dice>> dice = new ConcurrentHashMap<>();
 
     private Dice(int count, int size) {
         this.count = count;
@@ -27,8 +28,7 @@ public class Dice {
 
     public static Dice increase(Dice source) {
         int size = getNextSize(source.size);
-        return dice.computeIfAbsent(source.count, (key)->
-                new HashMap<>()).computeIfAbsent(size, (key)->new Dice(source.count, size));
+        return Dice.get(source.count, size);
     }
 
     private static int getNextSize(int size) {

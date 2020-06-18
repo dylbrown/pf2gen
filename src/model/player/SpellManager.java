@@ -150,6 +150,7 @@ public class SpellManager {
 	}
 
 	public boolean addSpell(Spell spell) {
+		if(spell == null) return false;
 		if(getCasterType().get() == CasterType.None) return false;
 		if(getCasterType().get() == CasterType.Spontaneous) {
 			if(spellsKnown.get(spell.getLevelOrCantrip()).size()

@@ -13,7 +13,7 @@ import java.io.File;
 
 import static model.util.StringUtils.camelCaseWord;
 
-public class AncestriesLoader extends ABCLoader<Ancestry, Ancestry.Builder> {
+public class AncestriesLoader extends ACLoader<Ancestry, Ancestry.Builder> {
 
     static{
         source = element -> {

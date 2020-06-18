@@ -33,7 +33,11 @@ public class AttributeMod {
 
     public String toNiceAttributeString() {
         if(attr == null) return "";
-        return (data != null && !data.equals("")) ? attr.toString()+" ("+data+")" : attr.toString();
+        return (data != null && !data.equals("")) ? addSpaces()+" ("+data+")" : addSpaces();
+    }
+
+    private String addSpaces() {
+        return attr.toString().replaceAll("(?<!^)(?<![A-Z])([A-Z])", " $1");
     }
 
     @Override

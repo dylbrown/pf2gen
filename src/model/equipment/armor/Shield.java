@@ -7,6 +7,13 @@ import model.equipment.runes.runedItems.Enchantable;
 import model.equipment.runes.runedItems.RunedShield;
 
 public class Shield extends Armor implements Enchantable {
+    public static final Shield NO_SHIELD;
+
+    static {
+        Builder builder = new Builder();
+        builder.setName("No Shield");
+        NO_SHIELD = builder.build();
+    }
     private final int hardness;
     private final int hp;
     private final int bt;

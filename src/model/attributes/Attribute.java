@@ -23,7 +23,7 @@ public enum Attribute {
     OccultSpellAttacks, OccultSpellDCs,
     PrimalSpellAttacks, PrimalSpellDCs,
 
-    ClassDC,
+    ClassDC(KeyAbility),
 
     None;
 

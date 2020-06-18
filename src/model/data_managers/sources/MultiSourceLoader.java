@@ -10,18 +10,20 @@ public class MultiSourceLoader<T> {
     private final NavigableMap<String, NavigableMap<String, T>> categorizedItems = new TreeMap<>();
     protected final List<? extends FileLoader<T>> loaders;
     private Set<String> categories;
+    private boolean notLoaded = true;
 
     public MultiSourceLoader(List<? extends FileLoader<T>> loaders) {
         this.loaders = loaders;
     }
 
     public NavigableMap<String, T> getAll() {
-        for (FileLoader<T> loader : loaders) {
-            if(loader.isNotAllLoaded()) {
+        if(notLoaded) {
+            for (FileLoader<T> loader : loaders) {
                 for (Map.Entry<String, T> entry : loader.getAll().entrySet()) {
                     allItems.put(entry.getKey(), entry.getValue());
                 }
             }
+            notLoaded = false;
         }
         return Collections.unmodifiableNavigableMap(allItems);
     }

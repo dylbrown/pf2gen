@@ -27,6 +27,7 @@ public class SelectionPane<T> extends ListView<T> {
         selections = slot.getSelections();
         init(slot);
         items.addAll(slot.getOptions());
+        items.removeAll(slot.getSelections());
         if(slot.getOptions() instanceof ObservableList)
             ((ObservableList<T>) slot.getOptions()).addListener((ListChangeListener<T>)change->{
                 while(change.next()){
@@ -34,6 +35,12 @@ public class SelectionPane<T> extends ListView<T> {
                     items.removeAll(change.getRemoved());
                 }
             });
+        slot.getSelections().addListener((ListChangeListener<T>) c->{
+            while(c.next()) {
+                items.removeAll(c.getAddedSubList());
+                items.addAll(c.getRemoved());
+            }
+        });
     }
 
     SelectionPane() {}

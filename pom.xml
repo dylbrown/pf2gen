@@ -7,7 +7,7 @@
     <artifactId>pf2gen</artifactId>
     <version>1.0-SNAPSHOT</version>
     <properties>
-        <javafx.version>14.0.1</javafx.version>
+        <javafx.version>11.0.2</javafx.version>
     </properties>
     <build>
         <sourceDirectory>${project.basedir}/src</sourceDirectory>
@@ -33,126 +33,126 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
-            <version>14.0.1</version>
+            <version>11.0.2</version>
             <classifier>linux</classifier>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-base -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
-            <version>14.0.1</version>
+            <version>11.0.2</version>
             <classifier>mac</classifier>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-base -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
-            <version>14.0.1</version>
+            <version>11.0.2</version>
             <classifier>win</classifier>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-controls -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>14.0.1</version>
+            <version>11.0.2</version>
             <classifier>linux</classifier>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-controls -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>14.0.1</version>
+            <version>11.0.2</version>
             <classifier>mac</classifier>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-controls -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>14.0.1</version>
+            <version>11.0.2</version>
             <classifier>win</classifier>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-fxml -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>14.0.1</version>
+            <version>11.0.2</version>
             <classifier>linux</classifier>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-fxml -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>14.0.1</version>
+            <version>11.0.2</version>
             <classifier>mac</classifier>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-fxml -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>14.0.1</version>
+            <version>11.0.2</version>
             <classifier>win</classifier>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-graphics -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>14.0.1</version>
+            <version>11.0.2</version>
             <classifier>linux</classifier>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-graphics -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>14.0.1</version>
+            <version>11.0.2</version>
             <classifier>mac</classifier>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-graphics -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>14.0.1</version>
+            <version>11.0.2</version>
             <classifier>win</classifier>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-media -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-media</artifactId>
-            <version>14.0.1</version>
+            <version>11.0.2</version>
             <classifier>linux</classifier>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-media -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-media</artifactId>
-            <version>14.0.1</version>
+            <version>11.0.2</version>
             <classifier>mac</classifier>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-media -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-media</artifactId>
-            <version>14.0.1</version>
+            <version>11.0.2</version>
             <classifier>win</classifier>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-web -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
-            <version>14.0.1</version>
+            <version>11.0.2</version>
             <classifier>linux</classifier>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-web -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
-            <version>14.0.1</version>
+            <version>11.0.2</version>
             <classifier>mac</classifier>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-web -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
-            <version>14.0.1</version>
+            <version>11.0.2</version>
             <classifier>win</classifier>
         </dependency>
         <dependency>

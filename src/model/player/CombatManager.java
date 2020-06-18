@@ -4,7 +4,9 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import model.attributes.Attribute;
 import model.enums.Slot;
 import model.equipment.CustomTrait;
+import model.equipment.Equipment;
 import model.equipment.armor.Armor;
+import model.equipment.armor.Shield;
 import model.equipment.weapons.Damage;
 import model.equipment.weapons.DamageModifier;
 import model.equipment.weapons.RangedWeapon;
@@ -60,6 +62,18 @@ public class CombatManager {
             return (Armor) inventory.getEquipped(Slot.Armor).stats();
         }
         return Armor.NO_ARMOR;
+    }
+
+    public Shield getShield() {
+        if(inventory.getEquipped(Slot.OneHand) != null) {
+            Equipment stats = inventory.getEquipped(Slot.OneHand).stats();
+            if(stats instanceof Shield) return (Shield) stats;
+        }
+        if(inventory.getEquipped(Slot.OffHand) != null) {
+            Equipment stats = inventory.getEquipped(Slot.OffHand).stats();
+            if(stats instanceof Shield) return (Shield) stats;
+        }
+        return Shield.NO_SHIELD;
     }
 
     public int getAttackMod(Weapon weapon) {

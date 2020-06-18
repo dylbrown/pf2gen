@@ -1,7 +1,9 @@
 package ui.controllers;
 
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.TreeItem;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
@@ -17,6 +19,10 @@ import ui.controls.SingleSelectionPane;
 import ui.controls.lists.DecisionsList;
 import ui.controls.lists.entries.DecisionEntry;
 
+import java.util.HashMap;
+import java.util.Map;
+
+@SuppressWarnings("rawtypes")
 public class DecisionsController {
 
     @FXML
@@ -25,36 +31,38 @@ public class DecisionsController {
     private WebView display;
     @FXML
     private BorderPane decisionsPaneContainer, choicesContainer;
+    private Map<Choice, Node> nodes = new HashMap<>();
 
     @FXML
     private void initialize() {
-        DecisionsList decisionsList = new DecisionsList((treeItem, i) -> {
-            DecisionEntry choice = treeItem.getValue();
-            if(choice != null)
-                setChoices(choice);
-        }, Main.character.decisions().getDecisions());
+        DecisionsList decisionsList = new DecisionsList((treeItem, i) -> setChoices(treeItem),
+                Main.character.decisions().getDecisions());
         decisionsPaneContainer.setCenter(decisionsList);
-        decisionsList.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal)->{
-            if(newVal != null)
-                setChoices(newVal.getValue());
-        });
-
-
     }
 
-    private void setChoices(DecisionEntry entry) {
-        @SuppressWarnings("rawtypes") Choice choice = entry.getChoice();
-        if(choice == null) return;
-        if(choice instanceof FeatSlot) {
-            choicesContainer.setCenter(new FeatSelectionPane((FeatSlot)choice, display, filterChoices));
-        }else if(choice instanceof SingleChoiceSlot){
-            choicesContainer.setCenter(new FeatSelectionPane((SingleChoiceSlot)choice, display, filterChoices));
-        }else if(choice instanceof SingleChoiceList){
-            choicesContainer.setCenter(new SingleSelectionPane<>((SingleChoiceList<?>) choice, display));
-        }else if (choice instanceof ArbitraryChoice) {
-            choicesContainer.setCenter(new SelectionPane<>((ArbitraryChoice) choice, display));
-        }else{
-            choicesContainer.setCenter(new AnchorPane());
+    private void setChoices(TreeItem<DecisionEntry> treeItem) {
+        if(treeItem == null) return;
+        DecisionEntry entry = treeItem.getValue();
+        Choice choice = entry.getChoice();
+        if(choice == null) {
+            setChoices(treeItem.getParent());
+            return;
         }
+        Node node = nodes.get(choice);
+        if(node == null) {
+            if(choice instanceof FeatSlot) {
+                node = new FeatSelectionPane((FeatSlot)choice, display, filterChoices);
+            }else if(choice instanceof SingleChoiceSlot){
+                node = new FeatSelectionPane((SingleChoiceSlot)choice, display, filterChoices);
+            }else if(choice instanceof SingleChoiceList){
+                node = new SingleSelectionPane<>((SingleChoiceList<?>) choice, display);
+            }else if (choice instanceof ArbitraryChoice) {
+                node = new SelectionPane<>((ArbitraryChoice) choice, display);
+            }else{
+                node = new AnchorPane();
+            }
+            nodes.put(choice, node);
+        }
+        choicesContainer.setCenter(node);
     }
 }

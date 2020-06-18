@@ -34,6 +34,7 @@ public class CharacterWrapper implements TemplateHashModel {
 
         //map.put("totalweight", (NumberSupplier) ()->character.inventory().getTotalWeight());
         for (Ability ability : character.abilities().getAbilities()) {
+            if(ability.getType() == null) continue;
             if(ability.getType().equals(Type.Heritage)){
                 map.put("heritage", ability);
                 break;
@@ -84,7 +85,7 @@ public class CharacterWrapper implements TemplateHashModel {
         for (Attribute value : Attribute.values()) {
             map.put(value.toString().toLowerCase(), new AttributeEntry(value, "",
                     character.attributes().getProficiency(value, ""),
-                    character.getLevelProperty(),
+                    character.levelProperty(),
                     wrapper));
         }
 
@@ -99,13 +100,13 @@ public class CharacterWrapper implements TemplateHashModel {
                 for (String lore : character.attributes().lores()) {
                     entries.add(new AttributeEntry(value, lore,
                             character.attributes().getProficiency(value, lore),
-                            character.getLevelProperty(),
+                            character.levelProperty(),
                             wrapper));
                 }
             }
             entries.add(new AttributeEntry(value, "",
                     character.attributes().getProficiency(value, ""),
-                    character.getLevelProperty(),
+                    character.levelProperty(),
                     wrapper));
         }
         return entries;

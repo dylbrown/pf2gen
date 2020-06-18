@@ -5,6 +5,7 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
 import model.equipment.Equipment;
 import model.equipment.runes.runedItems.RunedEquipment;
+import model.util.StringUtils;
 
 import static model.util.StringUtils.generateCostString;
 
@@ -18,6 +19,7 @@ public class ItemEntry implements Comparable<ItemEntry>, TreeTableEntry {
     public ItemEntry(Equipment item) {
         this.item = item;
         if(item instanceof RunedEquipment)
+            //noinspection rawtypes
             this.name = ((RunedEquipment) item).getRunes().getFullName();
         else
             this.name = new ReadOnlyStringWrapper(item.toString()).getReadOnlyProperty();
@@ -28,7 +30,7 @@ public class ItemEntry implements Comparable<ItemEntry>, TreeTableEntry {
 
     public ItemEntry(String label) {
         this.item = null;
-        this.name = new ReadOnlyStringWrapper(label).getReadOnlyProperty();
+        this.name = new ReadOnlyStringWrapper(StringUtils.unclean(label)).getReadOnlyProperty();
         this.cost = new ReadOnlyStringWrapper("").getReadOnlyProperty();
         this.level = new ReadOnlyStringWrapper("").getReadOnlyProperty();
         this.subCategory = new ReadOnlyStringWrapper("").getReadOnlyProperty();
@@ -70,7 +72,7 @@ public class ItemEntry implements Comparable<ItemEntry>, TreeTableEntry {
     public int compareTo(ItemEntry o) {
         if(this.getItem() == null && o.getItem() != null) return 1;
         if(this.getItem() != null && o.getItem() == null) return -1;
-        return this.toString().compareTo(o.toString());
+        return StringUtils.clean(this.toString()).compareTo(StringUtils.clean(o.toString()));
     }
 
     @Override

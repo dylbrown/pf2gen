@@ -20,6 +20,7 @@ import model.util.Eyeball;
 import model.util.Pair;
 import model.util.Watcher;
 
+@SuppressWarnings("rawtypes")
 public class InventoryManager {
     static final Double INITIAL_AMOUNT = 150.0;
     private final ReadOnlyObjectWrapper<Double> money= new ReadOnlyObjectWrapper<>(INITIAL_AMOUNT);
@@ -118,6 +119,7 @@ public class InventoryManager {
     }
 
     public boolean equip(Equipment item, Slot slot, int count) {
+        if(unequipped.get(item) == null) return false;
         //If trying to equip to OneHand, check it
         if(slot == Slot.OneHand){
             return equip(item, Slot.PrimaryHand, count) || equip(item, Slot.OffHand, count);

@@ -24,22 +24,28 @@ public class CategoryAllItemsList extends AbstractItemList {
     @Override
     void addItems(TreeItem<ItemEntry> root) {
         for (String category : SourcesLoader.instance().equipment().getCategories()) {
-            TreeItem<ItemEntry> cat = new TreeItem<>(new ItemEntry(category));
-            root.getChildren().add(cat);
-            Map<String, TreeItem<ItemEntry>> subCats = new TreeMap<>();
-            for (Equipment equipment : SourcesLoader.instance().equipment().getCategory(category).values()) {
-                String subCategory = equipment.getSubCategory();
-                if(subCategory.isBlank())
-                    cat.getChildren().add(new TreeItem<>(new ItemEntry(equipment)));
-                else {
-                    subCats.computeIfAbsent(subCategory, (s -> new TreeItem<>(new ItemEntry(s))))
-                            .getChildren()
-                            .add(new TreeItem<>(new ItemEntry(equipment)));
-                }
-            }
-            cat.getChildren().addAll(subCats.values());
-
+            addCategory(root, category, SourcesLoader.instance().equipment().getCategory(category).values());
         }
+        addCategory(root, "armor_and_shields", SourcesLoader.instance().armor().getAll().values());
+        addCategory(root, "weapons", SourcesLoader.instance().weapons().getAll().values());
+        root.getChildren().sort(Comparator.comparing(o -> o.getValue().toString()));
+    }
+
+    private void addCategory(TreeItem<ItemEntry> root, String category, Iterable<? extends Equipment> iterable) {
+        TreeItem<ItemEntry> cat = new TreeItem<>(new ItemEntry(category));
+        root.getChildren().add(cat);
+        Map<String, TreeItem<ItemEntry>> subCats = new TreeMap<>();
+        for (Equipment equipment : iterable) {
+            String subCategory = equipment.getSubCategory();
+            if(subCategory.isBlank())
+                cat.getChildren().add(new TreeItem<>(new ItemEntry(equipment)));
+            else {
+                subCats.computeIfAbsent(subCategory, (s -> new TreeItem<>(new ItemEntry(s))))
+                        .getChildren()
+                        .add(new TreeItem<>(new ItemEntry(equipment)));
+            }
+        }
+        cat.getChildren().addAll(subCats.values());
     }
 
     @Override

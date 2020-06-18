@@ -283,23 +283,32 @@ public class SaveLoadManager {
                 }
                 if (s.startsWith(" - ")) {
                     String[] split = s.substring(3).split(" ", 2);
-                    SortedMap<String, Equipment> tailMap = SourcesLoader.instance().equipment()
-                            .getAll().tailMap(StringUtils.clean(split[1]));
-                    if (!tailMap.isEmpty()) {
-                        if (tailMap.get(tailMap.firstKey()).getName().equals(split[1]))
-                            character.inventory().buy(tailMap.get(tailMap.firstKey()), Integer.parseInt(split[0]));
-                    }
+                    String cleanedName = StringUtils.clean(split[1]);
+                    SortedMap<String, ? extends Equipment> tailMap = SourcesLoader.instance().equipment()
+                            .getAll().tailMap(cleanedName);
+                    if(tailMap.isEmpty() || !tailMap.get(tailMap.firstKey()).getName().equals(split[1]))
+                        tailMap = SourcesLoader.instance().armor()
+                                .getAll().tailMap(cleanedName);
+                    if(tailMap.isEmpty() || !tailMap.get(tailMap.firstKey()).getName().equals(split[1]))
+                        tailMap = SourcesLoader.instance().weapons()
+                                .getAll().tailMap(cleanedName);
+                    if (!tailMap.isEmpty() && tailMap.firstKey().equals(cleanedName))
+                        character.inventory().buy(tailMap.get(tailMap.firstKey()), Integer.parseInt(split[0]));
                 } else if (s.startsWith(" @ ")) {
-                    String itemName = s.substring(3).split(" ", 2)[1];
+                    String itemName = StringUtils.clean(s.substring(3).split(" ", 2)[1]);
                     Equipment item;
-                    SortedMap<String, Equipment> tailMap = SourcesLoader.instance().equipment()
-                            .getAll().tailMap(StringUtils.clean(itemName));
-                    if (!tailMap.isEmpty()) {
-                        if (tailMap.get(tailMap.firstKey()).getName().equals(itemName)) {
-                            item = tailMap.get(tailMap.firstKey());
-                            character.inventory().buy(item, 1);
-                            upgradeItem(item, lines);
-                        }
+                    SortedMap<String, ? extends Equipment> tailMap = SourcesLoader.instance().equipment()
+                            .getAll().tailMap(itemName);
+                    if(tailMap.isEmpty() || !tailMap.get(tailMap.firstKey()).getName().equals(itemName))
+                        tailMap = SourcesLoader.instance().armor()
+                                .getAll().tailMap(itemName);
+                    if(tailMap.isEmpty() || !tailMap.get(tailMap.firstKey()).getName().equals(itemName))
+                        tailMap = SourcesLoader.instance().weapons()
+                                .getAll().tailMap(itemName);
+                    if (!tailMap.isEmpty() && tailMap.firstKey().equals(itemName)) {
+                        item = tailMap.get(tailMap.firstKey());
+                        character.inventory().buy(item, 1);
+                        upgradeItem(item, lines);
                     }
                 } else {
                     lines.second--;

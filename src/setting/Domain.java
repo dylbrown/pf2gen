@@ -18,6 +18,11 @@ public class Domain {
         return name;
     }
 
+    @Override
+    public String toString() {
+        return getName();
+    }
+
     public Spell getDomainSpell() {
         return domainSpell;
     }

@@ -12,17 +12,19 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.*;
+import java.util.function.Supplier;
 
-import static model.ability_scores.AbilityScore.Free;
-import static model.ability_scores.AbilityScore.None;
+import static model.ability_scores.AbilityScore.*;
 
 public class AbilityScoreManager {
     private final Map<AbilityScore, ObservableList<AbilityMod>> abilityScores = new HashMap<>();
     private final Map<Type, List<AbilityMod>> abilityScoresByType = new HashMap<>();
     private final PropertyChangeSupport abilityScoreChange = new PropertyChangeSupport(this);
     private final List<AbilityModChoice> abilityScoreChoices = new ArrayList<>();
+    private final Supplier<AbilityScore> keyAbility;
 
-    AbilityScoreManager(Applier applier) {
+    AbilityScoreManager(Applier applier, Supplier<AbilityScore> keyAbility) {
+        this.keyAbility = keyAbility;
         List<AbilityModChoice> choices = Arrays.asList(
                 new AbilityModChoice(Type.Initial),
                 new AbilityModChoice(Type.Initial),
@@ -47,6 +49,8 @@ public class AbilityScoreManager {
     }
 
     public int getScore(AbilityScore ability) {
+        if(ability.equals(KeyAbility))
+            return getScore(keyAbility.get());
         int score = 10;
         List<Type> stackingCheck = new ArrayList<>();
         for(AbilityMod mod: abilityScores.computeIfAbsent(ability, (key)-> FXCollections.observableArrayList())) {

@@ -33,7 +33,7 @@ public class SkillTab extends AnchorPane {
         border.setBottom(remainingIncreases);
 
         character.attributes().getSkillIncreases().addListener((MapChangeListener<Integer,Integer>) change -> updateLabel());
-        character.getLevelProperty().addListener(change -> updateLabel());
+        character.levelProperty().addListener(change -> updateLabel());
         character.getPClassProperty().addListener(change -> updateLabel());
         character.scores().addAbilityListener((o)->updateLabel());
         character.attributes().addListener((o)->updateLabel());

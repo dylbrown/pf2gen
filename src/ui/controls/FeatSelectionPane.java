@@ -43,6 +43,24 @@ public class FeatSelectionPane extends SingleSelectionPane<Ability> {
             }
             return false;
         });
+        items.removeAll(slot.getSelections());
+        unmetPrereqs.removeAll(slot.getSelections());
+        allItems.removeAll(slot.getSelections());
+        slot.getSelections().addListener((ListChangeListener<Ability>) c->{
+            while(c.next()) {
+                allItems.removeAll(c.getAddedSubList());
+                allItems.addAll(c.getRemoved());
+                items.removeAll(c.getAddedSubList());
+                unmetPrereqs.removeAll(c.getAddedSubList());
+                for (Ability ability : c.getRemoved()) {
+                    if(!character.meetsPrerequisites(ability)) {
+                        items.remove(ability);
+                        unmetPrereqs.add(ability);
+                    }
+                }
+
+            }
+        });
         abilities.getAbilities().addListener((ListChangeListener<Ability>) (event)->{
             while(event.next()) {
                 if (event.wasAdded()) {
@@ -54,7 +72,6 @@ public class FeatSelectionPane extends SingleSelectionPane<Ability> {
                         }
                         return false;
                     });
-                    //unmetPrereqs.addAll(event.getAddedSubList());
                 }
                 if (event.wasRemoved()) {
                     unmetPrereqs.removeAll(event.getRemoved());

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AttributeModSingleChoice extends AttributeMod implements SingleChoiceList<Attribute> {
     private final List<Attribute> choices = new ArrayList<>();
@@ -53,6 +54,11 @@ public class AttributeModSingleChoice extends AttributeMod implements SingleChoi
     @Override
     public int getLevel() {
         return 0;
+    }
+
+    @Override
+    public String toNiceAttributeString() {
+        return choices.stream().map(Attribute::name).collect(Collectors.joining(" or "));
     }
 
     @Override

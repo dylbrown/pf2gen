@@ -8,6 +8,8 @@ import model.abc.PClass;
 import model.abilities.Ability;
 import model.abilities.AttackAbility;
 import model.abilities.abilitySlots.AbilitySlot;
+import model.ability_scores.AbilityMod;
+import model.ability_scores.AbilityModChoice;
 import model.attributes.Attribute;
 import model.attributes.AttributeMod;
 import model.enums.Alignment;
@@ -30,12 +32,20 @@ public class PC {
     private final ReadOnlyObjectWrapper<Integer> level = new ReadOnlyObjectWrapper<>(0);
     private final PropertyChangeSupport ancestryWatcher = new PropertyChangeSupport(ancestry);
     private final Applier applier = new Applier();
-    private Alignment alignment;
+    private ReadOnlyObjectWrapper<Alignment> alignment = new ReadOnlyObjectWrapper<>();
     private final GroovyModManager modManager;
     private final DecisionManager decisions = new DecisionManager();
     private final AbilityManager abilities = new AbilityManager(decisions, getAncestryProperty(),
-            getPClassProperty(), getLevelProperty(), applier, this::meetsPrerequisites);
-    private final AbilityScoreManager scores = new AbilityScoreManager(applier);
+            getPClassProperty(), levelProperty(), applier, this::meetsPrerequisites);
+    private final AbilityScoreManager scores = new AbilityScoreManager(applier, ()->{
+        PClass currClass = pClass.get();
+        if(currClass == null) return None;
+        AbilityMod abilityMod = currClass.getAbilityMods().get(0);
+        if(abilityMod instanceof AbilityModChoice &&
+                ((AbilityModChoice) abilityMod).getChoices().size() > 0)
+                return ((AbilityModChoice) abilityMod).getChoices().get(0);
+        return abilityMod.getTarget();
+    });
     private final CustomGetter customGetter = new CustomGetter(this);
     private final AttributeManager attributes =
             new AttributeManager(customGetter, level.getReadOnlyProperty(), decisions, applier);
@@ -68,11 +78,15 @@ public class PC {
     }
 
     public Alignment getAlignment() {
-        return (alignment != null) ? alignment : Alignment.N;
+        return (alignment.get() != null) ? alignment.get() : Alignment.N;
+    }
+
+    public ReadOnlyObjectProperty<Alignment> alignmentProperty() {
+        return alignment.getReadOnlyProperty();
     }
 
     public void setAlignment(Alignment alignment) {
-        this.alignment = alignment;
+        this.alignment.set(alignment);
     }
 
     public void levelUp(){
@@ -157,7 +171,7 @@ public class PC {
         ancestryWatcher.addPropertyChangeListener(o);
     }
 
-    public ReadOnlyObjectProperty<Integer> getLevelProperty() {
+    public ReadOnlyObjectProperty<Integer> levelProperty() {
         return level.getReadOnlyProperty();
     }
 

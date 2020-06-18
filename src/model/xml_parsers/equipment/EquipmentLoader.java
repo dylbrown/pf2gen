@@ -14,6 +14,7 @@ import model.equipment.weapons.DamageType;
 import model.equipment.weapons.Dice;
 import model.util.StringUtils;
 import model.xml_parsers.FileLoader;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -21,6 +22,7 @@ import org.w3c.dom.NodeList;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import static model.util.StringUtils.camelCaseWord;
 
@@ -31,10 +33,25 @@ public class EquipmentLoader extends FileLoader<Equipment> {
         super(sourceConstructor, root);
     }
 
+    @Override
+    protected void loadMultiple(String category, String location) {
+        if(!loadTracker.isNotLoaded(location))
+            return;
+        loadTracker.setLoaded(location);
+        File subFile = getSubFile(location);
+        Document doc = getDoc(subFile);
+        Consumer<Element> parser = (curr) -> {
+            Equipment item = parseItem(subFile, curr);
+            addItem(item.getCategory(), item);
+        };
+        iterateElements(doc, "Item", parser);
+        iterateElements(doc, "ArmorRune", parser);
+        iterateElements(doc, "WeaponRune", parser);
+    }
 
     @Override
     protected Equipment parseItem(File file, Element item) {
-        String niceName = StringUtils.unclean(file.getName());
+        String niceName = StringUtils.unclean(file.getName().replaceAll(".pfdyl", ""));
         switch(StringUtils.clean(item.getTagName())) {
             case "weaponrune": return makeWeaponRune(niceName, item);
             case "armorrune": return makeArmorRune(niceName, item);
