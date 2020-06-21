@@ -108,13 +108,13 @@
                 <AnchorPane minHeight="0.0" minWidth="0.0">
                     <TableView fx:id="equipped" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                         <columns>
-                            <TableColumn fx:id="nameCol" editable="false" maxWidth="-1.0" minWidth="-1.0" prefWidth="-1.0" text="Item">
+                            <TableColumn fx:id="nameCol" editable="false" text="Item">
                             </TableColumn>
-                            <TableColumn fx:id="slotCol" editable="false" maxWidth="-1.0" minWidth="-1.0" prefWidth="-1.0" text="Slot">
+                            <TableColumn fx:id="slotCol" editable="false" text="Slot">
                             </TableColumn>
-                            <TableColumn fx:id="weightCol" editable="false" maxWidth="-1.0" minWidth="-1.0" prefWidth="-1.0" text="Weight">
+                            <TableColumn fx:id="weightCol" editable="false" text="Weight">
                             </TableColumn>
-                            <TableColumn fx:id="quantityCol" editable="false" maxWidth="-1.0" minWidth="-1.0" prefWidth="-1.0" text="Quantity">
+                            <TableColumn fx:id="quantityCol" editable="false" text="Quantity">
                             </TableColumn>
                         </columns>
                   <columnResizePolicy>

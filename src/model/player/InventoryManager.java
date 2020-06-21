@@ -27,6 +27,7 @@ public class InventoryManager {
     private final ObservableMap<Equipment, ItemCount> inventory = FXCollections.observableHashMap();
     private final Eyeball<ItemCount, InventoryManager> buySellEye = new Eyeball<>(this);
     private final ObservableMap<Slot, ItemCount> equipped = FXCollections.observableHashMap();
+    private final ObservableMap<Equipment, ItemCount> carried = FXCollections.observableHashMap();
     private final ObservableMap<Equipment, ItemCount> unequipped = FXCollections.observableHashMap();
     private final AttributeManager attributes;
     private double totalWeight = 0;
@@ -120,6 +121,7 @@ public class InventoryManager {
 
     public boolean equip(Equipment item, Slot slot, int count) {
         if(unequipped.get(item) == null) return false;
+        if(slot == Slot.None) return false;
         //If trying to equip to OneHand, check it
         if(slot == Slot.OneHand){
             return equip(item, Slot.PrimaryHand, count) || equip(item, Slot.OffHand, count);
@@ -140,6 +142,8 @@ public class InventoryManager {
             }else if(slotContents.stats().equals(item)) {
                 slotContents.add(count);
             }else return false;
+        } else {
+            carried.computeIfAbsent(item, k->new ItemCount(k, 0)).add(count);
         }
 
         //Remove From Unequipped
@@ -172,19 +176,24 @@ public class InventoryManager {
     }
 
     public boolean unequip(Equipment item, Slot slot, int count) {
-        ItemCount slotContents = equipped.get(slot);
-        if(slotContents != null && slotContents.stats().equals(item) && slotContents.getCount() >= count) {
-            slotContents.remove(count);
-            if(slotContents.getCount() <= 0) {
-                equipped.remove(slot);
-            }
-
+        if(slot != Slot.Carried) {
+            ItemCount slotContents = equipped.get(slot);
+            if (slotContents != null && slotContents.stats().equals(item) && slotContents.getCount() >= count) {
+                slotContents.remove(count);
+                if (slotContents.getCount() <= 0) {
+                    equipped.remove(slot);
+                }
+            } else return false;
+        } else {
             //Add To Unequipped
-            unequipped.computeIfAbsent(item, (key)->new ItemCount(item, 0)).add(count);
-            return true;
+            carried.get(item).remove(count);
+            if(carried.get(item).getCount() <= 0) {
+                carried.remove(item);
+            }
         }
+        unequipped.computeIfAbsent(item, (key) -> new ItemCount(item, 0)).add(count);
         attributes.remove(item.getBonuses());
-        return false;
+        return true;
     }
 
     public ObservableMap<Equipment, ItemCount> getItems() {
@@ -197,6 +206,12 @@ public class InventoryManager {
 
     public ObservableMap<Equipment, ItemCount> getUnequipped() {
         return FXCollections.unmodifiableObservableMap(unequipped);
+    }
+
+    private final ObservableMap<Equipment, ItemCount> carriedUnmod =
+            FXCollections.unmodifiableObservableMap(carried);
+    public ObservableMap<Equipment, ItemCount> getCarried() {
+        return carriedUnmod;
     }
 
     public void reset() {

@@ -115,8 +115,13 @@ public class SaveLoadManager {
             writeOutLine(out, "Equipped");
             //Print items in specific slots
             for (Map.Entry<Slot, ItemCount> entry : character.inventory().getEquipped().entrySet()) {
-                writeOutLine(out, " - "+entry.getKey()+": "+entry.getValue().getCount()+" "+entry.getValue().stats().getName());
+                writeOutLine(out, " - "+entry.getKey()+": "
+                        +entry.getValue().getCount()+" "+entry.getValue().stats().getName());
             }
+            for (ItemCount itemCount : character.inventory().getCarried().values()) {
+                writeOutLine(out, " - Carried: "+itemCount.getCount()+" "+itemCount.stats().getName());
+            }
+
 
             //Spells
             writeOutLine(out, "Spells Known");
@@ -164,13 +169,16 @@ public class SaveLoadManager {
                     case "deity": character.setDeity(SourcesLoader.instance().deities().find(afterEq));
                         break;
                     case "ancestry":
-                        character.setAncestry(SourcesLoader.instance().ancestries().find(afterEq));
+                        if(!StringUtils.clean(afterEq).equals("no_ancestry"))
+                            character.setAncestry(SourcesLoader.instance().ancestries().find(afterEq));
                         break;
                     case "background":
-                        character.setBackground(SourcesLoader.instance().backgrounds().find(afterEq));
+                        if(!StringUtils.clean(afterEq).equals("no_background"))
+                            character.setBackground(SourcesLoader.instance().backgrounds().find(afterEq));
                         break;
                     case "class":
-                        character.setPClass(SourcesLoader.instance().classes().find(afterEq));
+                        if(!StringUtils.clean(afterEq).equals("no_class"))
+                            character.setPClass(SourcesLoader.instance().classes().find(afterEq));
                         break;
                     case "level":
                         int lvl = Integer.parseInt(afterEq);
@@ -351,7 +359,7 @@ public class SaveLoadManager {
                         break;
                     }
                     character.spells().addSpell(SourcesLoader.instance().spells()
-                            .find("Focus Spells", s.substring(5)));
+                            .find(s.substring(5)));
                 }
             }
 

@@ -5,6 +5,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -209,6 +210,14 @@ public class EquipTabController {
                     updateFromEquip(unequippedItem, change.getKey());
             }
         });
+        Main.character.inventory().getCarried().addListener(
+        (MapChangeListener<Equipment, ItemCount>) change -> {
+            if(change.wasAdded() && !controllerOp) {
+                ItemCount unequippedItem = unequipMap.get(change.getValueAdded().stats());
+                if(unequippedItem != null)
+                    updateFromEquip(unequippedItem, Slot.Carried);
+            }
+        });
 
         multiplier.getItems().addAll(BuySellMode.values());
         multiplier.setConverter(new StringConverter<>() {
@@ -284,7 +293,7 @@ public class EquipTabController {
             }
             slot = result.get();
         }
-
+        if(slot == Slot.None) slot = Slot.Carried;
         if(Main.character.inventory().equip(unequippedItem.stats(), slot, 1)) {
             updateFromEquip(unequippedItem, slot);
         }

@@ -18,10 +18,10 @@ public enum Attribute {
 
     LightArmor, MediumArmor, HeavyArmor, Unarmored, Shields,
 
-    ArcaneSpellAttacks, ArcaneSpellDCs,
-    DivineSpellAttacks, DivineSpellDCs,
-    OccultSpellAttacks, OccultSpellDCs,
-    PrimalSpellAttacks, PrimalSpellDCs,
+    ArcaneSpellAttacks(KeyAbility), ArcaneSpellDCs(KeyAbility),
+    DivineSpellAttacks(KeyAbility), DivineSpellDCs(KeyAbility),
+    OccultSpellAttacks(KeyAbility), OccultSpellDCs(KeyAbility),
+    PrimalSpellAttacks(KeyAbility), PrimalSpellDCs(KeyAbility),
 
     ClassDC(KeyAbility),
 

@@ -72,12 +72,7 @@ public class CharacterWrapper implements TemplateHashModel {
 
         map.put("skills", getSkills());
 
-        map.put("spellsKnown", character.spells().getSpellsKnown());
-        map.put("focusSpells", character.spells().getFocusSpells());
-        map.put("spellSlots", character.spells().getSpellSlots());
-        map.put("casterType", character.spells().getCasterType());
-        map.put("tradition", character.spells().getTradition());
-        refresh();
+        map.put("spells", character.spells());
     }
 
     private Map<String, AttributeEntry> getAttributeMap() {

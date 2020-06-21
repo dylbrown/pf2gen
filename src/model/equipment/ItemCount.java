@@ -52,6 +52,6 @@ public class ItemCount {
     }
 
     public ItemCount copy() {
-        return new ItemCount(this.baseItem, this.count.get());
+        return new ItemCount(this);
     }
 }

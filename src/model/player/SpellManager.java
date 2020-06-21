@@ -5,6 +5,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.abilities.SpellAbility;
+import model.attributes.Attribute;
 import model.spells.CasterType;
 import model.spells.Spell;
 import model.spells.SpellType;
@@ -138,7 +139,7 @@ public class SpellManager {
 
 	private ObservableList<Integer> extraRetainer = FXCollections.unmodifiableObservableList(extraSpellsKnown);
 	public ObservableList<Integer> getExtraSpellsKnown() {
-		return extraSpellsKnown;
+		return extraRetainer;
 	}
 
 	public boolean isCaster() {
@@ -177,5 +178,25 @@ public class SpellManager {
 
 	public ReadOnlyObjectProperty<Tradition> getTradition() {
 		return tradition.getReadOnlyProperty();
+	}
+
+	public Attribute getSpellDCsAttribute() {
+		switch (tradition.get()) {
+			case Arcane: return Attribute.ArcaneSpellDCs;
+			case Divine: return Attribute.DivineSpellDCs;
+			case Occult: return Attribute.OccultSpellDCs;
+			case Primal: return Attribute.PrimalSpellDCs;
+		}
+		return Attribute.None;
+	}
+
+	public Attribute getSpellAttacksAttribute() {
+		switch (tradition.get()) {
+			case Arcane: return Attribute.ArcaneSpellAttacks;
+			case Divine: return Attribute.DivineSpellAttacks;
+			case Occult: return Attribute.OccultSpellAttacks;
+			case Primal: return Attribute.PrimalSpellAttacks;
+		}
+		return Attribute.None;
 	}
 }
