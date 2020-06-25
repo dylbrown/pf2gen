@@ -12,6 +12,7 @@ import model.abilities.MinimumProficiencyList;
 import model.attributes.*;
 import model.enums.Proficiency;
 import model.enums.Type;
+import model.enums.WeaponProficiency;
 import model.equipment.weapons.Weapon;
 import model.equipment.weapons.WeaponGroup;
 
@@ -356,6 +357,10 @@ public class AttributeManager {
     }
     void remove(WeaponGroupMod weaponGroupMod) {
         groupProficiencies.put(weaponGroupMod.getGroup(), null);
+    }
+
+    Proficiency getProficiency(WeaponProficiency attr, Weapon weapon) {
+        return getProficiency(Attribute.valueOf(attr), weapon);
     }
 
     Proficiency getProficiency(Attribute attr, Weapon weapon) {

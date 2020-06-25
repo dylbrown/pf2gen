@@ -48,8 +48,10 @@ public class GroovyModManager {
 
     @SuppressWarnings({"rawtypes", "unused", "unchecked"})
     private class GroovyCommands {
+        public Object get(String path) {
+            return customGetter.get(path);
+        }
         public Object get(String arg1, String name) {
-            if(name == null) return customGetter.get(arg1);
             String type = arg1.toLowerCase();
             for (Method method : SourcesLoader.class.getMethods()) {
                 if(method.getParameterCount() != 0

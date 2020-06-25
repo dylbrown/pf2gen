@@ -98,6 +98,7 @@ public class Damage {
 
         public Builder(Damage damage) {
             this.addDice(damage.getDice());
+            this.addAmount(damage.getAmount());
             this.damageType = damage.damageType;
             this.isPersistent = damage.isPersistent;
         }

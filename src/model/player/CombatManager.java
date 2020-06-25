@@ -77,7 +77,7 @@ public class CombatManager {
     }
 
     public int getAttackMod(Weapon weapon) {
-        int mod = attributes.getProficiency(Attribute.valueOf(weapon.getProficiency()), weapon).getMod(level.get());
+        int mod = attributes.getProficiency(weapon.getProficiency(), weapon).getMod(level.get());
 
         if(weapon.getWeaponTraits().contains(new CustomTrait("Finesse")))
             return mod + weapon.getAttackBonus() + Math.max(scores.getMod(Str), scores.getMod(Dex));
