@@ -24,6 +24,11 @@ public class SingleChoiceSlot extends AbilitySlot implements AbilityChoiceList, 
     }
 
     @Override
+    public Class<Ability> getOptionsClass() {
+        return Ability.class;
+    }
+
+    @Override
     public void fill(Ability choice) {
         if(currentAbility == null) currentAbility = new ReadOnlyObjectWrapper<>(choice);
         else if(currentAbility.get() != choice) {

@@ -29,6 +29,9 @@ public class DomainsLoader extends FileLoader<Domain> {
                 case "name":
                     builder.setName(trim);
                     break;
+                case "description":
+                    builder.setDescription(trim);
+                    break;
                 case "domainspell":
                     builder.setDomainSpell(SourcesLoader.instance().spells().find(trim));
                     break;

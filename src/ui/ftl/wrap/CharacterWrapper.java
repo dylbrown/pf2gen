@@ -1,8 +1,10 @@
 package ui.ftl.wrap;
 
-import freemarker.template.*;
+import freemarker.template.ObjectWrapper;
+import freemarker.template.TemplateHashModel;
+import freemarker.template.TemplateModel;
+import freemarker.template.TemplateModelException;
 import model.abilities.Ability;
-import model.abilities.AbilitySet;
 import model.abilities.Activity;
 import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
@@ -128,13 +130,7 @@ public class CharacterWrapper implements TemplateHashModel {
         List<Ability> items = new ArrayList<>();
         for (Ability ability: abilities) {
             if(ability.getDesc().equals("")) continue;
-            if(!(ability instanceof AbilitySet))
-                items.add(ability);
-            else{
-                items.add(ability);
-                items.addAll(flattenAbilities(((AbilitySet) ability).getAbilities()));
-            }
-
+            items.add(ability);
         }
         return items;
     }

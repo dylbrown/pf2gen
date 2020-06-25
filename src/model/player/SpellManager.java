@@ -5,6 +5,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.abilities.SpellAbility;
+import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
 import model.spells.CasterType;
 import model.spells.Spell;
@@ -21,6 +22,7 @@ public class SpellManager {
 	private final ObservableList<Integer> extraSpellsKnown = FXCollections.observableArrayList();
 	private final ReadOnlyObjectWrapper<CasterType> casterType = new ReadOnlyObjectWrapper<>(CasterType.None);
 	private final ReadOnlyObjectWrapper<Tradition> tradition = new ReadOnlyObjectWrapper<>();
+	private final ReadOnlyObjectWrapper<AbilityScore> castingAbilityScore = new ReadOnlyObjectWrapper<>();
 	private final ObservableList<Spell> focusSpells = FXCollections.observableArrayList();
 	private final List<Spell> abilitySpells = new ArrayList<>();
 
@@ -60,6 +62,9 @@ public class SpellManager {
 					casterType.set(sAbility.getCasterType());
 				if(sAbility.getTradition() != null)
 					tradition.set(sAbility.getTradition());
+				if(sAbility.getCastingAbilityScore() != AbilityScore.None)
+					castingAbilityScore.set(sAbility.getCastingAbilityScore());
+
 			}
 		});
 
@@ -89,6 +94,8 @@ public class SpellManager {
 					casterType.set(CasterType.None);
 				if(sAbility.getTradition() != null)
 					tradition.set(null);
+				if(sAbility.getCastingAbilityScore() != AbilityScore.None)
+					castingAbilityScore.set(AbilityScore.None);
 			}
 		});
 	}
@@ -198,5 +205,21 @@ public class SpellManager {
 			case Primal: return Attribute.PrimalSpellAttacks;
 		}
 		return Attribute.None;
+	}
+
+	public int getFocusPointCount() {
+		return Math.min(focusSpells.size(), 3);
+	}
+
+	void addFocusSpell(Spell spell) {
+		focusSpells.add(spell);
+	}
+
+	void removeFocusSpell(Spell spell) {
+		focusSpells.remove(spell);
+	}
+
+	public ReadOnlyObjectProperty<AbilityScore> getCastingAbility() {
+		return castingAbilityScore.getReadOnlyProperty();
 	}
 }

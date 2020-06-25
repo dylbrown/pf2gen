@@ -8,6 +8,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import setting.Deity;
+import setting.Domain;
 
 import java.io.File;
 import java.util.stream.Collectors;
@@ -70,7 +71,11 @@ public class DeitiesLoader extends FileLoader<Deity> {
                     break;
                 case "domains":
                     for (String s : trim.split(", ?")) {
-                        builder.addDomains(SourcesLoader.instance().domains().find(s));
+                        Domain domain = SourcesLoader.instance().domains().find(s);
+                        if(domain != null)
+                            builder.addDomains(domain);
+                        else
+                            System.out.println("Warning: Could not find Domain "+s);
                     }
                     break;
                 case "spells":

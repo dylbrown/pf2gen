@@ -11,8 +11,8 @@ public class CustomGetter {
         this.pc = pc;
     }
 
-    public Object get(String customWeaponString) {
-        String[] path = customWeaponString.replaceAll("(.*\\{|}.*)", "").split("\\.");
+    public Object get(String pathString) {
+        String[] path = pathString.replaceAll("(.*\\{|}.*)", "").split("\\.");
         Object curr = pc;
         for (String s : path) {
             for (Method method : curr.getClass().getMethods()) {

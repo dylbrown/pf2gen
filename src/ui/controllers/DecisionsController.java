@@ -8,14 +8,12 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
 import model.abilities.abilitySlots.Choice;
+import model.abilities.abilitySlots.ChoiceList;
 import model.abilities.abilitySlots.FeatSlot;
-import model.abilities.abilitySlots.SingleChoiceList;
 import model.abilities.abilitySlots.SingleChoiceSlot;
-import model.player.ArbitraryChoice;
 import ui.Main;
 import ui.controls.FeatSelectionPane;
 import ui.controls.SelectionPane;
-import ui.controls.SingleSelectionPane;
 import ui.controls.lists.DecisionsList;
 import ui.controls.lists.entries.DecisionEntry;
 
@@ -43,7 +41,7 @@ public class DecisionsController {
     private void setChoices(TreeItem<DecisionEntry> treeItem) {
         if(treeItem == null) return;
         DecisionEntry entry = treeItem.getValue();
-        Choice choice = entry.getChoice();
+        Choice<?> choice = entry.getChoice();
         if(choice == null) {
             setChoices(treeItem.getParent());
             return;
@@ -54,11 +52,9 @@ public class DecisionsController {
                 node = new FeatSelectionPane((FeatSlot)choice, display, filterChoices);
             }else if(choice instanceof SingleChoiceSlot){
                 node = new FeatSelectionPane((SingleChoiceSlot)choice, display, filterChoices);
-            }else if(choice instanceof SingleChoiceList){
-                node = new SingleSelectionPane<>((SingleChoiceList<?>) choice, display);
-            }else if (choice instanceof ArbitraryChoice) {
-                node = new SelectionPane<>((ArbitraryChoice) choice, display);
-            }else{
+            }else if(choice instanceof ChoiceList){
+                node = new SelectionPane<>((ChoiceList<?>) choice, display);
+            }else {
                 node = new AnchorPane();
             }
             nodes.put(choice, node);

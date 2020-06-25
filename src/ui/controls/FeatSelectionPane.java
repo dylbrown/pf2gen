@@ -20,7 +20,7 @@ import java.util.List;
 
 import static ui.Main.character;
 
-public class FeatSelectionPane extends SingleSelectionPane<Ability> {
+public class FeatSelectionPane extends SelectionPane<Ability> {
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final List<Ability> unmetPrereqs = new ArrayList<>();
     private final ObservableList<Ability> allItems = FXCollections.observableArrayList();
@@ -54,8 +54,9 @@ public class FeatSelectionPane extends SingleSelectionPane<Ability> {
                 unmetPrereqs.removeAll(c.getAddedSubList());
                 for (Ability ability : c.getRemoved()) {
                     if(!character.meetsPrerequisites(ability)) {
-                        items.remove(ability);
                         unmetPrereqs.add(ability);
+                    }else{
+                        items.add(ability);
                     }
                 }
 
@@ -96,7 +97,7 @@ public class FeatSelectionPane extends SingleSelectionPane<Ability> {
         getSelectionModel().selectedItemProperty().addListener((event)->{
             Ability selectedItem = getSelectionModel().getSelectedItem();
             if(selectedItem != null)
-                display.getEngine().loadContent(AbilityHTMLGenerator.generate(selectedItem));
+                display.getEngine().loadContent(AbilityHTMLGenerator.parse(selectedItem));
         });
         if(slot instanceof FeatSlot) {
             if(((FeatSlot) slot).getAllowedTypes().contains(Type.Ancestry.toString())
@@ -121,7 +122,7 @@ public class FeatSelectionPane extends SingleSelectionPane<Ability> {
                 Ability selectedItem = getSelectionModel().getSelectedItem();
                 if(selectedItem != null && character.meetsPrerequisites(selectedItem) &&
                         (selectedItem.isMultiple() || !character.abilities().haveAbility(selectedItem))) {
-                    slot.fill(selectedItem);
+                    slot.add(selectedItem);
                 }
             }
         });

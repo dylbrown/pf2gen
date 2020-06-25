@@ -7,17 +7,26 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import model.WeaponGroupMod;
 import model.WeaponMod;
 import model.attributes.Attribute;
 import model.attributes.AttributeMod;
+import model.data_managers.sources.MultiSourceLoader;
 import model.data_managers.sources.SourcesLoader;
 import model.enums.Proficiency;
 import model.equipment.weapons.Damage;
+import model.equipment.weapons.WeaponGroup;
+import model.spells.Spell;
 import model.util.StringUtils;
 import org.codehaus.groovy.runtime.MethodClosure;
+import setting.Deity;
+import setting.Domain;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,16 +35,40 @@ public class GroovyModManager {
     private final Binding bindings = new Binding();
     private final GroovyShell shell = new GroovyShell(bindings);
     private final BooleanProperty applying = new SimpleBooleanProperty(true);
-    private final Map<String, ArbitraryChoice> arbitraryChoices = new HashMap<>();
-    private final Map<String, List<String>> choices = new HashMap<>();
+    private final Map<String, ArbitraryChoice<Object>> arbitraryChoices = new HashMap<>();
+    private final Map<String, List<Object>> choices = new HashMap<>();
     private final GroovyCommands commands;
     private final List<String> activeMods = new ArrayList<>();
     private final AttributeManager attributes;
     private final DecisionManager decisions;
     private final CombatManager combat;
+    private final SpellManager spells;
+    private final ReadOnlyObjectProperty<Deity> deity;
+    private final CustomGetter customGetter;
 
-    @SuppressWarnings({"rawtypes", "unused"})
+    @SuppressWarnings({"rawtypes", "unused", "unchecked"})
     private class GroovyCommands {
+        public Object get(String arg1, String name) {
+            if(name == null) return customGetter.get(arg1);
+            String type = arg1.toLowerCase();
+            for (Method method : SourcesLoader.class.getMethods()) {
+                if(method.getParameterCount() != 0
+                        || Modifier.isStatic(method.getModifiers())
+                        || !method.canAccess(SourcesLoader.instance()))
+                    continue;
+                if(method.getName().toLowerCase().equals(type)) {
+                    try {
+                        Object loader = method.invoke(SourcesLoader.instance());
+                        if(loader instanceof MultiSourceLoader) {
+                            return ((MultiSourceLoader) loader).find(name);
+                        }
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            return null;
+        }
         public void bonus(String str, Integer num) {
             if(applying.get()) {
                 mods.merge(str, num, Integer::sum);
@@ -50,20 +83,50 @@ public class GroovyModManager {
                 attributes.remove(new AttributeMod(Attribute.valueOf(attr), Proficiency.valueOf(prof)));
             }
         }
+        public void spell(String spellName) {
+            Spell spell = SourcesLoader.instance().spells().find(spellName);
+            if(spell != null) {
+               spell(spell);
+            }
+        }
+        public void spell(Spell spell) {
+            if(applying.get()) {
+                spells.addFocusSpell(spell);
+            }else{
+                spells.removeFocusSpell(spell);
+            }
+        }
         public void choose(String things, String name, Closure callback, String secondParam, int numSelections) {
             if(applying.get()) {
                 if(arbitraryChoices.get(name) != null){
                     arbitraryChoices.get(name).increaseChoices(numSelections);
                     return;
                 }
-                List<String> selections = Collections.emptyList();
+                List<?> selections = Collections.emptyList();
+                Class<?> optionsClass = Object.class;
                 String[] listSplit = things.split(" ?: ?");
                 String[] words = listSplit[0].split(" ");
                 switch (words[0].toLowerCase()){
+                    case "deitydomain":
+                        ObservableList<Domain> domains = FXCollections.observableArrayList();
+                        if(deity.get() != null) {
+                            domains.addAll(deity.get().getDomains());
+                        }
+                        deity.addListener((o, oldVal, newVal)->{
+                            domains.removeIf(d->!newVal.getDomains().contains(d));
+                            for (Domain domain : newVal.getDomains()) {
+                                if(!domains.contains(domain))
+                                    domains.add(domain);
+                            }
+                            domains.sort(Comparator.comparing(Object::toString));
+                        });
+                        selections = domains;
+                        optionsClass = Domain.class;
+                        break;
                     case "weapongroup":
-                        selections = SourcesLoader.instance().weapons()
-                                .getWeaponGroups().keySet()
-                                .stream().map(StringUtils::camelCase).collect(Collectors.toList());
+                        selections = new ArrayList<>(SourcesLoader.instance().weapons()
+                                .getWeaponGroups().values());
+                        optionsClass = WeaponGroup.class;
                         break;
                     case "skill":
                         if(words.length > 1){
@@ -73,25 +136,33 @@ public class GroovyModManager {
                         }else
                             selections = Arrays.stream(Attribute.getSkills()).map(
                                     Enum::toString).collect(Collectors.toCollection(ArrayList::new));
+                        optionsClass = String.class;
                         break;
                     case "attributes":
                         String[] items = listSplit[1].split("[, ]+");
                         selections = new ArrayList<>(Arrays.asList(items));
+                        optionsClass = String.class;
                         break;
                 }
                 ArbitraryChoice choice = new ArbitraryChoice(name, selections, (response) -> {
                     choices.computeIfAbsent(name, (key)->new ArrayList<>()).add(response);
                     applying.set(true);
-                    callback.call(response, secondParam);
+                    if(secondParam != null)
+                        callback.call(response, secondParam);
+                    else
+                        callback.call(response);
                 },(response) -> {
                     choices.computeIfAbsent(name, (key)->new ArrayList<>()).remove(response);
                     applying.set(false);
-                    callback.call(response, secondParam);
-                }, numSelections, false);
+                    if(secondParam != null)
+                        callback.call(response, secondParam);
+                    else
+                        callback.call(response);
+                }, numSelections, false, optionsClass);
                 arbitraryChoices.put(name, choice);
                 decisions.add(choice);
                 if(choices.get(name) != null) {
-                    List<String> strings = new ArrayList<>(choices.get(name));
+                    List<Object> strings = new ArrayList<>(choices.get(name));
                     choices.get(name).clear();
                     choice.addAll(strings);
                 }
@@ -101,7 +172,7 @@ public class GroovyModManager {
                     return;
                 }
                 if(choices.get(name) != null) {
-                    List<String> strings = new ArrayList<>(choices.get(name));
+                    List<?> strings = new ArrayList<>(choices.get(name));
                     arbitraryChoices.get(name).clear();
                     choices.get(name).addAll(strings);
                 }
@@ -145,10 +216,13 @@ public class GroovyModManager {
         }
     }
 
-    GroovyModManager(CustomGetter customGetter, AttributeManager attributes, DecisionManager decisions, CombatManager combat, ReadOnlyObjectProperty<Integer> levelProperty, Applier applier) {
+    GroovyModManager(CustomGetter customGetter, AttributeManager attributes, DecisionManager decisions, CombatManager combat, SpellManager spells, ReadOnlyObjectProperty<Deity> deity, ReadOnlyObjectProperty<Integer> levelProperty, Applier applier) {
         this.attributes = attributes;
         this.decisions = decisions;
         this.combat = combat;
+        this.spells = spells;
+        this.deity = deity;
+        this.customGetter = customGetter;
         applier.onApply(ability -> {
             if (!ability.getCustomMod().equals("")) {
                 apply(ability.getCustomMod());
@@ -164,10 +238,11 @@ public class GroovyModManager {
         });
 
         this.commands = new GroovyCommands();
-        bindings.setVariable("get", new MethodClosure(customGetter, "get"));
         bindings.setVariable("log", new MethodClosure(System.out, "println"));
+        addCommand("get");
         addCommand("bonus");
         addCommand("proficiency");
+        addCommand("spell");
         addCommand("choose");
         addCommand("weaponGroupProficiency");
         addCommand("weaponProficiency");

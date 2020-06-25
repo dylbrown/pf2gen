@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class AbilityHTMLGenerator {
-    public static String generate(Ability ability) {
+    public static String parse(Ability ability) {
         StringBuilder text = new StringBuilder();
         text.append("<p><h4 style='display:inline;'>").append(ability.getName());
         if(ability instanceof Activity)

@@ -127,12 +127,12 @@ public class AbilityManager {
 					if (subAbility.getLevel() <= level.get())
 						apply(subAbility);
 				}
-			} else {
-				for (AbilitySlot subSlot : ability.getAbilitySlots()) {
-					apply(subSlot);
-				}
-				abilities.add(ability);
 			}
+
+			for (AbilitySlot subSlot : ability.getAbilitySlots()) {
+				apply(subSlot);
+			}
+			abilities.add(ability);
 		}
 	}
 
@@ -192,17 +192,17 @@ public class AbilityManager {
 					if (haveAbility(subAbility))
 						remove(subAbility);
 				}
-			} else {
-				abilities.remove(ability);
-				for (AbilitySlot subSlot : ability.getAbilitySlots()) {
-					remove(subSlot);
-				}
+			}
+
+			abilities.remove(ability);
+			for (AbilitySlot subSlot : ability.getAbilitySlots()) {
+				remove(subSlot);
 			}
 		}
 	}
-
+	private final ObservableList<Ability> abilitiesUnmod = FXCollections.unmodifiableObservableList(abilities);
 	public ObservableList<Ability> getAbilities() {
-		return FXCollections.unmodifiableObservableList(abilities);
+		return abilitiesUnmod;
 	}
 
 	void removeAll(Type type) {

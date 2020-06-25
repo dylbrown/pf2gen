@@ -35,6 +35,7 @@ public class PC {
     private ReadOnlyObjectWrapper<Alignment> alignment = new ReadOnlyObjectWrapper<>();
     private final GroovyModManager modManager;
     private final DecisionManager decisions = new DecisionManager();
+    private final SpellManager spells = new SpellManager(applier);
     private final AbilityManager abilities = new AbilityManager(decisions, getAncestryProperty(),
             getPClassProperty(), levelProperty(), applier, this::meetsPrerequisites);
     private final AbilityScoreManager scores = new AbilityScoreManager(applier, ()->{
@@ -45,17 +46,16 @@ public class PC {
                 ((AbilityModChoice) abilityMod).getChoices().size() > 0)
                 return ((AbilityModChoice) abilityMod).getChoices().get(0);
         return abilityMod.getTarget();
-    });
+    }, ()-> spells.getCastingAbility().get());
     private final CustomGetter customGetter = new CustomGetter(this);
     private final AttributeManager attributes =
             new AttributeManager(customGetter, level.getReadOnlyProperty(), decisions, applier);
     private final InventoryManager inventory = new InventoryManager(attributes);
     private final QualityManager qualities = new QualityManager(decisions::add, decisions::remove);
-    private final SpellManager spells = new SpellManager(applier);
     private final CombatManager combat = new CombatManager(scores, attributes, inventory, level.getReadOnlyProperty());
 
     {
-        modManager = new GroovyModManager(customGetter, attributes, decisions, combat, level.getReadOnlyProperty(), applier);
+        modManager = new GroovyModManager(customGetter, attributes, decisions, combat, spells, deity.getReadOnlyProperty(), level.getReadOnlyProperty(), applier);
     }
 
     public PC() {

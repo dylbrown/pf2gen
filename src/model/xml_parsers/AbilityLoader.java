@@ -157,7 +157,15 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                             builder = spBuilder = new SpellAbility.Builder(builder);
                         }
                         spBuilder.setTradition(Tradition.valueOf(propElem.getAttribute("tradition")));
-                        spBuilder.setCasterType(CasterType.valueOf(propElem.getAttribute("type")));
+                        String type = propElem.getAttribute("type");
+                        if(!type.toLowerCase().equals("focusonly"))
+                            spBuilder.setCasterType(CasterType.valueOf(propElem.getAttribute("type")));
+                        break;
+                    case "SpellcastingAbility":
+                        if(spBuilder == null) {
+                            builder = spBuilder = new SpellAbility.Builder(builder);
+                        }
+                        spBuilder.setCastingAbility(AbilityScore.valueOf(trim));
                         break;
                     case "SpellSlots":
                         if(spBuilder == null) {

@@ -30,6 +30,9 @@ public class SingleSelectionPane<T> extends SelectionPane<T> {
 
     @Override
     void setupChoicesListener() {
+        getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal) -> {
+
+        });
         setOnMouseClicked((event) -> {
             if(event.getClickCount() == 2) {
                 T selectedItem = getSelectionModel().getSelectedItem();

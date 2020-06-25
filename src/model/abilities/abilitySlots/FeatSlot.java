@@ -49,6 +49,11 @@ public class FeatSlot extends AbilitySlot implements AbilitySingleChoice {
     }
 
     @Override
+    public Class<Ability> getOptionsClass() {
+        return Ability.class;
+    }
+
+    @Override
     public void add(Ability choice) {
         if(list.size() == 0) fill(choice);
     }

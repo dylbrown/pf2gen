@@ -216,13 +216,13 @@ public class EnchantTabController {
 
     private void setItemDisplay(Equipment selectedItem) {
         if(selectedItem == null) return;
-        String s = EquipmentHTMLGenerator.generateText(selectedItem);
+        String s = EquipmentHTMLGenerator.parse(selectedItem);
         itemDisplay.getEngine().loadContent(s);
     }
 
     private void setRuneDisplay(Equipment selectedItem) {
         if(selectedItem == null) return;
-        String s = EquipmentHTMLGenerator.generateText(selectedItem);
+        String s = EquipmentHTMLGenerator.parse(selectedItem);
         runeDisplay.getEngine().loadContent(s);
     }
 

@@ -269,7 +269,7 @@ public class EquipTabController {
     }
 
     private void setDisplay(Equipment selectedItem) {
-        String s = EquipmentHTMLGenerator.generateText(selectedItem);
+        String s = EquipmentHTMLGenerator.parse(selectedItem);
         itemDisplay.getEngine().loadContent(s);
 //        System.out.println(s);
     }

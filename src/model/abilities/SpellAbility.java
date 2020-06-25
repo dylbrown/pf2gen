@@ -1,5 +1,6 @@
 package model.abilities;
 
+import model.ability_scores.AbilityScore;
 import model.spells.CasterType;
 import model.spells.Spell;
 import model.spells.SpellType;
@@ -13,12 +14,14 @@ public class SpellAbility extends Ability {
 	private final Tradition tradition;
 	private Map<SpellType, List<Spell>> bonusSpells = Collections.emptyMap();
 	private final CasterType casterType;
+	private AbilityScore castingAbilityScore;
 	private SpellAbility(Builder builder) {
 		super(builder);
 		spellSlots = builder.spellSlots;
 		extraSpellsKnown = builder.extraSpellsKnown;
 		casterType = builder.casterType;
 		tradition = builder.tradition;
+		castingAbilityScore = builder.castingAbilityScore;
 
 		if(builder.bonusSpells.size() > 0) bonusSpells = new HashMap<>();
 		for (Map.Entry<SpellType, List<Spell>> entry : builder.bonusSpells.entrySet()) {
@@ -33,6 +36,10 @@ public class SpellAbility extends Ability {
 
 	public CasterType getCasterType() {
 		return casterType;
+	}
+
+	public AbilityScore getCastingAbilityScore() {
+		return castingAbilityScore;
 	}
 
 	public Tradition getTradition() {
@@ -53,6 +60,7 @@ public class SpellAbility extends Ability {
 		private Map<SpellType, List<Spell>> bonusSpells = Collections.emptyMap();
 		private CasterType casterType = CasterType.None;
 		private Tradition tradition;
+		private AbilityScore castingAbilityScore = AbilityScore.None;
 
 		public Builder() {}
 		public Builder(Ability.Builder builder) {
@@ -86,5 +94,9 @@ public class SpellAbility extends Ability {
 		public void setTradition(Tradition tradition) {
 			this.tradition = tradition;
 		}
-	}
+
+		public void setCastingAbility(AbilityScore ability) {
+			this.castingAbilityScore = ability;
+		}
+    }
 }

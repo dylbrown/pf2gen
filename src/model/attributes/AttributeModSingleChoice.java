@@ -62,6 +62,11 @@ public class AttributeModSingleChoice extends AttributeMod implements SingleChoi
     }
 
     @Override
+    public Class<Attribute> getOptionsClass() {
+        return Attribute.class;
+    }
+
+    @Override
     public String getName() {
         return "Attribute Mod Choice";
     }

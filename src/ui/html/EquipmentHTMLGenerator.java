@@ -16,7 +16,7 @@ import static model.util.StringUtils.generateCostString;
 
 public class EquipmentHTMLGenerator {
 
-    public static String generateText(Equipment equipment) {
+    public static String parse(Equipment equipment) {
         if (equipment instanceof Weapon)
             return generateWeaponText((Weapon) equipment);
         else if (equipment instanceof Armor)
@@ -39,7 +39,7 @@ public class EquipmentHTMLGenerator {
             text.append("<br><b>Traits</b> ").append(equipment.getTraits().stream().map(Trait::toString).collect(Collectors.joining(", ")));
         text.append("<hr>").append(equipment.getDesc());
         for (Ability ability : equipment.getAbilities()) {
-            text.append("<hr>").append(AbilityHTMLGenerator.generate(ability));
+            text.append("<hr>").append(AbilityHTMLGenerator.parse(ability));
         }
 
         return text.toString();

@@ -44,12 +44,16 @@ public class SingleChoicePageController<T> {
         options.setOnMouseClicked(e->{
             T selectedItem = options.getSelectionModel().getSelectedItem();
             if(selectedItem != null) {
-                preview.getEngine().loadContent(htmlGenerator.apply(selectedItem));
                 if(e.getClickCount() == 2){
                     adder.accept(null);
                     adder.accept(selectedItem);
                 }
             }
+        });
+        options.getSelectionModel().selectedItemProperty().addListener(c->{
+            T selectedItem = options.getSelectionModel().getSelectedItem();
+            if(selectedItem != null)
+                preview.getEngine().loadContent(htmlGenerator.apply(selectedItem));
         });
         chosen.setOnMouseClicked(e->{
             T selectedItem = chosen.getSelectionModel().getSelectedItem();

@@ -16,9 +16,9 @@ public class DecisionEntry implements Comparable<DecisionEntry>, TreeTableEntry 
     private ReadOnlyIntegerProperty remaining;
     private ReadOnlyIntegerWrapper remainingWrapper;
     private static final ReadOnlyStringProperty empty = new ReadOnlyStringWrapper("").getReadOnlyProperty();
-    private final Choice choice;
+    private final Choice<?> choice;
 
-    public DecisionEntry(Choice choice) {
+    public DecisionEntry(Choice<?> choice) {
         this.choice = choice;
         chosenValue = null;
         name = new ReadOnlyStringWrapper(choice.getName()).getReadOnlyProperty();
@@ -64,7 +64,7 @@ public class DecisionEntry implements Comparable<DecisionEntry>, TreeTableEntry 
         return name.get();
     }
 
-    public Choice getChoice() {
+    public Choice<?> getChoice() {
         return choice;
     }
 

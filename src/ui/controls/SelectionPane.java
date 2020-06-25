@@ -9,20 +9,24 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.web.WebView;
 import model.abilities.abilitySlots.Choice;
 import model.abilities.abilitySlots.ChoiceList;
+import ui.html.HTMLGenerator;
 
 import java.util.Comparator;
+import java.util.function.Function;
 
 
 public class SelectionPane<T> extends ListView<T> {
     final ObservableList<T> items = FXCollections.observableArrayList();
     final ObservableList<T> sortedItems = new SortedList<>(items, Comparator.comparing(Object::toString));
+    private final Function<T, String> htmlGenerator;
     WebView display;
     ObservableList<T> selections = FXCollections.observableArrayList();
     final ListView<T> chosen = new ListView<>();
     final SplitPane side = new SplitPane();
-    private Choice<T> slot;
+    Choice<T> slot;
 
     public SelectionPane(ChoiceList<T> slot, WebView display) {
+        htmlGenerator = HTMLGenerator.getGenerator(slot.getOptionsClass());
         this.display = display;
         selections = slot.getSelections();
         init(slot);
@@ -43,7 +47,9 @@ public class SelectionPane<T> extends ListView<T> {
         });
     }
 
-    SelectionPane() {}
+    SelectionPane() {
+        htmlGenerator = (o) -> "";
+    }
 
     void init(Choice<T> slot) {
         this.slot = slot;
@@ -55,6 +61,11 @@ public class SelectionPane<T> extends ListView<T> {
     }
 
     void setupChoicesListener() {
+        getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal)->{
+            if(newVal != null) {
+                display.getEngine().loadContent(htmlGenerator.apply(newVal));
+            }
+        });
         setOnMouseClicked((event) -> {
             if(event.getClickCount() == 2) {
                 T selectedItem = getSelectionModel().getSelectedItem();

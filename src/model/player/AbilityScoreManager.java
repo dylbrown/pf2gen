@@ -21,10 +21,11 @@ public class AbilityScoreManager {
     private final Map<Type, List<AbilityMod>> abilityScoresByType = new HashMap<>();
     private final PropertyChangeSupport abilityScoreChange = new PropertyChangeSupport(this);
     private final List<AbilityModChoice> abilityScoreChoices = new ArrayList<>();
-    private final Supplier<AbilityScore> keyAbility;
+    private final Supplier<AbilityScore> keyAbility, castingAbility;
 
-    AbilityScoreManager(Applier applier, Supplier<AbilityScore> keyAbility) {
+    AbilityScoreManager(Applier applier, Supplier<AbilityScore> keyAbility, Supplier<AbilityScore> castingAbility) {
         this.keyAbility = keyAbility;
+        this.castingAbility = castingAbility;
         List<AbilityModChoice> choices = Arrays.asList(
                 new AbilityModChoice(Type.Initial),
                 new AbilityModChoice(Type.Initial),
@@ -49,8 +50,11 @@ public class AbilityScoreManager {
     }
 
     public int getScore(AbilityScore ability) {
+        if(ability == null) return getScore(None);
         if(ability.equals(KeyAbility))
             return getScore(keyAbility.get());
+        if(ability.equals(CastingAbility))
+            return getScore(castingAbility.get());
         int score = 10;
         List<Type> stackingCheck = new ArrayList<>();
         for(AbilityMod mod: abilityScores.computeIfAbsent(ability, (key)-> FXCollections.observableArrayList())) {

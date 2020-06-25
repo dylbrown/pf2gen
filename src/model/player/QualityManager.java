@@ -16,17 +16,17 @@ public class QualityManager {
     private final Set<Language> languages = new TreeSet<>();
     private final Set<String> senses = new TreeSet<>();
     private final ObservableList<String> bonusLanguages = FXCollections.observableArrayList();
-    private final ArbitraryChoice bonusLanguageChoice = new ArbitraryChoice("Bonus Languages",
-            bonusLanguages, this::addBonusLanguage,  this::removeBonusLanguage, 0, false);
+    private final ArbitraryChoice<String> bonusLanguageChoice = new ArbitraryChoice<>("Bonus Languages",
+            bonusLanguages, this::addBonusLanguage,  this::removeBonusLanguage, 0, false, String.class);
 
-    QualityManager(Consumer<ArbitraryChoice> addDecision, Consumer<ArbitraryChoice> removeDecision) {
+    QualityManager(Consumer<ArbitraryChoice<String>> addDecision, Consumer<ArbitraryChoice<String>> removeDecision) {
         bonusLanguageChoice.numSelectionsProperty().addListener((o, oldVal, newVal) -> {
             if(oldVal.intValue() > 0 && newVal.intValue() <= 0) removeDecision.accept(bonusLanguageChoice);
             if(oldVal.intValue() <= 0 && newVal.intValue() > 0) addDecision.accept(bonusLanguageChoice);
         });
     }
 
-    public ArbitraryChoice getBonusLanguageChoice() {
+    public ArbitraryChoice<String> getBonusLanguageChoice() {
         return bonusLanguageChoice;
     }
 

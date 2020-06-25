@@ -12,6 +12,7 @@ import model.data_managers.sources.SourcesLoader;
 import setting.Deity;
 import ui.Main;
 import ui.html.ABCHTMLGenerator;
+import ui.html.SettingHTMLGenerator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,21 +32,21 @@ public class StartingTabController {
                 ),
                 Main.character.getAncestryProperty(),
                 Main.character::setAncestry,
-                ABCHTMLGenerator::parseAncestry);
+                ABCHTMLGenerator::parse);
         addTab("Background", FXCollections.unmodifiableObservableList(
                 FXCollections.observableList(new ArrayList<>(SourcesLoader.instance()
                         .backgrounds().getAll().values()))
                 ),
                 Main.character.getBackgroundProperty(),
                 Main.character::setBackground,
-                ABCHTMLGenerator::parseBackground);
+                ABCHTMLGenerator::parse);
         addTab("Class", FXCollections.unmodifiableObservableList(
                 FXCollections.observableList(new ArrayList<>(SourcesLoader.instance()
                         .classes().getAll().values()))
                 ),
                 Main.character.getPClassProperty(),
                 Main.character::setPClass,
-                ABCHTMLGenerator::parsePClass);
+                ABCHTMLGenerator::parse);
         ObservableList<Deity> deities = FXCollections.observableArrayList();
         deities.add(Deity.NO_DEITY);
         deities.addAll(SourcesLoader.instance()
@@ -55,7 +56,7 @@ public class StartingTabController {
                 ),
                 Main.character.getDeityProperty(),
                 Main.character::setDeity,
-                ABCHTMLGenerator::parseDeity);
+                SettingHTMLGenerator::parse);
     }
 
     private <T> void addTab(String name, ObservableList<T> options, ReadOnlyObjectProperty<T> value,
