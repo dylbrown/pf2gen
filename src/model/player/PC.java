@@ -10,11 +10,13 @@ import model.abilities.AttackAbility;
 import model.abilities.abilitySlots.AbilitySlot;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
+import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
 import model.attributes.AttributeMod;
 import model.enums.Alignment;
 import model.enums.Type;
 import model.spells.Spell;
+import model.util.Pair;
 import setting.Deity;
 
 import java.beans.PropertyChangeListener;
@@ -201,6 +203,11 @@ public class PC {
             if(attributes.getProficiency(requiredAttr.getAttr(), requiredAttr.getData()).getValue().getMod() < requiredAttr.getMod().getMod())
                 return false;
         }
+        for (Pair<AbilityScore, Integer> requiredScore : ability.getRequiredScores()) {
+            if(scores.getScore(requiredScore.first) < requiredScore.second)
+                return false;
+        }
+
         for (String prereq : ability.getPrerequisites()) {
             String[] split = prereq.split(" or ");
             boolean found=false;

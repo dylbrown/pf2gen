@@ -2,9 +2,11 @@ package model.abilities;
 
 import model.abilities.abilitySlots.AbilitySlot;
 import model.ability_scores.AbilityMod;
+import model.ability_scores.AbilityScore;
 import model.attributes.AttributeMod;
 import model.enums.Trait;
 import model.enums.Type;
+import model.util.Pair;
 import model.util.StringUtils;
 
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ public class Ability implements Comparable<Ability> {
     //TODO: Support Repeated Choice
     private final List<String> prerequisites, prereqStrings, givenPrerequisites;
     private final List<AttributeMod> requiredAttrs;
+    private final List<Pair<AbilityScore, Integer>> requiredScores;
     private final String customMod;
     private final List<AbilitySlot> abilitySlots;
     private final Type type;
@@ -42,6 +45,7 @@ public class Ability implements Comparable<Ability> {
         this.givenPrerequisites = builder.givenPrerequisites;
         this.requirements = builder.requirements;
         this.requiredAttrs = builder.requiredAttrs;
+        this.requiredScores = builder.requiredScores;
         this.traits = builder.traits;
         this.customMod = builder.customMod;
         this.abilityMods = builder.abilityMods;
@@ -82,6 +86,10 @@ public class Ability implements Comparable<Ability> {
 
     public List<AttributeMod> getRequiredAttrs() {
         return Collections.unmodifiableList(requiredAttrs);
+    }
+
+    public List<Pair<AbilityScore, Integer>> getRequiredScores() {
+        return requiredScores;
     }
 
     public List<String> getPrerequisites() {
@@ -150,6 +158,7 @@ public class Ability implements Comparable<Ability> {
         private List<String> prereqStrings = Collections.emptyList();
         private List<String> givenPrerequisites = Collections.emptyList();
         private List<AttributeMod> requiredAttrs = Collections.emptyList();
+        private List<Pair<AbilityScore, Integer>> requiredScores = Collections.emptyList();
         private List<Trait> traits = Collections.emptyList();
         private String customMod = "";
         private List<AbilitySlot> abilitySlots = Collections.emptyList();
@@ -172,6 +181,7 @@ public class Ability implements Comparable<Ability> {
             this.prereqStrings = builder.prereqStrings;
             this.givenPrerequisites = builder.givenPrerequisites;
             this.requiredAttrs = builder.requiredAttrs;
+            this.requiredScores = builder.requiredScores;
             this.customMod = builder.customMod;
             this.abilitySlots = builder.abilitySlots;
             this.type = builder.type;
@@ -207,6 +217,13 @@ public class Ability implements Comparable<Ability> {
                 this.requiredAttrs = Collections.emptyList();
             else
                 this.requiredAttrs = requiredAttrs;
+        }
+
+        public void setRequiredScores(List<Pair<AbilityScore, Integer>> requiredScores) {
+            if(requiredScores.isEmpty())
+                this.requiredScores = Collections.emptyList();
+            else
+                this.requiredScores = requiredScores;
         }
 
         public void setCustomMod(String customMod) {

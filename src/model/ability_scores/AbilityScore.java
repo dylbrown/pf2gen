@@ -12,4 +12,36 @@ public enum AbilityScore {
     public static List<AbilityScore> scores() {
         return Collections.unmodifiableList(scores);
     }
+
+    public static AbilityScore robustValueOf(String name) {
+        switch(name.toLowerCase()) {
+            case "str":
+            case "strength":
+                return Str;
+            case "dex":
+            case "dexterity":
+                return Dex;
+            case "con":
+            case "constitution":
+                return Con;
+            case "int":
+            case "intelligence":
+                return Int;
+            case "wis":
+            case "wisdom":
+                return Wis;
+            case "cha":
+            case "charisma":
+                return Cha;
+            case "free":
+                return Free;
+            case "keyability":
+            case "key ability":
+                return KeyAbility;
+            case "castingability":
+            case "casting ability":
+                return CastingAbility;
+        }
+        return None;
+    }
 }

@@ -100,14 +100,14 @@ public class SpellManager {
 		});
 	}
 
-	private void addSlots(int level, int amount) {
+	void addSlots(int level, int amount) {
 		spellSlots.set(level, amount + spellSlots.get(level));
 	}
 	private void addKnown(int level, int amount) {
 		extraSpellsKnown.set(level, amount + extraSpellsKnown.get(level));
 	}
 
-	private void removeSlots(int level, int amount) {
+	void removeSlots(int level, int amount) {
 		spellSlots.set(level, spellSlots.get(level) - amount);
 		checkKnownCap(level);
 	}

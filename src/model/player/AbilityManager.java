@@ -63,10 +63,18 @@ public class AbilityManager {
 		if (choice instanceof FeatSlot) {
 			List<Ability> results = new ArrayList<>();
 			for (String allowedType : ((FeatSlot) choice).getAllowedTypes()) {
-				switch (allowedType) {
+				switch (allowedType.replaceAll(" Feat.*", "")) {
 					case "Class":
-						if (pClass.get() != null)
+						int bracket = allowedType.indexOf("(");
+						if (bracket != -1) {
+							int close = allowedType.indexOf(")");
+							String className = allowedType.substring(bracket + 1, close);
+							PClass specificClass = SourcesLoader.instance().classes().find(className);
+							if(specificClass != null)
+								results.addAll(specificClass.getFeats(((FeatSlot) choice).getLevel()));
+						}else if (pClass.get() != null)
 							results.addAll(pClass.get().getFeats(((FeatSlot) choice).getLevel()));
+							results.addAll(SourcesLoader.instance().feats().getCategory("Archetype").values());
 						break;
 					case "Ancestry":
 						if (ancestry.get() != null)

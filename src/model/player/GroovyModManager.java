@@ -98,6 +98,13 @@ public class GroovyModManager {
                 spells.removeFocusSpell(spell);
             }
         }
+        public void spellSlot(int level, int count) {
+            if(applying.get()) {
+                spells.addSlots(level, count);
+            }else{
+                spells.removeSlots(level, count);
+            }
+        }
         public void choose(String things, String name, Closure callback, String secondParam, int numSelections) {
             if(applying.get()) {
                 if(arbitraryChoices.get(name) != null){

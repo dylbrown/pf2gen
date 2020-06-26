@@ -5,6 +5,7 @@ public enum Trait {
 
     Alchemist, Bard, Barbarian, Champion, Cleric, Druid, Fighter, Monk, Ranger, Rogue, Sorcerer, Wizard,
     Composition, Litany, Stance, Metamagic, Concentrate, Arcane, Divine, Occult, Primal,
+    Archetype, Dedication, Multiclass,
 
     Attack, Nonlethal, Poison, Flourish, Move, Open, Press,
 

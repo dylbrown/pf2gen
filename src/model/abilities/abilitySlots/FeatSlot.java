@@ -68,7 +68,7 @@ public class FeatSlot extends AbilitySlot implements AbilitySingleChoice {
         if(list.size() == 0) fill(null);
     }
 
-    private ObservableList<Ability> unmodifiable = FXCollections.unmodifiableObservableList(list);
+    private final ObservableList<Ability> unmodifiable = FXCollections.unmodifiableObservableList(list);
     @Override
     public ObservableList<Ability> getSelections() {
         return unmodifiable;
