@@ -1,6 +1,6 @@
 package model.abc;
 
-import model.abilities.abilitySlots.AbilitySlot;
+import model.ability_slots.AbilitySlot;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityScore;
 import model.enums.Type;

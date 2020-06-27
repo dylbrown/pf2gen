@@ -1,8 +1,8 @@
 package ui.controls;
 
 import javafx.scene.web.WebView;
-import model.abilities.abilitySlots.SingleChoice;
-import model.abilities.abilitySlots.SingleChoiceList;
+import model.ability_slots.SingleChoice;
+import model.ability_slots.SingleChoiceList;
 
 
 public class SingleSelectionPane<T> extends SelectionPane<T> {

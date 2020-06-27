@@ -5,7 +5,7 @@ import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import model.abilities.abilitySlots.ChoiceList;
+import model.ability_slots.ChoiceList;
 
 import java.util.Collections;
 import java.util.Iterator;

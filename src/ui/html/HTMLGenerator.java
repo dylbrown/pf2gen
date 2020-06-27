@@ -45,9 +45,9 @@ public class HTMLGenerator {
     }
     public static <T> Function<T, String> getGenerator(Class<T> tClass) {
         GeneratorPair<?> stringFunction = INSTANCE.generators.get(tClass);
-        Class<? super T> superclass;
-        while(stringFunction == null && tClass != Object.class) {
-            superclass = tClass.getSuperclass();
+        Class<? super T> superclass = tClass;
+        while(stringFunction == null && superclass != null) {
+            superclass = superclass.getSuperclass();
             stringFunction = INSTANCE.generators.get(superclass);
         }
         if(stringFunction == null) return t->"";

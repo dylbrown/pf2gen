@@ -1,4 +1,4 @@
-package model.abilities;
+package model.attributes;
 
 import javafx.beans.Observable;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -6,7 +6,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.TransformationList;
-import model.attributes.Attribute;
 import model.enums.Proficiency;
 
 import java.util.Arrays;

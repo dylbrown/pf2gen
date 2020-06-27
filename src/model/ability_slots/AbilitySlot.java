@@ -1,4 +1,4 @@
-package model.abilities.abilitySlots;
+package model.ability_slots;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;

@@ -8,7 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import model.WeaponGroupMod;
 import model.WeaponMod;
-import model.abilities.MinimumProficiencyList;
+import model.attributes.MinimumProficiencyList;
 import model.attributes.*;
 import model.enums.Proficiency;
 import model.enums.Type;

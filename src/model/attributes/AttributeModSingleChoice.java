@@ -4,7 +4,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import model.abilities.abilitySlots.SingleChoiceList;
+import model.ability_slots.SingleChoiceList;
 import model.enums.Proficiency;
 
 import java.util.ArrayList;

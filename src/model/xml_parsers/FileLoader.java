@@ -125,7 +125,7 @@ public abstract class FileLoader<T> {
     }
 
     protected void loadMultiple(String category, String location) {
-        if(!loadTracker.isNotLoaded(location))
+        if(!loadTracker.isNotLoaded(location) || location == null)
             return;
         loadTracker.setLoaded(location);
         File subFile = getSubFile(location);

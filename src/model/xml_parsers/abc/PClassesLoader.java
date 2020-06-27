@@ -1,7 +1,7 @@
 package model.xml_parsers.abc;
 
 import model.abc.PClass;
-import model.abilities.abilitySlots.*;
+import model.ability_slots.*;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.Type;
 import org.w3c.dom.Element;

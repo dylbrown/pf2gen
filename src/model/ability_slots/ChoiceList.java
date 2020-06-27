@@ -1,4 +1,4 @@
-package model.abilities.abilitySlots;
+package model.ability_slots;
 
 import java.util.List;
 

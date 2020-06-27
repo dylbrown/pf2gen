@@ -2,12 +2,12 @@ package model.abilities;
 
 import model.enums.Action;
 
-public class Activity extends Ability {
+public class ActivityExtension extends AbilityExtension {
     private final Action cost;
     private final String trigger;
 
-    public Activity(Activity.Builder builder) {
-        super(builder);
+    public ActivityExtension(ActivityExtension.Builder builder, Ability baseAbility) {
+        super(baseAbility);
         this.cost = builder.cost;
         this.trigger = builder.trigger;
     }
@@ -20,9 +20,11 @@ public class Activity extends Ability {
         return trigger;
     }
 
-    public static class Builder extends Ability.Builder {
+    public static class Builder extends AbilityExtension.Builder {
         private Action cost = Action.Free;
         private String trigger = "";
+
+        Builder() {}
 
         public void setCost(Action cost) {
             this.cost = cost;
@@ -33,8 +35,8 @@ public class Activity extends Ability {
         }
 
         @Override
-        public Activity build() {
-            return new Activity(this);
+        public ActivityExtension build(Ability baseAbility) {
+            return new ActivityExtension(this, baseAbility);
         }
     }
 }

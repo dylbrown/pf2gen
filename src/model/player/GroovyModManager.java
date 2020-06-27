@@ -79,10 +79,13 @@ public class GroovyModManager {
             }
         }
         public void proficiency(String attr, String prof) {
+            proficiency(Attribute.valueOf(attr), prof);
+        }
+        public void proficiency(Attribute attr, String prof) {
             if(applying.get()) {
-                attributes.apply(new AttributeMod(Attribute.valueOf(attr), Proficiency.valueOf(prof)));
+                attributes.apply(new AttributeMod(attr, Proficiency.valueOf(prof)));
             } else {
-                attributes.remove(new AttributeMod(Attribute.valueOf(attr), Proficiency.valueOf(prof)));
+                attributes.remove(new AttributeMod(attr, Proficiency.valueOf(prof)));
             }
         }
         public void spell(String spellName) {
@@ -118,9 +121,9 @@ public class GroovyModManager {
                 switch (words[0].toLowerCase()){
                     case "deitydomain":
                         ObservableList<Domain> domains = FXCollections.observableArrayList();
-                        if(deity.get() != null) {
+                        if(deity.get() != null)
                             domains.addAll(deity.get().getDomains());
-                        }
+
                         deity.addListener((o, oldVal, newVal)->{
                             domains.removeIf(d->!newVal.getDomains().contains(d));
                             for (Domain domain : newVal.getDomains()) {
@@ -131,6 +134,22 @@ public class GroovyModManager {
                         });
                         selections = domains;
                         optionsClass = Domain.class;
+                        break;
+                    case "divineskill":
+                        ObservableList<Attribute> skills = FXCollections.observableArrayList();
+                        if(deity.get() != null)
+                            skills.addAll(deity.get().getDivineSkillChoices());
+
+                        deity.addListener((o, oldVal, newVal)->{
+                            skills.removeIf(s->!newVal.getDivineSkillChoices().contains(s));
+                            for (Attribute skill : newVal.getDivineSkillChoices()) {
+                                if(!skills.contains(skill))
+                                    skills.add(skill);
+                            }
+                            skills.sort(Comparator.comparing(Object::toString));
+                        });
+                        selections = skills;
+                        optionsClass = Attribute.class;
                         break;
                     case "weapongroup":
                         selections = new ArrayList<>(SourcesLoader.instance().weapons()

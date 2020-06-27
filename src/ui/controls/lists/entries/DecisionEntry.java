@@ -6,7 +6,7 @@ import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
-import model.abilities.abilitySlots.Choice;
+import model.ability_slots.Choice;
 
 @SuppressWarnings("rawtypes")
 public class DecisionEntry implements Comparable<DecisionEntry>, TreeTableEntry {

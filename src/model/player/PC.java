@@ -6,8 +6,9 @@ import model.abc.Ancestry;
 import model.abc.Background;
 import model.abc.PClass;
 import model.abilities.Ability;
-import model.abilities.AttackAbility;
-import model.abilities.abilitySlots.AbilitySlot;
+import model.abilities.ArchetypeExtension;
+import model.abilities.AttackExtension;
+import model.ability_slots.AbilitySlot;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
@@ -67,14 +68,16 @@ public class PC {
         }));
 
         applier.onApply(ability -> {
-            if(ability instanceof AttackAbility) {
-                combat.addAttacks(((AttackAbility) ability).getAttacks());
+            AttackExtension attackExt = ability.getExtension(AttackExtension.class);
+            if(attackExt != null) {
+                combat.addAttacks(attackExt.getAttacks());
             }
         });
 
         applier.onRemove(ability -> {
-            if(ability instanceof AttackAbility) {
-                combat.removeAttacks(((AttackAbility) ability).getAttacks());
+            AttackExtension attackExt = ability.getExtension(AttackExtension.class);
+            if(attackExt != null) {
+                combat.removeAttacks(attackExt.getAttacks());
             }
         });
     }
@@ -194,10 +197,6 @@ public class PC {
         return ((getAncestry() != null) ? getAncestry().getSpeed() : 0) + modManager.get("speed");
     }
 
-    public PClass currentClass() {
-        return pClass.get();
-    }
-
     public boolean meetsPrerequisites(Ability ability) {
         for (AttributeMod requiredAttr : ability.getRequiredAttrs()) {
             if(attributes.getProficiency(requiredAttr.getAttr(), requiredAttr.getData()).getValue().getMod() < requiredAttr.getMod().getMod())
@@ -205,6 +204,11 @@ public class PC {
         }
         for (Pair<AbilityScore, Integer> requiredScore : ability.getRequiredScores()) {
             if(scores.getScore(requiredScore.first) < requiredScore.second)
+                return false;
+        }
+        ArchetypeExtension archetypeExt = ability.getExtension(ArchetypeExtension.class);
+        if(archetypeExt != null) {
+            if(!abilities.meetsPrerequisites(archetypeExt))
                 return false;
         }
 

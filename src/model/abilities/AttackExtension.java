@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class AttackAbility extends Ability {
+public class AttackExtension extends AbilityExtension {
 	private final List<Weapon> weapons;
 
-	private AttackAbility(AttackAbility.Builder builder) {
-		super(builder);
+	private AttackExtension(AttackExtension.Builder builder, Ability baseAbility) {
+		super(baseAbility);
 		this.weapons = builder.weapons;
 	}
 
@@ -18,12 +18,10 @@ public class AttackAbility extends Ability {
 		return Collections.unmodifiableList(weapons);
 	}
 
-	public static class Builder extends Ability.Builder {
+	public static class Builder extends AbilityExtension.Builder {
 		private List<Weapon> weapons = Collections.emptyList();
 
-		public Builder(Ability.Builder builder) {
-			super(builder);
-		}
+		Builder() {}
 
 		public void addWeapon(Weapon weapon) {
 			if(weapons.size() == 0) weapons = new ArrayList<>();
@@ -35,8 +33,8 @@ public class AttackAbility extends Ability {
 		}
 
 		@Override
-		public AttackAbility build() {
-			return new AttackAbility(this);
+		public AttackExtension build(Ability baseAbility) {
+			return new AttackExtension(this, baseAbility);
 		}
 	}
 }

@@ -4,7 +4,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import model.abilities.SpellAbility;
+import model.abilities.SpellExtension;
 import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
 import model.spells.CasterType;
@@ -37,15 +37,15 @@ public class SpellManager {
 		}
 
 		applier.onApply(ability -> {
-			if(ability instanceof SpellAbility){
-				SpellAbility sAbility = (SpellAbility) ability;
-				for (Map.Entry<Integer, Integer> entry : sAbility.getSpellSlots().entrySet()) {
+			SpellExtension spellExtension = ability.getExtension(SpellExtension.class);
+			if(spellExtension != null){
+				for (Map.Entry<Integer, Integer> entry : spellExtension.getSpellSlots().entrySet()) {
 					addSlots(entry.getKey(), entry.getValue());
 				}
-				for (Map.Entry<Integer, Integer> entry : sAbility.getExtraSpellsKnown().entrySet()) {
+				for (Map.Entry<Integer, Integer> entry : spellExtension.getExtraSpellsKnown().entrySet()) {
 					addKnown(entry.getKey(), entry.getValue());
 				}
-				for (Map.Entry<SpellType, List<Spell>> entry : sAbility.getBonusSpells().entrySet()) {
+				for (Map.Entry<SpellType, List<Spell>> entry : spellExtension.getBonusSpells().entrySet()) {
 					switch(entry.getKey()) {
 						case Spell:
 						case Cantrip:
@@ -58,26 +58,26 @@ public class SpellManager {
 							break;
 					}
 				}
-				if(sAbility.getCasterType() != CasterType.None)
-					casterType.set(sAbility.getCasterType());
-				if(sAbility.getTradition() != null)
-					tradition.set(sAbility.getTradition());
-				if(sAbility.getCastingAbilityScore() != AbilityScore.None)
-					castingAbilityScore.set(sAbility.getCastingAbilityScore());
+				if(spellExtension.getCasterType() != CasterType.None)
+					casterType.set(spellExtension.getCasterType());
+				if(spellExtension.getTradition() != null)
+					tradition.set(spellExtension.getTradition());
+				if(spellExtension.getCastingAbilityScore() != AbilityScore.None)
+					castingAbilityScore.set(spellExtension.getCastingAbilityScore());
 
 			}
 		});
 
 		applier.onRemove(ability -> {
-			if(ability instanceof SpellAbility){
-				SpellAbility sAbility = (SpellAbility) ability;
-				for (Map.Entry<Integer, Integer> entry : sAbility.getSpellSlots().entrySet()) {
+			SpellExtension spellExtension = ability.getExtension(SpellExtension.class);
+			if(spellExtension != null){
+				for (Map.Entry<Integer, Integer> entry : spellExtension.getSpellSlots().entrySet()) {
 					removeSlots(entry.getKey(), entry.getValue());
 				}
-				for (Map.Entry<Integer, Integer> entry : sAbility.getExtraSpellsKnown().entrySet()) {
+				for (Map.Entry<Integer, Integer> entry : spellExtension.getExtraSpellsKnown().entrySet()) {
 					removeKnown(entry.getKey(), entry.getValue());
 				}
-				for (Map.Entry<SpellType, List<Spell>> entry : sAbility.getBonusSpells().entrySet()) {
+				for (Map.Entry<SpellType, List<Spell>> entry : spellExtension.getBonusSpells().entrySet()) {
 					switch(entry.getKey()) {
 						case Spell:
 						case Cantrip:
@@ -90,11 +90,11 @@ public class SpellManager {
 							break;
 					}
 				}
-				if(sAbility.getCasterType() != CasterType.None)
+				if(spellExtension.getCasterType() != CasterType.None)
 					casterType.set(CasterType.None);
-				if(sAbility.getTradition() != null)
+				if(spellExtension.getTradition() != null)
 					tradition.set(null);
-				if(sAbility.getCastingAbilityScore() != AbilityScore.None)
+				if(spellExtension.getCastingAbilityScore() != AbilityScore.None)
 					castingAbilityScore.set(AbilityScore.None);
 			}
 		});

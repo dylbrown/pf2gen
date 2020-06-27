@@ -5,8 +5,8 @@ import freemarker.core.TemplateNumberFormatFactory;
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.*;
 import model.abilities.Ability;
-import model.abilities.AbilitySet;
-import model.abilities.Activity;
+import model.abilities.AbilitySetExtension;
+import model.abilities.ActivityExtension;
 import model.enums.Slot;
 import model.equipment.armor.Armor;
 import model.equipment.armor.Shield;
@@ -109,8 +109,8 @@ public class TemplateFiller {
         root.put("Armor", Armor.class);
         root.put("Shield", Shield.class);
         root.put("Ability", Ability.class);
-        root.put("AbilitySet", AbilitySet.class);
-        root.put("Activity", Activity.class);
+        root.put("AbilitySet", AbilitySetExtension.class);
+        root.put("Activity", ActivityExtension.class);
         try {
             root.put("Slot", ((BeansWrapper)cfg.getObjectWrapper()).getEnumModels().get(Slot.class.getName()));
             root.put("CasterType", ((BeansWrapper)cfg.getObjectWrapper()).getEnumModels().get(CasterType.class.getName()));

@@ -1,6 +1,6 @@
 package model.abilities;
 
-import model.abilities.abilitySlots.AbilitySlot;
+import model.ability_slots.AbilitySlot;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityScore;
 import model.attributes.AttributeMod;
@@ -9,10 +9,8 @@ import model.enums.Type;
 import model.util.Pair;
 import model.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.lang.reflect.Constructor;
+import java.util.*;
 
 public class Ability implements Comparable<Ability> {
     //TODO: Support Repeated Choice
@@ -33,7 +31,14 @@ public class Ability implements Comparable<Ability> {
     private final int skillIncreases;
     private final String sourceBook;
     private final int pageNo;
+    private final Map<Class<? extends AbilityExtension>, AbilityExtension> extensions = new HashMap<>();
 
+    public <T extends AbilityExtension> T getExtension(Class<T> extensionClass) {
+        AbilityExtension extension = extensions.get(extensionClass);
+        if(extensionClass.isInstance(extension))
+            return extensionClass.cast(extension);
+        else return null;
+    }
 
     protected Ability(Ability.Builder builder) {
         this.name = builder.name;
@@ -55,6 +60,10 @@ public class Ability implements Comparable<Ability> {
         this.skillIncreases = builder.skillIncreases;
         this.sourceBook = builder.sourceBook;
         this.pageNo = builder.pageNo;
+        for (AbilityExtension.Builder extensionBuilder : builder.extensions.values()) {
+            AbilityExtension extension = extensionBuilder.build(this);
+            extensions.put(extension.getClass(), extension);
+        }
     }
 
     public List<AttributeMod> getModifiers() {
@@ -173,30 +182,10 @@ public class Ability implements Comparable<Ability> {
         private String requirements = "";
         private String sourceBook = "Core Rulebook"; // TODO: Collect this in loader
         private int pageNo = -1;
+        private Map<Class<? extends AbilityExtension.Builder>, AbilityExtension.Builder>
+                extensions = Collections.emptyMap();
 
         public Builder(){}
-
-        public Builder(Ability.Builder builder) {
-            this.prerequisites = builder.prerequisites;
-            this.prereqStrings = builder.prereqStrings;
-            this.givenPrerequisites = builder.givenPrerequisites;
-            this.requiredAttrs = builder.requiredAttrs;
-            this.requiredScores = builder.requiredScores;
-            this.customMod = builder.customMod;
-            this.abilitySlots = builder.abilitySlots;
-            this.type = builder.type;
-            this.traits = builder.traits;
-            this.multiple = builder.multiple;
-            this.modifiers = builder.modifiers;
-            this.abilityMods = builder.abilityMods;
-            this.name = builder.name;
-            this.description = builder.description;
-            this.level = builder.level;
-            this.skillIncreases = builder.skillIncreases;
-            this.requirements = builder.requirements;
-            this.sourceBook = builder.sourceBook;
-            this.pageNo = builder.pageNo;
-        }
 
         public void setPrerequisites(List<String> prerequisites) {
             this.prerequisites = prerequisites;
@@ -235,10 +224,10 @@ public class Ability implements Comparable<Ability> {
             abilitySlots.add(abilitySlot);
         }
 
-        public void addTraits(List<Trait> traits) {
-            if(traits.isEmpty()) return;
+        public void addTraits(Trait... traits) {
+            if(traits.length == 0) return;
             if(this.traits.isEmpty()) this.traits = new ArrayList<>();
-            this.traits.addAll(traits);
+            this.traits.addAll(Arrays.asList(traits));
         }
 
         public void setAbilitySlots(List<AbilitySlot> abilitySlots) {
@@ -288,6 +277,24 @@ public class Ability implements Comparable<Ability> {
 
         public void setSkillIncreases(int skillIncreases) {
             this.skillIncreases = skillIncreases;
+        }
+
+        public <T extends AbilityExtension.Builder> T getExtension(Class<T> extensionClass) {
+            AbilityExtension.Builder extension = extensions.get(extensionClass);
+            if(extensionClass.isInstance(extension))
+                return extensionClass.cast(extension);
+            else {
+                if(extensions.size() == 0) extensions = new HashMap<>();
+                try {
+                    Constructor<T> defaultConstructor = extensionClass.getDeclaredConstructor();
+                    T newExtension = defaultConstructor.newInstance();
+                    extensions.put(extensionClass, newExtension);
+                    return newExtension;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
         }
 
         public Ability build() {

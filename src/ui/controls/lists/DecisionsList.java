@@ -5,7 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
-import model.abilities.abilitySlots.Choice;
+import model.ability_slots.Choice;
 import ui.controls.lists.entries.DecisionEntry;
 
 import java.util.Arrays;

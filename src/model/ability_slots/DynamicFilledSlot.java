@@ -1,4 +1,4 @@
-package model.abilities.abilitySlots;
+package model.ability_slots;
 
 import model.abc.PClass;
 import model.abilities.Ability;

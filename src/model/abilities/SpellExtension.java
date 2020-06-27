@@ -8,15 +8,15 @@ import model.spells.Tradition;
 
 import java.util.*;
 
-public class SpellAbility extends Ability {
+public class SpellExtension extends AbilityExtension {
 	private final Map<Integer, Integer> spellSlots;
 	private final Map<Integer, Integer> extraSpellsKnown;
 	private final Tradition tradition;
 	private Map<SpellType, List<Spell>> bonusSpells = Collections.emptyMap();
 	private final CasterType casterType;
-	private AbilityScore castingAbilityScore;
-	private SpellAbility(Builder builder) {
-		super(builder);
+	private final AbilityScore castingAbilityScore;
+	private SpellExtension(Builder builder, Ability baseAbility) {
+		super(baseAbility);
 		spellSlots = builder.spellSlots;
 		extraSpellsKnown = builder.extraSpellsKnown;
 		casterType = builder.casterType;
@@ -54,7 +54,7 @@ public class SpellAbility extends Ability {
 		return Collections.unmodifiableMap(bonusSpells);
 	}
 
-	public static class Builder extends Ability.Builder {
+	public static class Builder extends AbilityExtension.Builder {
 		private Map<Integer, Integer> spellSlots = Collections.emptyMap();
 		private Map<Integer, Integer> extraSpellsKnown = Collections.emptyMap();
 		private Map<SpellType, List<Spell>> bonusSpells = Collections.emptyMap();
@@ -62,10 +62,7 @@ public class SpellAbility extends Ability {
 		private Tradition tradition;
 		private AbilityScore castingAbilityScore = AbilityScore.None;
 
-		public Builder() {}
-		public Builder(Ability.Builder builder) {
-			super(builder);
-		}
+		Builder() {}
 
 		public void addSpellSlots(int level, int count) {
 			if(spellSlots.size() == 0) spellSlots = new TreeMap<>();
@@ -86,11 +83,6 @@ public class SpellAbility extends Ability {
 			this.casterType = casterType;
 		}
 
-		@Override
-		public SpellAbility build() {
-			return new SpellAbility(this);
-		}
-
 		public void setTradition(Tradition tradition) {
 			this.tradition = tradition;
 		}
@@ -98,5 +90,10 @@ public class SpellAbility extends Ability {
 		public void setCastingAbility(AbilityScore ability) {
 			this.castingAbilityScore = ability;
 		}
-    }
+
+		@Override
+		AbilityExtension build(Ability baseAbility) {
+			return new SpellExtension(this, baseAbility);
+		}
+	}
 }

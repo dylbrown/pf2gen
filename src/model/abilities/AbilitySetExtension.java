@@ -3,10 +3,10 @@ package model.abilities;
 import java.util.Collections;
 import java.util.List;
 
-public class AbilitySet extends Ability {
+public class AbilitySetExtension extends AbilityExtension {
     private final List<Ability> abilities;
-    private AbilitySet(AbilitySet.Builder builder) {
-        super(builder);
+    private AbilitySetExtension(AbilitySetExtension.Builder builder, Ability baseAbility) {
+        super(baseAbility);
         this.abilities = builder.abilities;
     }
 
@@ -14,21 +14,18 @@ public class AbilitySet extends Ability {
         return Collections.unmodifiableList(abilities);
     }
 
-    public static class Builder extends Ability.Builder {
+    public static class Builder extends AbilityExtension.Builder {
         private List<Ability> abilities;
 
-        public Builder() {}
-	    public Builder(Ability.Builder builder) {
-            super(builder);
-        }
+        Builder() {}
 
 	    public void setAbilities(List<Ability> abilities) {
             this.abilities = abilities;
         }
 
         @Override
-        public AbilitySet build() {
-            return new AbilitySet(this);
+        public AbilitySetExtension build(Ability baseAbility) {
+            return new AbilitySetExtension(this, baseAbility);
         }
     }
 }

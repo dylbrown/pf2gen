@@ -4,7 +4,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-import model.abilities.abilitySlots.Choice;
+import model.ability_slots.Choice;
+import model.ability_slots.ChoiceList;
 
 import java.util.*;
 
@@ -25,8 +26,14 @@ public class DecisionManager {
 
     }
 
-    public void add(Choice choice) {
+    public <T> void add(Choice<T> choice) {
         decisions.add(choice);
+        if(choice instanceof ChoiceList) {
+            List<T> options = ((ChoiceList<T>) choice).getOptions();
+            if(options.size() == 1 && choice.getSelections().size() == 0) {
+                choice.add(options.get(0));
+            }
+        }
     }
 
     public ObservableList<Choice> getDecisions() {

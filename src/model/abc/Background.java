@@ -1,7 +1,7 @@
 package model.abc;
 
-import model.abilities.abilitySlots.AbilitySlot;
-import model.abilities.abilitySlots.DynamicFilledSlot;
+import model.ability_slots.AbilitySlot;
+import model.ability_slots.DynamicFilledSlot;
 import model.attributes.AttributeMod;
 import model.enums.Type;
 

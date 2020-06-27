@@ -5,7 +5,7 @@ import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
 import model.abilities.Ability;
-import model.abilities.Activity;
+import model.abilities.ActivityExtension;
 import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
 import model.enums.Slot;
@@ -119,8 +119,10 @@ public class CharacterWrapper implements TemplateHashModel {
     private void updateAbilities() {
         List<Ability> abilities = flattenAbilities(character.abilities().getAbilities());
         abilities.sort(((o1, o2) -> {
-            if (o1 instanceof Activity && !(o2 instanceof Activity)) return -1;
-            if (o2 instanceof Activity && !(o1 instanceof Activity)) return 1;
+            boolean o1Activity = o1.getExtension(ActivityExtension.class) != null;
+            boolean o2Activity = o2.getExtension(ActivityExtension.class) != null;
+            if (o1Activity && !o2Activity) return -1;
+            if (o2Activity && !o1Activity) return 1;
             return o1.toString().compareTo(o2.toString());
         }));
         map.put("abilities", abilities);

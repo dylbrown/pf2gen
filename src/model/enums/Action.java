@@ -1,5 +1,7 @@
 package model.enums;
 
+import model.util.StringUtils;
+
 public enum Action {
     Free(-1), Reaction(0), One(1), Two(2), Three(3);
 
@@ -12,7 +14,7 @@ public enum Action {
     public static Action robustValueOf(String s) {
         Action result = null;
         try{
-            result = valueOf(s);
+            result = valueOf(StringUtils.camelCaseWord(s.trim()));
         }catch (Exception e) {
             switch (s) {
                 case "1":

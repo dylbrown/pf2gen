@@ -7,8 +7,8 @@ import javafx.collections.transformation.SortedList;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
 import javafx.scene.web.WebView;
-import model.abilities.abilitySlots.Choice;
-import model.abilities.abilitySlots.ChoiceList;
+import model.ability_slots.Choice;
+import model.ability_slots.ChoiceList;
 import ui.html.HTMLGenerator;
 
 import java.util.Comparator;

@@ -2,9 +2,9 @@ package model.data_managers;
 
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
-import model.abilities.abilitySlots.Choice;
-import model.abilities.abilitySlots.ChoiceList;
-import model.abilities.abilitySlots.FeatSlot;
+import model.ability_slots.Choice;
+import model.ability_slots.ChoiceList;
+import model.ability_slots.FeatSlot;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;

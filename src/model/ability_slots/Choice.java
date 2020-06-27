@@ -1,4 +1,4 @@
-package model.abilities.abilitySlots;
+package model.ability_slots;
 
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.collections.ObservableList;

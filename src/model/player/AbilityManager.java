@@ -7,13 +7,12 @@ import javafx.collections.transformation.SortedList;
 import model.abc.Ancestry;
 import model.abc.PClass;
 import model.abilities.Ability;
-import model.abilities.AbilitySet;
-import model.abilities.abilitySlots.AbilitySlot;
-import model.abilities.abilitySlots.FeatSlot;
-import model.abilities.abilitySlots.FilledSlot;
-import model.abilities.abilitySlots.SingleChoice;
+import model.abilities.AbilitySetExtension;
+import model.abilities.ArchetypeExtension;
+import model.ability_slots.*;
 import model.data_managers.sources.SourcesLoader;
 import model.enums.Type;
+import model.util.StringUtils;
 
 import java.util.*;
 import java.util.function.Function;
@@ -25,7 +24,7 @@ public class AbilityManager {
 	private final Map<String, Set<Ability>> needsPrerequisites = new HashMap<>(); // For Prerequisite Abilities
 	private final Map<Ability, Boolean> isApplied = new HashMap<>();
 	private final SortedList<Ability> sortedAbilities;
-	private final ObservableList<AbilitySet> abilitySets = FXCollections.observableArrayList();
+	private final ObservableList<AbilitySetExtension> abilitySetExtensions = FXCollections.observableArrayList();
 	private final Map<Type, Set<Ability>> abcTracker = new HashMap<>();
 	private final DecisionManager decisions;
 	private final Applier applier;
@@ -33,6 +32,8 @@ public class AbilityManager {
 	private final ReadOnlyObjectProperty<PClass> pClass;
 	private final ReadOnlyObjectProperty<Integer> level;
 	private final Function<Ability, Boolean> meetsPrereqs;
+	private final Map<String, Set<Ability>> archetypeAbilities = new HashMap<>();
+	private final Map<String, Ability> archetypeDedications = new HashMap<>();
 
 	AbilityManager(DecisionManager decisions, ReadOnlyObjectProperty<Ancestry> ancestry,
 	               ReadOnlyObjectProperty<PClass> pClass,
@@ -47,8 +48,8 @@ public class AbilityManager {
 		sortedAbilities = new SortedList<>(abilities);
 
 		level.addListener(((o, newVal, oldVal) -> {
-			for (AbilitySet abilitySet : abilitySets) {
-				for (Ability ability : abilitySet.getAbilities()) {
+			for (AbilitySetExtension abilitySetExtension : abilitySetExtensions) {
+				for (Ability ability : abilitySetExtension.getAbilities()) {
 					if (!meetsPrereqs.apply(ability) && haveAbility(ability))
 						remove(ability);
 					if (meetsPrereqs.apply(ability) && !haveAbility(ability))
@@ -57,6 +58,13 @@ public class AbilityManager {
 
 			}
 		}));
+
+		pClass.addListener((o, oldVal, newVal)->{
+			Ability ability = archetypeDedications.get(StringUtils.clean(newVal.getName()));
+			if(ability != null) {
+				remove(ability);
+			}
+		});
 	}
 
 	public List<Ability> getOptions(SingleChoice<Ability> choice) {
@@ -95,9 +103,9 @@ public class AbilityManager {
 	}
 
 	void apply(AbilitySlot slot) {
-		if (slot instanceof SingleChoice)
-			//noinspection rawtypes
-			decisions.add((SingleChoice) slot);
+		if (slot instanceof AbilitySingleChoice) {
+			decisions.add((AbilitySingleChoice) slot);
+		}
 
 		slot.currentAbilityProperty().addListener((o, oldVal, newVal)->{
 			remove(oldVal);
@@ -128,9 +136,24 @@ public class AbilityManager {
 			checkAPrereq(ability.getName(), needsPrerequisites);
 			if (ability.getType() != Type.None)
 				abcTracker.computeIfAbsent(ability.getType(), (key) -> new HashSet<>()).add(ability);
-			if (ability instanceof AbilitySet) {
-				abilitySets.add((AbilitySet) ability);
-				List<Ability> subAbilities = ((AbilitySet) ability).getAbilities();
+
+			ArchetypeExtension archetypeExt = ability.getExtension(ArchetypeExtension.class);
+			if(archetypeExt != null) {
+				String archetypeName = StringUtils.clean(archetypeExt.getArchetype());
+				if(archetypeExt.isDedication()) {
+				archetypeDedications.put(archetypeName, ability);
+				}else {
+					archetypeAbilities.computeIfAbsent(
+							archetypeName,
+							s -> new HashSet<>())
+							.add(ability);
+				}
+			}
+
+			AbilitySetExtension abilitySetExt = ability.getExtension(AbilitySetExtension.class);
+			if (abilitySetExt != null) {
+				abilitySetExtensions.add(abilitySetExt);
+				List<Ability> subAbilities = abilitySetExt.getAbilities();
 				for (Ability subAbility : subAbilities) {
 					if (subAbility.getLevel() <= level.get())
 						apply(subAbility);
@@ -193,9 +216,25 @@ public class AbilityManager {
 			checkAPrereq(ability.getName(), needsPrerequisites);
 			if (ability.getType() != Type.None)
 				abcTracker.computeIfAbsent(ability.getType(), (key) -> new HashSet<>()).remove(ability);
-			if (ability instanceof AbilitySet) {
-				abilitySets.remove(ability);
-				List<Ability> subAbilities = ((AbilitySet) ability).getAbilities();
+
+
+			ArchetypeExtension archetypeExt = ability.getExtension(ArchetypeExtension.class);
+			if(archetypeExt != null) {
+				String archetypeName = StringUtils.clean(archetypeExt.getArchetype());
+				if(archetypeExt.isDedication()) {
+					archetypeDedications.remove(archetypeName);
+				}else {
+					archetypeAbilities.computeIfAbsent(
+							archetypeName,
+							s -> new HashSet<>())
+							.remove(ability);
+				}
+			}
+
+			AbilitySetExtension abilitySetExt = ability.getExtension(AbilitySetExtension.class);
+			if (abilitySetExt != null) {
+				abilitySetExtensions.remove(abilitySetExt);
+				List<Ability> subAbilities = (abilitySetExt).getAbilities();
 				for (Ability subAbility : subAbilities) {
 					if (haveAbility(subAbility))
 						remove(subAbility);
@@ -241,5 +280,16 @@ public class AbilityManager {
 		} else {
 			return prereqGivers.get(prereq.toLowerCase()) != null && prereqGivers.get(prereq.toLowerCase()).size() > 0;
 		}
+	}
+
+	public boolean meetsPrerequisites(ArchetypeExtension archetypeExt) {
+		if(archetypeExt.isDedication()) {
+			for (Set<Ability> abilities : archetypeAbilities.values()) {
+				if(abilities.size() < 2) return false;
+			}
+			return !StringUtils.clean(pClass.get().getName()).equals(
+					StringUtils.clean(archetypeExt.getArchetype()));
+		}
+		return true;
 	}
 }
