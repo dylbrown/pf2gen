@@ -25,9 +25,8 @@ import java.util.*;
  */
 public class AttributeManager {
     private final Map<Attribute, ReadOnlyObjectWrapper<Proficiency>> proficiencies = new HashMap<>();
-    private final Map<Attribute, Map<Proficiency, List<AttributeMod>>> proficienciesTracker = new HashMap<>();
-    private final Map<String, ReadOnlyObjectWrapper<Proficiency>> loreProficiencies = new HashMap<>();
-    private final Map<String, Map<Proficiency, List<AttributeMod>>> loreProficienciesTracker = new HashMap<>();
+    private final Map<Attribute, Map<Proficiency, List<AttributeMod>>> trackers = new HashMap<>();
+    private final Map<Attribute, SingleAttributeManager> singleAttributes = new HashMap<>();
 
     //Map from level to selected skills`
     private final SortedMap<Integer, Set<SkillIncrease>> skillChoices = new TreeMap<>();
@@ -54,6 +53,8 @@ public class AttributeManager {
         for (Attribute skill : Attribute.getSkills()) {
             proficiencies.put(skill, new ReadOnlyObjectWrapper<>(Proficiency.Untrained));
         }
+        singleAttributes.put(Attribute.Lore, new SingleAttributeManager(Attribute.Lore));
+        singleAttributes.put(Attribute.ClassDC, new SingleAttributeManager(Attribute.ClassDC));
 
         minLists.put(Proficiency.Trained, new MinimumProficiencyList(Collections.unmodifiableMap(proficiencies),
                 Proficiency.Trained));
@@ -88,6 +89,17 @@ public class AttributeManager {
         proficiencyChange.firePropertyChange("skillCount", null, null);
     }
 
+
+    /**
+     * Get Proficiency Wrapper for attribute
+     * Note: Internal function to reduce repeated computeIfAbsent
+     * @param attribute The attribute to get the wrapper for
+     * @return The Attribute's proficiency wrapper
+     */
+    private ReadOnlyObjectWrapper<Proficiency> get(Attribute attribute) {
+        return proficiencies.computeIfAbsent(attribute, t->new ReadOnlyObjectWrapper<>(Proficiency.Untrained));
+    }
+
     /**
      * apply an attribute mod to the character's proficiencies
      * <p>
@@ -111,22 +123,23 @@ public class AttributeManager {
             }
             return;
         }
-        boolean lore = mod.getAttr().equals(Attribute.Lore) && mod.getData() != null && mod.getData().length() > 0;
-        ReadOnlyObjectWrapper<Proficiency> proficiency = (lore) ? loreProficiencies.get(mod.getData()) : proficiencies.get(mod.getAttr());
-        Map<Proficiency, List<AttributeMod>> listMap;
-        if(!lore) {
-            listMap = proficienciesTracker.computeIfAbsent(mod.getAttr(), (key) -> new HashMap<>());
-        }else{
-            listMap = loreProficienciesTracker.computeIfAbsent(mod.getData(), (key) -> new HashMap<>());
+        SingleAttributeManager singleManager = singleAttributes.get(mod.getAttr());
+        boolean used = false;
+        if(singleManager != null)
+            used = singleManager.apply(mod);
+        else{
+            ReadOnlyObjectWrapper<Proficiency> proficiency = get(mod.getAttr());
+            trackers
+                    .computeIfAbsent(mod.getAttr(), (key) -> new HashMap<>())
+                    .computeIfAbsent(mod.getMod(), (key) -> new ArrayList<>())
+                    .add(mod);
+            if (proficiency.getValue() == null || proficiency.getValue().getMod() < mod.getMod().getMod()) {
+                proficiency.set(mod.getMod());
+                used = true;
+            }
         }
-        listMap.computeIfAbsent(mod.getMod(), (key) -> new ArrayList<>())
-                .add(mod);
-        if (proficiency == null) {
-            if(lore) loreProficiencies.put(mod.getData(), new ReadOnlyObjectWrapper<>(mod.getMod()));
-            else proficiencies.put(mod.getAttr(), new ReadOnlyObjectWrapper<>(mod.getMod()));
-        } else if (proficiency.getValue() == null || proficiency.getValue().getMod() < mod.getMod().getMod()) {
-            proficiency.set(mod.getMod());
-        } else if (mod.getMod().equals(Proficiency.Trained)){
+        // Granted proficiencies instead give you a free skill increase if they overlap
+        if(!used && mod.getMod().equals(Proficiency.Trained)){
             addSkillIncreases(1, 1);
         }
         proficiencyChange.firePropertyChange("addAttributeMod", null, null);
@@ -142,53 +155,69 @@ public class AttributeManager {
      * @param mod the mod to remove
      */
     void remove(AttributeMod mod) {
-        if(mod.getAttr() == null) return;
-        if(mod instanceof AttributeModSingleChoice) {
-            decisions.remove((AttributeModSingleChoice)mod);
+        if (mod.getAttr() == null) return;
+        if (mod instanceof AttributeModSingleChoice) {
+            decisions.remove((AttributeModSingleChoice) mod);
             Attribute choice = ((AttributeModSingleChoice) mod).getChoice();
-            if(choice != null)
+            if (choice != null)
                 remove(new AttributeMod(choice, mod.getMod()));
             return;
         }
-        boolean lore = mod.getAttr().equals(Attribute.Lore) && mod.getData() != null && mod.getData().length() > 0;
-        ReadOnlyObjectWrapper<Proficiency> proficiency = (lore) ? loreProficiencies.get(mod.getData()) : proficiencies.get(mod.getAttr());
-        Map<Proficiency, List<AttributeMod>> listMap;
-        if(!lore) {
-            listMap = proficienciesTracker.computeIfAbsent(mod.getAttr(), (key) -> new HashMap<>());
-        }else{
-            listMap = loreProficienciesTracker.computeIfAbsent(mod.getData(), (key) -> new HashMap<>());
+        SingleAttributeManager singleManager = singleAttributes.get(mod.getAttr());
+        boolean changed, haveTrainedMod;
+        if (singleManager != null) {
+            changed = singleManager.remove(mod);
+            haveTrainedMod = singleManager.hasMod(mod.getData(), Proficiency.Trained);
+        }else {
+            ReadOnlyObjectWrapper<Proficiency> proficiency = get(mod.getAttr());
+            Map<Proficiency, List<AttributeMod>> tracker = trackers
+                    .computeIfAbsent(mod.getAttr(), (key) -> new HashMap<>());
+            List<AttributeMod> attributeMods = tracker
+                    .computeIfAbsent(mod.getMod(), (key) -> new ArrayList<>());
+            if (!attributeMods.contains(mod)) return;
+            attributeMods.remove(mod);
+            changed = updateProficiencyToMatchTracker(tracker, proficiency, mod);
+            haveTrainedMod = attributeMods.size() > 0;
         }
-        List<AttributeMod> attributeMods = listMap.computeIfAbsent(mod.getMod(), (key) -> new ArrayList<>());
-
-        if(!attributeMods.contains(mod)) return;
-
-        attributeMods.remove(mod);
-        if (proficiency.get().getMod() == mod.getMod().getMod() && attributeMods.size() == 0) {
-            boolean doLoop = true;
-            Proficiency temp = proficiency.get();
-            while (doLoop) {
-                switch (temp) {
-                    case Trained:
-                        temp = Proficiency.Untrained;
-                        doLoop = false;
-                        break;
-                    case Expert:
-                        temp = Proficiency.Trained;
-                        break;
-                    case Master:
-                        temp = Proficiency.Expert;
-                        break;
-                    case Legendary:
-                        temp = Proficiency.Master;
-                        break;
-                }
-                if (doLoop)
-                    doLoop = doNotHaveProf(listMap, temp);
-            }
-            proficiency.set(temp);
-        } else if(mod.getMod().equals(Proficiency.Trained) && attributeMods.size() > 0) {
+        if(!changed && mod.getMod().equals(Proficiency.Trained) && haveTrainedMod) {
             removeSkillIncreases(1, 1);
         }
+    }
+
+    /**
+     * Reduces the proficiency until we have an applied mod for the proficiency level in the tracker
+     * @param tracker Map from proficiency to currently applied mods of that proficiency
+     * @param proficiency The wrapper which stores the current proficiency
+     * @param mod The mod which we have just removed for reference
+     * @return returns true if we reduce the proficiency
+     */
+    static boolean updateProficiencyToMatchTracker(Map<Proficiency, List<AttributeMod>> tracker, ReadOnlyObjectWrapper<Proficiency> proficiency, AttributeMod mod) {
+        Proficiency removingMod = mod.getMod();
+        if (proficiency.get().getMod() != removingMod.getMod() || haveProf(tracker, removingMod))
+            return false;
+        boolean doLoop = true;
+        Proficiency temp = proficiency.get();
+        while (doLoop) {
+            switch (temp) {
+                case Trained:
+                    temp = Proficiency.Untrained;
+                    doLoop = false;
+                    break;
+                case Expert:
+                    temp = Proficiency.Trained;
+                    break;
+                case Master:
+                    temp = Proficiency.Expert;
+                    break;
+                case Legendary:
+                    temp = Proficiency.Master;
+                    break;
+            }
+            if (doLoop)
+                doLoop = !haveProf(tracker, temp);
+        }
+        proficiency.set(temp);
+        return true;
     }
 
     /**
@@ -197,8 +226,8 @@ public class AttributeManager {
      * @param proficiency the desired proficiency
      * @return true if do not have the desired proficiency
      */
-    private boolean doNotHaveProf(Map<Proficiency, List<AttributeMod>> proficiencyListMap, Proficiency proficiency) {
-        return proficiencyListMap.computeIfAbsent(proficiency, (key) -> new ArrayList<>()).size() == 0;
+    private static boolean haveProf(Map<Proficiency, List<AttributeMod>> proficiencyListMap, Proficiency proficiency) {
+        return proficiencyListMap.computeIfAbsent(proficiency, (key) -> new ArrayList<>()).size() > 0;
     }
 
 
@@ -211,10 +240,9 @@ public class AttributeManager {
     }
 
     public ObservableValue<Proficiency> getProficiency(Attribute attr, String data) {
-        if(attr.equals(Attribute.Lore) && data != null && data.length() > 0)
-            return loreProficiencies
-                    .computeIfAbsent(data, (key) -> new ReadOnlyObjectWrapper<>(Proficiency.Untrained))
-                    .getReadOnlyProperty();
+        SingleAttributeManager singleAttribute = singleAttributes.get(attr);
+        if(singleAttribute != null)
+            return singleAttribute.getProficiency(data);
         else return proficiencies
                 .computeIfAbsent(attr, (key) -> new ReadOnlyObjectWrapper<>(Proficiency.Untrained))
                 .getReadOnlyProperty();
@@ -227,11 +255,11 @@ public class AttributeManager {
     public boolean advanceSkill(Attribute skill, String data) {
         if(!Arrays.asList(Attribute.getSkills()).contains(skill))
             return false;
-        boolean lore = skill.equals(Attribute.Lore) && data != null && data.length() > 0;
 
-        ReadOnlyObjectWrapper<Proficiency> prof = (lore) ?
-                loreProficiencies.computeIfAbsent(data, (key)->new ReadOnlyObjectWrapper<>(Proficiency.Untrained))
-                : proficiencies.computeIfAbsent(skill, (key)->new ReadOnlyObjectWrapper<>(Proficiency.Untrained));
+        SingleAttributeManager singleAttribute = singleAttributes.get(skill);
+
+        ObservableValue<Proficiency> prof = (singleAttribute != null) ?
+                singleAttribute.getProficiency(data) : getProficiency(skill);
 
         if(prof.getValue() == Proficiency.Legendary) return false;
         for (Map.Entry<Integer, Integer> entry : skillIncreases.entrySet()) {
@@ -245,9 +273,9 @@ public class AttributeManager {
             if(entry.getValue() - choices.size() <= 0)
                 continue;
             Proficiency value = Proficiency.values()[Arrays.asList(Proficiency.values()).indexOf(prof.getValue()) + 1];
-            choices.add(new SkillIncrease(skill, value, entry.getKey(), data));
-            prof.setValue(value);
-            proficiencyChange.firePropertyChange("skillAdvance", null, null);
+            SkillIncrease increase = new SkillIncrease(skill, value, entry.getKey(), data);
+            choices.add(increase);
+            apply(increase);
             return true;
         }
         return false;
@@ -256,11 +284,11 @@ public class AttributeManager {
     public boolean canAdvanceSkill(Attribute skill, String data) {
         if(!Arrays.asList(Attribute.getSkills()).contains(skill))
             return false;
-        boolean lore = skill.equals(Attribute.Lore) && data != null && data.length() > 0;
 
-        ReadOnlyObjectWrapper<Proficiency> prof = (lore) ?
-                loreProficiencies.computeIfAbsent(data, (key)->new ReadOnlyObjectWrapper<>(Proficiency.Untrained))
-                : proficiencies.computeIfAbsent(skill, (key)->new ReadOnlyObjectWrapper<>(Proficiency.Untrained));
+        SingleAttributeManager singleAttribute = singleAttributes.get(skill);
+
+        ObservableValue<Proficiency> prof = (singleAttribute != null) ?
+                singleAttribute.getProficiency(data) : getProficiency(skill);
 
         if(prof.getValue() == Proficiency.Legendary) return false;
         for (Map.Entry<Integer, Integer> entry : skillIncreases.entrySet()) {
@@ -281,11 +309,40 @@ public class AttributeManager {
     public boolean regressSkill(Attribute skill, String data) {
         if(!Arrays.asList(Attribute.getSkills()).contains(skill))
             return false;
-        boolean lore = skill.equals(Attribute.Lore) && data != null && data.length() > 0;
 
-        ReadOnlyObjectWrapper<Proficiency> prof = (lore) ?
-                loreProficiencies.computeIfAbsent(data, (key)->new ReadOnlyObjectWrapper<>(Proficiency.Untrained))
-                : proficiencies.computeIfAbsent(skill, (key)->new ReadOnlyObjectWrapper<>(Proficiency.Untrained));
+        SingleAttributeManager singleAttribute = singleAttributes.get(skill);
+
+        ObservableValue<Proficiency> prof = (singleAttribute != null) ?
+                singleAttribute.getProficiency(data)
+                : getProficiency(skill);
+
+        if(prof.getValue() == Proficiency.Untrained) return false;
+        Stack<Map.Entry<Integer, Integer>> reverser = new Stack<>();
+        for (Map.Entry<Integer, Integer> entry : skillIncreases.entrySet()) {
+            reverser.push(entry);
+        }
+        for (Map.Entry<Integer, Integer> entry : reverser) {
+            Set<SkillIncrease> choices = skillChoices.computeIfAbsent(entry.getKey(), (key) -> new HashSet<>());
+            SkillIncrease increase = new SkillIncrease(skill, prof.getValue(), entry.getKey(), data);
+            if(!choices.contains(increase))
+                continue;
+            choices.remove(increase);
+            remove(increase);
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean canRegressSkill(Attribute skill, String data) {
+        if(!Arrays.asList(Attribute.getSkills()).contains(skill))
+            return false;
+
+        SingleAttributeManager singleAttribute = singleAttributes.get(skill);
+
+        ObservableValue<Proficiency> prof = (singleAttribute != null) ?
+                singleAttribute.getProficiency(data)
+                : getProficiency(skill);
 
         if(prof.getValue() == Proficiency.Untrained) return false;
         Stack<Map.Entry<Integer, Integer>> reverser = new Stack<>();
@@ -296,31 +353,9 @@ public class AttributeManager {
             Set<SkillIncrease> choices = skillChoices.computeIfAbsent(entry.getKey(), (key) -> new HashSet<>());
             if(!choices.contains(new SkillIncrease(skill, prof.getValue(), entry.getKey(), data)))
                 continue;
-            choices.remove(new SkillIncrease(skill, prof.getValue(), entry.getKey(), data));
-            prof.setValue(Proficiency.values()[Arrays.asList(Proficiency.values()).indexOf(prof.getValue())-1]);
-            proficiencyChange.firePropertyChange("skillRegress", null, null);
             return true;
         }
 
-        return false;
-    }
-
-    public boolean canRegressSkill(Attribute skill, String data) {
-        if(!Arrays.asList(Attribute.getSkills()).contains(skill))
-            return false;
-        boolean lore = skill.equals(Attribute.Lore) && data != null && data.length() > 0;
-
-        ReadOnlyObjectWrapper<Proficiency> prof = (lore) ?
-                loreProficiencies.computeIfAbsent(data, (key)->new ReadOnlyObjectWrapper<>(Proficiency.Untrained))
-                : proficiencies.computeIfAbsent(skill, (key)->new ReadOnlyObjectWrapper<>(Proficiency.Untrained));
-
-        if(prof.getValue() == Proficiency.Untrained) return false;
-        for (Map.Entry<Integer, Integer> entry : skillIncreases.entrySet()) {
-            Set<SkillIncrease> choices = skillChoices.computeIfAbsent(entry.getKey(), (key) -> new HashSet<>());
-            if(!choices.contains(new SkillIncrease(skill, prof.getValue(), entry.getKey(), data)))
-                continue;
-            return true;
-        }
         return false;
     }
 
@@ -445,6 +480,6 @@ public class AttributeManager {
     }
 
     public Set<String> lores() {
-        return loreProficiencies.keySet();
+        return singleAttributes.get(Attribute.Lore).getDataStrings();
     }
 }
