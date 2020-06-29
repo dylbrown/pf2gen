@@ -16,7 +16,7 @@ import java.util.List;
 public class PClassesLoader extends ACLoader<PClass, PClass.Builder> {
 
     static{
-        source = e -> Type.Class;
+        sources.put(PClassesLoader.class, e -> Type.Class);
     }
 
     public PClassesLoader(SourceConstructor sourceConstructor, File root) {

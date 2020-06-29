@@ -16,11 +16,11 @@ import static model.util.StringUtils.camelCaseWord;
 public class AncestriesLoader extends ACLoader<Ancestry, Ancestry.Builder> {
 
     static{
-        source = element -> {
+        sources.put(AncestriesLoader.class, element -> {
             if (element.getAttribute("type").trim().toLowerCase().equals("heritage"))
                 return Type.Heritage;
             else return Type.Ancestry;
-        };
+        });
     }
 
     private String bonuses, penalties;

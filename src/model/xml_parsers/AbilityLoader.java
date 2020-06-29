@@ -23,9 +23,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -40,10 +38,10 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         super(sourceConstructor, root);
     }
 
-   protected static Function<Element, Type> source = (e)->null;
+   protected static Map<Class<? extends AbilityLoader<?>>, Function<Element, Type>> sources = new HashMap<>();
 
 
-    protected static List<Ability> makeAbilities(NodeList nodes) {
+    protected List<Ability> makeAbilities(NodeList nodes) {
         List<Ability> choices = new ArrayList<>();
         for(int i=0; i<nodes.getLength(); i++) {
             if(!(nodes.item(i) instanceof Element)) continue;
@@ -65,11 +63,11 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         }
         return results;
     }
-    protected static Ability makeAbility(Element element, String name) {
+    protected Ability makeAbility(Element element, String name) {
         return makeAbility(element, name, 1);
     }
 
-    protected static Ability makeAbility(Element element, String name, int level) {
+    protected Ability makeAbility(Element element, String name, int level) {
         if(element.getTagName().contains("Ability")) {
             Ability.Builder builder = new Ability.Builder();
             if(!element.getAttribute("cost").equals("")) {
@@ -192,7 +190,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                         }
                 }
             }
-            builder.setType(source.apply(element));
+            builder.setType(sources.get(this.getClass()).apply(element));
             if(element.getTagName().equals("AbilitySet")){
                 builder.getExtension(AbilitySetExtension.Builder.class)
                         .setAbilities(makeAbilities(element.getChildNodes()));
@@ -202,7 +200,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         return null;
     }
 
-    static AbilitySlot makeAbilitySlot(Element propElem, int level) {
+    AbilitySlot makeAbilitySlot(Element propElem, int level) {
         String abilityName = propElem.getAttribute("name");
         int slotLevel = level;
         if(!propElem.getAttribute("level").equals(""))

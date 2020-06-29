@@ -40,7 +40,7 @@ public class PC {
     private final DecisionManager decisions = new DecisionManager();
     private final SpellManager spells = new SpellManager(applier);
     private final AbilityManager abilities = new AbilityManager(decisions, getAncestryProperty(),
-            getPClassProperty(), levelProperty(), applier, this::meetsPrerequisites);
+            getPClassProperty(), applier, this::meetsPrerequisites);
     private final AbilityScoreManager scores = new AbilityScoreManager(applier, ()->{
         PClass currClass = pClass.get();
         if(currClass == null) return None;
@@ -55,7 +55,7 @@ public class PC {
             new AttributeManager(customGetter, level.getReadOnlyProperty(), decisions, applier);
     private final InventoryManager inventory = new InventoryManager(attributes);
     private final QualityManager qualities = new QualityManager(decisions::add, decisions::remove);
-    private final CombatManager combat = new CombatManager(scores, attributes, inventory, level.getReadOnlyProperty());
+    private final CombatManager combat = new CombatManager(scores, attributes, inventory, levelProperty());
 
     {
         modManager = new GroovyModManager(customGetter, attributes, decisions, combat, spells, deity.getReadOnlyProperty(), level.getReadOnlyProperty(), applier);

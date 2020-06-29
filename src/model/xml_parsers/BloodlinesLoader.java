@@ -22,17 +22,32 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class BloodlinesLoader extends AbilityLoader<Ability> {
+public class BloodlinesLoader extends AbilityLoader<Ability> {
+	private static BloodlinesLoader bloodlinesLoader;
 
 	static {
-		source = (element -> Type.Class);
+		sources.put(BloodlinesLoader.class, (element -> Type.Class));
 	}
 
 	public BloodlinesLoader(SourceConstructor sourceConstructor, File root) {
 		super(sourceConstructor, root);
 	}
 
-	public static Ability makeBloodline(Element item) {
+	private BloodlinesLoader() {
+		super(null, null);
+	}
+
+	public static Ability makeBloodlineStatic(Element item) {
+		if(bloodlinesLoader == null) bloodlinesLoader = new BloodlinesLoader();
+		return bloodlinesLoader.makeBloodline(item);
+	}
+
+	@Override
+	protected Ability parseItem(File file, Element item) {
+		return makeBloodline(item);
+	}
+
+	private Ability makeBloodline(Element item) {
 		Ability.Builder bloodline = new Ability.Builder();
 		SpellExtension.Builder spellExt = bloodline.getExtension(SpellExtension.Builder.class);
 		bloodline.setName(item.getAttribute("name"));
@@ -51,13 +66,14 @@ public abstract class BloodlinesLoader extends AbilityLoader<Ability> {
 		for (String level : item.getElementsByTagName("GrantedSpells").item(0).getTextContent().split(", ?")) {
 			String[] split = level.split("(: |cantrip )");
 			Ability.Builder builder = new Ability.Builder(); builder.setName(split[0]+"-level granted spells");
-			if(!split[0].equals("") && !split[0].equals("1st"))
+			if(!split[0].trim().equals("") && !split[0].equals("1st"))
 				builder.setPrerequisites(Collections.singletonList(split[0]+"-level spells"));
 			builder.getExtension(SpellExtension.Builder.class)
 					.addBonusSpell(SpellType.Spell, SourcesLoader.instance().spells().find(split[1]));
 			grantedAbilities.add(builder.build());
 		}
 		Ability.Builder grantedSet = new Ability.Builder();
+		grantedSet.setName(bloodline.getName() + " - Granted Spells");
 		grantedSet.getExtension(AbilitySetExtension.Builder.class).setAbilities(grantedAbilities);
 		bloodline.addAbilitySlot(new FilledSlot("Granted Spells", 1, grantedSet.build()));
 

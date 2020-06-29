@@ -35,6 +35,7 @@ public class CharacterWrapper implements TemplateHashModel {
         this.wrapper = wrapper;
 
         //map.put("totalweight", (NumberSupplier) ()->character.inventory().getTotalWeight());
+
         for (Ability ability : character.abilities().getAbilities()) {
             if(ability.getType() == null) continue;
             if(ability.getType().equals(Type.Heritage)){
@@ -114,6 +115,14 @@ public class CharacterWrapper implements TemplateHashModel {
         //TODO: Replace this with something listener-based
         map.put("attributes", getAttributeMap());
         map.put("inventory", character.inventory().getItems().values());
+        map.put("heritage", "No Heritage");
+        for (Ability ability : character.abilities().getAbilities()) {
+            if(ability.getType() == null) continue;
+            if(ability.getType().equals(Type.Heritage)){
+                map.put("heritage", ability);
+                break;
+            }
+        }
     }
 
     private void updateAbilities() {

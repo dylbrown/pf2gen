@@ -15,7 +15,7 @@ public class FeatsLoader extends AbilityLoader<Ability> {
     private List<Ability> feats;
 
     static{
-        source = e-> Type.General;
+        sources.put(FeatsLoader.class, e-> Type.General);
     }
 
     public FeatsLoader(SourceConstructor sourceConstructor, File root) {
@@ -25,7 +25,7 @@ public class FeatsLoader extends AbilityLoader<Ability> {
     @Override
     protected Ability parseItem(File file, Element item) {
         if(file.getName().toLowerCase().contains("bloodline"))
-            return BloodlinesLoader.makeBloodline(item);
+            return BloodlinesLoader.makeBloodlineStatic(item);
         return makeAbility(item,  item.getAttribute("name"));
     }
 }

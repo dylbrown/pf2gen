@@ -30,41 +30,46 @@ public class AbilityManager {
 	private final Applier applier;
 	private final ReadOnlyObjectProperty<Ancestry> ancestry;
 	private final ReadOnlyObjectProperty<PClass> pClass;
-	private final ReadOnlyObjectProperty<Integer> level;
 	private final Function<Ability, Boolean> meetsPrereqs;
 	private final Map<String, Set<Ability>> archetypeAbilities = new HashMap<>();
 	private final Map<String, Ability> archetypeDedications = new HashMap<>();
 
 	AbilityManager(DecisionManager decisions, ReadOnlyObjectProperty<Ancestry> ancestry,
-	               ReadOnlyObjectProperty<PClass> pClass,
-	               ReadOnlyObjectProperty<Integer> level, Applier applier,
+	               ReadOnlyObjectProperty<PClass> pClass, Applier applier,
 	               Function<Ability, Boolean> meetsPrereqs) {
 		this.applier = applier;
 		this.decisions = decisions;
 		this.ancestry = ancestry;
 		this.pClass = pClass;
-		this.level = level;
 		this.meetsPrereqs = meetsPrereqs;
 		sortedAbilities = new SortedList<>(abilities);
-
-		level.addListener(((o, newVal, oldVal) -> {
-			for (AbilitySetExtension abilitySetExtension : abilitySetExtensions) {
-				for (Ability ability : abilitySetExtension.getAbilities()) {
-					if (!meetsPrereqs.apply(ability) && haveAbility(ability))
-						remove(ability);
-					if (meetsPrereqs.apply(ability) && !haveAbility(ability))
-						apply(ability);
-				}
-
-			}
-		}));
 
 		pClass.addListener((o, oldVal, newVal)->{
 			Ability ability = archetypeDedications.get(StringUtils.clean(newVal.getName()));
 			if(ability != null) {
-				remove(ability);
+				remove(ability, false);
 			}
 		});
+	}
+
+	// TODO: Replace this with a listener-type system, this is horribly slow
+	private void checkAbilitySets() {
+		boolean check = true;
+		while (check) {
+			check = false;
+			for (AbilitySetExtension abilitySetExtension : abilitySetExtensions) {
+				for (Ability ability : abilitySetExtension.getAbilities()) {
+					if (!meetsPrereqs.apply(ability) && haveAbility(ability)) {
+						check = true;
+						remove(ability, true);
+					}
+					if (meetsPrereqs.apply(ability) && !haveAbility(ability)) {
+						check = true;
+						apply(ability, true);
+					}
+				}
+			}
+		}
 	}
 
 	public List<Ability> getOptions(SingleChoice<Ability> choice) {
@@ -103,13 +108,17 @@ public class AbilityManager {
 	}
 
 	void apply(AbilitySlot slot) {
+		apply(slot, false);
+	}
+
+	private void apply(AbilitySlot slot, boolean isNestedCall) {
 		if (slot instanceof AbilitySingleChoice) {
 			decisions.add((AbilitySingleChoice) slot);
 		}
 
 		slot.currentAbilityProperty().addListener((o, oldVal, newVal)->{
-			remove(oldVal);
-			apply(newVal);
+			remove(oldVal, false);
+			apply(newVal, isNestedCall);
 		});
 
 		Ability ability = slot.getCurrentAbility();
@@ -122,11 +131,11 @@ public class AbilityManager {
 				needsPrerequisites.computeIfAbsent(s.toLowerCase(), s1 -> new HashSet<>()).add(ability);
 			}
 			isApplied.put(ability, meetsPrereqs.apply(ability));
-			if (isApplied.get(ability)) apply(ability);
-		} else apply(ability);
+			if (isApplied.get(ability)) apply(ability, isNestedCall);
+		} else apply(ability, isNestedCall);
 	}
 
-	private void apply(Ability ability) {
+	private void apply(Ability ability, boolean isNestedCall) {
 		if (ability != null) {
 			applier.apply(ability);
 			for (String s : ability.getGivenPrerequisites()) {
@@ -155,15 +164,19 @@ public class AbilityManager {
 				abilitySetExtensions.add(abilitySetExt);
 				List<Ability> subAbilities = abilitySetExt.getAbilities();
 				for (Ability subAbility : subAbilities) {
-					if (subAbility.getLevel() <= level.get())
-						apply(subAbility);
+					if (meetsPrereqs.apply(subAbility))
+						apply(subAbility, true);
 				}
 			}
 
 			for (AbilitySlot subSlot : ability.getAbilitySlots()) {
-				apply(subSlot);
+				apply(subSlot, true);
 			}
+			if(ability.toString() == null)
+				System.out.println("Warning - Ability with no name");
 			abilities.add(ability);
+			if(!isNestedCall)
+				checkAbilitySets();
 		}
 	}
 
@@ -174,18 +187,23 @@ public class AbilityManager {
 			if (isApplied.get(ability)) {
 				if (!meetsPrereqs.apply(ability)) {
 					isApplied.put(ability, false);
-					remove(ability);
+					remove(ability, true);
 				}
 			} else {
 				if (meetsPrereqs.apply(ability)) {
 					isApplied.put(ability, true);
-					apply(ability);
+					apply(ability, true);
 				}
 			}
 		}
+		checkAbilitySets();
 	}
 
 	void remove(AbilitySlot slot) {
+		remove(slot, false);
+	}
+
+	private void remove(AbilitySlot slot, boolean isNestedCall) {
 		Ability ability = slot.getCurrentAbility();
 		if (slot instanceof FilledSlot) {
 			for (String s : ability.getPrereqStrings()) {
@@ -194,9 +212,9 @@ public class AbilityManager {
 			for (String s : ability.getPrerequisites()) {
 				needsPrerequisites.computeIfAbsent(s.toLowerCase(), s1 -> new HashSet<>()).remove(ability);
 			}
-			if (isApplied.get(ability) != null && isApplied.get(ability)) remove(ability);
+			if (isApplied.get(ability) != null && isApplied.get(ability)) remove(ability, isNestedCall);
 			isApplied.remove(ability);
-		} else remove(ability);
+		} else remove(ability, isNestedCall);
 
 		if (slot instanceof SingleChoice) {
 			//noinspection rawtypes
@@ -206,7 +224,7 @@ public class AbilityManager {
 		}
 	}
 
-	private void remove(Ability ability) {
+	private void remove(Ability ability, boolean isNestedCall) {
 		if (ability != null) {
 			applier.remove(ability);
 			for (String s : ability.getGivenPrerequisites()) {
@@ -237,14 +255,16 @@ public class AbilityManager {
 				List<Ability> subAbilities = (abilitySetExt).getAbilities();
 				for (Ability subAbility : subAbilities) {
 					if (haveAbility(subAbility))
-						remove(subAbility);
+						remove(subAbility, true);
 				}
 			}
 
 			abilities.remove(ability);
 			for (AbilitySlot subSlot : ability.getAbilitySlots()) {
-				remove(subSlot);
+				remove(subSlot, true);
 			}
+			if(!isNestedCall)
+				checkAbilitySets();
 		}
 	}
 	private final ObservableList<Ability> abilitiesUnmod = FXCollections.unmodifiableObservableList(abilities);
@@ -259,7 +279,8 @@ public class AbilityManager {
 			while (iterator.hasNext()) {
 				Ability ability = iterator.next();
 				iterator.remove();
-				remove(ability);
+				remove(ability, true);
+				checkAbilitySets();
 			}
 		}
 	}

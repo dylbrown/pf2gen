@@ -12,7 +12,7 @@ import java.io.File;
 public class ItemAbilityLoader extends AbilityLoader<Ability> {
 
     static{
-        source = e -> Type.Item;
+        sources.put(ItemAbilityLoader.class, e -> Type.Item);
     }
 
     public ItemAbilityLoader(SourceConstructor sourceConstructor, File root) {
@@ -22,7 +22,7 @@ public class ItemAbilityLoader extends AbilityLoader<Ability> {
     @Override
     protected Ability parseItem(File file, Element item) {
         if(file.getName().toLowerCase().contains("bloodline"))
-            return BloodlinesLoader.makeBloodline(item);
+            return BloodlinesLoader.makeBloodlineStatic(item);
         return makeAbility(item,  item.getAttribute("name"));
     }
 }

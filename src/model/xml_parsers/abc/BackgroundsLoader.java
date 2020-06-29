@@ -22,7 +22,7 @@ public class BackgroundsLoader extends ABCLoader<Background, Background.Builder>
     private List<Background> backgrounds;
 
     static{
-        source = e -> Type.Background;
+        sources.put(BackgroundsLoader.class, e -> Type.Background);
     }
 
     public BackgroundsLoader(SourceConstructor sourceConstructor, File root) {

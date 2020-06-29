@@ -12,9 +12,7 @@ import model.spells.Spell;
 import model.spells.SpellType;
 import model.spells.Tradition;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SpellManager {
 	private final ObservableList<Integer> spellSlots = FXCollections.observableArrayList();
@@ -45,19 +43,7 @@ public class SpellManager {
 				for (Map.Entry<Integer, Integer> entry : spellExtension.getExtraSpellsKnown().entrySet()) {
 					addKnown(entry.getKey(), entry.getValue());
 				}
-				for (Map.Entry<SpellType, List<Spell>> entry : spellExtension.getBonusSpells().entrySet()) {
-					switch(entry.getKey()) {
-						case Spell:
-						case Cantrip:
-							entry.getValue().forEach(this::addSpell);
-							abilitySpells.addAll(entry.getValue());
-							break;
-						case Focus:
-						case FocusCantrip:
-							focusSpells.addAll(entry.getValue());
-							break;
-					}
-				}
+				addBonusSpells(spellExtension);
 				if(spellExtension.getCasterType() != CasterType.None)
 					casterType.set(spellExtension.getCasterType());
 				if(spellExtension.getTradition() != null)
@@ -77,19 +63,7 @@ public class SpellManager {
 				for (Map.Entry<Integer, Integer> entry : spellExtension.getExtraSpellsKnown().entrySet()) {
 					removeKnown(entry.getKey(), entry.getValue());
 				}
-				for (Map.Entry<SpellType, List<Spell>> entry : spellExtension.getBonusSpells().entrySet()) {
-					switch(entry.getKey()) {
-						case Spell:
-						case Cantrip:
-							abilitySpells.removeAll(entry.getValue());
-							entry.getValue().forEach(this::removeSpell);
-							break;
-						case Focus:
-						case FocusCantrip:
-							focusSpells.removeAll(entry.getValue());
-							break;
-					}
-				}
+				removeBonusSpells(spellExtension);
 				if(spellExtension.getCasterType() != CasterType.None)
 					casterType.set(CasterType.None);
 				if(spellExtension.getTradition() != null)
@@ -98,6 +72,44 @@ public class SpellManager {
 					castingAbilityScore.set(AbilityScore.None);
 			}
 		});
+	}
+
+	private void addBonusSpells(SpellExtension spellExtension) {
+		for (Map.Entry<SpellType, List<Spell>> entry : spellExtension.getBonusSpells().entrySet()) {
+			switch(entry.getKey()) {
+				case Spell:
+				case Cantrip:
+					entry.getValue().forEach(s->{
+						if(addSpellInternal(s, true))
+							addKnown(s.getLevelOrCantrip(), 1);
+					});
+					abilitySpells.addAll(entry.getValue());
+					break;
+				case Focus:
+				case FocusCantrip:
+					focusSpells.addAll(entry.getValue());
+					break;
+			}
+		}
+	}
+
+	private void removeBonusSpells(SpellExtension spellExtension) {
+		for (Map.Entry<SpellType, List<Spell>> entry : spellExtension.getBonusSpells().entrySet()) {
+			switch(entry.getKey()) {
+				case Spell:
+				case Cantrip:
+					abilitySpells.removeAll(entry.getValue());
+					entry.getValue().forEach(s->{
+						if(removeSpellInternal(s, true))
+							removeKnown(s.getLevelOrCantrip(), 1);
+					});
+					break;
+				case Focus:
+				case FocusCantrip:
+					focusSpells.removeAll(entry.getValue());
+					break;
+			}
+		}
 	}
 
 	void addSlots(int level, int amount) {
@@ -144,7 +156,7 @@ public class SpellManager {
 		return knownRetainer.get(level);
 	}
 
-	private ObservableList<Integer> extraRetainer = FXCollections.unmodifiableObservableList(extraSpellsKnown);
+	private final ObservableList<Integer> extraRetainer = FXCollections.unmodifiableObservableList(extraSpellsKnown);
 	public ObservableList<Integer> getExtraSpellsKnown() {
 		return extraRetainer;
 	}
@@ -158,21 +170,31 @@ public class SpellManager {
 	}
 
 	public boolean addSpell(Spell spell) {
+		return addSpellInternal(spell, false);
+	}
+
+	private boolean addSpellInternal(Spell spell, boolean override) {
 		if(spell == null) return false;
-		if(getCasterType().get() == CasterType.None) return false;
+		if(getCasterType().get() == CasterType.None && !override) return false;
 		if(getCasterType().get() == CasterType.Spontaneous) {
 			if(spellsKnown.get(spell.getLevelOrCantrip()).size()
-					>= spellSlots.get(spell.getLevelOrCantrip()) + extraSpellsKnown.get(spell.getLevelOrCantrip()))
+					>= spellSlots.get(spell.getLevelOrCantrip()) + extraSpellsKnown.get(spell.getLevelOrCantrip())
+					&& !override)
 				return false;
 		}
 		ObservableList<Spell> levelList = spellsKnown.get(spell.getLevelOrCantrip());
 		if(levelList.contains(spell)) return false;
 		levelList.add(spell);
 		return true;
+
 	}
 
 	public boolean removeSpell(Spell spell) {
-		if(abilitySpells.contains(spell)) return false;
+		return removeSpellInternal(spell, false);
+	}
+
+	private boolean removeSpellInternal(Spell spell, boolean override) {
+		if(abilitySpells.contains(spell) && !override) return false;
 		spellsKnown.get(spell.getLevelOrCantrip()).remove(spell);
 		return true;
 	}

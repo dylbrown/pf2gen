@@ -300,5 +300,9 @@ public class Ability implements Comparable<Ability> {
         public Ability build() {
             return new Ability(this);
         }
+
+        public String getName() {
+            return name;
+        }
     }
 }
