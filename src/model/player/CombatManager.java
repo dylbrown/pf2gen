@@ -126,4 +126,8 @@ public class CombatManager {
     void removeDamageModifier(String name) {
         damageModifiers.remove(name);
     }
+
+    public void reset() {
+
+    }
 }

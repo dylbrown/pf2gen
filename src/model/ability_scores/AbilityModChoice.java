@@ -59,6 +59,11 @@ public class AbilityModChoice extends AbilityMod implements Serializable {
                 "id=" + id +
                 ", choices=" + choices +
                 ", target=" + target +
+                ", type=" + getType() +
                 '}';
+    }
+
+    public void reset() {
+        this.target.set(AbilityScore.Free);
     }
 }

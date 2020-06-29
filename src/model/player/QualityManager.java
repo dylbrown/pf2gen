@@ -98,4 +98,11 @@ public class QualityManager {
     public Set<String> getSenses() {
         return Collections.unmodifiableSet(senses);
     }
+
+    public void reset() {
+        for (StringProperty value : qualities.values()) {
+            value.set("");
+        }
+
+    }
 }

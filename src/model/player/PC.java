@@ -8,10 +8,10 @@ import model.abc.PClass;
 import model.abilities.Ability;
 import model.abilities.ArchetypeExtension;
 import model.abilities.AttackExtension;
-import model.ability_slots.AbilitySlot;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
+import model.ability_slots.AbilitySlot;
 import model.attributes.Attribute;
 import model.attributes.AttributeMod;
 import model.enums.Alignment;
@@ -113,29 +113,33 @@ public class PC {
     public void setAncestry(Ancestry ancestry) {
         if(ancestry == null) return;
         Ancestry oldAncestry = getAncestry();
-        if(oldAncestry != null) {
+        if(oldAncestry != Ancestry.NO_ANCESTRY) {
             scores.remove(oldAncestry.getAbilityMods());
             abilities.removeAll(Type.Ancestry);
         }
         this.ancestry.set(ancestry);
-        scores.apply(ancestry.getAbilityMods());
-        qualities.update(ancestry, oldAncestry);
+        if(ancestry != Ancestry.NO_ANCESTRY) {
+            scores.apply(ancestry.getAbilityMods());
+            qualities.update(ancestry, oldAncestry);
+        }
         ancestryWatcher.firePropertyChange("ancestryChange", null, ancestry);
     }
 
     public void setBackground(Background background) {
         if (background == null) return;
-        if(getBackground() != null){
+        if(getBackground() != Background.NO_BACKGROUND){
             scores.remove(getBackground().getAbilityMods());
-            attributes.remove(background.getMods().get(0));
-            attributes.remove(background.getMods().get(1));
+            attributes.remove(getBackground().getMods().get(0));
+            attributes.remove(getBackground().getMods().get(1));
             abilities.removeAll(Type.Background);
         }
         this.background.set(background);
-        scores.apply(background.getAbilityMods());
-        attributes.apply(background.getMods().get(0));
-        attributes.apply(background.getMods().get(1));
-        abilities.apply(background.getFreeFeat());
+        if(background != Background.NO_BACKGROUND) {
+            scores.apply(background.getAbilityMods());
+            attributes.apply(background.getMods().get(0));
+            attributes.apply(background.getMods().get(1));
+            abilities.apply(background.getFreeFeat());
+        }
     }
 
     public void setPClass(PClass newPClass) {
@@ -146,9 +150,11 @@ public class PC {
                 removeLevel(getPClass().getLevel(i));
             abilities.removeAll(Type.Class);
         }
-        scores.apply(newPClass.getAbilityMods());
-        applyLevel(newPClass.getLevel(1));
-        attributes.updateSkillCount(newPClass.getSkillIncrease() + scores.getMod(Int));
+        if(!(newPClass.equals(PClass.NO_CLASS))) {
+            scores.apply(newPClass.getAbilityMods());
+            applyLevel(newPClass.getLevel(1));
+            attributes.updateSkillCount(newPClass.getSkillIncrease() + scores.getMod(Int));
+        }
         pClass.set(newPClass);
         level.set(1);
     }
@@ -306,5 +312,17 @@ outerLoop:  for (String orClause : split) {
 
     public void reset() {
         while(getLevel() > 1) levelDown();
+        setAncestry(Ancestry.NO_ANCESTRY);
+        setBackground(Background.NO_BACKGROUND);
+        setPClass(PClass.NO_CLASS);
+
+        abilities.reset();
+        deity.set(Deity.NO_DEITY);
+        attributes.resetSkills();
+        combat.reset();
+        inventory.reset();
+        scores.reset();
+        spells.reset();
+        qualities.reset();
     }
 }

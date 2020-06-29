@@ -292,4 +292,8 @@ public class AbilityManager {
 		}
 		return true;
 	}
+
+	public void reset() {
+
+	}
 }

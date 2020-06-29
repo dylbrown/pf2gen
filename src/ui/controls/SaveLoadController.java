@@ -102,4 +102,8 @@ public class SaveLoadController {
             }
         }
     }
+
+    public void reset() {
+        SaveLoadManager.reset();
+    }
 }

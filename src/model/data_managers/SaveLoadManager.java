@@ -155,7 +155,7 @@ public class SaveLoadManager {
                 return;
             }
             Pair<List<String>, Integer> lines= new Pair<>(lineList, 0);
-            character.reset();
+            reset();
             long start = System.currentTimeMillis();
             String curr = nextLine(lines);
             while(curr.contains("=")) {
@@ -219,7 +219,6 @@ public class SaveLoadManager {
             }
 
             //Skill Increase Choices
-            character.attributes().resetSkills();
             while(true) {
                 String s = nextLine(lines);
                 if(!s.startsWith(" - ")) {
@@ -277,7 +276,6 @@ public class SaveLoadManager {
             }
 
             //Items
-            character.inventory().reset();
             String money = nextLineEq(lines);
             character.inventory().setMoney(Double.parseDouble(money));
             lines.second++; // Skip Section Header
@@ -347,7 +345,6 @@ public class SaveLoadManager {
 
             //Spells
             lines.second++; // Skip Section Header
-            character.spells().reset();
             for(int i=0; i<=10; i++){
                 lines.second++;
                 while(true) {
@@ -421,5 +418,9 @@ public class SaveLoadManager {
             choices = AbilityScore.scores();
         }
         return new Triple<>(type, target, choices);
+    }
+
+    public static void reset() {
+        character.reset();
     }
 }

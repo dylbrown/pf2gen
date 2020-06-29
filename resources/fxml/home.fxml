@@ -15,19 +15,19 @@
               <Tab closable="false" text="Starting Choices">
                   <fx:include source="starting.fxml" />
               </Tab>
-              <Tab closable="false" text="Ability Scores">
+              <Tab closable="false" text="Ability Scores" fx:id="tab_abilityScores">
                   <fx:include source="abilityScoreTab.fxml" />
               </Tab>
-              <Tab closable="false" text="Skills">
+              <Tab closable="false" text="Skills" fx:id="tab_skills">
                   <SkillTab />
               </Tab>
-              <Tab closable="false" text="Decisions">
+              <Tab closable="false" text="Decisions" fx:id="tab_decisions">
                   <fx:include source="decisionsTab.fxml" />
               </Tab>
-              <Tab closable="false" text="Equipment">
+              <Tab closable="false" text="Equipment" fx:id="tab_equipment">
                   <fx:include source="equip/equipTab.fxml" />
               </Tab>
-              <Tab closable="false" text="Spells">
+              <Tab closable="false" text="Spells" fx:id="tab_spells">
                   <fx:include source="spellsTab.fxml" />
               </Tab>
               <Tab fx:id="displayTab" closable="false" text="Preview">
@@ -40,6 +40,11 @@
       <top>
           <MenuBar BorderPane.alignment="CENTER">
               <Menu mnemonicParsing="false" text="File">
+                  <MenuItem mnemonicParsing="false" text="New" fx:id="new_menu">
+                      <accelerator>
+                          <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                      </accelerator>
+                  </MenuItem>
                   <MenuItem mnemonicParsing="false" text="Open" fx:id="open_menu">
                       <accelerator>
                           <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>

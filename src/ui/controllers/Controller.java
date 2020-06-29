@@ -15,7 +15,9 @@ import static ui.Main.character;
 
 public class Controller {
     @FXML
-    private MenuItem open_menu, save_menu, saveAs_menu,
+    private Tab tab_abilityScores, tab_skills, tab_decisions, tab_equipment, tab_spells;
+    @FXML
+    private MenuItem new_menu, open_menu, save_menu, saveAs_menu,
             statblock_menu, printableSheet_menu, jquerySheet_menu, about_menu;
     @FXML
     private Tab displayTab;
@@ -45,6 +47,7 @@ public class Controller {
             }
         });
 
+        new_menu.setOnAction(e -> SaveLoadController.getInstance().reset());
         open_menu.setOnAction(e -> SaveLoadController.getInstance().load(display.getScene()));
         save_menu.setOnAction(e -> SaveLoadController.getInstance().save(character.qualities().get("name"), display.getScene()));
         saveAs_menu.setOnAction(e -> SaveLoadController.getInstance().saveAs(character.qualities().get("name"), display.getScene()));

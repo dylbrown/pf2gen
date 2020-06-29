@@ -86,7 +86,8 @@ public class AbilityScoreManager {
             if(mod instanceof AbilityModChoice)
                 abilityScoreChoices.remove(mod);
         }
-        abilityScoreChange.firePropertyChange(new PropertyChangeEvent(this, "abilityMods", null, null));
+        abilityScoreChange.firePropertyChange(
+                new PropertyChangeEvent(this, "abilityMods", null, null));
     }
     public void addAbilityListener(PropertyChangeListener l) {
         abilityScoreChange.addPropertyChangeListener(l);
@@ -98,6 +99,7 @@ public class AbilityScoreManager {
 
     public void choose(AbilityModChoice choice, AbilityScore value) {
         AbilityScore old = choice.getTarget();
+        if(old == value) return;
         if(choice.pick(value)) {
             abilityScores.computeIfAbsent(old, (key)->FXCollections.observableArrayList()).remove(choice);
             if(value != None && value != Free)
@@ -112,5 +114,15 @@ public class AbilityScoreManager {
 
     public List<AbilityModChoice> getAbilityScoreChoices() {
         return Collections.unmodifiableList(abilityScoreChoices);
+    }
+
+    public void reset() {
+        for (AbilityModChoice choice : abilityScoreChoices) {
+            AbilityScore old = choice.getTarget();
+            choice.reset();
+            abilityScores.computeIfAbsent(old, (key)->FXCollections.observableArrayList()).remove(choice);
+        }
+        abilityScoreChange.firePropertyChange(
+                new PropertyChangeEvent(this, "abilityMods", null, null));
     }
 }
