@@ -14,7 +14,7 @@ public enum Action {
     public static Action robustValueOf(String s) {
         Action result = null;
         try{
-            result = valueOf(StringUtils.camelCaseWord(s.trim()));
+            result = valueOf(StringUtils.camelCaseWord(s.replaceAll("[Aa]ction.*", "").trim()));
         }catch (Exception e) {
             switch (s) {
                 case "1":

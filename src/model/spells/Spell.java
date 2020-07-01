@@ -12,7 +12,7 @@ public class Spell implements Comparable<Spell> {
 	private final int level, page;
 	private final List<Trait> traits;
 	private final List<Tradition> traditions;
-	private final List<SpellComponent> cast;
+	private final List<SpellComponent> components;
 	private final boolean isCantrip;
 
 	private Spell(Spell.Builder builder) {
@@ -20,7 +20,7 @@ public class Spell implements Comparable<Spell> {
 		this.level = builder.level;
 		this.traits = builder.traits;
 		this.traditions = builder.traditions;
-		this.cast = builder.cast;
+		this.components = builder.cast;
 		this.castTime = builder.castTime;
 		this.requirements = builder.requirements;
 		this.range = builder.range;
@@ -91,8 +91,8 @@ public class Spell implements Comparable<Spell> {
 		return traditions;
 	}
 
-	public List<SpellComponent> getCast() {
-		return cast;
+	public List<SpellComponent> getComponents() {
+		return components;
 	}
 
 	@Override
@@ -169,11 +169,11 @@ public class Spell implements Comparable<Spell> {
 		}
 
 		public void setCast(String casts) {
-			if(casts.contains("(")) {
-				setCast(casts.replaceAll("[^(]*\\(", "")
-							.replaceAll("\\).*", ""));
-				setCastTime(casts.replaceAll("\\([^)]*\\)", ""));
-				return;
+			int index = casts.indexOf("(");
+			if(index != -1) {
+				int endIndex = casts.indexOf(")");
+				setCastTime(casts.substring(0, index));
+				casts = casts.substring(index + 1, endIndex);
 			}
 			for (String cast : casts.split(", ?")) {
 				try {
@@ -185,7 +185,7 @@ public class Spell implements Comparable<Spell> {
 		}
 
 		private void setCastTime(String castTime) {
-			this.castTime = castTime;
+			this.castTime = castTime.trim();
 		}
 
 		public void setRequirements(String requirements) {

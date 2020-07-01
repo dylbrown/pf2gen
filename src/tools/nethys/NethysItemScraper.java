@@ -189,32 +189,4 @@ class NethysItemScraper extends NethysScraper {
 
 		return item;
 	}
-
-	private String parseDesc(Node curr) {
-		if(curr instanceof TextNode) {
-			return ((TextNode) curr).getWholeText().replaceAll("(\r\n|\n)", " ");
-		}
-		if(curr instanceof Element) {
-			Element elem = (Element) curr;
-			if(elem.childNodeSize() > 0) {
-				StringBuilder text = new StringBuilder();
-				if(elem.tagName().equals("b")) text.append("&lt;b&gt;");
-				if(elem.tagName().equals("i")) text.append("&lt;i&gt;");
-				for (Node childNode : elem.childNodes()) {
-					text.append(parseDesc(childNode));
-				}
-				if(elem.tagName().equals("b")) text.append("&lt;/b&gt;");
-				if(elem.tagName().equals("i")) text.append("&lt;/i&gt;");
-				return text.toString();
-			}
-			else if(elem.tagName().equals("img")) {
-				if(elem.hasClass("actionDark")) return "";
-				return "[[" + elem.attr("alt") + "]]";
-			}
-			else if(elem.tagName().equals("br")) {
-				return "&lt;br&gt;";
-			}
-		}
-		return "";
-	}
 }

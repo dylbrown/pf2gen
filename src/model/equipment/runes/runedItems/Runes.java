@@ -9,6 +9,8 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import model.equipment.Equipment;
 import model.equipment.runes.Rune;
+import model.util.Pair;
+import model.util.StringUtils;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -113,10 +115,9 @@ public class Runes<T extends Rune> {
                 .map(r -> {
             String name = r.getName();
             if (name.contains("(")) {
-                String brackets = name.replaceAll("(.*\\(|\\).*)", "");
-                String main = name.replaceAll(" *\\(.*", "");
-                if (main.matches(".*Potency.*")) return brackets;
-                else return brackets + " " + main;
+                Pair<String, String> namePair = StringUtils.getInAndOutBrackets(name);
+                if (namePair.first.matches(".*Potency.*")) return namePair.second;
+                else return namePair.second + " " + namePair.first;
             }
             return name;
         });

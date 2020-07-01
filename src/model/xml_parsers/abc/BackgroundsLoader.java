@@ -15,8 +15,7 @@ import org.w3c.dom.NodeList;
 import java.io.File;
 import java.util.List;
 
-import static model.util.StringUtils.camelCase;
-import static model.util.StringUtils.camelCaseWord;
+import static model.util.StringUtils.*;
 
 public class BackgroundsLoader extends ABCLoader<Background, Background.Builder> {
     private List<Background> backgrounds;
@@ -65,7 +64,7 @@ public class BackgroundsLoader extends ABCLoader<Background, Background.Builder>
 
     private Pair<Attribute, String> makeAttribute(String source) {
         if (source.contains("Lore")) {
-            return new Pair<>(Attribute.Lore, source.replaceFirst("Lore ?\\(", "").replaceAll("\\).*", "").trim());
+            return new Pair<>(Attribute.Lore, getInBrackets(source).trim());
         }else return new Pair<>(Attribute.valueOf(camelCaseWord(source.trim())), "");
     }
 

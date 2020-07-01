@@ -1,5 +1,7 @@
 package model.util;
 
+import org.apache.commons.text.WordUtils;
+
 public class StringUtils {
     private StringUtils(){}
 
@@ -8,19 +10,11 @@ public class StringUtils {
     }
 
     public static String camelCase(String str) {
-        if(str.length() == 0) return str;
-        String[] split = str.split(" ");
-        for(int i=0; i<split.length;i++) {
-            split[i] = camelCaseWord(split[i]);
-        }
-        return String.join(" ", split);
+        return WordUtils.capitalizeFully(str);
     }
 
     public static String camelCaseWord(String str) {
-        if(str.length() == 0) return str;
-        int i = 0;
-        while(i < str.length()-1 && !str.substring(i, i+1).matches("\\w")) i++;
-        return str.substring(0, i) + str.substring(i,i+1).toUpperCase() + str.substring(i+1).toLowerCase();
+        return WordUtils.capitalizeFully(str);
     }
 
     public static String generateCostString(double cost) {
@@ -52,5 +46,21 @@ public class StringUtils {
             if(string.regionMatches(true, i, searchString, 0, searchString.length()))
                 return true;
         return false;
+    }
+
+    public static String getInBrackets(String str) {
+        return getInBrackets(str, '(', ')');
+    }
+
+    public static Pair<String, String> getInAndOutBrackets(String str) {
+        int start = str.indexOf('(');
+        int end = str.indexOf(')');
+        return new Pair<>(str.substring(0, start), str.substring(start + 1, end));
+    }
+
+    public static String getInBrackets(String str, char start, char end) {
+        int startIndex = str.indexOf(start);
+        int endIndex = str.indexOf(end);
+        return str.substring(startIndex + 1, endIndex);
     }
 }

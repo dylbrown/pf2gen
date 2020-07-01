@@ -191,7 +191,7 @@ public class SpellsTabController {
 		//Cast Time and Requirements
 		if(!spell.getCastTime().equals(""))
 			builder.append(spell.getCastTime().trim()).append(" (");
-		builder.append(spell.getCast().stream()
+		builder.append(spell.getComponents().stream()
 				.map(Enum::toString).collect(Collectors.joining(", ")));
 		if(!spell.getCastTime().equals(""))
 			builder.append(")");

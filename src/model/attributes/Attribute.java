@@ -94,7 +94,8 @@ public enum Attribute {
 
         @SuppressWarnings("SpellCheckingInspection")
         public static Attribute robustValueOf(String s) {
-            String formatted = StringUtils.camelCase(s.trim()).replaceAll(" ", "");
+            String formatted = org.apache.commons.lang3.StringUtils.
+                    deleteWhitespace(StringUtils.camelCase(s.trim()));
             try {
                 return Attribute.valueOf(formatted);
             }catch(IllegalArgumentException e) {

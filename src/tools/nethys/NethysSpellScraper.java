@@ -6,6 +6,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
+import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,12 +34,9 @@ class NethysSpellScraper extends NethysListScraper {
 		StringBuilder description = new StringBuilder();
 		Node afterHr = output.getElementsByTag("hr").first().nextSibling();
 		while(afterHr != null) {
-			if(afterHr instanceof TextNode)
-				description.append(((TextNode) afterHr).getWholeText());
-			else if(afterHr instanceof Element) {
-				if(((Element) afterHr).tagName().equals("hr")) break;
-				description.append(((Element) afterHr).text());
-			}
+			description.append(parseDesc(afterHr));
+			if(afterHr instanceof Element && ((Element) afterHr).tagName().equals("hr"))
+				break;
 			afterHr = afterHr.nextSibling();
 		}
 		List<String> traits = new ArrayList<>();
@@ -51,14 +49,21 @@ class NethysSpellScraper extends NethysListScraper {
 
 		String area = getAfter(output, "Area");
 		String cast = StringUtils.camelCase(getAfter(output, "Cast"));
-		if(output.getElementsByAttributeValue("alt", "Free Action").size() > 0)
-			cast = "Free (" + cast + ")";
-		if(output.getElementsByAttributeValue("alt", "Reaction").size() > 0)
-			cast = "Reaction (" + cast + ")";
+		Elements text = output.getElementsMatchingOwnText("\\ACast\\z");
+		if(text.size() == 1) {
+			Element currElem = text.first().nextElementSibling();
+			while (currElem != null &&
+					!currElem.tagName().equals("img") &&
+					!currElem.tagName().equals("b"))
+				currElem = currElem.nextElementSibling();
+			if(currElem != null && currElem.tagName().equals("img")) {
+				cast = currElem.attr("alt") + " (" + cast + ")";
+			}
+		}
 		String duration = getAfter(output, "Duration");
 		String range = getAfter(output, "Range");
 		String requirements = getAfter(output, "Requirements");
-		String save = getAfter(output, "Save");
+		String save = getAfter(output, "Saving Throw");
 		String targets = getAfter(output, "Targets");
 		List<String> traditions = new ArrayList<>();
 		if(output.getElementsMatchingText("\\ATraditions\\z").size() > 0){

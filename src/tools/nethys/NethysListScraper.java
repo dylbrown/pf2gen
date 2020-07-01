@@ -8,14 +8,14 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 public abstract class NethysListScraper extends NethysScraper {
-    final Map<String, StringBuilder> sources = new HashMap<>();
+    final Map<String, StringBuilder> sources = new ConcurrentHashMap<>();
     final Set<Integer> ids = new HashSet<>();
 
     public NethysListScraper(String inputURL, String outputPath, String container, Predicate<String> hrefValidator) {

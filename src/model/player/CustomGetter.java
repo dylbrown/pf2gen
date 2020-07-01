@@ -1,5 +1,7 @@
 package model.player;
 
+import model.util.StringUtils;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -12,7 +14,7 @@ public class CustomGetter {
     }
 
     public Object get(String pathString) {
-        String[] path = pathString.replaceAll("(.*\\{|}.*)", "").split("\\.");
+        String[] path = StringUtils.getInBrackets(pathString, '{', '}').split("\\.");
         Object curr = pc;
         for (String s : path) {
             for (Method method : curr.getClass().getMethods()) {

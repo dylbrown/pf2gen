@@ -1,6 +1,7 @@
 package model.equipment.runes;
 
 import model.equipment.Equipment;
+import model.util.StringUtils;
 
 public class Rune extends Equipment {
     private final boolean fundamental;
@@ -12,7 +13,10 @@ public class Rune extends Equipment {
         grantsProperty = builder.grantsProperty;
     }
 
-    public String getBaseRune() {return getName().replaceAll(" ?\\([^)]*\\)", "").trim();}
+    public String getBaseRune() {
+        int end = getName().indexOf("(");
+        return getName().substring(0, end).trim();
+    }
 
     public boolean isFundamental() {
         return fundamental;
@@ -23,7 +27,7 @@ public class Rune extends Equipment {
     }
 
     public String getTier() {
-        return getName().replaceAll("(.*\\(|\\).*)", "").trim();
+        return StringUtils.getInBrackets(getName());
     }
 
     public static class Builder extends Equipment.Builder {

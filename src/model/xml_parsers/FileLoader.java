@@ -31,6 +31,8 @@ public abstract class FileLoader<T> {
         factory.setNamespaceAware(true);
     }
 
+    private boolean loadedFromRepository = false;
+
     public FileLoader(SourceConstructor sourceConstructor, File root) {
         this.sourceConstructor = sourceConstructor;
         this.loadTracker = new SourceLoadTracker(sourceConstructor);
@@ -165,6 +167,7 @@ public abstract class FileLoader<T> {
                                 .replaceAll(" ", "%20"));
                 System.out.println("Could not find "+path.getName()+" on disk, loading from repository.");
                 doc= factory.newDocumentBuilder().parse(url.openStream());
+                this.loadedFromRepository = true;
             } catch ( SAXException|IOException|ParserConfigurationException e) {
                 e.printStackTrace();
             }
@@ -187,5 +190,9 @@ public abstract class FileLoader<T> {
             return Collections.unmodifiableSet(sourceConstructor.map().keySet());
         }
         return Collections.unmodifiableSet(categorizedItems.keySet());
+    }
+
+    public boolean isLoadedFromRepository() {
+        return loadedFromRepository;
     }
 }
