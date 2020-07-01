@@ -60,7 +60,7 @@ public class Controller {
         about_menu.setOnAction(e -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("About");
-            alert.setHeaderText("PF2Gen v0.0-alpha");
+            alert.setHeaderText("PF2Gen v0.0.0-alpha");
             alert.setContentText("Created by Dylan Brown.");
             alert.show();
         });
