@@ -77,6 +77,7 @@ public class AbilityManager {
 			List<Ability> results = new ArrayList<>();
 			for (String allowedType : ((FeatSlot) choice).getAllowedTypes()) {
 				int end = allowedType.indexOf(" Feat");
+				if(end == -1) end = allowedType.length();
 				switch (allowedType.substring(0, end)) {
 					case "Class":
 						int bracket = allowedType.indexOf("(");
