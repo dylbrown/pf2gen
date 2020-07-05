@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class QualityManager {
+public class QualityManager implements PlayerState {
     private final Map<String, StringProperty> qualities = new HashMap<>();
     private final Set<Language> languages = new TreeSet<>();
     private final Set<String> senses = new TreeSet<>();
@@ -99,10 +99,11 @@ public class QualityManager {
         return Collections.unmodifiableSet(senses);
     }
 
-    public void reset() {
+    @Override
+    public void reset(PC.ResetEvent resetEvent) {
+        if(!resetEvent.isActive()) return;
         for (StringProperty value : qualities.values()) {
             value.set("");
         }
-
     }
 }

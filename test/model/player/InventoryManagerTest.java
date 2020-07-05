@@ -20,11 +20,13 @@ class InventoryManagerTest {
     private InventoryManager inventory;
 
     private List<Equipment> sampleItems;
+    private PC pc;
 
 
     @BeforeEach
     void setUp() {
-        inventory = new InventoryManager(null);
+        pc = new PC();
+        inventory = pc.inventory();
         inventory.setMoney(30000000);
         sampleItems = new ArrayList<>();
         int i=0;
@@ -240,7 +242,7 @@ class InventoryManagerTest {
             assertTrue(inventory.buy(sampleItem, i));
             i++;
         }
-        inventory.reset();
+        pc.reset();
         assertEquals(InventoryManager.INITIAL_AMOUNT, inventory.getMoney());
         assertEmpty();
     }

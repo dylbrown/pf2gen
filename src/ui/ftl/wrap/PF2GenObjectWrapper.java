@@ -8,6 +8,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.StringProperty;
 import model.equipment.ItemCount;
 import model.equipment.weapons.Weapon;
+import model.player.AttributeManager;
 import model.player.PC;
 import model.player.QualityManager;
 
@@ -37,6 +38,7 @@ public class PF2GenObjectWrapper extends DefaultObjectWrapper {
         if(obj instanceof Weapon) return new WeaponWrapper((Weapon) obj, this);
         if(obj instanceof ItemCount) return new ItemCountWrapper((ItemCount) obj, this);
         if(obj instanceof StringProperty) return new StringPropertyWrapper((StringProperty) obj);
+        if(obj instanceof AttributeManager) return new AttributesWrapper((AttributeManager) obj, this);
         if(obj instanceof QualityManager) return new QualitiesWrapper((QualityManager) obj, this);
         if(obj instanceof ReadOnlyObjectProperty) //noinspection rawtypes
             return new ReadOnlyObjectPropertyWrapper((ReadOnlyObjectProperty) obj);

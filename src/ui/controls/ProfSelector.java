@@ -35,6 +35,13 @@ class ProfSelector extends HBox {
             checkBoxes[i].setOnAction((event)->handleClick(finalI));
         }
         updateSelector();
+
+
+        if(skill == Attribute.Lore && (data == null || data.equals(""))) {
+            for (CheckBox checkBox : checkBoxes) {
+                checkBox.setDisable(true);
+            }
+        }
     }
 
     private void handleClick(int i) {
@@ -48,6 +55,9 @@ class ProfSelector extends HBox {
     }
 
     private void updateSelector() {
+        if(skill == Attribute.Lore && (data == null || data.equals(""))) {
+            return;
+        }
         int value = character.attributes().getProficiency(skill, data).getValue().getMod();
         boolean ticked = true;
         for(int i=0; i<checkBoxes.length;i++) {

@@ -119,6 +119,7 @@ public abstract class FileLoader<T> {
     private void loadSingle(String location) {
         if(!loadTracker.isNotLoaded(location))
             return;
+        clearAccumulators();
         loadTracker.setLoaded(location);
         File subFile = getSubFile(location);
         Document doc = getDoc(subFile);
@@ -129,6 +130,7 @@ public abstract class FileLoader<T> {
     protected void loadMultiple(String category, String location) {
         if(!loadTracker.isNotLoaded(location) || location == null)
             return;
+        clearAccumulators();
         loadTracker.setLoaded(location);
         File subFile = getSubFile(location);
         Document doc = getDoc(subFile);
@@ -165,7 +167,7 @@ public abstract class FileLoader<T> {
                 URL url = new URL("https://dylbrown.github.io/pf2gen_data/" + path.toString()
                                 .replaceAll("\\\\", "/")
                                 .replaceAll(" ", "%20"));
-                System.out.println("Could not find "+path.getName()+" on disk, loading from repository.");
+                System.out.println(" - remote: "+path.getName()+"");
                 doc= factory.newDocumentBuilder().parse(url.openStream());
                 this.loadedFromRepository = true;
             } catch ( SAXException|IOException|ParserConfigurationException e) {
@@ -195,4 +197,6 @@ public abstract class FileLoader<T> {
     public boolean isLoadedFromRepository() {
         return loadedFromRepository;
     }
+
+    protected void clearAccumulators() {}
 }

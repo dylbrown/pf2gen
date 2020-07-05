@@ -1,5 +1,6 @@
 package model.abilities;
 
+import javafx.beans.property.ReadOnlyStringProperty;
 import model.ability_scores.AbilityScore;
 import model.spells.CasterType;
 import model.spells.Spell;
@@ -15,6 +16,7 @@ public class SpellExtension extends AbilityExtension {
 	private Map<SpellType, List<Spell>> bonusSpells = Collections.emptyMap();
 	private final CasterType casterType;
 	private final AbilityScore castingAbilityScore;
+	private String spellListName;
 	private SpellExtension(Builder builder, Ability baseAbility) {
 		super(baseAbility);
 		spellSlots = builder.spellSlots;
@@ -22,6 +24,13 @@ public class SpellExtension extends AbilityExtension {
 		casterType = builder.casterType;
 		tradition = builder.tradition;
 		castingAbilityScore = builder.castingAbilityScore;
+		spellListName = builder.spellListName;
+		if(builder.spellListNameProperty != null) {
+			builder.spellListNameProperty.addListener((o, oldVal, newVal)->{
+				if(newVal != null && !newVal.equals(""))
+					spellListName = newVal;
+			});
+		}
 
 		if(builder.bonusSpells.size() > 0) bonusSpells = new HashMap<>();
 		for (Map.Entry<SpellType, List<Spell>> entry : builder.bonusSpells.entrySet()) {
@@ -54,13 +63,19 @@ public class SpellExtension extends AbilityExtension {
 		return Collections.unmodifiableMap(bonusSpells);
 	}
 
+	public String getSpellListName() {
+		return spellListName;
+	}
+
 	public static class Builder extends AbilityExtension.Builder {
-		private Map<Integer, Integer> spellSlots = Collections.emptyMap();
+	    private Map<Integer, Integer> spellSlots = Collections.emptyMap();
 		private Map<Integer, Integer> extraSpellsKnown = Collections.emptyMap();
 		private Map<SpellType, List<Spell>> bonusSpells = Collections.emptyMap();
 		private CasterType casterType = CasterType.None;
 		private Tradition tradition;
 		private AbilityScore castingAbilityScore = AbilityScore.None;
+		private String spellListName = "";
+		private ReadOnlyStringProperty spellListNameProperty;
 
 		Builder() {}
 
@@ -80,6 +95,7 @@ public class SpellExtension extends AbilityExtension {
 		}
 
 		public void setCasterType(CasterType casterType) {
+			if(casterType == null) casterType = CasterType.None;
 			this.casterType = casterType;
 		}
 
@@ -91,9 +107,21 @@ public class SpellExtension extends AbilityExtension {
 			this.castingAbilityScore = ability;
 		}
 
-		@Override
+	    public void setSpellListName(String spellListName) {
+		    this.spellListName = spellListName;
+	    }
+
+	    @Override
 		AbilityExtension build(Ability baseAbility) {
 			return new SpellExtension(this, baseAbility);
 		}
-	}
+
+		public String getListName() {
+			return spellListName;
+		}
+
+        public void setSpellListName(ReadOnlyStringProperty stringProperty) {
+			this.spellListNameProperty = stringProperty;
+        }
+    }
 }

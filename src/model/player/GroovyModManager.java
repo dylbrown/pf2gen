@@ -30,7 +30,7 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class GroovyModManager {
+public class GroovyModManager implements PlayerState {
     private final ObservableMap<String, Integer> mods = FXCollections.observableHashMap();
     private final Binding bindings = new Binding();
     private final GroovyShell shell = new GroovyShell(bindings);
@@ -42,7 +42,7 @@ public class GroovyModManager {
     private final AttributeManager attributes;
     private final DecisionManager decisions;
     private final CombatManager combat;
-    private final SpellManager spells;
+    private final SpellListManager spells;
     private final ReadOnlyObjectProperty<Deity> deity;
     private final CustomGetter customGetter;
 
@@ -88,24 +88,24 @@ public class GroovyModManager {
                 attributes.remove(new AttributeMod(attr, Proficiency.valueOf(prof)));
             }
         }
-        public void spell(String spellName) {
+        public void spell(String spellName, String spellListName) {
             Spell spell = SourcesLoader.instance().spells().find(spellName);
             if(spell != null) {
-               spell(spell);
+               spell(spell, spellListName);
             }
         }
-        public void spell(Spell spell) {
+        public void spell(Spell spell, String spellListName) {
             if(applying.get()) {
-                spells.addFocusSpell(spell);
+                spells.getSpellList(spellListName).addFocusSpell(spell);
             }else{
-                spells.removeFocusSpell(spell);
+                spells.getSpellList(spellListName).removeFocusSpell(spell);
             }
         }
-        public void spellSlot(int level, int count) {
+        public void spellSlot(int level, int count, String spellListName) {
             if(applying.get()) {
-                spells.addSlots(level, count);
+                spells.getSpellList(spellListName).addSlots(level, count);
             }else{
-                spells.removeSlots(level, count);
+                spells.getSpellList(spellListName).removeSlots(level, count);
             }
         }
         public void choose(String things, String name, Closure callback, String secondParam, int numSelections) {
@@ -244,7 +244,7 @@ public class GroovyModManager {
         }
     }
 
-    GroovyModManager(CustomGetter customGetter, AttributeManager attributes, DecisionManager decisions, CombatManager combat, SpellManager spells, ReadOnlyObjectProperty<Deity> deity, ReadOnlyObjectProperty<Integer> levelProperty, Applier applier) {
+    GroovyModManager(CustomGetter customGetter, AttributeManager attributes, DecisionManager decisions, CombatManager combat, SpellListManager spells, ReadOnlyObjectProperty<Deity> deity, ReadOnlyObjectProperty<Integer> levelProperty, Applier applier) {
         this.attributes = attributes;
         this.decisions = decisions;
         this.combat = combat;
@@ -304,5 +304,10 @@ public class GroovyModManager {
 
     public int get(String variable) {
         return mods.getOrDefault(variable, 0);
+    }
+
+    @Override
+    public void reset(PC.ResetEvent resetEvent) {
+        choices.clear();
     }
 }

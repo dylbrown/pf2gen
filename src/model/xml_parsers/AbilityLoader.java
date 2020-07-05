@@ -1,5 +1,7 @@
 package model.xml_parsers;
 
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import model.abilities.*;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
@@ -40,6 +42,14 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
 
    protected static Map<Class<? extends AbilityLoader<?>>, Function<Element, Type>> sources = new HashMap<>();
 
+    private ReadOnlyStringWrapper spellListName;
+    private Map<String, ReadOnlyStringWrapper> archetypeSpellListNames = new HashMap<>();
+
+    @Override
+    protected void clearAccumulators() {
+        spellListName = new ReadOnlyStringWrapper();
+        archetypeSpellListNames.clear();
+    }
 
     protected List<Ability> makeAbilities(NodeList nodes) {
         List<Ability> choices = new ArrayList<>();
@@ -146,14 +156,19 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                         break;
                     case "Spellcasting":
                         SpellExtension.Builder spellExt = builder.getExtension(SpellExtension.Builder.class);
-                        spellExt.setTradition(Tradition.valueOf(propElem.getAttribute("tradition")));
+                        String spellListName = propElem.getAttribute("listName");
                         String type = propElem.getAttribute("type");
-                        if(!type.toLowerCase().equals("focusonly"))
+                        String tradition = propElem.getAttribute("tradition");
+                        String ability = propElem.getAttribute("ability");
+                        if(spellListName != null)
+                            spellExt.setSpellListName(spellListName);
+                        else System.out.println("Warning: missing spellListName");
+                        if(type != null && !type.toLowerCase().equals("") && !type.toLowerCase().equals("focusonly"))
                             spellExt.setCasterType(CasterType.valueOf(propElem.getAttribute("type")));
-                        break;
-                    case "SpellcastingAbility":
-                        builder.getExtension(SpellExtension.Builder.class)
-                                .setCastingAbility(AbilityScore.robustValueOf(trim));
+                        if(tradition != null && !tradition.equals(""))
+                            spellExt.setTradition(Tradition.valueOf(tradition));
+                        if(ability != null && !ability.equals(""))
+                            spellExt.setCastingAbility(AbilityScore.robustValueOf(ability));
                         break;
                     case "SpellSlots":
                         builder.getExtension(SpellExtension.Builder.class)
@@ -194,6 +209,36 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
             if(element.getTagName().equals("AbilitySet")){
                 builder.getExtension(AbilitySetExtension.Builder.class)
                         .setAbilities(makeAbilities(element.getChildNodes()));
+            }
+            if(builder.hasExtension(SpellExtension.Builder.class)) {
+                SpellExtension.Builder spells = builder.getExtension(SpellExtension.Builder.class);
+                if(spells.getListName() == null || spells.getListName().equals("")) {
+                    if(builder.hasExtension(ArchetypeExtension.Builder.class)) {
+                        ArchetypeExtension.Builder archetype = builder.getExtension(ArchetypeExtension.Builder.class);
+                        ReadOnlyStringProperty readOnlyProperty = archetypeSpellListNames
+                                .computeIfAbsent(archetype.getArchetype(), s -> new ReadOnlyStringWrapper())
+                                .getReadOnlyProperty();
+                        if(readOnlyProperty.get() == null || readOnlyProperty.get().equals(""))
+                            spells.setSpellListName(readOnlyProperty);
+                        else
+                            spells.setSpellListName(readOnlyProperty.get());
+                    } else {
+                        ReadOnlyStringProperty readOnlyProperty = spellListName.getReadOnlyProperty();
+                        if(readOnlyProperty.get() == null || readOnlyProperty.get().equals(""))
+                            spells.setSpellListName(readOnlyProperty);
+                        else
+                            spells.setSpellListName(readOnlyProperty.get());
+                    }
+                } else {
+                    if(builder.hasExtension(ArchetypeExtension.Builder.class)) {
+                        ArchetypeExtension.Builder archetype = builder.getExtension(ArchetypeExtension.Builder.class);
+                        archetypeSpellListNames
+                                .computeIfAbsent(archetype.getArchetype(), s->new ReadOnlyStringWrapper())
+                                .set(spells.getListName());
+                    } else {
+                        spellListName.set(spells.getListName());
+                    }
+                }
             }
             return builder.build();
         }

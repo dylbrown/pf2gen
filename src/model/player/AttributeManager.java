@@ -23,7 +23,7 @@ import java.util.*;
 /**
  * @author Dylan Brown
  */
-public class AttributeManager {
+public class AttributeManager implements PlayerState {
     private final Map<Attribute, ReadOnlyObjectWrapper<Proficiency>> proficiencies = new HashMap<>();
     private final Map<Attribute, Map<Proficiency, List<AttributeMod>>> trackers = new HashMap<>();
     private final Map<Attribute, SingleAttributeManager> singleAttributes = new HashMap<>();
@@ -182,6 +182,7 @@ public class AttributeManager {
         if(!changed && mod.getMod().equals(Proficiency.Trained) && haveTrainedMod) {
             removeSkillIncreases(1, 1);
         }
+        proficiencyChange.firePropertyChange("removeAttributeMod", null, null);
     }
 
     /**
@@ -423,8 +424,10 @@ public class AttributeManager {
 
     /**
      * Unmake all skill choices
+     * @param resetEvent prevents this from being called just anywhere
      */
-    public void resetSkills() {
+    public void reset(PC.ResetEvent resetEvent) {
+        if(!resetEvent.isActive()) return;
         for(int i=level.get(); i>0; i--) {
             Set<SkillIncrease> attributes = skillChoices.get(i);
             if (attributes != null) {

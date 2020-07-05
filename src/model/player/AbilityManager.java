@@ -17,7 +17,7 @@ import model.util.StringUtils;
 import java.util.*;
 import java.util.function.Function;
 
-public class AbilityManager {
+public class AbilityManager implements PlayerState {
 	private final ObservableList<Ability> abilities = FXCollections.observableArrayList();
 	private final Map<String, Set<Ability>> prereqGivers = new HashMap<>();
 	private final Map<String, Set<Ability>> needsPrereqStrings = new HashMap<>(); // For Prereq Strings
@@ -316,7 +316,6 @@ public class AbilityManager {
 		return true;
 	}
 
-	public void reset() {
-
+	public void reset(PC.ResetEvent resetEvent) {
 	}
 }

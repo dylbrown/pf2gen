@@ -3,6 +3,7 @@ package model.xml_parsers;
 import model.abilities.Ability;
 import model.abilities.AbilitySetExtension;
 import model.abilities.SpellExtension;
+import model.ability_scores.AbilityScore;
 import model.ability_slots.FilledSlot;
 import model.attributes.Attribute;
 import model.attributes.AttributeMod;
@@ -55,6 +56,8 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 		String tradition = item.getElementsByTagName("Tradition").item(0).getTextContent();
 		spellExt.setTradition(Tradition.valueOf(tradition));
 		spellExt.setCasterType(CasterType.Spontaneous);
+		spellExt.setCastingAbility(AbilityScore.Cha);
+		spellExt.setSpellListName("Sorcerer");
 		bloodline.setGivesPrerequisites(Collections.singletonList(tradition+" Bloodline"));
 		String[] skills = item.getElementsByTagName("Skills").item(0).getTextContent().split(", ?");
 		bloodline.setAttrMods(Arrays.asList(
@@ -65,11 +68,13 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 		List<Ability> grantedAbilities = new ArrayList<>();
 		for (String level : item.getElementsByTagName("GrantedSpells").item(0).getTextContent().split(", ?")) {
 			String[] split = level.split("(: |cantrip )");
+			if(split[0].equals("")) split[0] = "0th";
 			Ability.Builder builder = new Ability.Builder(); builder.setName(split[0]+"-level granted spells");
 			if(!split[0].trim().equals("") && !split[0].equals("1st"))
 				builder.setPrerequisites(Collections.singletonList(split[0]+"-level spells"));
 			builder.getExtension(SpellExtension.Builder.class)
 					.addBonusSpell(SpellType.Spell, SourcesLoader.instance().spells().find(split[1]));
+			builder.getExtension(SpellExtension.Builder.class).setSpellListName("Sorcerer");
 			grantedAbilities.add(builder.build());
 		}
 		Ability.Builder grantedSet = new Ability.Builder();
@@ -84,8 +89,10 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 		Ability.Builder greater = new Ability.Builder();  greater.setName("Greater Bloodline Spell");
 		advanced.getExtension(SpellExtension.Builder.class)
 				.addBonusSpell(SpellType.Focus, SourcesLoader.instance().spells().find(bSpells[1].split(": ")[1]));
+		advanced.getExtension(SpellExtension.Builder.class).setSpellListName("Sorcerer");
 		greater.getExtension(SpellExtension.Builder.class)
 				.addBonusSpell(SpellType.Focus, SourcesLoader.instance().spells().find(bSpells[2].split(": ")[1]));
+		greater.getExtension(SpellExtension.Builder.class).setSpellListName("Sorcerer");
 		advanced.setPrerequisites(Collections.singletonList("Advanced Bloodline"));
 		advanced.setPrerequisites(Collections.singletonList("Greater Bloodline"));
 		bloodline.addAbilitySlot(new FilledSlot("Advanced Bloodline Spell", 1, advanced.build()));

@@ -12,18 +12,22 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static model.ability_scores.AbilityScore.*;
 
-public class AbilityScoreManager {
+public class AbilityScoreManager implements PlayerState {
     private final Map<AbilityScore, ObservableList<AbilityMod>> abilityScores = new HashMap<>();
     private final Map<Type, List<AbilityMod>> abilityScoresByType = new HashMap<>();
     private final PropertyChangeSupport abilityScoreChange = new PropertyChangeSupport(this);
     private final List<AbilityModChoice> abilityScoreChoices = new ArrayList<>();
-    private final Supplier<AbilityScore> keyAbility, castingAbility;
+    private final Supplier<AbilityScore> keyAbility;
+    private final Function<String, AbilityScore> castingAbility;
 
-    AbilityScoreManager(Applier applier, Supplier<AbilityScore> keyAbility, Supplier<AbilityScore> castingAbility) {
+    AbilityScoreManager(Applier applier,
+                        Supplier<AbilityScore> keyAbility,
+                        Function<String, AbilityScore> castingAbility) {
         this.keyAbility = keyAbility;
         this.castingAbility = castingAbility;
         List<AbilityModChoice> choices = Arrays.asList(
@@ -46,15 +50,24 @@ public class AbilityScoreManager {
         return eyeball;
     }
     public Integer getMod(AbilityScore ability) {
-        return getScore(ability) / 2  - 5;
+        return getMod(ability, null);
+    }
+
+
+    public int getMod(AbilityScore ability, String data) {
+        return getScore(ability, data) / 2  - 5;
     }
 
     public int getScore(AbilityScore ability) {
+        return getScore(ability, null);
+    }
+
+    public int getScore(AbilityScore ability, String data) {
         if(ability == null) return getScore(None);
         if(ability.equals(KeyAbility))
             return getScore(keyAbility.get());
         if(ability.equals(CastingAbility))
-            return getScore(castingAbility.get());
+            return getScore(castingAbility.apply(data));
         int score = 10;
         List<Type> stackingCheck = new ArrayList<>();
         for(AbilityMod mod: abilityScores.computeIfAbsent(ability, (key)-> FXCollections.observableArrayList())) {
@@ -116,7 +129,9 @@ public class AbilityScoreManager {
         return Collections.unmodifiableList(abilityScoreChoices);
     }
 
-    public void reset() {
+    @Override
+    public void reset(PC.ResetEvent resetEvent) {
+        if(!resetEvent.isActive()) return;
         for (AbilityModChoice choice : abilityScoreChoices) {
             AbilityScore old = choice.getTarget();
             choice.reset();

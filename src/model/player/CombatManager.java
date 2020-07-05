@@ -18,7 +18,7 @@ import java.util.*;
 import static model.ability_scores.AbilityScore.Dex;
 import static model.ability_scores.AbilityScore.Str;
 
-public class CombatManager {
+public class CombatManager implements PlayerState {
     private final List<Weapon> attacks = new ArrayList<>();
     private final AbilityScoreManager scores;
     private final AttributeManager attributes;
@@ -127,7 +127,8 @@ public class CombatManager {
         damageModifiers.remove(name);
     }
 
-    public void reset() {
+    @Override
+    public void reset(PC.ResetEvent resetEvent) {
 
     }
 }

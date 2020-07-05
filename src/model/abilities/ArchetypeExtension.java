@@ -33,5 +33,9 @@ public class ArchetypeExtension extends AbilityExtension {
         ArchetypeExtension build(Ability baseAbility) {
             return new ArchetypeExtension(this, baseAbility);
         }
+
+        public String getArchetype() {
+            return archetype;
+        }
     }
 }

@@ -83,6 +83,7 @@ public class SourcesLoader extends FileLoader<Source> {
         Map<String, String> locations = new HashMap<>();
         locations.put("core_rulebook", "Core Rulebook/index.pfdyl");
         locations.put("the_amar_vale", "The Amar Vale/index.pfdyl");
+        // locations.put("extinction_curse", "Extinction Curse/index.pfdyl");
         SourceConstructor sourceConstructor = new SourceConstructor(locations, false);
         INSTANCE = new SourcesLoader(sourceConstructor, new File("data"));
     }

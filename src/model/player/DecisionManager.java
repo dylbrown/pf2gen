@@ -10,7 +10,7 @@ import model.ability_slots.ChoiceList;
 import java.util.*;
 
 @SuppressWarnings("rawtypes")
-public class DecisionManager {
+public class DecisionManager implements PlayerState {
     private final ObservableList<Choice> decisions = FXCollections.observableArrayList();
     private final ObservableList<Choice> unmodifiableDecisions = FXCollections.unmodifiableObservableList(decisions);
     private final FilteredList<Choice> unmade;
@@ -46,5 +46,10 @@ public class DecisionManager {
 
     public ObservableList<Choice> getUnmadeDecisions() {
         return FXCollections.unmodifiableObservableList(unmade);
+    }
+
+    @Override
+    public void reset(PC.ResetEvent resetEvent) {
+
     }
 }

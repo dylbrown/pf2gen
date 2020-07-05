@@ -4,25 +4,17 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import model.data_managers.sources.SourcesLoader;
 import setting.Deity;
 import ui.Main;
 import ui.html.ABCHTMLGenerator;
 import ui.html.SettingHTMLGenerator;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class StartingTabController {
-
-    @FXML
-    private TabPane tabPane;
+public class StartingTabController extends SubTabController {
 
     @FXML
     private void initialize() {
@@ -59,19 +51,13 @@ public class StartingTabController {
                 SettingHTMLGenerator::parse);
     }
 
-    private <T> void addTab(String name, ObservableList<T> options, ReadOnlyObjectProperty<T> value,
-                            Consumer<T> adder, Function<T, String> htmlGenerator) {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/singleChoicePage.fxml"));
-        fxmlLoader.setController(new SingleChoicePageController<>(options, value, adder, htmlGenerator));
-        try {
-            Object load = fxmlLoader.load();
-            if(load instanceof Node) {
-                Tab tab = new Tab(name, (Node) load);
-                tab.setClosable(false);
-                tabPane.getTabs().add(tab);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    <T> void addTab(String name, ObservableList<T> options, ReadOnlyObjectProperty<T> value,
+                    Consumer<T> adder, Function<T, String> htmlGenerator) {
+        addTab(name, new SingleChoicePageController<>(options, value, adder, htmlGenerator));
+    }
+
+    @Override
+    String getTabPath() {
+        return "/fxml/singleChoicePage.fxml";
     }
 }

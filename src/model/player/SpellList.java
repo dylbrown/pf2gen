@@ -4,6 +4,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import model.abilities.Ability;
 import model.abilities.SpellExtension;
 import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
@@ -12,9 +13,11 @@ import model.spells.Spell;
 import model.spells.SpellType;
 import model.spells.Tradition;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-public class SpellManager {
+public class SpellList implements PlayerState {
 	private final ObservableList<Integer> spellSlots = FXCollections.observableArrayList();
 	private final ObservableList<ObservableList<Spell>> spellsKnown = FXCollections.observableArrayList();
 	private final ObservableList<Integer> extraSpellsKnown = FXCollections.observableArrayList();
@@ -25,53 +28,55 @@ public class SpellManager {
 	private final List<Spell> abilitySpells = new ArrayList<>();
 
 	private final ObservableList<ObservableList<Spell>> knownRetainer = FXCollections.observableArrayList();
+	private final String index;
 
-	SpellManager(Applier applier) {
+	SpellList(String index) {
+		this.index = index;
 		for(int i = 0; i <= 10; i++){
 			spellSlots.add(0);
 			extraSpellsKnown.add(0);
 			spellsKnown.add(FXCollections.observableArrayList());
 			knownRetainer.add(FXCollections.unmodifiableObservableList(spellsKnown.get(i)));
 		}
+	}
 
-		applier.onApply(ability -> {
-			SpellExtension spellExtension = ability.getExtension(SpellExtension.class);
-			if(spellExtension != null){
-				for (Map.Entry<Integer, Integer> entry : spellExtension.getSpellSlots().entrySet()) {
-					addSlots(entry.getKey(), entry.getValue());
-				}
-				for (Map.Entry<Integer, Integer> entry : spellExtension.getExtraSpellsKnown().entrySet()) {
-					addKnown(entry.getKey(), entry.getValue());
-				}
-				addBonusSpells(spellExtension);
-				if(spellExtension.getCasterType() != CasterType.None)
-					casterType.set(spellExtension.getCasterType());
-				if(spellExtension.getTradition() != null)
-					tradition.set(spellExtension.getTradition());
-				if(spellExtension.getCastingAbilityScore() != AbilityScore.None)
-					castingAbilityScore.set(spellExtension.getCastingAbilityScore());
-
+	void apply(Ability ability) {
+		SpellExtension spellExtension = ability.getExtension(SpellExtension.class);
+		if(spellExtension != null){
+			for (Map.Entry<Integer, Integer> entry : spellExtension.getSpellSlots().entrySet()) {
+				addSlots(entry.getKey(), entry.getValue());
 			}
-		});
-
-		applier.onRemove(ability -> {
-			SpellExtension spellExtension = ability.getExtension(SpellExtension.class);
-			if(spellExtension != null){
-				for (Map.Entry<Integer, Integer> entry : spellExtension.getSpellSlots().entrySet()) {
-					removeSlots(entry.getKey(), entry.getValue());
-				}
-				for (Map.Entry<Integer, Integer> entry : spellExtension.getExtraSpellsKnown().entrySet()) {
-					removeKnown(entry.getKey(), entry.getValue());
-				}
-				removeBonusSpells(spellExtension);
-				if(spellExtension.getCasterType() != CasterType.None)
-					casterType.set(CasterType.None);
-				if(spellExtension.getTradition() != null)
-					tradition.set(null);
-				if(spellExtension.getCastingAbilityScore() != AbilityScore.None)
-					castingAbilityScore.set(AbilityScore.None);
+			for (Map.Entry<Integer, Integer> entry : spellExtension.getExtraSpellsKnown().entrySet()) {
+				addKnown(entry.getKey(), entry.getValue());
 			}
-		});
+			addBonusSpells(spellExtension);
+			if(spellExtension.getCasterType() != CasterType.None)
+				casterType.set(spellExtension.getCasterType());
+			if(spellExtension.getTradition() != null)
+				tradition.set(spellExtension.getTradition());
+			if(spellExtension.getCastingAbilityScore() != AbilityScore.None)
+				castingAbilityScore.set(spellExtension.getCastingAbilityScore());
+
+		}
+	}
+
+	void remove(Ability ability) {
+		SpellExtension spellExtension = ability.getExtension(SpellExtension.class);
+		if(spellExtension != null){
+			for (Map.Entry<Integer, Integer> entry : spellExtension.getSpellSlots().entrySet()) {
+				removeSlots(entry.getKey(), entry.getValue());
+			}
+			for (Map.Entry<Integer, Integer> entry : spellExtension.getExtraSpellsKnown().entrySet()) {
+				removeKnown(entry.getKey(), entry.getValue());
+			}
+			removeBonusSpells(spellExtension);
+			if(spellExtension.getCasterType() != CasterType.None)
+				casterType.set(CasterType.None);
+			if(spellExtension.getTradition() != null)
+				tradition.set(null);
+			if(spellExtension.getCastingAbilityScore() != AbilityScore.None)
+				castingAbilityScore.set(AbilityScore.None);
+		}
 	}
 
 	private void addBonusSpells(SpellExtension spellExtension) {
@@ -199,12 +204,6 @@ public class SpellManager {
 		return true;
 	}
 
-	public void reset() {
-		for(int i=0; i <= 10; i++) {
-			spellsKnown.get(i).clear();
-		}
-	}
-
 	public ReadOnlyObjectProperty<Tradition> getTradition() {
 		return tradition.getReadOnlyProperty();
 	}
@@ -243,5 +242,16 @@ public class SpellManager {
 
 	public ReadOnlyObjectProperty<AbilityScore> getCastingAbility() {
 		return castingAbilityScore.getReadOnlyProperty();
+	}
+
+	@Override
+	public void reset(PC.ResetEvent resetEvent) {
+		for(int i=0; i <= 10; i++) {
+			spellsKnown.get(i).clear();
+		}
+	}
+
+	public String getIndex() {
+		return index;
 	}
 }

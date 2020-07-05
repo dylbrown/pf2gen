@@ -82,7 +82,12 @@ public class SingleAttributeManager {
     }
 
     Set<String> getDataStrings() {
-        TreeSet<String> strings = new TreeSet<>(proficiencies.keySet());
+        TreeSet<String> strings = new TreeSet<>();
+        for (String s : proficiencies.keySet()) {
+            if(s != null)
+                strings.add(s);
+        }
+
         strings.removeIf(s->getProficiency(s).getValue().equals(Proficiency.Untrained));
         return strings;
     }

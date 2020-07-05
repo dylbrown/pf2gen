@@ -36,9 +36,8 @@ public class PC {
     private final PropertyChangeSupport ancestryWatcher = new PropertyChangeSupport(ancestry);
     private final Applier applier = new Applier();
     private ReadOnlyObjectWrapper<Alignment> alignment = new ReadOnlyObjectWrapper<>();
-    private final GroovyModManager modManager;
     private final DecisionManager decisions = new DecisionManager();
-    private final SpellManager spells = new SpellManager(applier);
+    private final SpellListManager spells = new SpellListManager(applier);
     private final AbilityManager abilities = new AbilityManager(decisions, getAncestryProperty(),
             getPClassProperty(), applier, this::meetsPrerequisites);
     private final AbilityScoreManager scores = new AbilityScoreManager(applier, ()->{
@@ -49,17 +48,19 @@ public class PC {
                 ((AbilityModChoice) abilityMod).getChoices().size() > 0)
                 return ((AbilityModChoice) abilityMod).getChoices().get(0);
         return abilityMod.getTarget();
-    }, ()-> spells.getCastingAbility().get());
+    }, (data)-> spells.getSpellList(data).getCastingAbility().get());
     private final CustomGetter customGetter = new CustomGetter(this);
     private final AttributeManager attributes =
             new AttributeManager(customGetter, level.getReadOnlyProperty(), decisions, applier);
     private final InventoryManager inventory = new InventoryManager(attributes);
     private final QualityManager qualities = new QualityManager(decisions::add, decisions::remove);
     private final CombatManager combat = new CombatManager(scores, attributes, inventory, levelProperty());
-
-    {
-        modManager = new GroovyModManager(customGetter, attributes, decisions, combat, spells, deity.getReadOnlyProperty(), level.getReadOnlyProperty(), applier);
-    }
+    private final GroovyModManager modManager =
+            new GroovyModManager(customGetter, attributes, decisions, combat,
+                    spells, deity.getReadOnlyProperty(), level.getReadOnlyProperty(), applier);
+    private final PlayerState[] stateManagers = new PlayerState[]{
+                decisions, spells, abilities, scores, attributes, inventory, qualities, combat, modManager
+        };
 
     public PC() {
         scores.getScoreEyeball(Int).addPropertyChangeListener(((o) -> {
@@ -194,7 +195,7 @@ public class PC {
         int acp = 0;
         if(attribute.hasACP() && combat.getArmor().getStrength() > scores.getScore(Str))
             acp -= combat.getArmor().getACP();
-        return scores.getMod(attribute.getKeyAbility())
+        return scores.getMod(attribute.getKeyAbility(), data)
                 + attributes.getProficiency(attribute, data).getValue().getMod(level.get())
                 + attributes.getBonus(attribute) + acp;
     }
@@ -224,10 +225,12 @@ public class PC {
 outerLoop:  for (String orClause : split) {
                 if(orClause.matches("Spell\\(.*\\)")) {
                     String spellName = orClause.replaceAll("Spell\\((.*)\\)", "\\1");
-                    for (Spell focusSpell : spells().getFocusSpells()) {
-                        if(focusSpell.getName().equals(spellName)) {
-                            found = true;
-                            break outerLoop;
+                    for (SpellList spellList : spells.getSpellLists().values()) {
+                        for (Spell focusSpell : spellList.getFocusSpells()) {
+                            if(focusSpell.getName().equals(spellName)) {
+                                found = true;
+                                break outerLoop;
+                            }
                         }
                     }
                 }else {
@@ -300,7 +303,7 @@ outerLoop:  for (String orClause : split) {
         return decisions;
     }
 
-    public SpellManager spells() {return spells;}
+    public SpellListManager spells() {return spells;}
 
     GroovyModManager mods() {
         return modManager;
@@ -315,14 +318,20 @@ outerLoop:  for (String orClause : split) {
         setAncestry(Ancestry.NO_ANCESTRY);
         setBackground(Background.NO_BACKGROUND);
         setPClass(PClass.NO_CLASS);
-
-        abilities.reset();
         deity.set(Deity.NO_DEITY);
-        attributes.resetSkills();
-        combat.reset();
-        inventory.reset();
-        scores.reset();
-        spells.reset();
-        qualities.reset();
+        ResetEvent resetEvent = new ResetEvent();
+        for (PlayerState stateManager : stateManagers) {
+            stateManager.reset(resetEvent);
+        }
+        resetEvent.active = false;
+    }
+
+    public static class ResetEvent {
+        private boolean active = true;
+        private ResetEvent() {}
+
+        public boolean isActive() {
+            return active;
+        }
     }
 }

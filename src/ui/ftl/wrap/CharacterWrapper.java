@@ -46,7 +46,7 @@ public class CharacterWrapper implements TemplateHashModel {
         if(!map.containsKey("heritage"))
             map.put("heritage", "No Heritage");
 
-        map.put("attributes", getAttributeMap());
+        map.put("attributes", character.attributes());
         map.put("attacks", character.combat().getAttacks().stream()
                 .map((o)->new ItemCountWrapper(new ItemCount(o, 1), wrapper)).collect(Collectors.toList()));
 
@@ -78,19 +78,6 @@ public class CharacterWrapper implements TemplateHashModel {
         map.put("spells", character.spells());
     }
 
-    private Map<String, AttributeEntry> getAttributeMap() {
-        Map<String, AttributeEntry> map = new HashMap<>();
-        for (Attribute value : Attribute.values()) {
-            map.put(value.toString().toLowerCase(), new AttributeEntry(value, "",
-                    character.attributes().getProficiency(value, ""),
-                    character.levelProperty(),
-                    wrapper));
-        }
-
-
-        return map;
-    }
-
     private List<AttributeEntry> getSkills() {
         List<AttributeEntry> entries = new ArrayList<>();
         for (Attribute value : Attribute.getSkills()) {
@@ -113,7 +100,6 @@ public class CharacterWrapper implements TemplateHashModel {
     public void refresh() {
         updateAbilities();
         //TODO: Replace this with something listener-based
-        map.put("attributes", getAttributeMap());
         map.put("inventory", character.inventory().getItems().values());
         map.put("heritage", "No Heritage");
         for (Ability ability : character.abilities().getAbilities()) {

@@ -18,6 +18,7 @@ import model.equipment.Equipment;
 import model.equipment.ItemCount;
 import model.equipment.runes.Rune;
 import model.equipment.runes.runedItems.RunedEquipment;
+import model.player.SpellList;
 import model.spells.Spell;
 import model.util.Pair;
 import model.util.StringUtils;
@@ -125,13 +126,16 @@ public class SaveLoadManager {
 
             //Spells
             writeOutLine(out, "Spells Known");
-            int i = 0;
-            for (ObservableList<Spell> spells : character.spells().getSpellsKnown()) {
-                writeOutLine(out, " - Level "+i);
-                for (Spell spell : spells) {
-                    writeOutLine(out, "   - "+ spell.getName());
+            for (Map.Entry<String, SpellList> entry : character.spells().getSpellLists().entrySet()) {
+                writeOutLine(out, " - " + entry.getKey());
+                int i = 0;
+                for (ObservableList<Spell> spells : entry.getValue().getSpellsKnown()) {
+                    writeOutLine(out, "   - Level "+i);
+                    for (Spell spell : spells) {
+                        writeOutLine(out, "   - "+ spell.getName());
+                    }
+                    i++;
                 }
-                i++;
             }
 
 
@@ -350,21 +354,27 @@ public class SaveLoadManager {
 
             //Spells
             lines.second++; // Skip Section Header
-            for(int i=0; i<=10; i++){
-                lines.second++;
-                while(true) {
-                    String s;
-                    try { s = nextLine(lines); }
-                    catch(RuntimeException e) { break; }
-                    if(!s.startsWith("   - ")) {
-                        lines.second--;
-                        break;
+            String spellListName = nextLine(lines);
+            while (spellListName.startsWith(" - ")) {
+                spellListName = spellListName.substring(3);
+                SpellList spellList = character.spells().getSpellList(spellListName);
+                if(spellList == null) continue;
+                for(int i=0; i<=10; i++){
+                    lines.second++;
+                    while(true) {
+                        String s;
+                        try { s = nextLine(lines); }
+                        catch(RuntimeException e) { break; }
+                        if(!s.startsWith("     - ")) {
+                            lines.second--;
+                            break;
+                        }
+                        spellList.addSpell(SourcesLoader.instance().spells()
+                                .find(s.substring(5)));
                     }
-                    character.spells().addSpell(SourcesLoader.instance().spells()
-                            .find(s.substring(5)));
                 }
+                spellListName = nextLine(lines);
             }
-
             System.out.println(System.currentTimeMillis()-start+" ms");
         }
     }

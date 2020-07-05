@@ -16,9 +16,11 @@ import ui.controls.FeatSelectionPane;
 import ui.controls.SelectionPane;
 import ui.controls.lists.DecisionsList;
 import ui.controls.lists.entries.DecisionEntry;
+import ui.html.HTMLGenerator;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 @SuppressWarnings("rawtypes")
 public class DecisionsController {
@@ -38,13 +40,14 @@ public class DecisionsController {
         decisionsPaneContainer.setCenter(decisionsList);
     }
 
-    private void setChoices(TreeItem<DecisionEntry> treeItem) {
-        if(treeItem == null) return;
+    private Choice<?> setChoices(TreeItem<DecisionEntry> treeItem) {
+        if(treeItem == null) return null;
         DecisionEntry entry = treeItem.getValue();
         Choice<?> choice = entry.getChoice();
         if(choice == null) {
-            setChoices(treeItem.getParent());
-            return;
+            choice = setChoices(treeItem.getParent());
+            setDisplay(choice, entry.getChosenValue());
+            return choice;
         }
         Node node = nodes.get(choice);
         if(node == null) {
@@ -60,5 +63,16 @@ public class DecisionsController {
             nodes.put(choice, node);
         }
         choicesContainer.setCenter(node);
+
+        return choice;
+    }
+
+    private <T> void setDisplay(Choice<T> choice, Object chosenValue) {
+        Function<T, String> generator = HTMLGenerator.getGenerator(choice.getOptionsClass());
+        if(chosenValue != null) {
+            display.getEngine().loadContent(
+                    generator.apply(choice.getOptionsClass().cast(chosenValue))
+            );
+        }
     }
 }

@@ -21,7 +21,7 @@ import model.util.Pair;
 import model.util.Watcher;
 
 @SuppressWarnings("rawtypes")
-public class InventoryManager {
+public class InventoryManager implements PlayerState {
     static final Double INITIAL_AMOUNT = 150.0;
     private final ReadOnlyObjectWrapper<Double> money= new ReadOnlyObjectWrapper<>(INITIAL_AMOUNT);
     private final ObservableMap<Equipment, ItemCount> inventory = FXCollections.observableHashMap();
@@ -214,14 +214,6 @@ public class InventoryManager {
         return carriedUnmod;
     }
 
-    public void reset() {
-        money.set(INITIAL_AMOUNT);
-        equipped.clear();
-        unequipped.clear();
-        inventory.clear();
-        totalWeight = 0;
-    }
-
     @SuppressWarnings("WeakerAccess")
     public double getTotalWeight() {
         return totalWeight;
@@ -320,5 +312,15 @@ public class InventoryManager {
             }
         }
         return false;
+    }
+
+    @Override
+    public void reset(PC.ResetEvent resetEvent) {
+        if(!resetEvent.isActive()) return;
+        money.set(INITIAL_AMOUNT);
+        equipped.clear();
+        unequipped.clear();
+        inventory.clear();
+        totalWeight = 0;
     }
 }

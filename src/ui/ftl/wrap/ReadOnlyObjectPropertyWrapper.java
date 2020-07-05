@@ -13,6 +13,8 @@ public class ReadOnlyObjectPropertyWrapper implements TemplateScalarModel {
     }
     @Override
     public String getAsString() {
+        if(property.get() == null)
+            return "";
         return property.get().toString();
     }
 }
