@@ -132,7 +132,7 @@ public class SaveLoadManager {
                 for (ObservableList<Spell> spells : entry.getValue().getSpellsKnown()) {
                     writeOutLine(out, "   - Level "+i);
                     for (Spell spell : spells) {
-                        writeOutLine(out, "   - "+ spell.getName());
+                        writeOutLine(out, "     - "+ spell.getName());
                     }
                     i++;
                 }
@@ -356,7 +356,9 @@ public class SaveLoadManager {
             lines.second++; // Skip Section Header
             String spellListName = nextLine(lines);
             while (spellListName.startsWith(" - ")) {
-                spellListName = spellListName.substring(3);
+                boolean legacy = spellListName.contains("0");
+                String spellString = (!legacy) ? "     - " : "   - ";
+                spellListName = (!legacy) ? spellListName.substring(3) : character.getPClass().getName();
                 SpellList spellList = character.spells().getSpellList(spellListName);
                 if(spellList == null) continue;
                 for(int i=0; i<=10; i++){
@@ -365,14 +367,16 @@ public class SaveLoadManager {
                         String s;
                         try { s = nextLine(lines); }
                         catch(RuntimeException e) { break; }
-                        if(!s.startsWith("     - ")) {
+                        if(!s.startsWith(spellString)) {
                             lines.second--;
                             break;
                         }
                         spellList.addSpell(SourcesLoader.instance().spells()
-                                .find(s.substring(5)));
+                                .find(s.substring(spellString.length())));
                     }
                 }
+                if(lines.second == lines.first.size())
+                    break;
                 spellListName = nextLine(lines);
             }
             System.out.println(System.currentTimeMillis()-start+" ms");
