@@ -218,7 +218,7 @@ public class EquipmentLoader extends FileLoader<Equipment> {
                     .forEachOrdered(builder::addBonus);
                 break;
             case "Ability":
-                builder.addAbility(abilityLoader.makeAbility(curr));
+                builder.addAbility(abilityLoader.makeAbility(curr).build());
                 break;
         }
     }

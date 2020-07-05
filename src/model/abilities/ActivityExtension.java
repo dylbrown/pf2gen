@@ -26,6 +26,11 @@ public class ActivityExtension extends AbilityExtension {
 
         Builder() {}
 
+        public Builder(Builder other) {
+            this.cost = other.cost;
+            this.trigger = other.trigger;
+        }
+
         public void setCost(Action cost) {
             this.cost = cost;
         }

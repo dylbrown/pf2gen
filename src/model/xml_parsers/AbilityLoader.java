@@ -43,7 +43,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
    protected static Map<Class<? extends AbilityLoader<?>>, Function<Element, Type>> sources = new HashMap<>();
 
     private ReadOnlyStringWrapper spellListName;
-    private Map<String, ReadOnlyStringWrapper> archetypeSpellListNames = new HashMap<>();
+    private final Map<String, ReadOnlyStringWrapper> archetypeSpellListNames = new HashMap<>();
 
     @Override
     protected void clearAccumulators() {
@@ -57,14 +57,14 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
             if(!(nodes.item(i) instanceof Element)) continue;
             Element item = (Element) nodes.item(i);
             if(!item.getTagName().matches("Ability(Set)?")) continue;
-            Ability ability = makeAbility(item, item.getAttribute("name"));
+            Ability ability = makeAbility(item, item.getAttribute("name")).build();
             if(ability != null)
                 choices.add(ability);
         }
         return choices;
     }
 
-    protected static List<String> getTypes(String string) {
+    public static List<String> getTypes(String string) {
         List<String> results = new ArrayList<>();
         String[] split = string.trim().split(" ");
         for(String term: split) {
@@ -73,176 +73,185 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         }
         return results;
     }
-    protected Ability makeAbility(Element element, String name) {
+    protected Ability.Builder makeAbility(Element element, String name) {
         return makeAbility(element, name, 1);
     }
 
-    protected Ability makeAbility(Element element, String name, int level) {
-        if(element.getTagName().contains("Ability")) {
-            Ability.Builder builder = new Ability.Builder();
-            if(!element.getAttribute("cost").equals("")) {
-                builder.getExtension(ActivityExtension.Builder.class)
-                        .setCost(Action.robustValueOf(element.getAttribute("cost")));
-            }else builder = new Ability.Builder();
-            builder.setName(name);
-            if(!element.getAttribute("page").equals(""))
-                builder.setPageNo(Integer.parseInt(element.getAttribute("page")));
-            if(!element.getAttribute("level").equals("")) {
-                builder.setLevel(Integer.parseInt(element.getAttribute("level")));
-            }else builder.setLevel(level);
-            String increase = element.getAttribute("skillIncrease");
-            if(!increase.equals("")){
-                if(increase.equals("true")) builder.setSkillIncreases(1);
-                else builder.setSkillIncreases(Integer.parseInt(increase));
+    protected Ability.Builder makeAbility(Element element, String name, int level) {
+        Ability.Builder builder;
+        // Load a template
+        Node firstChild = element.getFirstChild();
+        if(firstChild != null) {
+            while(firstChild.getNodeType() != Node.ELEMENT_NODE) {
+                firstChild = firstChild.getNextSibling();
             }
-            if(!element.getAttribute("abilityBoosts").trim().equals("")) {
-                int count = Integer.parseInt(element.getAttribute("abilityBoosts"));
-                builder.setBoosts(getBoosts(count, level));
-            }
-            if(element.getAttribute("multiple").equals("true"))
-                builder.setMultiple(true);
-            for (int i = 0; i < element.getChildNodes().getLength(); i++) {
-                Node item = element.getChildNodes().item(i);
-                if (item.getNodeType() != Node.ELEMENT_NODE)
-                    continue;
-                Element propElem = (Element) item;
-                String trim = propElem.getTextContent().trim();
-                switch (propElem.getTagName()) {
-                    case "Archetype":
-                        builder.getExtension(ArchetypeExtension.Builder.class).setArchetype(trim);
-                        break;
-                    case "Trigger":
-                        builder.getExtension(ActivityExtension.Builder.class).setTrigger(trim);
-                        break;
-                    case "AttributeMods":
-                        Proficiency prof = Proficiency.valueOf(camelCaseWord(propElem.getAttribute("Proficiency").trim()));
-                        builder.addAllMods(addMods(trim, prof));
-                        break;
-                    case "Description":
-                        builder.setDescription(trim);
-                        break;
-                    case "Prerequisites":
-                        builder.setPrerequisites(Arrays.asList(trim.split(", ?")));
-                        break;
-                    case "PrereqStrings":
-                        builder.setPrereqStrings(Arrays.asList(trim.split(", ?")));
-                        break;
-                    case "GivesPrerequisites":
-                        builder.setGivesPrerequisites(Arrays.asList(trim.split(", ?")));
-                        break;
-                    case "Requirements":
-                        builder.setRequirements(trim);
-                        break;
-                    case "Requires":
-                        if(trim.matches(".*\\d.*"))
-                            break;
-                        builder.setRequiredAttrs(Arrays.stream(trim.split(",")).map((str)->{
-                            String[] split = str.split(" [iI]n ");
-                            Proficiency reqProf = Proficiency.valueOf(camelCaseWord(split[0].trim()));
-                            if(camelCaseWord(split[1].trim().substring(0, 4)).equals("Lore")) {
-                                String data = camelCase(str.trim().substring(4).trim().replaceAll("[()]", ""));
-                                return new AttributeMod(Attribute.Lore, reqProf, data);
-                            }else{
-                                return new AttributeMod(Attribute.robustValueOf(camelCase(split[1].trim())), reqProf);
-                            }
-                        }).collect(Collectors.toCollection(ArrayList::new)));
-                        break;
-                    case "Weapon":
-                        builder.getExtension(AttackExtension.Builder.class)
-                                .addWeapon(WeaponsLoader.getWeapon(propElem));
-                        break;
-                    case "CustomMod":
-                        builder.setCustomMod(trim);
-                        break;
-                    case "Spellcasting":
-                        SpellExtension.Builder spellExt = builder.getExtension(SpellExtension.Builder.class);
-                        String spellListName = propElem.getAttribute("listName");
-                        String type = propElem.getAttribute("type");
-                        String tradition = propElem.getAttribute("tradition");
-                        String ability = propElem.getAttribute("ability");
-                        if(spellListName != null)
-                            spellExt.setSpellListName(spellListName);
-                        else System.out.println("Warning: missing spellListName");
-                        if(type != null && !type.toLowerCase().equals("") && !type.toLowerCase().equals("focusonly"))
-                            spellExt.setCasterType(CasterType.valueOf(propElem.getAttribute("type")));
-                        if(tradition != null && !tradition.equals(""))
-                            spellExt.setTradition(Tradition.valueOf(tradition));
-                        if(ability != null && !ability.equals(""))
-                            spellExt.setCastingAbility(AbilityScore.robustValueOf(ability));
-                        break;
-                    case "SpellSlots":
-                        builder.getExtension(SpellExtension.Builder.class)
-                                .addSpellSlots(Integer.parseInt(propElem.getAttribute("level")),
-                                Integer.parseInt(propElem.getAttribute("count")));
-                        break;
-                    case "SpellsKnown":
-                        builder.getExtension(SpellExtension.Builder.class)
-                                .addExtraSpellKnown(Integer.parseInt(propElem.getAttribute("level")),
-                                Integer.parseInt(propElem.getAttribute("count")));
-                        break;
-                    case "Spell":
-                        SpellType spellType = null;
-                        switch(propElem.getAttribute("type")) {
-                            case "Spell": spellType = SpellType.Spell; break;
-                            case "Cantrip": spellType = SpellType.Cantrip; break;
-                            case "Focus": spellType = SpellType.Focus; break;
-                            case "Focus Cantrip": spellType = SpellType.FocusCantrip; break;
-                        }
-                        builder.getExtension(SpellExtension.Builder.class)
-                                .addBonusSpell(spellType, SourcesLoader.instance()
-                                .spells().find(propElem.getAttribute("name")));
-                        break;
-                    case "AbilitySlot":
-                        builder.addAbilitySlot(makeAbilitySlot(propElem, level));
-                        break;
-                    case "Traits":
-                        for (String s : trim.split(" ?, ?")) {
-                            Trait trait = Trait.valueOf(camelCaseWord(s.trim()));
-                            builder.addTraits(trait);
-                            if(trait == Trait.Dedication)
-                                builder.getExtension(ArchetypeExtension.Builder.class)
-                                        .setDedication(true);
-                        }
-                }
-            }
-            builder.setType(sources.get(this.getClass()).apply(element));
-            if(element.getTagName().equals("AbilitySet")){
-                builder.getExtension(AbilitySetExtension.Builder.class)
-                        .setAbilities(makeAbilities(element.getChildNodes()));
-            }
-            if(builder.hasExtension(SpellExtension.Builder.class)) {
-                SpellExtension.Builder spells = builder.getExtension(SpellExtension.Builder.class);
-                if(spells.getListName() == null || spells.getListName().equals("")) {
-                    if(builder.hasExtension(ArchetypeExtension.Builder.class)) {
-                        ArchetypeExtension.Builder archetype = builder.getExtension(ArchetypeExtension.Builder.class);
-                        ReadOnlyStringProperty readOnlyProperty = archetypeSpellListNames
-                                .computeIfAbsent(archetype.getArchetype(), s -> new ReadOnlyStringWrapper())
-                                .getReadOnlyProperty();
-                        if(readOnlyProperty.get() == null || readOnlyProperty.get().equals(""))
-                            spells.setSpellListName(readOnlyProperty);
-                        else
-                            spells.setSpellListName(readOnlyProperty.get());
-                    } else {
-                        ReadOnlyStringProperty readOnlyProperty = spellListName.getReadOnlyProperty();
-                        if(readOnlyProperty.get() == null || readOnlyProperty.get().equals(""))
-                            spells.setSpellListName(readOnlyProperty);
-                        else
-                            spells.setSpellListName(readOnlyProperty.get());
-                    }
-                } else {
-                    if(builder.hasExtension(ArchetypeExtension.Builder.class)) {
-                        ArchetypeExtension.Builder archetype = builder.getExtension(ArchetypeExtension.Builder.class);
-                        archetypeSpellListNames
-                                .computeIfAbsent(archetype.getArchetype(), s->new ReadOnlyStringWrapper())
-                                .set(spells.getListName());
-                    } else {
-                        spellListName.set(spells.getListName());
-                    }
-                }
-            }
-            return builder.build();
+            if(((Element) firstChild).getTagName().equals("Template"))
+                builder = SourcesLoader.instance().templates().find(firstChild.getTextContent().trim()).get();
+            else builder = new Ability.Builder();
+        } else builder = new Ability.Builder();
+        if(!element.getAttribute("cost").equals("")) {
+            builder.getExtension(ActivityExtension.Builder.class)
+                    .setCost(Action.robustValueOf(element.getAttribute("cost")));
         }
-        return null;
+        builder.setName(name);
+        if(!element.getAttribute("page").equals(""))
+            builder.setPageNo(Integer.parseInt(element.getAttribute("page")));
+        if(!element.getAttribute("level").equals("")) {
+            builder.setLevel(Integer.parseInt(element.getAttribute("level")));
+        }else builder.setLevel(level);
+        String increase = element.getAttribute("skillIncrease");
+        if(!increase.equals("")){
+            if(increase.equals("true")) builder.setSkillIncreases(1);
+            else builder.setSkillIncreases(Integer.parseInt(increase));
+        }
+        if(!element.getAttribute("abilityBoosts").trim().equals("")) {
+            int count = Integer.parseInt(element.getAttribute("abilityBoosts"));
+            builder.setBoosts(getBoosts(count, level));
+        }
+        if(element.getAttribute("multiple").equals("true"))
+            builder.setMultiple(true);
+        for (int i = 0; i < element.getChildNodes().getLength(); i++) {
+            Node item = element.getChildNodes().item(i);
+            if (item.getNodeType() != Node.ELEMENT_NODE)
+                continue;
+            Element propElem = (Element) item;
+            String trim = propElem.getTextContent().trim();
+            switch (propElem.getTagName()) {
+                case "Archetype":
+                    builder.getExtension(ArchetypeExtension.Builder.class).setArchetype(trim);
+                    break;
+                case "Trigger":
+                    builder.getExtension(ActivityExtension.Builder.class).setTrigger(trim);
+                    break;
+                case "AttributeMods":
+                    Proficiency prof = Proficiency.valueOf(camelCaseWord(propElem.getAttribute("Proficiency").trim()));
+                    builder.addAllMods(addMods(trim, prof));
+                    break;
+                case "Description":
+                    builder.setDescription(trim);
+                    break;
+                case "Prerequisites":
+                    builder.setPrerequisites(Arrays.asList(trim.split(", ?")));
+                    break;
+                case "PrereqStrings":
+                    builder.setPrereqStrings(Arrays.asList(trim.split(", ?")));
+                    break;
+                case "GivesPrerequisites":
+                    builder.setGivesPrerequisites(Arrays.asList(trim.split(", ?")));
+                    break;
+                case "Requirements":
+                    builder.setRequirements(trim);
+                    break;
+                case "Requires":
+                    if(trim.matches(".*\\d.*"))
+                        break;
+                    builder.setRequiredAttrs(Arrays.stream(trim.split(",")).map((str)->{
+                        String[] split = str.split(" [iI]n ");
+                        Proficiency reqProf = Proficiency.valueOf(camelCaseWord(split[0].trim()));
+                        if(camelCaseWord(split[1].trim().substring(0, 4)).equals("Lore")) {
+                            String data = camelCase(str.trim().substring(4).trim().replaceAll("[()]", ""));
+                            return new AttributeMod(Attribute.Lore, reqProf, data);
+                        }else{
+                            return new AttributeMod(Attribute.robustValueOf(camelCase(split[1].trim())), reqProf);
+                        }
+                    }).collect(Collectors.toCollection(ArrayList::new)));
+                    break;
+                case "Weapon":
+                    builder.getExtension(AttackExtension.Builder.class)
+                            .addWeapon(WeaponsLoader.getWeapon(propElem));
+                    break;
+                case "CustomMod":
+                    builder.setCustomMod(trim);
+                    break;
+                case "Spellcasting":
+                    SpellExtension.Builder spellExt = builder.getExtension(SpellExtension.Builder.class);
+                    String spellListName = propElem.getAttribute("listName");
+                    String type = propElem.getAttribute("type");
+                    String tradition = propElem.getAttribute("tradition");
+                    String ability = propElem.getAttribute("ability");
+                    if(spellListName != null)
+                        spellExt.setSpellListName(spellListName);
+                    else System.out.println("Warning: missing spellListName");
+                    if(type != null && !type.toLowerCase().equals("") && !type.toLowerCase().equals("focusonly"))
+                        spellExt.setCasterType(CasterType.valueOf(propElem.getAttribute("type")));
+                    if(tradition != null && !tradition.equals(""))
+                        spellExt.setTradition(Tradition.valueOf(tradition));
+                    if(ability != null && !ability.equals(""))
+                        spellExt.setCastingAbility(AbilityScore.robustValueOf(ability));
+                    break;
+                case "SpellSlots":
+                    builder.getExtension(SpellExtension.Builder.class)
+                            .addSpellSlots(Integer.parseInt(propElem.getAttribute("level")),
+                            Integer.parseInt(propElem.getAttribute("count")));
+                    break;
+                case "SpellsKnown":
+                    builder.getExtension(SpellExtension.Builder.class)
+                            .addExtraSpellKnown(Integer.parseInt(propElem.getAttribute("level")),
+                            Integer.parseInt(propElem.getAttribute("count")));
+                    break;
+                case "Spell":
+                    SpellType spellType = null;
+                    switch(propElem.getAttribute("type")) {
+                        case "Spell": spellType = SpellType.Spell; break;
+                        case "Cantrip": spellType = SpellType.Cantrip; break;
+                        case "Focus": spellType = SpellType.Focus; break;
+                        case "Focus Cantrip": spellType = SpellType.FocusCantrip; break;
+                    }
+                    builder.getExtension(SpellExtension.Builder.class)
+                            .addBonusSpell(spellType, SourcesLoader.instance()
+                            .spells().find(propElem.getAttribute("name")));
+                    break;
+                case "AbilitySlot":
+                    builder.addAbilitySlot(makeAbilitySlot(propElem, level));
+                    break;
+                case "Traits":
+                    for (String s : trim.split(" ?, ?")) {
+                        Trait trait = Trait.valueOf(camelCaseWord(s.trim()));
+                        builder.addTraits(trait);
+                        if(trait == Trait.Dedication)
+                            builder.getExtension(ArchetypeExtension.Builder.class)
+                                    .setDedication(true);
+                    }
+            }
+        }
+        Function<Element, Type> function = sources.get(this.getClass());
+        if(function != null)
+            builder.setType(function.apply(element));
+        if(element.getTagName().equals("AbilitySet")){
+            builder.getExtension(AbilitySetExtension.Builder.class)
+                    .setAbilities(makeAbilities(element.getChildNodes()));
+        }
+        if(builder.hasExtension(SpellExtension.Builder.class)) {
+            SpellExtension.Builder spells = builder.getExtension(SpellExtension.Builder.class);
+            if(spells.getListName() == null || spells.getListName().equals("")) {
+                if(builder.hasExtension(ArchetypeExtension.Builder.class)) {
+                    ArchetypeExtension.Builder archetype = builder.getExtension(ArchetypeExtension.Builder.class);
+                    ReadOnlyStringProperty readOnlyProperty = archetypeSpellListNames
+                            .computeIfAbsent(archetype.getArchetype(), s -> new ReadOnlyStringWrapper())
+                            .getReadOnlyProperty();
+                    if(readOnlyProperty.get() == null || readOnlyProperty.get().equals(""))
+                        spells.setSpellListName(readOnlyProperty);
+                    else
+                        spells.setSpellListName(readOnlyProperty.get());
+                } else {
+                    ReadOnlyStringProperty readOnlyProperty = spellListName.getReadOnlyProperty();
+                    if(readOnlyProperty.get() == null || readOnlyProperty.get().equals(""))
+                        spells.setSpellListName(readOnlyProperty);
+                    else
+                        spells.setSpellListName(readOnlyProperty.get());
+                }
+            } else {
+                if(builder.hasExtension(ArchetypeExtension.Builder.class)) {
+                    ArchetypeExtension.Builder archetype = builder.getExtension(ArchetypeExtension.Builder.class);
+                    archetypeSpellListNames
+                            .computeIfAbsent(archetype.getArchetype(), s->new ReadOnlyStringWrapper())
+                            .set(spells.getListName());
+                } else {
+                    spellListName.set(spells.getListName());
+                }
+            }
+        }
+        return builder;
     }
 
     AbilitySlot makeAbilitySlot(Element propElem, int level) {
@@ -256,7 +265,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                 if(ability.getLength() > 0) {
                     Element temp = (Element) ability.item(0);
                     return new FilledSlot(abilityName,
-                            slotLevel, makeAbility(temp, abilityName, level));
+                            slotLevel, makeAbility(temp, abilityName, level).build());
                 }else{
                     String type = propElem.getAttribute("type");
                     if(type.equals("")) type = "General";
@@ -312,7 +321,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         return mods;
     }
 
-    public Ability makeAbility(Element curr) {
+    public Ability.Builder makeAbility(Element curr) {
         String level = curr.getAttribute("level");
         return makeAbility(curr, curr.getAttribute("name"), (level.isBlank()) ? 0 : Integer.parseInt(level));
     }

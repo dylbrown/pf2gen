@@ -67,10 +67,10 @@ public class AncestriesLoader extends ACLoader<Ancestry, Ancestry.Builder> {
                     if(featNodes.item(j) instanceof Element)
                         if (((Element) featNodes.item(j)).getAttribute("type").trim().toLowerCase().equals("heritage")) {
                             builder.addHeritage(makeAbility((Element) featNodes.item(j),
-                                    ((Element) featNodes.item(j)).getAttribute("name")));
+                                    ((Element) featNodes.item(j)).getAttribute("name")).build());
                         } else {
                             builder.addFeat(makeAbility((Element) featNodes.item(j),
-                                    ((Element) featNodes.item(j)).getAttribute("name")));
+                                    ((Element) featNodes.item(j)).getAttribute("name")).build());
                         }
                 }
                 break;

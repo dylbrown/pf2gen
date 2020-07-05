@@ -6,11 +6,11 @@ import model.xml_parsers.FileLoader;
 import java.util.*;
 
 public class MultiSourceLoader<T> {
-    private final NavigableMap<String, T> allItems = new TreeMap<>();
-    private final NavigableMap<String, NavigableMap<String, T>> categorizedItems = new TreeMap<>();
+    protected final NavigableMap<String, T> allItems = new TreeMap<>();
+    protected final NavigableMap<String, NavigableMap<String, T>> categorizedItems = new TreeMap<>();
     protected final List<? extends FileLoader<T>> loaders;
-    private Set<String> categories;
-    private boolean notLoaded = true;
+    protected Set<String> categories;
+    protected boolean notLoaded = true;
 
     public MultiSourceLoader(List<? extends FileLoader<T>> loaders) {
         this.loaders = loaders;

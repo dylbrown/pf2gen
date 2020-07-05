@@ -21,6 +21,10 @@ public class AttackExtension extends AbilityExtension {
 	public static class Builder extends AbilityExtension.Builder {
 		private List<Weapon> weapons = Collections.emptyList();
 
+		public Builder(Builder other) {
+			this.weapons = new ArrayList<>(other.weapons);
+		}
+
 		Builder() {}
 
 		public void addWeapon(Weapon weapon) {

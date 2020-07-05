@@ -11,6 +11,11 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import model.WeaponGroupMod;
 import model.WeaponMod;
+import model.abilities.Ability;
+import model.abilities.ArchetypeExtension;
+import model.abilities.SpellExtension;
+import model.ability_slots.AbilitySlot;
+import model.ability_slots.FeatSlot;
 import model.attributes.Attribute;
 import model.attributes.AttributeMod;
 import model.data_managers.sources.MultiSourceLoader;
@@ -20,6 +25,7 @@ import model.equipment.weapons.Damage;
 import model.equipment.weapons.WeaponGroup;
 import model.spells.Spell;
 import model.util.StringUtils;
+import model.xml_parsers.AbilityLoader;
 import org.codehaus.groovy.runtime.MethodClosure;
 import setting.Deity;
 import setting.Domain;
@@ -35,16 +41,18 @@ public class GroovyModManager implements PlayerState {
     private final Binding bindings = new Binding();
     private final GroovyShell shell = new GroovyShell(bindings);
     private final BooleanProperty applying = new SimpleBooleanProperty(true);
+    private final Map<String, AbilitySlot> slots = new HashMap<>();
     private final Map<String, ArbitraryChoice<Object>> arbitraryChoices = new HashMap<>();
     private final Map<String, List<Object>> choices = new HashMap<>();
     private final GroovyCommands commands;
-    private final List<String> activeMods = new ArrayList<>();
+    private final Set<Ability> activeMods = new HashSet<>();
     private final AttributeManager attributes;
     private final DecisionManager decisions;
     private final CombatManager combat;
     private final SpellListManager spells;
     private final ReadOnlyObjectProperty<Deity> deity;
     private final CustomGetter customGetter;
+    private final AbilityManager abilities;
 
     @SuppressWarnings({"rawtypes", "unused", "unchecked"})
     private class GroovyCommands {
@@ -70,6 +78,18 @@ public class GroovyModManager implements PlayerState {
                 }
             }
             return null;
+        }
+        public String archetypeName(Ability ability) {
+            return ability.getExtension(ArchetypeExtension.class).getArchetype();
+        }
+        public void featSlot(String name, int level, String type) {
+            if(applying.get()) {
+                FeatSlot featSlot = new FeatSlot(name, level, AbilityLoader.getTypes(type));
+                slots.put(name, featSlot);
+                abilities.apply(featSlot);
+            } else {
+                abilities.remove(slots.remove(name));
+            }
         }
         public void bonus(String str, Integer num) {
             if(applying.get()) {
@@ -107,6 +127,9 @@ public class GroovyModManager implements PlayerState {
             }else{
                 spells.getSpellList(spellListName).removeSlots(level, count);
             }
+        }
+        public void spellSlot(int level, int count, Ability source) {
+            spellSlot(level, count, source.getExtension(SpellExtension.class).getSpellListName());
         }
         public void choose(String things, String name, Closure callback, String secondParam, int numSelections) {
             if(applying.get()) {
@@ -244,7 +267,8 @@ public class GroovyModManager implements PlayerState {
         }
     }
 
-    GroovyModManager(CustomGetter customGetter, AttributeManager attributes, DecisionManager decisions, CombatManager combat, SpellListManager spells, ReadOnlyObjectProperty<Deity> deity, ReadOnlyObjectProperty<Integer> levelProperty, Applier applier) {
+    GroovyModManager(CustomGetter customGetter, AbilityManager abilities, AttributeManager attributes, DecisionManager decisions, CombatManager combat, SpellListManager spells, ReadOnlyObjectProperty<Deity> deity, ReadOnlyObjectProperty<Integer> levelProperty, Applier applier) {
+        this.abilities = abilities;
         this.attributes = attributes;
         this.decisions = decisions;
         this.combat = combat;
@@ -253,37 +277,44 @@ public class GroovyModManager implements PlayerState {
         this.customGetter = customGetter;
         applier.onApply(ability -> {
             if (!ability.getCustomMod().equals("")) {
+                bindings.setProperty("ability", ability);
                 apply(ability.getCustomMod());
-                activeMods.add(ability.getCustomMod());
+                activeMods.add(ability);
             }
         });
 
         applier.onRemove(ability -> {
             if(!ability.getCustomMod().equals("")) {
+                bindings.setProperty("ability", ability);
                 remove(ability.getCustomMod());
-                activeMods.remove(ability.getCustomMod());
+                activeMods.remove(ability);
             }
         });
 
         this.commands = new GroovyCommands();
         bindings.setVariable("log", new MethodClosure(System.out, "println"));
         addCommand("get");
+        addCommand("featSlot");
         addCommand("bonus");
         addCommand("proficiency");
         addCommand("spell");
+        addCommand("spellSlot");
         addCommand("choose");
         addCommand("weaponGroupProficiency");
         addCommand("weaponProficiency");
         addCommand("damageModifier");
+        addCommand("archetypeName");
 
         bindings.setVariable("level", levelProperty.getValue());
         levelProperty.addListener((event)-> {
-            for (String activeMod : activeMods) {
-                remove(activeMod);
+            for (Ability ability : activeMods) {
+                bindings.setProperty("ability", ability);
+                remove(ability.getCustomMod());
             }
             bindings.setVariable("level", levelProperty.get());
-            for (String activeMod : activeMods) {
-                apply(activeMod);
+            for (Ability ability : activeMods) {
+                bindings.setProperty("ability", ability);
+                apply(ability.getCustomMod());
             }
         });
     }

@@ -26,6 +26,6 @@ public class FeatsLoader extends AbilityLoader<Ability> {
     protected Ability parseItem(File file, Element item) {
         if(file.getName().toLowerCase().contains("bloodline"))
             return BloodlinesLoader.makeBloodlineStatic(item);
-        return makeAbility(item,  item.getAttribute("name"));
+        return makeAbility(item,  item.getAttribute("name")).build();
     }
 }

@@ -1,9 +1,6 @@
 package model.data_managers.sources;
 
-import model.xml_parsers.DeitiesLoader;
-import model.xml_parsers.DomainsLoader;
-import model.xml_parsers.FeatsLoader;
-import model.xml_parsers.SpellsLoader;
+import model.xml_parsers.*;
 import model.xml_parsers.abc.AncestriesLoader;
 import model.xml_parsers.abc.BackgroundsLoader;
 import model.xml_parsers.abc.PClassesLoader;
@@ -23,6 +20,7 @@ public class Source {
     private final DeitiesLoader deities;
     private final DomainsLoader domains;
     private final SpellsLoader spells;
+    private final TemplatesLoader templates;
 
     private Source(Source.Builder builder) {
         this.name = builder.name;
@@ -37,6 +35,7 @@ public class Source {
         this.deities = builder.deities;
         this.domains = builder.domains;
         this.spells = builder.spells;
+        this.templates = builder.templates;
     }
 
     public String getName() {
@@ -92,6 +91,10 @@ public class Source {
         return spells;
     }
 
+    public TemplatesLoader getTemplates() {
+        return templates;
+    }
+
     public static class Builder {
         private String name, shortName;
         private AncestriesLoader ancestries;
@@ -104,6 +107,7 @@ public class Source {
         private DeitiesLoader deities;
         private DomainsLoader domains;
         private SpellsLoader spells;
+        private TemplatesLoader templates;
 
         public void setName(String name) {
             this.name = name;
@@ -151,6 +155,10 @@ public class Source {
 
         public void setSpells(SpellsLoader spells) {
             this.spells = spells;
+        }
+
+        public void setTemplates(TemplatesLoader templates) {
+            this.templates = templates;
         }
 
         public Source build() {

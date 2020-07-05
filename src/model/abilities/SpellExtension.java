@@ -6,6 +6,7 @@ import model.spells.CasterType;
 import model.spells.Spell;
 import model.spells.SpellType;
 import model.spells.Tradition;
+import model.util.Copy;
 
 import java.util.*;
 
@@ -26,10 +27,15 @@ public class SpellExtension extends AbilityExtension {
 		castingAbilityScore = builder.castingAbilityScore;
 		spellListName = builder.spellListName;
 		if(builder.spellListNameProperty != null) {
-			builder.spellListNameProperty.addListener((o, oldVal, newVal)->{
-				if(newVal != null && !newVal.equals(""))
-					spellListName = newVal;
-			});
+			String s = builder.spellListNameProperty.get();
+			if(s == null || s.equals("")) {
+				builder.spellListNameProperty.addListener((o, oldVal, newVal)->{
+					if(newVal != null && !newVal.equals(""))
+						spellListName = newVal;
+				});
+			} else {
+				spellListName = s;
+			}
 		}
 
 		if(builder.bonusSpells.size() > 0) bonusSpells = new HashMap<>();
@@ -78,6 +84,17 @@ public class SpellExtension extends AbilityExtension {
 		private ReadOnlyStringProperty spellListNameProperty;
 
 		Builder() {}
+
+		public Builder(Builder other) {
+			this.spellSlots = Copy.shallowCopyMap(other.spellSlots);
+			this.extraSpellsKnown = Copy.shallowCopyMap(other.extraSpellsKnown);
+			this.bonusSpells = Copy.copyMap(other.bonusSpells);
+			this.casterType = other.casterType;
+			this.tradition = other.tradition;
+			this.castingAbilityScore = other.castingAbilityScore;
+			this.spellListName = other.spellListName;
+			this.spellListNameProperty = other.spellListNameProperty;
+		}
 
 		public void addSpellSlots(int level, int count) {
 			if(spellSlots.size() == 0) spellSlots = new TreeMap<>();

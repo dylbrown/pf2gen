@@ -77,6 +77,7 @@ public class AbilityManager implements PlayerState {
 			List<Ability> results = new ArrayList<>();
 			for (String allowedType : ((FeatSlot) choice).getAllowedTypes()) {
 				int end = allowedType.indexOf(" Feat");
+				if(end == -1) end = allowedType.indexOf('(');
 				if(end == -1) end = allowedType.length();
 				switch (allowedType.substring(0, end)) {
 					case "Class":
@@ -87,9 +88,10 @@ public class AbilityManager implements PlayerState {
 							PClass specificClass = SourcesLoader.instance().classes().find(className);
 							if(specificClass != null)
 								results.addAll(specificClass.getFeats(((FeatSlot) choice).getLevel()));
-						}else if (pClass.get() != null)
+						}else if (pClass.get() != null) {
 							results.addAll(pClass.get().getFeats(((FeatSlot) choice).getLevel()));
 							results.addAll(SourcesLoader.instance().feats().getCategory("Archetype").values());
+						}
 						break;
 					case "Ancestry":
 						if (ancestry.get() != null)

@@ -37,6 +37,7 @@ public class SourcesLoader extends FileLoader<Source> {
     private final MultiSourceLoader<Deity> deitiesLoader;
     private final MultiSourceLoader<Domain> domainsLoader;
     private final SpellsMultiSourceLoader spellsLoader;
+    private final MultiSourceLoader<TemplatesLoader.BuilderSupplier> templatesLoader;
 
     public SourcesLoader(SourceConstructor sourceConstructor, File root) {
         super(sourceConstructor, root);
@@ -50,6 +51,7 @@ public class SourcesLoader extends FileLoader<Source> {
         List<DeitiesLoader> deities = new ArrayList<>();
         List<DomainsLoader> domains = new ArrayList<>();
         List<SpellsLoader> spells = new ArrayList<>();
+        List<TemplatesLoader> templates = new ArrayList<>();
         for (Source value : getAll().values()) {
             addIfNotNull(ancestries, value.getAncestries());
             addIfNotNull(backgrounds, value.getBackgrounds());
@@ -61,6 +63,7 @@ public class SourcesLoader extends FileLoader<Source> {
             addIfNotNull(deities, value.getDeities());
             addIfNotNull(domains, value.getDomains());
             addIfNotNull(spells, value.getSpells());
+            addIfNotNull(templates, value.getTemplates());
         }
         ancestriesLoader = new MultiSourceLoader<>(ancestries);
         backgroundsLoader = new MultiSourceLoader<>(backgrounds);
@@ -72,6 +75,7 @@ public class SourcesLoader extends FileLoader<Source> {
         deitiesLoader = new MultiSourceLoader<>(deities);
         domainsLoader = new MultiSourceLoader<>(domains);
         spellsLoader = new SpellsMultiSourceLoader(spells);
+        templatesLoader = new MultiSourceLoader<>(templates);
     }
 
     private <T> void addIfNotNull(List<T> list, T ancestries) {
@@ -141,6 +145,8 @@ public class SourcesLoader extends FileLoader<Source> {
             case "spells":
                 builder.setSpells(new SpellsLoader(getSourceConstructor(curr), parentFile));
                 break;
+            case "templates":
+                builder.setTemplates(new TemplatesLoader(getSourceConstructor(curr), parentFile));
         }
     }
 
@@ -212,5 +218,9 @@ public class SourcesLoader extends FileLoader<Source> {
 
     public SpellsMultiSourceLoader spells() {
         return spellsLoader;
+    }
+
+    public MultiSourceLoader<TemplatesLoader.BuilderSupplier> templates() {
+        return templatesLoader;
     }
 }

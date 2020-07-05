@@ -11,6 +11,11 @@ public class Pair<T, U> {
         this.second = u;
     }
 
+    public Pair(Pair<T, U> other) {
+        this.first = Copy.copy(other.first);
+        this.second = Copy.copy(other.second);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

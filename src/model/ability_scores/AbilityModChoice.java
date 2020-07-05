@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static model.util.Copy.copy;
+
 public class AbilityModChoice extends AbilityMod implements Serializable {
     private static int counter = 0;
     private final int id;
@@ -21,6 +23,13 @@ public class AbilityModChoice extends AbilityMod implements Serializable {
         super(AbilityScore.Free, true, type);
         this.choices = AbilityScore.scores();
         this.id=counter++;
+    }
+
+    @SuppressWarnings("IncompleteCopyConstructor")
+    public AbilityModChoice(AbilityModChoice other) {
+        super(AbilityScore.Free, true, other.getType());
+        this.id = counter++;
+        this.choices = copy(other.choices);
     }
 
     public List<AbilityScore> getChoices() {

@@ -21,6 +21,13 @@ public class ArchetypeExtension extends AbilityExtension {
         private boolean isDedication = false;
         private String archetype = "";
 
+        public Builder() {}
+
+        public Builder(Builder other) {
+            this.isDedication = other.isDedication;
+            this.archetype = other.archetype;
+        }
+
         public void setDedication(boolean dedication) {
             isDedication = dedication;
         }

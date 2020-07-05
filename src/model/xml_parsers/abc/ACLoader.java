@@ -21,7 +21,7 @@ abstract class ACLoader<T extends AC, U extends AC.Builder> extends ABCLoader<T,
                 NodeList childNodes = curr.getChildNodes();
                 for (int j = 0; j < childNodes.getLength(); j++) {
                     if(childNodes.item(j) instanceof Element)
-                        builder.addFeat(makeAbility((Element) childNodes.item(j), ((Element) childNodes.item(j)).getAttribute("name")));
+                        builder.addFeat(makeAbility((Element) childNodes.item(j), ((Element) childNodes.item(j)).getAttribute("name")).build());
                 }
                 break;
             default:

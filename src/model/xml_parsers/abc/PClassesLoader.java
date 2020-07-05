@@ -47,7 +47,7 @@ public class PClassesLoader extends ACLoader<PClass, PClass.Builder> {
                             NodeList ability = slotNode.getElementsByTagName("Ability");
                             if(ability.getLength() > 0) {
                                 Element temp = (Element) ability.item(0);
-                                abilitySlots.add(new FilledSlot(abilityName, level, makeAbility(temp, abilityName, level)));
+                                abilitySlots.add(new FilledSlot(abilityName, level, makeAbility(temp, abilityName, level).build()));
                             }else{
                                 String type = slotNode.getAttribute("type");
                                 if(type.equals("")) type = "General";

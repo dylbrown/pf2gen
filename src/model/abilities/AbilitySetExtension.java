@@ -1,5 +1,6 @@
 package model.abilities;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,7 +20,11 @@ public class AbilitySetExtension extends AbilityExtension {
 
         Builder() {}
 
-	    public void setAbilities(List<Ability> abilities) {
+        public Builder(Builder other) {
+            this.abilities = new ArrayList<>(other.abilities);
+        }
+
+        public void setAbilities(List<Ability> abilities) {
             this.abilities = abilities;
         }
 

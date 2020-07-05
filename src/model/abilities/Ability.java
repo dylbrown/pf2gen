@@ -1,8 +1,8 @@
 package model.abilities;
 
-import model.ability_slots.AbilitySlot;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityScore;
+import model.ability_slots.AbilitySlot;
 import model.attributes.AttributeMod;
 import model.enums.Trait;
 import model.enums.Type;
@@ -11,6 +11,8 @@ import model.util.StringUtils;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
+
+import static model.util.Copy.copy;
 
 public class Ability implements Comparable<Ability> {
     //TODO: Support Repeated Choice
@@ -175,7 +177,7 @@ public class Ability implements Comparable<Ability> {
         private List<AbilitySlot> abilitySlots = Collections.emptyList();
         private Type type;
         private boolean multiple = false;
-        List<AttributeMod> modifiers = Collections.emptyList();
+        private List<AttributeMod> modifiers = Collections.emptyList();
         private List<AbilityMod> abilityMods = Collections.emptyList();
         private String name;
         private String description = "";
@@ -188,6 +190,33 @@ public class Ability implements Comparable<Ability> {
                 extensions = Collections.emptyMap();
 
         public Builder(){}
+
+        public Builder(Builder other) {
+            this.prerequisites = copy(other.prerequisites);
+            this.prereqStrings = copy(other.prereqStrings);
+            this.givenPrerequisites = copy(other.givenPrerequisites);
+            this.requiredAttrs = copy(other.requiredAttrs);
+            this.requiredScores = copy(other.requiredScores);
+            this.traits = copy(other.traits);
+            this.customMod = other.customMod;
+            this.abilitySlots = copy(other.abilitySlots);
+            this.type = other.type;
+            this.multiple = other.multiple;
+            this.modifiers = copy(other.modifiers);
+            this.abilityMods = copy(other.abilityMods);
+            this.name = other.name;
+            this.description = other.description;
+            this.level = other.level;
+            this.skillIncreases = other.skillIncreases;
+            this.requirements = other.requirements;
+            this.sourceBook = other.sourceBook;
+            this.pageNo = other.pageNo;
+            this.extensions = new HashMap<>();
+            for (Map.Entry<Class<? extends AbilityExtension.Builder>,
+                    AbilityExtension.Builder> entry : other.extensions.entrySet()) {
+                extensions.put(entry.getKey(), copy(entry.getValue()));
+            }
+        }
 
         public void setPrerequisites(List<String> prerequisites) {
             this.prerequisites = prerequisites;
@@ -292,7 +321,7 @@ public class Ability implements Comparable<Ability> {
                     T newExtension = defaultConstructor.newInstance();
                     extensions.put(extensionClass, newExtension);
                     return newExtension;
-                } catch (Exception e) {
+                } catch (ReflectiveOperationException e) {
                     e.printStackTrace();
                     return null;
                 }

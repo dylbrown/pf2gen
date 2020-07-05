@@ -56,7 +56,7 @@ public class PC {
     private final QualityManager qualities = new QualityManager(decisions::add, decisions::remove);
     private final CombatManager combat = new CombatManager(scores, attributes, inventory, levelProperty());
     private final GroovyModManager modManager =
-            new GroovyModManager(customGetter, attributes, decisions, combat,
+            new GroovyModManager(customGetter, abilities, attributes, decisions, combat,
                     spells, deity.getReadOnlyProperty(), level.getReadOnlyProperty(), applier);
     private final PlayerState[] stateManagers = new PlayerState[]{
                 decisions, spells, abilities, scores, attributes, inventory, qualities, combat, modManager
