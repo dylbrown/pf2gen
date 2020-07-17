@@ -18,7 +18,7 @@ public class Controller {
     private Tab tab_abilityScores, tab_skills, tab_decisions, tab_equipment, tab_spells;
     @FXML
     private MenuItem new_menu, open_menu, save_menu, saveAs_menu,
-            statblock_menu, printableSheet_menu, jquerySheet_menu, about_menu;
+            statblock_menu, printableSheet_menu, indexCard_menu, jquerySheet_menu, about_menu;
     @FXML
     private Tab displayTab;
     @FXML
@@ -51,12 +51,14 @@ public class Controller {
         open_menu.setOnAction(e -> SaveLoadController.getInstance().load(display.getScene()));
         save_menu.setOnAction(e -> SaveLoadController.getInstance().save(character.qualities().get("name"), display.getScene()));
         saveAs_menu.setOnAction(e -> SaveLoadController.getInstance().saveAs(character.qualities().get("name"), display.getScene()));
-        statblock_menu.setOnAction(e ->
-                SaveLoadController.getInstance().export("statblock.ftl", display.getScene()));
+          statblock_menu.setOnAction(e ->
+                SaveLoadController.getInstance().export("sheets/statblock.ftl", display.getScene()));
         printableSheet_menu.setOnAction(e ->
-                SaveLoadController.getInstance().export("printableSheet.html.ftl", display.getScene()));
+                SaveLoadController.getInstance().export("sheets/printableSheet.html.ftl", display.getScene()));
+        indexCard_menu.setOnAction(e ->
+                SaveLoadController.getInstance().export("sheets/index_card.html.ftl", display.getScene()));
         jquerySheet_menu.setOnAction(e ->
-                SaveLoadController.getInstance().export("csheet_jquery.html.ftl", display.getScene()));
+                SaveLoadController.getInstance().export("sheets/csheet_jquery.html.ftl", display.getScene()));
         about_menu.setOnAction(e -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("About");

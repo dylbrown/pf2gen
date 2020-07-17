@@ -33,7 +33,8 @@ public class AttributesWrapper implements TemplateHashModel {
                 Attribute attr = Attribute.robustValueOf(arguments.get(0).toString());
                 return new AttributeEntry(attr,
                         arguments.get(1).toString(),
-                        attributes.getProficiency(attr),
+                        attributes.getProficiency(attr,
+                                (arguments.get(1) == null) ? null : arguments.get(1).toString()),
                         character.levelProperty(),
                         wrapper);
             });

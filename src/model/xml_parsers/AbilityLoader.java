@@ -308,9 +308,10 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     mods.add(new AttributeModSingleChoice(Attribute.robustValueOf(orCheck[0]),
                             Attribute.robustValueOf(orCheck[1]), prof));
                 }else {
-                    if (camelCaseWord(str.trim()).startsWith("Lore")) {
-                        Attribute skill = Attribute.Lore;
-                        String data = camelCase(str.trim().substring(4).trim().replaceAll("[()]", ""));
+                    int bracket = str.indexOf('(');
+                    if (bracket != -1) {
+                        Attribute skill = Attribute.robustValueOf(str.substring(0, bracket));
+                        String data = camelCase(str.trim().substring(bracket).trim().replaceAll("[()]", ""));
                         mods.add(new AttributeMod(skill, prof, data));
                     } else {
                         mods.add(new AttributeMod(Attribute.robustValueOf(str), prof));

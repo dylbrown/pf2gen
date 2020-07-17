@@ -354,6 +354,8 @@ public class SaveLoadManager {
 
             //Spells
             lines.second++; // Skip Section Header
+            if(lines.second >= lines.first.size())
+                return;
             String spellListName = nextLine(lines);
             while (spellListName.startsWith(" - ")) {
                 boolean legacy = spellListName.contains("0");
@@ -375,7 +377,7 @@ public class SaveLoadManager {
                                 .find(s.substring(spellString.length())));
                     }
                 }
-                if(lines.second == lines.first.size())
+                if(lines.second >= lines.first.size())
                     break;
                 spellListName = nextLine(lines);
             }

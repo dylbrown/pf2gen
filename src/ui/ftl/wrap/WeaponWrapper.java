@@ -20,6 +20,7 @@ public class WeaponWrapper implements TemplateHashModel {
     private static final Map<String, Function<Weapon, Object>> map = new HashMap<>();
 
     static {
+        map.put("attack", (weapon)->Main.character.combat().getAttackMod(weapon));
         map.put("damage", (weapon)->Main.character.combat().getDamage(weapon));
         map.put("traits", Weapon::getWeaponTraits);
     }

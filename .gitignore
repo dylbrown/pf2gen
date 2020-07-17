@@ -5,3 +5,5 @@ data_/*
 schemata/*
 generated/*
 lib/*
+/.gradle/
+/target/

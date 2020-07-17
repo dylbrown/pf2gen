@@ -72,9 +72,14 @@
                           <KeyCodeCombination alt="DOWN" code="DIGIT2" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
                       </accelerator>
                   </MenuItem>
-                  <MenuItem mnemonicParsing="false" text="JQuery Sheet" fx:id="jquerySheet_menu">
+                  <MenuItem mnemonicParsing="false" text="4x6 Index Card" fx:id="indexCard_menu">
                       <accelerator>
                           <KeyCodeCombination alt="DOWN" code="DIGIT3" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                      </accelerator>
+                  </MenuItem>
+                  <MenuItem mnemonicParsing="false" text="JQuery Sheet" fx:id="jquerySheet_menu">
+                      <accelerator>
+                          <KeyCodeCombination alt="DOWN" code="DIGIT4" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
                       </accelerator>
                   </MenuItem>
               </Menu>

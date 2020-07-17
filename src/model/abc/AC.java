@@ -22,6 +22,10 @@ public abstract class AC extends ABC {
     }
 
     public List<Ability> getFeats(int level) {
+        if(feats.get(level) == null) {
+            System.out.println("Warning: Null feats at level "+level);
+            return null;
+        }
         return Collections.unmodifiableList(feats.get(level));
     }
 

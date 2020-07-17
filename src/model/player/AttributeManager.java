@@ -382,7 +382,7 @@ public class AttributeManager implements PlayerState {
         }
     }
     void remove(WeaponMod weaponMod) {
-        weaponProficiencies.put(weaponMod.getWeaponName().toLowerCase(), null);
+        weaponProficiencies.remove(weaponMod.getWeaponName().toLowerCase());
         if(weaponMod.getWeaponName().contains("{")) {
             customWeaponStrings.remove(weaponMod.getWeaponName());
         }

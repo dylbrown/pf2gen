@@ -7,7 +7,7 @@ import java.util.Objects;
 public class SkillIncrease extends AttributeMod {
 	private final int level;
 	public SkillIncrease(Attribute attr, Proficiency mod, int level, String data) {
-		super(attr, mod, data);
+		super(attr, mod, (data != null && data.equals("")) ? null : data);
 		this.level = level;
 	}
 

@@ -42,6 +42,24 @@ public class Ability implements Comparable<Ability> {
         else return null;
     }
 
+    public AbilityExtension getExtensionByName(String extensionName) {
+        extensionName = extensionName.toLowerCase();
+        for (Map.Entry<Class<? extends AbilityExtension>, AbilityExtension> entry : extensions.entrySet()) {
+            if(entry.getKey().getName().toLowerCase().contains(extensionName))
+                return entry.getValue();
+        }
+        return null;
+    }
+
+    public boolean hasExtension(String extensionName) {
+        extensionName = extensionName.toLowerCase();
+        for (Class<? extends AbilityExtension> aClass : extensions.keySet()) {
+            if(aClass.getName().toLowerCase().contains(extensionName))
+                return true;
+        }
+        return false;
+    }
+
     protected Ability(Ability.Builder builder) {
         this.name = builder.name;
         this.level = builder.level;

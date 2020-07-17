@@ -120,7 +120,7 @@ public class TemplateFiller {
     }
 
     public static String getStatBlock() {
-        return instance.getSheet("statblock.ftl");
+        return instance.getSheet("sheets/statblock.ftl");
     }
 
     public String getSheet(String templatePath) {

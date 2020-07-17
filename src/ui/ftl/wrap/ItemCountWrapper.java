@@ -7,9 +7,7 @@ import freemarker.template.TemplateModelException;
 import model.enums.Slot;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
-import model.equipment.weapons.Weapon;
 import model.util.Pair;
-import ui.Main;
 import ui.ftl.TemplateFiller;
 
 import java.lang.reflect.InvocationTargetException;
@@ -42,10 +40,6 @@ public class ItemCountWrapper implements TemplateHashModel {
 
     public int count() {
         return itemCount.getCount();
-    }
-
-    public int attack() {
-        return Main.character.combat().getAttackMod((Weapon) itemCount.stats());
     }
 
     @Override
