@@ -205,6 +205,7 @@ public class PC {
     }
 
     public boolean meetsPrerequisites(Ability ability) {
+        if(ability.getLevel() > getLevel()) return false;
         for (AttributeMod requiredAttr : ability.getRequiredAttrs()) {
             if(attributes.getProficiency(requiredAttr.getAttr(), requiredAttr.getData()).getValue().getMod() < requiredAttr.getMod().getMod())
                 return false;

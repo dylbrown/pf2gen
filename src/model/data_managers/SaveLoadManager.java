@@ -2,11 +2,11 @@ package model.data_managers;
 
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
+import model.ability_scores.AbilityModChoice;
+import model.ability_scores.AbilityScore;
 import model.ability_slots.Choice;
 import model.ability_slots.ChoiceList;
 import model.ability_slots.FeatSlot;
-import model.ability_scores.AbilityModChoice;
-import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
 import model.attributes.SkillIncrease;
 import model.data_managers.sources.SourcesLoader;
@@ -222,30 +222,18 @@ public class SaveLoadManager {
                 curr = nextLine(lines);
             }
 
-            //Skill Increase Choices
+            //Skill Increase Choices Load Strings
+            List<String> skillIncreases = new ArrayList<>();
             while(true) {
                 String s = nextLine(lines);
                 if(!s.startsWith(" - ")) {
                     lines.second--;
                     break;
                 }
-                String[] split = s.split(" ?: ?");
-                if(split.length < 2) continue;
-                for (String skill : split[1].split(" ?, ?")) {
-                    int openBracket = skill.indexOf("(");
-                    String attribute = skill;
-                    String data;
-                    if(openBracket == -1) data = null;
-                    else {
-                        attribute = attribute.substring(0, openBracket);
-                        int closeBracket = skill.indexOf(")", openBracket);
-                        data = attribute.substring(openBracket + 1, closeBracket);
-                    }
-                    character.attributes().advanceSkill(Attribute.valueOf(attribute), data);
-                }
+                skillIncreases.add(s.substring(3));
             }
 
-            //Decisions
+            //Decisions Load Strings
             lines.second++; // Skip Section Header
             Map<String, String> decisionStringMap = new HashMap<>();
             while(true) {
@@ -257,32 +245,32 @@ public class SaveLoadManager {
                 String[] split = s.split(" ?: ?");
                 decisionStringMap.put(split[0].substring(3), split[1]);
             }
-            ObservableList<Choice> decisions = character.decisions().getUnmadeDecisions();
-            while(decisions.size() > 0){
-                int successes = 0;
-                for (Choice decision : decisions) {
-                    if(decisionStringMap.get(decision.toString()) == null) continue;
-                    List<String> selections = Arrays.asList(decisionStringMap.get(decision.toString()).split(" ?\\^ ?"));
-                    List options;
-                    if(decision instanceof ChoiceList)
-                        options = ((ChoiceList) decision).getOptions();
-                    else if(decision instanceof FeatSlot)
-                        options = character.abilities().getOptions((FeatSlot)decision);
-                    else options = Collections.emptyList();
-                    for (Object option : options) {
-                        if(selections.contains(option.toString())) {
-                            int oldSize = decision.getSelections().size();
-                            decision.add(option);
-                            if(decision.getSelections().size() > oldSize)
-                                successes++;
-                            if(decision.getSelections().size() == selections.size())
-                                decisionStringMap.put(decision.toString(), null);
-                            break;
-                        }
+
+            // Start to Load Decisions
+            boolean allDecisionsMade = makeDecisions(decisionStringMap);
+
+            //Load Skill Increases and remaining Decisions
+            for (String skillIncrease : skillIncreases) {
+
+                String[] split = skillIncrease.split(" ?: ?");
+                if(split.length < 2) continue;
+                int level = Integer.parseInt(split[0]);
+                for (String skill : split[1].split(" ?, ?")) {
+                    int openBracket = skill.indexOf("(");
+                    String attribute = skill;
+                    String data;
+                    if(openBracket == -1) data = null;
+                    else {
+                        attribute = attribute.substring(0, openBracket);
+                        int closeBracket = skill.indexOf(")", openBracket);
+                        data = attribute.substring(openBracket + 1, closeBracket);
                     }
+                    if(!allDecisionsMade && character.attributes().getSkillIncreasesRemaining(level) == 0)
+                        allDecisionsMade = makeDecisions(decisionStringMap);
+                    character.attributes().advanceSkill(Attribute.valueOf(attribute), data);
                 }
-                if(successes == 0) break;
             }
+
 
             //Items
             String money = nextLineEq(lines);
@@ -383,6 +371,37 @@ public class SaveLoadManager {
             }
             System.out.println(System.currentTimeMillis()-start+" ms");
         }
+    }
+
+    private static boolean makeDecisions(Map<String, String> decisionStringMap) {
+        ObservableList<Choice> decisions = character.decisions().getUnmadeDecisions();
+        while(decisions.size() > 0){
+            int successes = 0;
+            for (Choice decision : decisions) {
+                if(decisionStringMap.get(decision.toString()) == null) continue;
+                List<String> selections = Arrays.asList(
+                        decisionStringMap.get(decision.toString()).split(" ?\\^ ?"));
+                List options;
+                if(decision instanceof ChoiceList)
+                    options = ((ChoiceList) decision).getOptions();
+                else if(decision instanceof FeatSlot)
+                    options = character.abilities().getOptions((FeatSlot)decision);
+                else options = Collections.emptyList();
+                for (Object option : options) {
+                    if(selections.contains(option.toString())) {
+                        int oldSize = decision.getSelections().size();
+                        decision.add(option);
+                        if(decision.getSelections().size() > oldSize)
+                            successes++;
+                        if(decision.getSelections().size() == selections.size())
+                            decisionStringMap.remove(decision.toString());
+                        break;
+                    }
+                }
+            }
+            if(successes == 0) break;
+        }
+        return decisions.isEmpty();
     }
 
     private static void upgradeItem(Equipment item, Pair<List<String>, Integer> lines) {

@@ -20,7 +20,7 @@ public class QualityManager implements PlayerState {
             bonusLanguages, this::addBonusLanguage,  this::removeBonusLanguage, 0, false, String.class);
 
     QualityManager(Consumer<ArbitraryChoice<String>> addDecision, Consumer<ArbitraryChoice<String>> removeDecision) {
-        bonusLanguageChoice.numSelectionsProperty().addListener((o, oldVal, newVal) -> {
+        bonusLanguageChoice.maxSelectionsProperty().addListener((o, oldVal, newVal) -> {
             if(oldVal.intValue() > 0 && newVal.intValue() <= 0) removeDecision.accept(bonusLanguageChoice);
             if(oldVal.intValue() <= 0 && newVal.intValue() > 0) addDecision.accept(bonusLanguageChoice);
         });

@@ -19,20 +19,23 @@ public class ArbitraryChoice<T> implements ChoiceList<T> {
     private final Consumer<T> emptyFunction;
     private final String name;
     private final ObservableList<T> selections = FXCollections.observableArrayList();
-    private final ReadOnlyIntegerWrapper numSelections;
+    private final ReadOnlyIntegerWrapper numSelections, maxSelections;
     private final boolean multipleSelect;
     private final Class<T> optionsClass;
 
-    ArbitraryChoice(String name, List<T> choices, int numSelections, boolean multipleSelect, Class<T> optionsClass) {
-        this(name ,choices, s->{}, s -> {}, numSelections, multipleSelect, optionsClass);
+    ArbitraryChoice(String name, List<T> choices, int maxSelections, boolean multipleSelect, Class<T> optionsClass) {
+        this(name ,choices, s->{}, s -> {}, maxSelections, multipleSelect, optionsClass);
     }
 
-    ArbitraryChoice(String name, List<T> choices, Consumer<T> fillFunction, Consumer<T> emptyFunction, int numSelections, boolean multipleSelect, Class<T> optionsClass) {
+    ArbitraryChoice(String name, List<T> choices, Consumer<T> fillFunction, Consumer<T> emptyFunction,
+                    int maxSelections, boolean multipleSelect, Class<T> optionsClass) {
         this.name = name;
         this.choices = choices;
         this.fillFunction = fillFunction;
         this.emptyFunction = emptyFunction;
-        this.numSelections = new ReadOnlyIntegerWrapper(numSelections);
+        this.maxSelections = new ReadOnlyIntegerWrapper(maxSelections);
+        this.numSelections = new ReadOnlyIntegerWrapper(0);
+        this.selections.addListener((ListChangeListener<T>) c-> numSelections.set(this.selections.size()));
         this.multipleSelect = multipleSelect;
         this.optionsClass = optionsClass;
         if(choices instanceof ObservableList)
@@ -54,7 +57,7 @@ public class ArbitraryChoice<T> implements ChoiceList<T> {
 
     @Override
     public void add(T choice) {
-        if(this.selections.size() < numSelections.get() && this.choices.contains(choice) &&
+        if(this.selections.size() < maxSelections.get() && this.choices.contains(choice) &&
                 (this.multipleSelect || !this.selections.contains(choice))) {
             this.selections.add(choice);
             fillFunction.accept(choice);
@@ -68,13 +71,18 @@ public class ArbitraryChoice<T> implements ChoiceList<T> {
     }
 
     @Override
-    public int getNumSelections() {
-        return numSelections.get();
+    public int getMaxSelections() {
+        return maxSelections.get();
     }
 
     @Override
     public ReadOnlyIntegerProperty numSelectionsProperty() {
         return numSelections.getReadOnlyProperty();
+    }
+
+    @Override
+    public ReadOnlyIntegerProperty maxSelectionsProperty() {
+        return maxSelections.getReadOnlyProperty();
     }
 
     private final ObservableList<T> unmodifiableSelections = FXCollections.unmodifiableObservableList(selections);
@@ -128,13 +136,13 @@ public class ArbitraryChoice<T> implements ChoiceList<T> {
 
     void increaseChoices(int amount) {
         if(amount < 0) decreaseChoices(-1 * amount);
-        else numSelections.set(numSelections.get() + amount);
+        else maxSelections.set(maxSelections.get() + amount);
     }
 
     void decreaseChoices(int amount) {
-        numSelections.set(Math.max(0, numSelections.get()-amount));
+        maxSelections.set(Math.max(0, maxSelections.get()-amount));
         Iterator<T> iterator = selections.iterator();
-        while(selections.size() > numSelections.get() && iterator.hasNext()){
+        while(selections.size() > maxSelections.get() && iterator.hasNext()){
             iterator.next();
             iterator.remove();
         }

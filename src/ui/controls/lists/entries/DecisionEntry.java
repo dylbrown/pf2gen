@@ -23,12 +23,12 @@ public class DecisionEntry implements Comparable<DecisionEntry>, TreeTableEntry 
         chosenValue = null;
         name = new ReadOnlyStringWrapper(choice.getName()).getReadOnlyProperty();
         level = new ReadOnlyStringWrapper(String.valueOf(choice.getLevel())).getReadOnlyProperty();
-        remainingWrapper = new ReadOnlyIntegerWrapper(choice.getNumSelections());
+        remainingWrapper = new ReadOnlyIntegerWrapper(choice.getMaxSelections());
         remaining = remainingWrapper.getReadOnlyProperty();
-        remainingWrapper.bind(choice.numSelectionsProperty().subtract(choice.getSelections().size()));
+        remainingWrapper.bind(choice.maxSelectionsProperty().subtract(choice.getSelections().size()));
         //noinspection unchecked
         choice.getSelections().addListener((ListChangeListener) c->
-                remainingWrapper.bind(choice.numSelectionsProperty().subtract(choice.getSelections().size())));
+                remainingWrapper.bind(choice.maxSelectionsProperty().subtract(choice.getSelections().size())));
     }
 
     public DecisionEntry(Object chosenValue, String name, int level) {

@@ -8,11 +8,11 @@ import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.web.WebView;
 import model.abilities.Ability;
-import model.ability_slots.AbilityChoiceList;
 import model.ability_slots.FeatSlot;
 import model.ability_slots.SingleChoice;
 import model.enums.Type;
 import model.player.AbilityManager;
+import ui.controls.lists.AbilityList;
 import ui.html.AbilityHTMLGenerator;
 
 import java.util.ArrayList;
@@ -24,18 +24,14 @@ public class FeatSelectionPane extends SelectionPane<Ability> {
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final List<Ability> unmetPrereqs = new ArrayList<>();
     private final ObservableList<Ability> allItems = FXCollections.observableArrayList();
+    private final AbilityList itemsList, allItemsList;
 
     public FeatSelectionPane(SingleChoice<Ability> slot, WebView display, ToggleGroup filterChoices) {
         this.display = display;
         AbilityManager abilities = character.abilities();
         init(slot);
-        if(slot instanceof AbilityChoiceList) {
-            allItems.addAll(((AbilityChoiceList) slot).getOptions());
-            items.addAll(((AbilityChoiceList) slot).getOptions());
-        }else{
-            allItems.addAll(abilities.getOptions(slot));
-            items.addAll(abilities.getOptions(slot));
-        }
+        allItems.addAll(abilities.getOptions(slot));
+        items.addAll(abilities.getOptions(slot));
         items.removeIf((item)->{
             if(!character.meetsPrerequisites(item)){
                 unmetPrereqs.add(item);
@@ -55,8 +51,6 @@ public class FeatSelectionPane extends SelectionPane<Ability> {
                 for (Ability ability : c.getRemoved()) {
                     if(!character.meetsPrerequisites(ability)) {
                         unmetPrereqs.add(ability);
-                    }else{
-                        items.add(ability);
                     }
                 }
 
@@ -94,11 +88,6 @@ public class FeatSelectionPane extends SelectionPane<Ability> {
                 }
             }
         });
-        getSelectionModel().selectedItemProperty().addListener((event)->{
-            Ability selectedItem = getSelectionModel().getSelectedItem();
-            if(selectedItem != null)
-                display.getEngine().loadContent(AbilityHTMLGenerator.parse(selectedItem));
-        });
         if(slot instanceof FeatSlot) {
             if(((FeatSlot) slot).getAllowedTypes().contains(Type.Ancestry.toString())
                     || ((FeatSlot) slot).getAllowedTypes().contains(Type.Heritage.toString())){
@@ -107,24 +96,34 @@ public class FeatSelectionPane extends SelectionPane<Ability> {
         }
         filterChoices.selectedToggleProperty().addListener((o, oldVal, newVal)-> setContents(newVal));
         setContents(filterChoices.getSelectedToggle());
+
+        itemsList = AbilityList.getTypeLevelList(items, (a, i) -> {
+            display.getEngine().loadContent(AbilityHTMLGenerator.parse(a));
+            if(i == 2) {
+                if(character.meetsPrerequisites(a) && (a.isMultiple() || !character.abilities().haveAbility(a))) {
+                    slot.add(a);
+                }
+            }
+        });
+        allItemsList = AbilityList.getTypeLevelList(allItems, (a, i) -> {
+            display.getEngine().loadContent(AbilityHTMLGenerator.parse(a));
+            if(i == 2) {
+                if(character.meetsPrerequisites(a) && (a.isMultiple() || !character.abilities().haveAbility(a))) {
+                    slot.add(a);
+                }
+            }
+        });
+
+        this.setCenter(itemsList);
     }
 
     private void setContents(Toggle newVal) {
         if(newVal instanceof RadioMenuItem && ((RadioMenuItem) newVal).getText().equals("All")) {
-            setItems(allItems);
-        } else setItems(sortedItems);
+            setCenter(allItemsList);
+        } else setCenter(itemsList);
     }
 
     @Override
     void setupChoicesListener() {
-        setOnMouseClicked((event) -> {
-            if(event.getClickCount() == 2) {
-                Ability selectedItem = getSelectionModel().getSelectedItem();
-                if(selectedItem != null && character.meetsPrerequisites(selectedItem) &&
-                        (selectedItem.isMultiple() || !character.abilities().haveAbility(selectedItem))) {
-                    slot.add(selectedItem);
-                }
-            }
-        });
     }
 }

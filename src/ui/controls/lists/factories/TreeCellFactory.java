@@ -1,4 +1,4 @@
-package ui.controls.lists;
+package ui.controls.lists.factories;
 
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeTableColumn;
@@ -8,7 +8,7 @@ import ui.controls.lists.entries.TreeTableEntry;
 public class TreeCellFactory<T extends TreeTableEntry> implements Callback<TreeTableColumn.CellDataFeatures<T, String>, ObservableValue<String>> {
     private final String propertyName;
 
-    TreeCellFactory(String property) {
+    public TreeCellFactory(String property) {
         this.propertyName = property;
     }
 

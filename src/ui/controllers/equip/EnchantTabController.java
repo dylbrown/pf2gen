@@ -17,7 +17,7 @@ import model.equipment.runes.Rune;
 import model.equipment.runes.runedItems.*;
 import model.util.Pair;
 import ui.Main;
-import ui.controls.lists.ItemsList;
+import ui.controls.equipment.ItemsList;
 import ui.controls.lists.entries.ItemEntry;
 import ui.html.EquipmentHTMLGenerator;
 
@@ -229,7 +229,7 @@ public class EnchantTabController {
     private boolean select(Equipment item, TreeItem<ItemEntry> node) {
         selectItem(item);
         for (TreeItem<ItemEntry> child : node.getChildren()) {
-            if(child.getValue().getItem() == item) {
+            if(child.getValue().getContents() == item) {
                 itemsIL.getSelectionModel().select(child);
                 return true;
             }else if(select(item, child)) return true;

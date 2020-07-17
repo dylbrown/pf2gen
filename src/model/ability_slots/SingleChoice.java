@@ -6,9 +6,9 @@ import javafx.beans.property.SimpleIntegerProperty;
 
 public interface SingleChoice<T> extends Choice<T> {
     @Override
-    default int getNumSelections() {return 1;}
+    default int getMaxSelections() {return 1;}
     @Override
-    default ReadOnlyIntegerProperty numSelectionsProperty() {
+    default ReadOnlyIntegerProperty maxSelectionsProperty() {
         return new SimpleIntegerProperty(1);
     }
     T getChoice();

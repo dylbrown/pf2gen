@@ -1,5 +1,6 @@
 package model.player;
 
+import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -7,17 +8,19 @@ import javafx.collections.transformation.SortedList;
 import model.ability_slots.Choice;
 import model.ability_slots.ChoiceList;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
 
 @SuppressWarnings("rawtypes")
 public class DecisionManager implements PlayerState {
-    private final ObservableList<Choice> decisions = FXCollections.observableArrayList();
+    private final ObservableList<Choice> decisions = FXCollections.observableArrayList(
+            choice -> new Observable[]{choice.numSelectionsProperty()});
     private final ObservableList<Choice> unmodifiableDecisions = FXCollections.unmodifiableObservableList(decisions);
     private final FilteredList<Choice> unmade;
     private final SortedList<Choice> unmadeByLevel;
 
     DecisionManager() {
-        unmade = new FilteredList<>(decisions, choice -> choice.getSelections().size() < choice.getNumSelections());
+        unmade = new FilteredList<>(decisions, choice -> choice.getSelections().size() < choice.getMaxSelections());
         unmadeByLevel = new SortedList<>(unmade, Comparator.comparingInt(Choice::getLevel));
     }
 

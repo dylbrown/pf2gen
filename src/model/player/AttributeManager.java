@@ -140,7 +140,20 @@ public class AttributeManager implements PlayerState {
         }
         // Granted proficiencies instead give you a free skill increase if they overlap
         if(!used && mod.getMod().equals(Proficiency.Trained)){
-            addSkillIncreases(1, 1);
+            SkillIncrease skillIncrease = null;
+            for (AttributeMod attributeMod : trackers.getOrDefault(mod.getAttr(), Collections.emptyMap())
+                    .getOrDefault(Proficiency.Trained, Collections.emptyList())) {
+                if(attributeMod instanceof SkillIncrease) {
+                    skillIncrease = (SkillIncrease) attributeMod;
+                    break;
+                }
+            }
+            if(skillIncrease != null) {
+                skillChoices.get(skillIncrease.getLevel()).remove(skillIncrease);
+                remove(skillIncrease);
+            }
+            else
+                addSkillIncreases(1, 1);
         }
         proficiencyChange.firePropertyChange("addAttributeMod", null, null);
     }
@@ -180,7 +193,8 @@ public class AttributeManager implements PlayerState {
             haveTrainedMod = attributeMods.size() > 0;
         }
         if(!changed && mod.getMod().equals(Proficiency.Trained) && haveTrainedMod) {
-            removeSkillIncreases(1, 1);
+            if(!(mod instanceof SkillIncrease))
+                removeSkillIncreases(1, 1);
         }
         proficiencyChange.firePropertyChange("removeAttributeMod", null, null);
     }

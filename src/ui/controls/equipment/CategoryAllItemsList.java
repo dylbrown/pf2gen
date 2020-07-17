@@ -1,28 +1,29 @@
-package ui.controls.lists;
+package ui.controls.equipment;
 
+import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import model.data_managers.sources.SourcesLoader;
 import model.equipment.Equipment;
 import model.xml_parsers.equipment.EquipmentLoader;
+import ui.controls.lists.AbstractEntryList;
 import ui.controls.lists.entries.ItemEntry;
+import ui.controls.lists.factories.TreeCellFactory;
 
-import java.util.Comparator;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.BiConsumer;
 
-public class CategoryAllItemsList extends AbstractItemList {
+public class CategoryAllItemsList extends AbstractEntryList<Equipment, ItemEntry> {
     public CategoryAllItemsList(BiConsumer<Equipment, Integer> handler) {
         super(handler);
     }
 
-    CategoryAllItemsList() {
+    protected CategoryAllItemsList() {
         super();
     }
 
     @Override
-    void addItems(TreeItem<ItemEntry> root) {
+    protected void addItems(TreeItem<ItemEntry> root) {
         for (String category : SourcesLoader.instance().equipment().getCategories()) {
             addCategory(root, category, SourcesLoader.instance().equipment().getCategory(category).values());
         }
@@ -48,13 +49,12 @@ public class CategoryAllItemsList extends AbstractItemList {
         cat.getChildren().addAll(subCats.values());
     }
 
-    @Override
-    void createColumns() {
+    public static List<TreeTableColumn<ItemEntry, String>> makeColumns(ReadOnlyDoubleProperty width) {
         TreeTableColumn<ItemEntry, String> name = new TreeTableColumn<>("Name");
         TreeTableColumn<ItemEntry, String> cost = new TreeTableColumn<>("Cost");
         TreeTableColumn<ItemEntry, String> level = new TreeTableColumn<>("Level");
         name.setCellValueFactory(new TreeCellFactory<>("name"));
-        name.minWidthProperty().bind(this.widthProperty().multiply(.6));
+        name.minWidthProperty().bind(width.multiply(.6));
         cost.setCellValueFactory(new TreeCellFactory<>("cost"));
         cost.setStyle( "-fx-alignment: CENTER;");
         level.setCellValueFactory(new TreeCellFactory<>("level"));
@@ -65,7 +65,11 @@ public class CategoryAllItemsList extends AbstractItemList {
             double d2 = (!s2.equals(""))? Double.parseDouble(s2) : 0;
             return Double.compare(d1, d2);
         });
-        //noinspection unchecked
-        this.getColumns().addAll(name, cost, level);
+        return Arrays.asList(name, cost, level);
+    }
+
+    @Override
+    protected void createColumns() {
+        this.getColumns().addAll(makeColumns(this.widthProperty()));
     }
 }

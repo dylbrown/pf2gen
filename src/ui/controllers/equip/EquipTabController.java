@@ -21,11 +21,11 @@ import model.equipment.Equipment;
 import model.equipment.ItemCount;
 import model.util.StringUtils;
 import ui.Main;
-import ui.html.EquipmentHTMLGenerator;
+import ui.controls.equipment.CategoryAllItemsList;
 import ui.controls.equipment.EquippedEntry;
-import ui.controls.lists.CategoryAllItemsList;
+import ui.controls.equipment.LevelAllItemsList;
 import ui.controls.lists.entries.ItemEntry;
-import ui.controls.lists.LevelAllItemsList;
+import ui.html.EquipmentHTMLGenerator;
 
 import java.util.*;
 import java.util.function.Function;
@@ -104,8 +104,8 @@ public class EquipTabController {
                 wrapper.set(null);
             else
                 wrapper.set(itemEntry -> StringUtils.containsIgnoreCase(itemEntry.toString(), search.getText())
-                        && (!filterLevel || (itemEntry.getItem() != null &&
-                        itemEntry.getItem().getLevel() <= Main.character.getLevel())));
+                        && (!filterLevel || (itemEntry.getContents() != null &&
+                        itemEntry.getContents().getLevel() <= Main.character.getLevel())));
         };
         resetFilter.run();
         levelFilter.selectedToggleProperty().addListener(c->resetFilter.run());
@@ -125,7 +125,7 @@ public class EquipTabController {
 
         ChangeListener<TreeItem<ItemEntry>> listener = (obs, oldVal, selectedItem) -> {
             if(selectedItem == null || selectedItem.getValue() == null) return;
-            Equipment item = selectedItem.getValue().getItem();
+            Equipment item = selectedItem.getValue().getContents();
             if (item != null) setDisplay(item);
         };
 

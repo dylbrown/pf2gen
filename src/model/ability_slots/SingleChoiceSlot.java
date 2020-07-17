@@ -1,8 +1,11 @@
 package model.ability_slots;
 
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import model.abilities.Ability;
 
@@ -12,10 +15,12 @@ import java.util.List;
 public class SingleChoiceSlot extends AbilitySlot implements AbilityChoiceList, AbilitySingleChoice {
     private final List<Ability> choices;
     private final ObservableList<Ability> list = FXCollections.observableArrayList();
+    private final ReadOnlyIntegerWrapper numSelections = new ReadOnlyIntegerWrapper(0);
 
     public SingleChoiceSlot(String abilityName, int level, List<Ability> choices) {
         super(abilityName, level);
         this.choices = choices;
+        list.addListener((ListChangeListener<Ability>) c-> numSelections.set(list.size()));
     }
 
     @Override
@@ -52,6 +57,11 @@ public class SingleChoiceSlot extends AbilitySlot implements AbilityChoiceList, 
     @Override
     public void empty() {
         currentAbility =null;
+    }
+
+    @Override
+    public ReadOnlyIntegerProperty numSelectionsProperty() {
+        return numSelections.getReadOnlyProperty();
     }
 
     @Override

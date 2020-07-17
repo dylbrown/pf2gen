@@ -7,6 +7,8 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import model.ability_slots.Choice;
 import ui.controls.lists.entries.DecisionEntry;
+import ui.controls.lists.factories.SelectRowFactory;
+import ui.controls.lists.factories.TreeCellFactory;
 
 import java.util.Arrays;
 import java.util.Iterator;

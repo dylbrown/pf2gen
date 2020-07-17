@@ -218,7 +218,7 @@ public class GroovyModManager implements PlayerState {
                     choice.addAll(strings);
                 }
             } else {
-                if(arbitraryChoices.get(name).getNumSelections() > numSelections){
+                if(arbitraryChoices.get(name).getMaxSelections() > numSelections){
                     arbitraryChoices.get(name).decreaseChoices(numSelections);
                     return;
                 }

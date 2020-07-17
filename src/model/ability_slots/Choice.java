@@ -9,8 +9,10 @@ public interface Choice<T> {
     void add(T choice);
     void remove(T choice);
     void empty();
-    int getNumSelections();
+    int getMaxSelections();
     ReadOnlyIntegerProperty numSelectionsProperty();
+    ReadOnlyIntegerProperty maxSelectionsProperty();
     ObservableList<T> getSelections();
     int getLevel();
+
 }

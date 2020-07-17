@@ -23,9 +23,13 @@ jobs:
           prefix: 'v'
           sort-tags: true
 
+      - run: echo "Current version is ${{ steps.current_version.outputs.tag }}"
+
       - name: Get Maven Version number
         id: maven_version
         run: echo ::set-output name=VERSION::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout --file pom.xml)
+
+      - run: echo "Maven version is ${{ format('v{0}', steps.maven_version.outputs.VERSION) }}"
 
       - name: Set up JDK 11
         if: ${{steps.current_version.outputs.tag != format('v{0}', steps.maven_version.outputs.VERSION)}}

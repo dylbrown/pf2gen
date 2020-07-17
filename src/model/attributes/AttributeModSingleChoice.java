@@ -1,8 +1,11 @@
 package model.attributes;
 
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import model.ability_slots.SingleChoiceList;
 import model.enums.Proficiency;
@@ -17,11 +20,13 @@ public class AttributeModSingleChoice extends AttributeMod implements SingleChoi
     private final List<Attribute> choices = new ArrayList<>();
     private final ReadOnlyObjectWrapper<Attribute> choiceProperty = new ReadOnlyObjectWrapper<>();
     private final ObservableList<Attribute> list = FXCollections.observableArrayList();
+    private final ReadOnlyIntegerWrapper numSelections = new ReadOnlyIntegerWrapper(0);
 
     public AttributeModSingleChoice(Attribute first, Attribute second, Proficiency prof) {
         super(Attribute.None,prof);
         this.choices.add(first);
         this.choices.add(second);
+        list.addListener((ListChangeListener<Attribute>) c-> numSelections.set(list.size()));
     }
 
     public AttributeModSingleChoice(Attribute[] options, Proficiency prof) {
@@ -84,6 +89,11 @@ public class AttributeModSingleChoice extends AttributeMod implements SingleChoi
     @Override
     public void empty() {
         fill(null);
+    }
+
+    @Override
+    public ReadOnlyIntegerProperty numSelectionsProperty() {
+        return numSelections.getReadOnlyProperty();
     }
 
     private ObservableList<Attribute> unmodifiable = FXCollections.unmodifiableObservableList(list);

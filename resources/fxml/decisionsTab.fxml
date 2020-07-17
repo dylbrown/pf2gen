@@ -13,8 +13,8 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.web.WebView?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.DecisionsController">
-    <SplitPane dividerPositions="0.7" layoutX="173.0" layoutY="98.0" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.DecisionsController">
+    <SplitPane dividerPositions="0.6" layoutX="173.0" layoutY="98.0" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
             <SplitPane dividerPositions="0.5" orientation="VERTICAL" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
@@ -32,8 +32,8 @@
                                     <Label text="No Decisions" />
                                 </placeholder>
                                 <columns>
-                                    <TreeTableColumn prefWidth="159.4444580078125" text="Name" />
-                                    <TreeTableColumn prefWidth="133.5555419921875" text="Remaining" />
+                                    <TreeTableColumn prefWidth="274.2856968641281" text="Name" />
+                                    <TreeTableColumn prefWidth="77.71429443359375" text="Remaining" />
                                 </columns>
                                 <columnResizePolicy>
                                     <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -65,11 +65,10 @@
                     <Menu mnemonicParsing="false" text="Filter">
                         <RadioMenuItem mnemonicParsing="false" text="All">
                             <toggleGroup>
-                                <ToggleGroup fx:id="filterChoices"/>
+                                <ToggleGroup fx:id="filterChoices" />
                             </toggleGroup>
                         </RadioMenuItem>
-                        <RadioMenuItem mnemonicParsing="false" selected="true" text="Qualified"
-                                       toggleGroup="$filterChoices"/>
+                        <RadioMenuItem mnemonicParsing="false" selected="true" text="Qualified" toggleGroup="$filterChoices" />
                     </Menu>
                 </MenuBar>
             </top>

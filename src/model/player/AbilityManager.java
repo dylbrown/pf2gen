@@ -72,13 +72,20 @@ public class AbilityManager implements PlayerState {
 		}
 	}
 
+	public List<Ability> getOptions(AbilityChoiceList choice) {
+		return choice.getOptions();
+	}
+
 	public List<Ability> getOptions(SingleChoice<Ability> choice) {
+		if (choice instanceof AbilityChoiceList)
+			return getOptions((AbilityChoiceList) choice);
 		if (choice instanceof FeatSlot) {
 			List<Ability> results = new ArrayList<>();
 			for (String allowedType : ((FeatSlot) choice).getAllowedTypes()) {
 				int end = allowedType.indexOf(" Feat");
 				if(end == -1) end = allowedType.indexOf('(');
 				if(end == -1) end = allowedType.length();
+				int maxLevel = ((FeatSlot) choice).getLevel();
 				switch (allowedType.substring(0, end)) {
 					case "Class":
 						int bracket = allowedType.indexOf("(");
@@ -87,15 +94,18 @@ public class AbilityManager implements PlayerState {
 							String className = allowedType.substring(bracket + 1, close);
 							PClass specificClass = SourcesLoader.instance().classes().find(className);
 							if(specificClass != null)
-								results.addAll(specificClass.getFeats(((FeatSlot) choice).getLevel()));
+								results.addAll(specificClass.getFeats(maxLevel));
 						}else if (pClass.get() != null) {
-							results.addAll(pClass.get().getFeats(((FeatSlot) choice).getLevel()));
-							results.addAll(SourcesLoader.instance().feats().getCategory("Archetype").values());
+							results.addAll(pClass.get().getFeats(maxLevel));
+							for (Ability a : SourcesLoader.instance().feats().getCategory("Archetype").values()) {
+								if(a.getLevel() <= maxLevel)
+									results.add(a);
+							}
 						}
 						break;
 					case "Ancestry":
 						if (ancestry.get() != null)
-							results.addAll(ancestry.get().getFeats(((FeatSlot) choice).getLevel()));
+							results.addAll(ancestry.get().getFeats(maxLevel));
 						break;
 					case "Heritage":
 						if (ancestry.get() != null)

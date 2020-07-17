@@ -1,10 +1,12 @@
-package ui.controls.lists;
+package ui.controls.equipment;
 
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import model.data_managers.sources.SourcesLoader;
 import model.equipment.Equipment;
 import model.xml_parsers.equipment.EquipmentLoader;
+import ui.controls.lists.AbstractEntryList;
+import ui.controls.lists.factories.TreeCellFactory;
 import ui.controls.lists.entries.ItemEntry;
 
 import java.util.Comparator;
@@ -13,13 +15,13 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
-public class LevelAllItemsList extends AbstractItemList {
+public class LevelAllItemsList extends AbstractEntryList<Equipment, ItemEntry> {
     public LevelAllItemsList(BiConsumer<Equipment, Integer> handler) {
         super(handler);
     }
 
     @Override
-    void createColumns() {
+    protected void createColumns() {
         TreeTableColumn<ItemEntry, String> name = new TreeTableColumn<>("Name");
         TreeTableColumn<ItemEntry, String> cost = new TreeTableColumn<>("Cost");
         TreeTableColumn<ItemEntry, String> subCat = new TreeTableColumn<>("Subcategory");
@@ -35,7 +37,7 @@ public class LevelAllItemsList extends AbstractItemList {
     }
 
     @Override
-    void addItems(TreeItem<ItemEntry> root) {
+    protected void addItems(TreeItem<ItemEntry> root) {
         Map<Integer, Map<String, TreeItem<ItemEntry>>> cats = new TreeMap<>();
         for (Equipment equipment : SourcesLoader.instance().equipment().getAll().values()) {
             addItem(cats, equipment);

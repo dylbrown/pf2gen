@@ -1,4 +1,4 @@
-package ui.controls.lists;
+package ui.controls.lists.factories;
 
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableRow;
@@ -10,7 +10,7 @@ import java.util.function.BiConsumer;
 public class SelectRowFactory<T> implements javafx.util.Callback<javafx.scene.control.TreeTableView<T>, javafx.scene.control.TreeTableRow<T>> {
     private final List<BiConsumer<TreeItem<T>, Integer>> handlers;
 
-    SelectRowFactory(List<BiConsumer<TreeItem<T>, Integer>> handlers) {
+    public SelectRowFactory(List<BiConsumer<TreeItem<T>, Integer>> handlers) {
         this.handlers = handlers;
     }
 

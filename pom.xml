@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>dylbrown</groupId>
     <artifactId>pf2gen</artifactId>
-    <version>0.0.1-alpha</version>
+    <version>0.0.2-alpha</version>
     <properties>
         <javafx.version>11.0.2</javafx.version>
     </properties>
