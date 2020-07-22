@@ -47,7 +47,8 @@ public class MultiSourceLoader<T> {
     }
 
     public NavigableMap<String, T> getCategory(String category) {
-        if(categorizedItems.get(StringUtils.clean(category)) == null) {
+        category = StringUtils.clean(category);
+        if(categorizedItems.get(category) == null) {
             NavigableMap<String, T> map = new TreeMap<>();
             for (FileLoader<T> loader : loaders) {
                 for (Map.Entry<String, T> entry : loader.getCategory(category).entrySet()) {

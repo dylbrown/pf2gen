@@ -4,6 +4,7 @@ import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityScore;
 import model.ability_slots.AbilitySlot;
 import model.attributes.AttributeMod;
+import model.enums.Recalculate;
 import model.enums.Trait;
 import model.enums.Type;
 import model.util.Pair;
@@ -23,6 +24,7 @@ public class Ability implements Comparable<Ability> {
     private final List<AbilitySlot> abilitySlots;
     private final Type type;
     private final boolean multiple;
+    private final Recalculate recalculate;
     private final List<AttributeMod> modifiers;
     private final List<AbilityMod> abilityMods;
     private final List<Trait> traits;
@@ -33,7 +35,39 @@ public class Ability implements Comparable<Ability> {
     private final int skillIncreases;
     private final String sourceBook;
     private final int pageNo;
-    private final Map<Class<? extends AbilityExtension>, AbilityExtension> extensions = new HashMap<>();
+    private final Map<Class<? extends AbilityExtension>, AbilityExtension> extensions;
+
+    public Ability(Builder builder, Map<Class<? extends AbilityExtension>, AbilityExtension> extensions) {
+        this.name = builder.name;
+        this.level = builder.level;
+        this.modifiers = builder.modifiers;
+        this.description = builder.description;
+        this.prerequisites = builder.prerequisites;
+        this.prereqStrings = builder.prereqStrings;
+        this.givenPrerequisites = builder.givenPrerequisites;
+        this.requirements = builder.requirements;
+        this.requiredAttrs = builder.requiredAttrs;
+        this.requiredScores = builder.requiredScores;
+        this.traits = builder.traits;
+        this.customMod = builder.customMod;
+        this.abilityMods = builder.abilityMods;
+        this.abilitySlots = builder.abilitySlots;
+        this.type = builder.type;
+        this.multiple = builder.multiple;
+        this.skillIncreases = builder.skillIncreases;
+        this.sourceBook = builder.sourceBook;
+        this.pageNo = builder.pageNo;
+        this.recalculate = builder.recalculate;
+        this.extensions = extensions;
+    }
+
+    protected Ability(Ability.Builder builder) {
+        this(builder, new HashMap<>());
+        for (AbilityExtension.Builder extensionBuilder : builder.extensions.values()) {
+            AbilityExtension extension = extensionBuilder.build(this);
+            extensions.put(extension.getClass(), extension);
+        }
+    }
 
     public <T extends AbilityExtension> T getExtension(Class<T> extensionClass) {
         AbilityExtension extension = extensions.get(extensionClass);
@@ -58,32 +92,6 @@ public class Ability implements Comparable<Ability> {
                 return true;
         }
         return false;
-    }
-
-    protected Ability(Ability.Builder builder) {
-        this.name = builder.name;
-        this.level = builder.level;
-        this.modifiers = builder.modifiers;
-        this.description = builder.description;
-        this.prerequisites = builder.prerequisites;
-        this.prereqStrings = builder.prereqStrings;
-        this.givenPrerequisites = builder.givenPrerequisites;
-        this.requirements = builder.requirements;
-        this.requiredAttrs = builder.requiredAttrs;
-        this.requiredScores = builder.requiredScores;
-        this.traits = builder.traits;
-        this.customMod = builder.customMod;
-        this.abilityMods = builder.abilityMods;
-        this.abilitySlots = builder.abilitySlots;
-        this.type = builder.type;
-        this.multiple = builder.multiple;
-        this.skillIncreases = builder.skillIncreases;
-        this.sourceBook = builder.sourceBook;
-        this.pageNo = builder.pageNo;
-        for (AbilityExtension.Builder extensionBuilder : builder.extensions.values()) {
-            AbilityExtension extension = extensionBuilder.build(this);
-            extensions.put(extension.getClass(), extension);
-        }
     }
 
     public List<AttributeMod> getModifiers() {
@@ -154,6 +162,10 @@ public class Ability implements Comparable<Ability> {
         return multiple;
     }
 
+    public Recalculate getRecalculate() {
+        return recalculate;
+    }
+
     public Type getType() {
         return type;
     }
@@ -184,6 +196,12 @@ public class Ability implements Comparable<Ability> {
         return StringUtils.intialism(sourceBook) + " pg. " + pageNo;
     }
 
+    Ability copyWithLevel(Integer i) {
+        Builder builder = new Builder(this);
+        builder.setLevel(i);
+        return new Ability(builder, this.extensions);
+    }
+
     public static class Builder {
         private List<String> prerequisites = Collections.emptyList();
         private List<String> prereqStrings = Collections.emptyList();
@@ -204,6 +222,7 @@ public class Ability implements Comparable<Ability> {
         private String requirements = "";
         private String sourceBook = "Core Rulebook"; // TODO: Collect this in loader
         private int pageNo = -1;
+        private Recalculate recalculate = Recalculate.Never;
         private Map<Class<? extends AbilityExtension.Builder>, AbilityExtension.Builder>
                 extensions = Collections.emptyMap();
 
@@ -229,11 +248,35 @@ public class Ability implements Comparable<Ability> {
             this.requirements = other.requirements;
             this.sourceBook = other.sourceBook;
             this.pageNo = other.pageNo;
+            this.recalculate = other.recalculate;
             this.extensions = new HashMap<>();
             for (Map.Entry<Class<? extends AbilityExtension.Builder>,
                     AbilityExtension.Builder> entry : other.extensions.entrySet()) {
                 extensions.put(entry.getKey(), copy(entry.getValue()));
             }
+        }
+
+        private Builder(Ability ability) {
+            this.prerequisites = ability.prerequisites;
+            this.prereqStrings = ability.prereqStrings;
+            this.givenPrerequisites = ability.givenPrerequisites;
+            this.requiredAttrs = ability.requiredAttrs;
+            this.requiredScores = ability.requiredScores;
+            this.traits = ability.traits;
+            this.customMod = ability.customMod;
+            this.abilitySlots = ability.abilitySlots;
+            this.type = ability.type;
+            this.multiple = ability.multiple;
+            this.modifiers = ability.modifiers;
+            this.abilityMods = ability.abilityMods;
+            this.name = ability.name;
+            this.description = ability.description;
+            this.level = ability.level;
+            this.skillIncreases = ability.skillIncreases;
+            this.requirements = ability.requirements;
+            this.sourceBook = ability.sourceBook;
+            this.pageNo = ability.pageNo;
+            this.recalculate = ability.recalculate;
         }
 
         public void setPrerequisites(List<String> prerequisites) {
@@ -328,6 +371,10 @@ public class Ability implements Comparable<Ability> {
             this.skillIncreases = skillIncreases;
         }
 
+        public void setRecalculateMod(Recalculate recalculate) {
+            this.recalculate = recalculate;
+        }
+
         public <T extends AbilityExtension.Builder> T getExtension(Class<T> extensionClass) {
             AbilityExtension.Builder extension = extensions.get(extensionClass);
             if(extensionClass.isInstance(extension))
@@ -356,6 +403,10 @@ public class Ability implements Comparable<Ability> {
 
         public String getName() {
             return name;
+        }
+
+        public List<Trait> getTraits() {
+            return Collections.unmodifiableList(traits);
         }
     }
 }

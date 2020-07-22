@@ -30,23 +30,24 @@ public class FeatSelectionPane extends SelectionPane<Ability> {
         this.display = display;
         AbilityManager abilities = character.abilities();
         init(slot);
-        allItems.addAll(abilities.getOptions(slot));
-        items.addAll(abilities.getOptions(slot));
+        List<Ability> options = abilities.getOptions(slot);
+        allItems.addAll(options);
+        items.addAll(options);
         items.removeIf((item)->{
             if(!character.meetsPrerequisites(item)){
                 unmetPrereqs.add(item);
                 return true;
             }
-            return false;
+            return !item.isMultiple() && character.abilities().haveAbility(item);
         });
+        character.attributes().addListener(pce-> refreshUnmet());
+        character.scores().addAbilityListener(pce-> refreshUnmet());
         items.removeAll(slot.getSelections());
         unmetPrereqs.removeAll(slot.getSelections());
         allItems.removeAll(slot.getSelections());
         slot.getSelections().addListener((ListChangeListener<Ability>) c->{
             while(c.next()) {
-                allItems.removeAll(c.getAddedSubList());
                 allItems.addAll(c.getRemoved());
-                items.removeAll(c.getAddedSubList());
                 unmetPrereqs.removeAll(c.getAddedSubList());
                 for (Ability ability : c.getRemoved()) {
                     if(!character.meetsPrerequisites(ability)) {
@@ -59,14 +60,13 @@ public class FeatSelectionPane extends SelectionPane<Ability> {
         abilities.getAbilities().addListener((ListChangeListener<Ability>) (event)->{
             while(event.next()) {
                 if (event.wasAdded()) {
-                    unmetPrereqs.removeIf((item) -> {
-                        if (character.meetsPrerequisites(item)) {
-                            if(!items.contains(item))
-                                items.add(item);
-                            return true;
+                    refreshUnmet();
+                    for (Ability ability : event.getAddedSubList()) {
+                        if(!ability.isMultiple()) {
+                            items.remove(ability);
+                            allItems.remove(ability);
                         }
-                        return false;
-                    });
+                    }
                 }
                 if (event.wasRemoved()) {
                     unmetPrereqs.removeAll(event.getRemoved());
@@ -115,6 +115,17 @@ public class FeatSelectionPane extends SelectionPane<Ability> {
         });
 
         this.setCenter(itemsList);
+    }
+
+    private void refreshUnmet() {
+        unmetPrereqs.removeIf((item) -> {
+            if (character.meetsPrerequisites(item)) {
+                if(!items.contains(item))
+                    items.add(item);
+                return true;
+            }
+            return false;
+        });
     }
 
     private void setContents(Toggle newVal) {

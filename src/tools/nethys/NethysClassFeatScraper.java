@@ -1,6 +1,5 @@
 package tools.nethys;
 
-import model.util.Pair;
 import model.util.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -19,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class NethysClassFeatScraper {
+class NethysClassFeatScraper extends NethysScraper {
 	private final Map<String, StringBuilder> sources = new HashMap<>();
 
 	public static void main(String[] args) {
@@ -42,10 +41,10 @@ class NethysClassFeatScraper {
 				String href = "";
 				try {
 					href = element.child(0).child(0).attr("href");
-					Pair<String, String> pair = addFeat(href);
-					if(!pair.first.equals(""))
-						sources.computeIfAbsent(pair.second.toLowerCase(), key->new StringBuilder())
-								.append(pair.first);
+					FeatEntry entry = addFeat(href);
+					if(!entry.contents.equals(""))
+						sources.computeIfAbsent(entry.source.toLowerCase(), key->new StringBuilder())
+								.append(entry.contents);
 				} catch (Exception e) {
 					System.out.println(href);
 					e.printStackTrace();
@@ -65,27 +64,44 @@ class NethysClassFeatScraper {
 			e.printStackTrace();
 		}
 	}
-	private Pair<String, String> addFeat(String href) {
+	public static class FeatEntry {
+		public final String archetype, source, contents;
+
+		public FeatEntry(String archetype, String source, String contents) {
+			this.archetype = archetype;
+			this.source = source;
+			this.contents = contents;
+		}
+	}
+	public static FeatEntry addFeat(String href) {
 		Document doc;
 		try  {
 			doc = Jsoup.connect("http://2e.aonprd.com/"+href).get();
 		} catch (IOException e) {
 			e.printStackTrace();
-			return new Pair<>("", "");
+			return new FeatEntry("", "", "");
 		}
 		Element output = doc.getElementById("ctl00_MainContent_DetailedOutput");
 
 		String featName = output.getElementsByAttributeValue("href", href).first().text();
 		String level = output.getElementsByClass("title").first().getElementsByTag("span").text().replaceAll("[^\\d]*", "");
-		StringBuilder description = new StringBuilder();
+		StringBuilder descBuilder = new StringBuilder();
 		Node afterHr = output.getElementsByTag("hr").first().nextSibling();
 		while(afterHr != null) {
 			if(afterHr instanceof TextNode)
-				description.append(((TextNode) afterHr).getWholeText());
-			else if(afterHr instanceof Element)
-				description.append(((Element) afterHr).text());
+				descBuilder.append(((TextNode) afterHr).getWholeText());
+			else if(afterHr instanceof Element) {
+				String tagName = ((Element) afterHr).tagName();
+				if(tagName.equals("b") || tagName.equals("i") || tagName.equals("br"))
+					descBuilder.append("&lt;").append(tagName).append("&gt;");
+				descBuilder.append(((Element) afterHr).text());
+				if(tagName.equals("b") || tagName.equals("i"))
+					descBuilder.append("&lt;/").append(tagName).append("&gt;");
+			}
 			afterHr = afterHr.nextSibling();
 		}
+		String description = descBuilder.toString();
+
 		List<String> traits = new ArrayList<>();
 		for (Element trait : output.getElementsByClass("trait")) {
 			traits.add(trait.getElementsByTag("a").text());
@@ -117,6 +133,7 @@ class NethysClassFeatScraper {
 		}
 		String prereqs = StringUtils.camelCase(getAfter(output, "Prerequisites"));
 		String frequency = getAfter(output, "Frequency");
+		String archetype = getAfter(output, "Archetype");
 		String requirements = getAfter(output, "Requirements");
 		String trigger = getAfter(output, "Trigger");
 
@@ -126,7 +143,24 @@ class NethysClassFeatScraper {
 				.append("\" page=\"").append(pageNo);
 		if(!cost.equals(""))
 			feat.append("\" cost=\"").append(cost);
-		feat.append("\">\n\t\t<Traits>").append(String.join(", ", traits)).append("</Traits>\n");
+		feat.append("\">\n");
+
+		// Template Detection
+		if(description.startsWith("You gain the basic spellcasting benefits.")) {
+			feat.append("\t\t<Template>Basic Spellcasting Benefit</Template>\n");
+		}else if(description.startsWith("You gain the expert spellcasting benefits.")){
+			feat.append("\t\t<Template>Expert Spellcasting Benefits</Template>\n");
+		}else if(description.startsWith("You gain the master spellcasting benefits.")){
+			feat.append("\t\t<Template>Master Spellcasting Benefits</Template>\n");
+		}else if(description.startsWith("You gain one "+archetype.toLowerCase()+" feat. For the purpose of ")) {
+			feat.append("\t\t<Template>Advanced Multiclass Feat</Template>\n");
+		}else if(archetype.length() > 0 && featName.endsWith("Breadth")) {
+			feat.append("\t\t<Template>Spellcasting Breadth</Template>\n");
+		}
+
+		feat.append("\t\t<Traits>").append(String.join(", ", traits)).append("</Traits>\n");
+		if(!archetype.equals(""))
+			feat.append("\t\t<Archetype>").append(archetype).append("</Archetype>\n");
 		if(!prereqs.equals(""))
 			feat.append("\t\t<Prerequisites>").append(prereqs).append("</Prerequisites>\n");
 		if(!trigger.equals(""))
@@ -135,20 +169,16 @@ class NethysClassFeatScraper {
 			feat.append("\t\t<Frequency>").append(frequency).append("</Frequency>\n");
 		if(!requirements.equals(""))
 			feat.append("\t\t<Requirements>").append(requirements).append("</Requirements>\n");
-		feat.append("\t\t<Description>").append(description).append("</Description>\n")
-			.append("</Ability>");
-
-
-
-		return new Pair<>(feat.toString(), source);
-	}
-
-	private String getAfter(Element output, String bContents) {
-		if(output.getElementsMatchingOwnText(bContents).size() > 0) {
-			Node node = output.getElementsMatchingText("\\A"+bContents+"\\z").first().nextSibling();
-			if (node instanceof TextNode)
-				return ((TextNode) node).getWholeText().trim();
+		feat.append("\t\t<Description>").append(description).append("</Description>\n");
+		if(description.equals("You gain a 1st- or 2nd-level "+archetype.toLowerCase()+" feat.")) {
+			feat.append("\t\t<AbilitySlot state=\"feat\" name=\"").append(archetype)
+					.append(" Feat\" type=\"Class(").append(archetype)
+					.append(") Feat\" level=\"2\"/>\n");
 		}
-		return "";
+		feat.append("</Ability>\n");
+
+
+
+		return new FeatEntry(archetype, source, feat.toString());
 	}
 }

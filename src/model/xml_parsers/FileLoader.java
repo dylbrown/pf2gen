@@ -139,7 +139,7 @@ public abstract class FileLoader<T> {
             Node item = childNodes.item(i);
             if(item.getNodeType() != Node.ELEMENT_NODE)
                 continue;
-            T t = parseItem(subFile, (Element) item);
+            T t = parseItem(subFile, (Element) item, category);
             addItem(category, t);
         }
     }
@@ -153,6 +153,10 @@ public abstract class FileLoader<T> {
     }
 
     protected abstract T parseItem(File file, Element item);
+
+    protected T parseItem(File file, Element item, String category) {
+        return parseItem(file, item);
+    }
 
     protected Document getDoc(File path) {
         Document doc = null;

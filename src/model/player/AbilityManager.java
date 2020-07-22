@@ -9,6 +9,7 @@ import model.abc.PClass;
 import model.abilities.Ability;
 import model.abilities.AbilitySetExtension;
 import model.abilities.ArchetypeExtension;
+import model.abilities.ScalingExtension;
 import model.ability_slots.*;
 import model.data_managers.sources.SourcesLoader;
 import model.enums.Type;
@@ -98,8 +99,11 @@ public class AbilityManager implements PlayerState {
 						}else if (pClass.get() != null) {
 							results.addAll(pClass.get().getFeats(maxLevel));
 							for (Ability a : SourcesLoader.instance().feats().getCategory("Archetype").values()) {
-								if(a.getLevel() <= maxLevel)
-									results.add(a);
+								if(a.getLevel() <= maxLevel) {
+									if(a.getExtension(ScalingExtension.class) != null) {
+										results.add(a.getExtension(ScalingExtension.class).getAbility(maxLevel));
+									}else results.add(a);
+								}
 							}
 						}
 						break;
@@ -111,8 +115,16 @@ public class AbilityManager implements PlayerState {
 						if (ancestry.get() != null)
 							results.addAll(ancestry.get().getHeritages());
 						break;
+					case "General":
+						for (Ability ability : SourcesLoader.instance().feats().getCategory("Skill").values()) {
+							if(ability.getLevel() <= maxLevel)
+								results.add(ability);
+						}
 					default:
-						results.addAll(SourcesLoader.instance().feats().getCategory(allowedType).values());
+						for (Ability ability : SourcesLoader.instance().feats().getCategory(allowedType).values()) {
+							if(ability.getLevel() <= maxLevel)
+								results.add(ability);
+						}
 						break;
 				}
 			}
@@ -329,5 +341,18 @@ public class AbilityManager implements PlayerState {
 	}
 
 	public void reset(PC.ResetEvent resetEvent) {
+	}
+
+	public boolean hasPrereqString(String archetype, String prereqString) {
+		for (Ability ability : prereqGivers.get(prereqString)) {
+			ArchetypeExtension archetypeExt = ability.getExtension(ArchetypeExtension.class);
+			if(archetypeExt != null && archetypeExt.getArchetype().equals(archetype))
+				return true;
+		}
+		return false;
+	}
+
+	public Collection<Ability> getArchetypeAbilities(String archetype) {
+		return Collections.unmodifiableSet(archetypeAbilities.get(archetype));
 	}
 }

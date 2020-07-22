@@ -7,60 +7,63 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import model.abilities.Ability;
 
-import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 class Applier {
+	private final List<Consumer<Ability>> preApplyFns = new ArrayList<>();
 	private final List<Consumer<Ability>> applyFns = new ArrayList<>();
+	private final List<Consumer<Ability>> preRemoveFns = new ArrayList<>();
 	private final List<Consumer<Ability>> removeFns = new ArrayList<>();
-	private PropertyChangeSupport support = new PropertyChangeSupport(this);
-	private BooleanProperty isLooping = new SimpleBooleanProperty(false);
+	private final BooleanProperty isLooping = new SimpleBooleanProperty(false);
 	private Ability mostRecentAbility = null;
 
+	void preApply(Ability ability) {
+		process(ability, preApplyFns);
+	}
+
 	void apply(Ability ability) {
-		isLooping.setValue(true);
-		for (Consumer<Ability> applyFn : applyFns) {
-			applyFn.accept(ability);
-		}
-		mostRecentAbility = ability;
-		isLooping.setValue(false);
+		process(ability, applyFns);
 	}
 
 	void remove(Ability ability) {
+		process(ability, removeFns);
+	}
+
+	private void process(Ability ability, List<Consumer<Ability>> functions) {
 		isLooping.setValue(true);
-		for (Consumer<Ability> removeFn : removeFns) {
-			removeFn.accept(ability);
+		for (Consumer<Ability> function : functions) {
+			function.accept(ability);
 		}
 		mostRecentAbility = ability;
 		isLooping.setValue(false);
 	}
 
+	void onPreApply(Consumer<Ability> consumer) {
+		addListener(consumer, preApplyFns);
+	}
+
 	void onApply(Consumer<Ability> consumer) {
-		if(!isLooping.get())
-			applyFns.add(consumer);
-		else {
-			Property<ChangeListener<Boolean>> listener = new SimpleObjectProperty<>();
-			listener.setValue((o, oldVal, newVal) -> {
-				if (!newVal) {
-					applyFns.add(consumer);
-					consumer.accept(mostRecentAbility);
-					isLooping.removeListener(listener.getValue());
-				}
-			});
-			isLooping.addListener(listener.getValue());
-		}
+		addListener(consumer, applyFns);
+	}
+
+	void onPreRemove(Consumer<Ability> consumer) {
+		addListener(consumer, preRemoveFns);
 	}
 
 	void onRemove(Consumer<Ability> consumer) {
+		addListener(consumer, removeFns);
+	}
+
+	private void addListener(Consumer<Ability> consumer, List<Consumer<Ability>> functions) {
 		if(!isLooping.get())
-			removeFns.add(consumer);
+			functions.add(consumer);
 		else {
 			Property<ChangeListener<Boolean>> listener = new SimpleObjectProperty<>();
 			listener.setValue((o, oldVal, newVal) -> {
 				if (!newVal) {
-					removeFns.add(consumer);
+					functions.add(consumer);
 					consumer.accept(mostRecentAbility);
 					isLooping.removeListener(listener.getValue());
 				}

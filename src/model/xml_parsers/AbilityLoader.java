@@ -12,13 +12,11 @@ import model.attributes.AttributeMod;
 import model.attributes.AttributeModSingleChoice;
 import model.data_managers.sources.SourceConstructor;
 import model.data_managers.sources.SourcesLoader;
-import model.enums.Action;
-import model.enums.Proficiency;
-import model.enums.Trait;
-import model.enums.Type;
+import model.enums.*;
 import model.spells.CasterType;
 import model.spells.SpellType;
 import model.spells.Tradition;
+import model.util.Pair;
 import model.xml_parsers.equipment.WeaponsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -27,7 +25,6 @@ import org.w3c.dom.NodeList;
 import java.io.File;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static model.util.StringUtils.camelCase;
 import static model.util.StringUtils.camelCaseWord;
@@ -96,8 +93,12 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         builder.setName(name);
         if(!element.getAttribute("page").equals(""))
             builder.setPageNo(Integer.parseInt(element.getAttribute("page")));
-        if(!element.getAttribute("level").equals("")) {
-            builder.setLevel(Integer.parseInt(element.getAttribute("level")));
+        String levelString = element.getAttribute("level");
+        if(!levelString.equals("")) {
+            if(levelString.endsWith("+")){
+                builder.getExtension(ScalingExtension.Builder.class);
+                builder.setLevel(Integer.parseInt(levelString.substring(0, levelString.length()-1)));
+            }else builder.setLevel(Integer.parseInt(levelString));
         }else builder.setLevel(level);
         String increase = element.getAttribute("skillIncrease");
         if(!increase.equals("")){
@@ -143,18 +144,28 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     builder.setRequirements(trim);
                     break;
                 case "Requires":
-                    if(trim.matches(".*\\d.*"))
-                        break;
-                    builder.setRequiredAttrs(Arrays.stream(trim.split(",")).map((str)->{
-                        String[] split = str.split(" [iI]n ");
-                        Proficiency reqProf = Proficiency.valueOf(camelCaseWord(split[0].trim()));
-                        if(camelCaseWord(split[1].trim().substring(0, 4)).equals("Lore")) {
-                            String data = camelCase(str.trim().substring(4).trim().replaceAll("[()]", ""));
-                            return new AttributeMod(Attribute.Lore, reqProf, data);
-                        }else{
-                            return new AttributeMod(Attribute.robustValueOf(camelCase(split[1].trim())), reqProf);
+                    List<AttributeMod> requiredAttrs = new ArrayList<>();
+                    List<Pair<AbilityScore, Integer>> requiredScores = new ArrayList<>();
+                    for (String s : trim.split(",")) {
+                        if(s.matches(".*\\d.*")) {
+                            String[] split = s.trim().split(" ", 2);
+                            requiredScores.add(
+                                    new Pair<>(AbilityScore.robustValueOf(split[0]), Integer.parseInt(split[1])));
+                        } else {
+                            String[] split = s.split(" [iI]n ");
+                            Proficiency reqProf = Proficiency.valueOf(camelCaseWord(split[0].trim()));
+                            if(camelCaseWord(split[1].trim().substring(0, 4)).equals("Lore")) {
+                                String data = camelCase(s.trim().substring(4).trim().replaceAll("[()]", ""));
+                                requiredAttrs.add(new AttributeMod(Attribute.Lore, reqProf, data));
+                            }else{
+                                requiredAttrs.add(
+                                        new AttributeMod(Attribute.robustValueOf(camelCase(split[1].trim())), reqProf));
+                            }
                         }
-                    }).collect(Collectors.toCollection(ArrayList::new)));
+                    }
+
+                    builder.setRequiredAttrs(requiredAttrs);
+                    builder.setRequiredScores(requiredScores);
                     break;
                 case "Weapon":
                     builder.getExtension(AttackExtension.Builder.class)
@@ -162,6 +173,14 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     break;
                 case "CustomMod":
                     builder.setCustomMod(trim);
+                    switch (element.getAttribute("alwaysRecalculate")) {
+                        case "Always":
+                            builder.setRecalculateMod(Recalculate.Always);
+                            break;
+                        case "On Level":
+                            builder.setRecalculateMod(Recalculate.OnLevel);
+                            break;
+                    }
                     break;
                 case "Spellcasting":
                     SpellExtension.Builder spellExt = builder.getExtension(SpellExtension.Builder.class);
@@ -324,6 +343,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
 
     public Ability.Builder makeAbility(Element curr) {
         String level = curr.getAttribute("level");
+        if(level.endsWith("+")) level = level.substring(0, level.length() - 1);
         return makeAbility(curr, curr.getAttribute("name"), (level.isBlank()) ? 0 : Integer.parseInt(level));
     }
 

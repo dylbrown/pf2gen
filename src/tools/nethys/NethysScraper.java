@@ -5,11 +5,20 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
+import java.util.Iterator;
+
 abstract class NethysScraper {
-	String getAfter(Element output, String bContents) {
+	static String getAfter(Element output, String bContents) {
 		Elements elems = output.getElementsMatchingOwnText("\\A" + bContents + "\\z");
 		if(elems.size() > 0) {
-			Node node = output.getElementsMatchingText("\\A"+bContents+"\\z").first().nextSibling();
+			Elements matchingText = output.getElementsMatchingText("\\A" + bContents + "\\z");
+			Iterator<Element> iterator = matchingText.iterator();
+			Element result = matchingText.first();
+			do {
+				if(!iterator.hasNext()) break;
+				result = iterator.next();
+			} while (!result.tagName().equals("b"));
+			Node node = result.nextSibling();
 			while((node instanceof Element && ((Element) node).wholeText().trim().equals("")) ||
 					(node instanceof TextNode && ((TextNode) node).getWholeText().trim().equals("")))
 				node = node.nextSibling();
@@ -54,7 +63,7 @@ abstract class NethysScraper {
 		return "\t<"+name+">%s</"+name+">\n";
 	}
 
-	String parseDesc(Node curr) {
+	static String parseDesc(Node curr) {
 		if(curr instanceof TextNode) {
 			return ((TextNode) curr).getWholeText().replaceAll("(\r\n|\n)", " ");
 		}
