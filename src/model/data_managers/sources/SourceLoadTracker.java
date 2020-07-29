@@ -21,6 +21,8 @@ public class SourceLoadTracker {
     }
 
     public boolean isNotLoaded(String name) {
+        if(constructor == null)
+            return false;
         switch (constructor.getType()) {
             case SingleFileMultiItem:
             case SingleFileSingleItem:

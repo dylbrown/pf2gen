@@ -1,5 +1,6 @@
 package model.xml_parsers;
 
+import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.spells.Spell;
 import model.spells.Tradition;
@@ -15,8 +16,8 @@ import java.util.*;
 public class SpellsLoader extends FileLoader<Spell> {
 	private final Map<Tradition, SortedMap<Integer, List<Spell>>> spellsByLevel = new HashMap<>();
 
-	public SpellsLoader(SourceConstructor sourceConstructor, File root) {
-		super(sourceConstructor, root);
+	public SpellsLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
+		super(sourceConstructor, root, sourceBuilder);
 	}
 
 	public List<Spell> getSpells(Tradition tradition, int level) {

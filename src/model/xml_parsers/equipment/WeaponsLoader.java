@@ -1,5 +1,6 @@
 package model.xml_parsers.equipment;
 
+import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.WeaponProficiency;
 import model.equipment.CustomTrait;
@@ -24,8 +25,8 @@ public class WeaponsLoader extends FileLoader<Weapon> {
     private static final Map<String, WeaponGroup> weaponGroups = new HashMap<>();
     private static final Map<String, CustomTrait> weaponTraits = new HashMap<>();
 
-    public WeaponsLoader(SourceConstructor sourceConstructor, File root) {
-        super(sourceConstructor, root);
+    public WeaponsLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
+        super(sourceConstructor, root, sourceBuilder);
     }
 
     @Override

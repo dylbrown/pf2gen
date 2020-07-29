@@ -1,6 +1,7 @@
 package model.xml_parsers.abc;
 
 import model.abc.AC;
+import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -8,8 +9,8 @@ import org.w3c.dom.NodeList;
 import java.io.File;
 
 abstract class ACLoader<T extends AC, U extends AC.Builder> extends ABCLoader<T, U> {
-    public ACLoader(SourceConstructor sourceConstructor, File root) {
-        super(sourceConstructor, root);
+    public ACLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
+        super(sourceConstructor, root, sourceBuilder);
     }
 
     void parseElement(Element curr, String trim, U builder) {

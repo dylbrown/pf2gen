@@ -2,6 +2,7 @@ package model.enums;
 
 public enum Type {
     Initial, Ancestry, Background, Class, Feat, Heritage, General, Skill, Dedication, None, Apex,
+    Choice, // These are not feats in the game, they are things like Rogue's Rackets
     Item,
     Five,Ten,Fifteen,Twenty;
 

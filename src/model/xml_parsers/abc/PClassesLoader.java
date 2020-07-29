@@ -2,6 +2,7 @@ package model.xml_parsers.abc;
 
 import model.abc.PClass;
 import model.ability_slots.*;
+import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.Type;
 import org.w3c.dom.Element;
@@ -19,8 +20,8 @@ public class PClassesLoader extends ACLoader<PClass, PClass.Builder> {
         sources.put(PClassesLoader.class, e -> Type.Class);
     }
 
-    public PClassesLoader(SourceConstructor sourceConstructor, File root) {
-        super(sourceConstructor, root);
+    public PClassesLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
+        super(sourceConstructor, root, sourceBuilder);
     }
 
     @Override

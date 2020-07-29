@@ -6,9 +6,9 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.collections.transformation.FilteredList;
 import model.WeaponGroupMod;
 import model.WeaponMod;
-import model.attributes.MinimumProficiencyList;
 import model.attributes.*;
 import model.enums.Proficiency;
 import model.enums.Type;
@@ -19,6 +19,7 @@ import model.equipment.weapons.WeaponGroup;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * @author Dylan Brown
@@ -35,7 +36,8 @@ public class AttributeManager implements PlayerState {
     private final SortedMap<Integer, Integer> innerSkillIncreases = new TreeMap<>();
     private final ObservableMap<Integer, Integer> skillIncreases = FXCollections.observableMap(innerSkillIncreases);
 
-    private final Map<Proficiency, MinimumProficiencyList> minLists = new HashMap<>();
+    private final Map<Proficiency, ObservableList<String>> minSkillLists = new HashMap<>();
+    private final Map<Proficiency, ObservableList<String>> minSaveLists = new HashMap<>();
     private final ReadOnlyObjectProperty<Integer> level;
     private final DecisionManager decisions;
     private final Map<String, Proficiency> weaponProficiencies = new HashMap<>();
@@ -56,14 +58,32 @@ public class AttributeManager implements PlayerState {
         singleAttributes.put(Attribute.Lore, new SingleAttributeManager(Attribute.Lore));
         singleAttributes.put(Attribute.ClassDC, new SingleAttributeManager(Attribute.ClassDC));
 
-        minLists.put(Proficiency.Trained, new MinimumProficiencyList(Collections.unmodifiableMap(proficiencies),
-                Proficiency.Trained));
-        minLists.put(Proficiency.Expert, new MinimumProficiencyList(Collections.unmodifiableMap(proficiencies),
-                Proficiency.Expert));
-        minLists.put(Proficiency.Master, new MinimumProficiencyList(Collections.unmodifiableMap(proficiencies),
-                Proficiency.Master));
-        minLists.put(Proficiency.Legendary, new MinimumProficiencyList(Collections.unmodifiableMap(proficiencies),
-                Proficiency.Legendary));
+        Predicate<String> isSkill = s -> {
+            for (Attribute skill : Attribute.getSkills())
+                if (skill.toString().equals(s))
+                    return true;
+            return false;
+        };
+        Predicate<String> isSave = s -> {
+            for (Attribute save : Attribute.getSaves())
+                if (save.toString().equals(s))
+                    return true;
+            return false;
+        };
+        for(Proficiency proficiency : Proficiency.notUntrained()) {
+            minSkillLists.put(proficiency,
+                    new FilteredList<>(
+                            new MinimumProficiencyList(Collections.unmodifiableMap(proficiencies), proficiency),
+                            isSkill
+                    )
+            );
+            minSaveLists.put(proficiency,
+                    new FilteredList<>(
+                            new MinimumProficiencyList(Collections.unmodifiableMap(proficiencies), proficiency),
+                            isSave
+                    )
+            );
+        }
 
         applier.onApply((ability -> {
             addSkillIncreases(ability.getSkillIncreases(), ability.getLevel());
@@ -463,7 +483,11 @@ public class AttributeManager implements PlayerState {
     }
 
     ObservableList<String> getMinList(Proficiency min) {
-        return minLists.get(min);
+        return minSkillLists.get(min);
+    }
+
+    public ObservableList<String> getMinSavesList(Proficiency min) {
+        return minSaveLists.get(min);
     }
 
     public void apply(List<? extends AttributeBonus> bonuses) {

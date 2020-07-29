@@ -1,5 +1,7 @@
 package model.enums;
 
+import model.util.StringUtils;
+
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -16,6 +18,17 @@ public enum Proficiency {
     public static Proficiency max(Proficiency... profs) {
         Optional<Proficiency> max = Stream.of(profs).max(Comparator.comparingInt(Proficiency::getMod));
         return max.orElse(Proficiency.Untrained);
+    }
+
+    private static final Proficiency[] notUntrained = new Proficiency[]
+            {Proficiency.Trained, Proficiency.Expert, Proficiency.Master, Proficiency.Legendary};
+
+    public static Proficiency[] notUntrained() {
+        return notUntrained;
+    }
+
+    public static Proficiency robustValueOf(String proficiency) {
+        return valueOf(StringUtils.camelCaseWord(proficiency.trim()));
     }
 
     public int getMod(){

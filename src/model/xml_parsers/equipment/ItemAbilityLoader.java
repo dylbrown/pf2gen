@@ -1,6 +1,7 @@
 package model.xml_parsers.equipment;
 
 import model.abilities.Ability;
+import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.Type;
 import model.xml_parsers.AbilityLoader;
@@ -15,8 +16,8 @@ public class ItemAbilityLoader extends AbilityLoader<Ability> {
         sources.put(ItemAbilityLoader.class, e -> Type.Item);
     }
 
-    public ItemAbilityLoader(SourceConstructor sourceConstructor, File root) {
-        super(sourceConstructor, root);
+    public ItemAbilityLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
+        super(sourceConstructor, root, sourceBuilder);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package model.xml_parsers;
 
+import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.data_managers.sources.SourcesLoader;
 import org.w3c.dom.Element;
@@ -11,8 +12,8 @@ import java.io.File;
 
 public class DomainsLoader extends FileLoader<Domain> {
 
-    public DomainsLoader(SourceConstructor sourceConstructor, File root) {
-        super(sourceConstructor, root);
+    public DomainsLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
+        super(sourceConstructor, root, sourceBuilder);
     }
 
     @Override

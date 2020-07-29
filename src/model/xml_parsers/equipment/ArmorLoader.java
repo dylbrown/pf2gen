@@ -1,5 +1,6 @@
 package model.xml_parsers.equipment;
 
+import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.ArmorProficiency;
 import model.equipment.CustomTrait;
@@ -24,8 +25,8 @@ public class ArmorLoader extends FileLoader<Armor> {
     private final Map<String, ArmorGroup> armorGroups = new HashMap<>();
     private final Map<String, CustomTrait> armorTraits = new HashMap<>();
 
-    public ArmorLoader(SourceConstructor sourceConstructor, File root) {
-        super(sourceConstructor, root);
+    public ArmorLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
+        super(sourceConstructor, root, sourceBuilder);
     }
 
     @Override

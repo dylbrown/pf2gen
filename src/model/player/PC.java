@@ -13,7 +13,7 @@ import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
 import model.ability_slots.AbilitySlot;
 import model.attributes.Attribute;
-import model.attributes.AttributeMod;
+import model.attributes.AttributeRequirement;
 import model.enums.Alignment;
 import model.enums.Type;
 import model.spells.Spell;
@@ -210,9 +210,13 @@ public class PC {
 
     public boolean meetsPrerequisites(Ability ability) {
         if(ability.getLevel() > getLevel()) return false;
-        for (AttributeMod requiredAttr : ability.getRequiredAttrs()) {
-            if(attributes.getProficiency(requiredAttr.getAttr(), requiredAttr.getData()).getValue().getMod() < requiredAttr.getMod().getMod())
-                return false;
+and:    for (AttributeRequirement requiredAttr : ability.getRequiredAttrs()) {
+            for (AttributeRequirement requirement : requiredAttr.requirements()) {
+                if(attributes.getProficiency(requirement.getAttr(), requirement.getData()).getValue().getMod()
+                        >= requirement.getMod().getMod())
+                    continue and;
+            }
+            return false;
         }
         for (Pair<AbilityScore, Integer> requiredScore : ability.getRequiredScores()) {
             if(scores.getScore(requiredScore.first) < requiredScore.second)

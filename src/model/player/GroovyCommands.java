@@ -191,9 +191,17 @@ class GroovyCommands {
                     if(words.length > 1){
                         Proficiency min = Proficiency.valueOf(words[1].replaceAll("[()]", ""));
                         selections = attributes.getMinList(min);
-
                     }else
                         selections = Arrays.stream(Attribute.getSkills()).map(
+                                Enum::toString).collect(Collectors.toCollection(ArrayList::new));
+                    optionsClass = String.class;
+                    break;
+                case "saving throw":
+                    if(words.length > 1){
+                        Proficiency min = Proficiency.valueOf(words[1].replaceAll("[()]", ""));
+                        selections = attributes.getMinSavesList(min);
+                    }else
+                        selections = Arrays.stream(Attribute.getSaves()).map(
                                 Enum::toString).collect(Collectors.toCollection(ArrayList::new));
                     optionsClass = String.class;
                     break;

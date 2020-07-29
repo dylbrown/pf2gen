@@ -7,6 +7,7 @@ import model.ability_scores.AbilityScore;
 import model.ability_slots.FilledSlot;
 import model.attributes.Attribute;
 import model.attributes.AttributeMod;
+import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.data_managers.sources.SourcesLoader;
 import model.enums.Proficiency;
@@ -30,12 +31,12 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 		sources.put(BloodlinesLoader.class, (element -> Type.Class));
 	}
 
-	public BloodlinesLoader(SourceConstructor sourceConstructor, File root) {
-		super(sourceConstructor, root);
+	public BloodlinesLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
+		super(sourceConstructor, root, sourceBuilder);
 	}
 
 	private BloodlinesLoader() {
-		super(null, null);
+		super(null, null, null);
 	}
 
 	public static Ability makeBloodlineStatic(Element item) {

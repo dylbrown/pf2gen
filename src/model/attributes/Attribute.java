@@ -34,6 +34,7 @@ public enum Attribute {
     }
 
     private static final Attribute[] skills = {Acrobatics, Arcana, Athletics, Crafting, Deception, Diplomacy, Intimidation, Lore, Medicine, Nature, Occultism, Performance, Religion, Society, Stealth, Survival, Thievery};
+    private static final Attribute[] saves = {Fortitude, Reflex, Will};
 
     static{
         skillsByScore.put(Str, new ArrayList<>(Collections.singletonList(Athletics)));
@@ -56,6 +57,10 @@ public enum Attribute {
 
     public static List<Attribute> skillsByScore(AbilityScore score) {
         return Collections.unmodifiableList(skillsByScore.get(score));
+    }
+
+    public static Attribute[] getSaves() {
+        return saves;
     }
 
     public boolean hasACP() {

@@ -1,5 +1,6 @@
 package model.xml_parsers;
 
+import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.data_managers.sources.SourceLoadTracker;
 import org.w3c.dom.Document;
@@ -32,11 +33,24 @@ public abstract class FileLoader<T> {
     }
 
     private boolean loadedFromRepository = false;
+    private Source source = null;
 
-    public FileLoader(SourceConstructor sourceConstructor, File root) {
+    public FileLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
         this.sourceConstructor = sourceConstructor;
         this.loadTracker = new SourceLoadTracker(sourceConstructor);
         this.root = root;
+        if(sourceBuilder != null)
+            sourceBuilder.onBuild((source)->this.source = source);
+    }
+
+    protected FileLoader(SourceConstructor sourceConstructor, File root) {
+        this.sourceConstructor = sourceConstructor;
+        this.loadTracker = new SourceLoadTracker(sourceConstructor);
+        this.root = root;
+    }
+
+    public Source getSource() {
+        return source;
     }
 
     public File getRoot() {
@@ -76,7 +90,7 @@ public abstract class FileLoader<T> {
     }
 
     public NavigableMap<String, T> getCategory(String category) {
-        if(sourceConstructor.getType() != SourceConstructor.Type.MultiItemMultiFile)
+        if(source != null && sourceConstructor.getType() != SourceConstructor.Type.MultiItemMultiFile)
             return getAll();
         if(loadTracker.isNotLoaded(category))
             load(category, "");

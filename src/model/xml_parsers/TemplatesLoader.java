@@ -1,6 +1,7 @@
 package model.xml_parsers;
 
 import model.abilities.Ability;
+import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import org.w3c.dom.Element;
 
@@ -8,8 +9,8 @@ import java.io.File;
 import java.util.function.Supplier;
 
 public class TemplatesLoader extends AbilityLoader<TemplatesLoader.BuilderSupplier> {
-    public TemplatesLoader(SourceConstructor sourceConstructor, File root) {
-        super(sourceConstructor, root);
+    public TemplatesLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
+        super(sourceConstructor, root, sourceBuilder);
     }
 
     @Override

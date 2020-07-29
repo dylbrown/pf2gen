@@ -4,6 +4,7 @@ import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityScore;
 import model.ability_slots.AbilitySlot;
 import model.attributes.AttributeMod;
+import model.attributes.AttributeRequirement;
 import model.enums.Recalculate;
 import model.enums.Trait;
 import model.enums.Type;
@@ -18,7 +19,7 @@ import static model.util.Copy.copy;
 public class Ability implements Comparable<Ability> {
     //TODO: Support Repeated Choice
     private final List<String> prerequisites, prereqStrings, givenPrerequisites;
-    private final List<AttributeMod> requiredAttrs;
+    private final List<AttributeRequirement> requiredAttrs;
     private final List<Pair<AbilityScore, Integer>> requiredScores;
     private final String customMod;
     private final List<AbilitySlot> abilitySlots;
@@ -121,7 +122,7 @@ public class Ability implements Comparable<Ability> {
         return skillIncreases;
     }
 
-    public List<AttributeMod> getRequiredAttrs() {
+    public List<AttributeRequirement> getRequiredAttrs() {
         return Collections.unmodifiableList(requiredAttrs);
     }
 
@@ -206,7 +207,7 @@ public class Ability implements Comparable<Ability> {
         private List<String> prerequisites = Collections.emptyList();
         private List<String> prereqStrings = Collections.emptyList();
         private List<String> givenPrerequisites = Collections.emptyList();
-        private List<AttributeMod> requiredAttrs = Collections.emptyList();
+        private List<AttributeRequirement> requiredAttrs = Collections.emptyList();
         private List<Pair<AbilityScore, Integer>> requiredScores = Collections.emptyList();
         private List<Trait> traits = Collections.emptyList();
         private String customMod = "";
@@ -293,7 +294,7 @@ public class Ability implements Comparable<Ability> {
 
         public void setGivesPrerequisites(List<String> given) {this.givenPrerequisites = given;}
 
-        public void setRequiredAttrs(List<AttributeMod> requiredAttrs) {
+        public void setRequiredAttrs(List<AttributeRequirement> requiredAttrs) {
             if(requiredAttrs.isEmpty())
                 this.requiredAttrs = Collections.emptyList();
             else

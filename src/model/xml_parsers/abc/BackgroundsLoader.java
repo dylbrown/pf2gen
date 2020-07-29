@@ -4,6 +4,7 @@ import model.abc.Background;
 import model.attributes.Attribute;
 import model.attributes.AttributeMod;
 import model.attributes.AttributeModSingleChoice;
+import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.Proficiency;
 import model.enums.Type;
@@ -24,8 +25,8 @@ public class BackgroundsLoader extends ABCLoader<Background, Background.Builder>
         sources.put(BackgroundsLoader.class, e -> Type.Background);
     }
 
-    public BackgroundsLoader(SourceConstructor sourceConstructor, File root) {
-        super(sourceConstructor, root);
+    public BackgroundsLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
+        super(sourceConstructor, root, sourceBuilder);
     }
 
     @Override

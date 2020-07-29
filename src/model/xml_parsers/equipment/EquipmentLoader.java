@@ -2,6 +2,7 @@ package model.xml_parsers.equipment;
 
 import model.attributes.Attribute;
 import model.attributes.AttributeBonus;
+import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.Trait;
 import model.enums.Type;
@@ -27,10 +28,10 @@ import java.util.function.Consumer;
 import static model.util.StringUtils.camelCaseWord;
 
 public class EquipmentLoader extends FileLoader<Equipment> {
-    private static final ItemAbilityLoader abilityLoader = new ItemAbilityLoader(null, null);
+    private static final ItemAbilityLoader abilityLoader = new ItemAbilityLoader(null, null, null);
 
-    public EquipmentLoader(SourceConstructor sourceConstructor, File root) {
-        super(sourceConstructor, root);
+    public EquipmentLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
+        super(sourceConstructor, root, sourceBuilder);
     }
 
     @Override

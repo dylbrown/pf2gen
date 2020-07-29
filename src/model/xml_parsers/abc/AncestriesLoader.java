@@ -1,6 +1,7 @@
 package model.xml_parsers.abc;
 
 import model.abc.Ancestry;
+import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.Language;
 import model.enums.Size;
@@ -25,8 +26,8 @@ public class AncestriesLoader extends ACLoader<Ancestry, Ancestry.Builder> {
 
     private String bonuses, penalties;
 
-    public AncestriesLoader(SourceConstructor sourceConstructor, File root) {
-        super(sourceConstructor, root);
+    public AncestriesLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
+        super(sourceConstructor, root, sourceBuilder);
     }
 
     @Override

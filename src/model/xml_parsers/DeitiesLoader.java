@@ -1,6 +1,7 @@
 package model.xml_parsers;
 
 import model.attributes.Attribute;
+import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.data_managers.sources.SourcesLoader;
 import model.enums.Alignment;
@@ -16,8 +17,8 @@ import java.util.stream.Stream;
 
 public class DeitiesLoader extends FileLoader<Deity> {
 
-    public DeitiesLoader(SourceConstructor sourceConstructor, File root) {
-        super(sourceConstructor, root);
+    public DeitiesLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
+        super(sourceConstructor, root, sourceBuilder);
     }
 
     @Override

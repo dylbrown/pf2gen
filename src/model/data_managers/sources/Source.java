@@ -8,7 +8,12 @@ import model.xml_parsers.equipment.ArmorLoader;
 import model.xml_parsers.equipment.EquipmentLoader;
 import model.xml_parsers.equipment.WeaponsLoader;
 
-public class Source {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
+
+public final class Source {
     private final String name, shortName;
     private final AncestriesLoader ancestries;
     private final BackgroundsLoader backgrounds;
@@ -17,6 +22,7 @@ public class Source {
     private final ArmorLoader armor;
     private final WeaponsLoader weapons;
     private final FeatsLoader feats;
+    private final ChoicesLoader choices;
     private final DeitiesLoader deities;
     private final DomainsLoader domains;
     private final SpellsLoader spells;
@@ -32,10 +38,15 @@ public class Source {
         this.armor = builder.armor;
         this.weapons = builder.weapons;
         this.feats = builder.feats;
+        this.choices = Objects.requireNonNullElseGet(builder.choices,
+                () -> new ChoicesLoader(null, null, null));
         this.deities = builder.deities;
         this.domains = builder.domains;
         this.spells = builder.spells;
         this.templates = builder.templates;
+        for (Consumer<Source> consumer : builder.buildListeners) {
+            consumer.accept(this);
+        }
     }
 
     public String getName() {
@@ -79,6 +90,10 @@ public class Source {
         return feats;
     }
 
+    public ChoicesLoader getChoices() {
+        return choices;
+    }
+
     public DeitiesLoader getDeities() {
         return deities;
     }
@@ -104,10 +119,12 @@ public class Source {
         private ArmorLoader armor;
         private WeaponsLoader weapons;
         private FeatsLoader feats;
+        private ChoicesLoader choices;
         private DeitiesLoader deities;
         private DomainsLoader domains;
         private SpellsLoader spells;
         private TemplatesLoader templates;
+        private final List<Consumer<Source>> buildListeners = new ArrayList<>();
 
         public void setName(String name) {
             this.name = name;
@@ -145,6 +162,10 @@ public class Source {
             this.feats = feats;
         }
 
+        public void setChoices(ChoicesLoader choices) {
+            this.choices = choices;
+        }
+
         public void setDeities(DeitiesLoader deities) {
             this.deities = deities;
         }
@@ -163,6 +184,10 @@ public class Source {
 
         public Source build() {
             return new Source(this);
+        }
+
+        public void onBuild(Consumer<Source> consumer) {
+            buildListeners.add(consumer);
         }
     }
 }
