@@ -15,7 +15,7 @@ public class HeightenedLevels implements HeightenedData {
 
     @Override
     public boolean hasAtLevel(int level) {
-        return false;
+        return levels.containsKey(level);
     }
 
     @Override

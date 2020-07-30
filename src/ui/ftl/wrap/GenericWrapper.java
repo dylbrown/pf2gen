@@ -35,7 +35,7 @@ public abstract class GenericWrapper<T> implements TemplateHashModel {
             }
             throw new TemplateModelException("Could not find member "+s+" of "+this.getClass().getSimpleName());
         }
-        return wrapper.wrap(getSpecialCase(s, t));
+        return wrapper.wrap(getSpecialCase(s.toLowerCase(), t));
     }
 
     @Override

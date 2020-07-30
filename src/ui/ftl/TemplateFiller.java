@@ -124,6 +124,7 @@ public class TemplateFiller {
     }
 
     public String getSheet(String templatePath) {
+        long startTime = System.currentTimeMillis();
         wrapper.refresh();
         Template template;
         try {
@@ -138,6 +139,7 @@ public class TemplateFiller {
         } catch (TemplateException | IOException e) {
             e.printStackTrace();
         }
+        System.out.println(System.currentTimeMillis() - startTime + " ms");
         return results.toString();
     }
 }

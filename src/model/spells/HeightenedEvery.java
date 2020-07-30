@@ -11,6 +11,13 @@ public class HeightenedEvery implements HeightenedData {
         this.spell = spell;
     }
 
+    public int getEvery() {
+        return every;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 
     @Override
     public boolean hasAtLevel(int level) {

@@ -28,7 +28,7 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 	private static BloodlinesLoader bloodlinesLoader;
 
 	static {
-		sources.put(BloodlinesLoader.class, (element -> Type.Class));
+		sources.put(BloodlinesLoader.class, (element -> Type.Choice));
 	}
 
 	public BloodlinesLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
@@ -51,6 +51,7 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 
 	private Ability makeBloodline(Element item) {
 		Ability.Builder bloodline = new Ability.Builder();
+		bloodline.setType(Type.Choice);
 		SpellExtension.Builder spellExt = bloodline.getExtension(SpellExtension.Builder.class);
 		bloodline.setName(item.getAttribute("name"));
 		bloodline.setDescription(item.getElementsByTagName("Description").item(0).getTextContent());

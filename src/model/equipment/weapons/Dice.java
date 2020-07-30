@@ -18,6 +18,12 @@ public class Dice {
         return dice.computeIfAbsent(count, (key)->new HashMap<>()).computeIfAbsent(size, (key)->new Dice(count, size));
     }
 
+    public static Dice valueOf(String s) {
+        int d = s.indexOf("d");
+        if(d == -1) return null;
+        return get(Integer.parseInt(s.substring(0, d)), Integer.parseInt(s.substring(d+1)));
+    }
+
     public int getCount() {
         return count;
     }
