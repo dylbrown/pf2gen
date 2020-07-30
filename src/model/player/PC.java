@@ -157,11 +157,14 @@ public class PC {
         }
         if(!(newPClass.equals(PClass.NO_CLASS))) {
             scores.apply(newPClass.getAbilityMods());
+            pClass.set(newPClass);
+            level.set(1);
             applyLevel(newPClass.getLevel(1));
             attributes.updateSkillCount(newPClass.getSkillIncrease() + scores.getMod(Int));
+        }else{
+            pClass.set(newPClass);
+            level.set(1);
         }
-        pClass.set(newPClass);
-        level.set(1);
     }
 
     public void setDeity(Deity newDeity) {

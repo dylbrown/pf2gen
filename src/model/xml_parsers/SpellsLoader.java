@@ -44,11 +44,21 @@ public class SpellsLoader extends FileLoader<Spell> {
 				continue;
 			Element curr = (Element) nodeList.item(i);
 			String trim = curr.getTextContent().trim();
-			try {
-				Method setter = builder.getClass().getMethod("set" + curr.getTagName(), String.class);
-				setter.invoke(builder, trim);
-			} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-				e.printStackTrace();
+			if(curr.getTagName().equals("Heightened")) {
+				String every = curr.getAttribute("every");
+				String level = curr.getAttribute("level");
+				if(every.length() > 0) {
+					builder.setHeightenedEvery(Integer.parseInt(every), trim);
+				}else if(level.length() > 0){
+					builder.addHeightenedLevel(Integer.parseInt(level), trim);
+				}
+			}else {
+				try {
+					Method setter = builder.getClass().getMethod("set" + curr.getTagName(), String.class);
+					setter.invoke(builder, trim);
+				} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		if(spell.getAttribute("type").equals("Cantrip")) builder.setCantrip(true);

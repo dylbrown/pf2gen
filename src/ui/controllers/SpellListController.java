@@ -10,6 +10,7 @@ import model.data_managers.sources.SourcesLoader;
 import model.player.SpellList;
 import model.spells.Spell;
 import model.spells.Tradition;
+import ui.html.SpellHTMLGenerator;
 
 import java.util.Comparator;
 import java.util.stream.Collectors;
@@ -181,57 +182,9 @@ public class SpellListController {
     }
 
     private void renderSpell(Spell spell) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("<p><b>").append(spell.getName())
-                .append(" - Spell ").append(spell.getLevel())
-                .append("</b><br><b>Traits</b> ").append(spell.getTraits().stream()
-                .map(Enum::toString).collect(Collectors.joining(", ")))
-                .append("<br><b>Traditions</b> ").append(spell.getTraditions().stream()
-                .map(Enum::toString).collect(Collectors.joining(", ")))
-                .append("</b><br><b>Cast</b> ");
-
-        //Cast Time and Requirements
-        if(!spell.getCastTime().equals(""))
-            builder.append(spell.getCastTime().trim()).append(" (");
-        builder.append(spell.getComponents().stream()
-                .map(Enum::toString).collect(Collectors.joining(", ")));
-        if(!spell.getCastTime().equals(""))
-            builder.append(")");
-        if(!spell.getRequirements().equals(""))
-            builder.append("; <b>Requirements</b> ").append(spell.getRequirements());
-
-        //Range, Area, Targets
-        builder.append("<br>");
-        boolean semiColon = false;
-        if(!spell.getRange().equals("")) {
-            semiColon = true;
-            builder.append("<b>Range</b> ").append(spell.getRange());
-        }
-        if(!spell.getArea().equals("")) {
-            if(semiColon) builder.append("; ");
-            else semiColon = true;
-            builder.append("<b>Area</b> ").append(spell.getArea());
-        }
-        if(!spell.getTargets().equals("")) {
-            if(semiColon) builder.append("; ");
-            else semiColon = true;
-            builder.append("<b>Targets</b> ").append(spell.getTargets());
-        }
-
-        //Saving Throws and Duration
-        if(semiColon) builder.append("<br>");
-        semiColon = false;
-        if(!spell.getSave().equals("")) {
-            semiColon = true;
-            builder.append("<b>Saving Throw</b> ").append(spell.getSave());
-        }
-        if(!spell.getDuration().equals("")) {
-            if(semiColon) builder.append("; ");
-            builder.append("<b>Duration</b> ").append(spell.getDuration());
-        }
-
-        builder.append("<hr>").append(spell.getDescription().replaceAll("\n", "<br>")).append("</p");
-
-        spellDisplay.getEngine().loadContent(builder.toString());
+        int level = spell.getLevelOrCantrip();
+        if(level == 0)
+            level = spells.getHighestLevelCanCast();
+        spellDisplay.getEngine().loadContent(SpellHTMLGenerator.parse(spell, level));
     }
 }

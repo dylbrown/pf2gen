@@ -14,6 +14,7 @@ public class Spell implements Comparable<Spell> {
 	private final List<Tradition> traditions;
 	private final List<SpellComponent> components;
 	private final boolean isCantrip;
+	private final HeightenedData heightenedData;
 
 	private Spell(Spell.Builder builder) {
 		this.name = builder.name;
@@ -32,6 +33,13 @@ public class Spell implements Comparable<Spell> {
 		this.page = builder.page;
 		this.sourceBook = builder.sourceBook;
 		this.isCantrip = builder.isCantrip;
+		if(builder.heightenedEvery != null) {
+			builder.heightenedEvery.setSpell(this);
+			heightenedData = builder.heightenedEvery.build();
+		}else if(builder.heightenedLevels != null) {
+			builder.heightenedLevels.setSpell(this);
+			heightenedData = builder.heightenedLevels.build();
+		} else heightenedData = null;
 	}
 
 	public String getName() {
@@ -68,6 +76,10 @@ public class Spell implements Comparable<Spell> {
 
 	public String getDescription() {
 		return description;
+	}
+
+	public HeightenedData getHeightenedData() {
+		return heightenedData;
 	}
 
 	public int getPage() {
@@ -130,6 +142,8 @@ public class Spell implements Comparable<Spell> {
 		private int page = -1;
 		private String sourceBook = "Core Rulebook"; // TODO: Collect this in loader
 		private String description;
+		private HeightenedEvery.Builder heightenedEvery;
+		private HeightenedLevels.Builder heightenedLevels;
 
 		public void setName(String name) {
 			this.name = name;
@@ -216,12 +230,21 @@ public class Spell implements Comparable<Spell> {
 			this.description = description;
 		}
 
-		public void setHeightened(String heightened) {
-			this.description += "\n\n" + heightened;
+		public void addHeightenedLevel(int level, String description) {
+			if(heightenedLevels == null) heightenedLevels = new HeightenedLevels.Builder();
+			heightenedLevels.add(level, description);
+		}
+
+		public void setHeightenedEvery(int every, String description) {
+			heightenedEvery = new HeightenedEvery.Builder();
+			heightenedEvery.setEvery(every);
+			heightenedEvery.setDescription(description);
 		}
 
 		public Spell build() {
 			if(level == 0) isCantrip = true;
+			if(heightenedLevels != null && heightenedEvery != null)
+				throw new RuntimeException("Cannot have both kinds of heightened.");
 			return new Spell(this);
 		}
 	}

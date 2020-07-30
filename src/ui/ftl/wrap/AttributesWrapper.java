@@ -57,7 +57,7 @@ public class AttributesWrapper implements TemplateHashModel {
                     attributes.getProficiency(attribute),
                     character.levelProperty(),
                     wrapper);
-        return null;
+        throw new TemplateModelException("Could not find member "+s+" of AttributeManager");
     }
 
     @Override

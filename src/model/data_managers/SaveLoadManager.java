@@ -377,8 +377,13 @@ public class SaveLoadManager {
         ObservableList<Choice> decisions = character.decisions().getUnmadeDecisions();
         while(decisions.size() > 0){
             int successes = 0;
-            for (Choice decision : decisions) {
-                if(decisionStringMap.get(decision.toString()) == null) continue;
+            int index = 0;
+            while(index < decisions.size()) {
+                Choice decision = decisions.get(index);
+                if(decisionStringMap.get(decision.toString()) == null) {
+                    index++;
+                    continue;
+                }
                 List<String> selections = Arrays.asList(
                         decisionStringMap.get(decision.toString()).split(" ?\\^ ?"));
                 List options;
@@ -393,11 +398,14 @@ public class SaveLoadManager {
                         decision.add(option);
                         if(decision.getSelections().size() > oldSize)
                             successes++;
-                        if(decision.getSelections().size() == selections.size())
+                        if(decision.getSelections().size() == selections.size()) {
+                            index--;
                             decisionStringMap.remove(decision.toString());
+                        }
                         break;
                     }
                 }
+                index++;
             }
             if(successes == 0) break;
         }

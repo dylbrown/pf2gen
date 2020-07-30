@@ -5,6 +5,7 @@ import model.abc.Background;
 import model.abc.PClass;
 import model.abilities.Ability;
 import model.equipment.Equipment;
+import model.spells.Spell;
 import setting.Deity;
 import setting.Domain;
 
@@ -39,6 +40,7 @@ public class HTMLGenerator {
         add(Domain.class, SettingHTMLGenerator::parse);
         add(Equipment.class, EquipmentHTMLGenerator::parse);
         add(Ability.class, AbilityHTMLGenerator::parse);
+        add(Spell.class, s -> SpellHTMLGenerator.getDescription(s, s.getLevelOrCantrip()));
     }
     private <T> void add(Class<T> tClass, Function<T, String> generator) {
         generators.put(tClass, new GeneratorPair<>(tClass, generator));

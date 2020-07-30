@@ -254,4 +254,12 @@ public class SpellList implements PlayerState {
 	public String getIndex() {
 		return index;
 	}
+
+	public int getHighestLevelCanCast() {
+		for(int i = 0; i <spellSlots.size(); i++) {
+			if(spellSlots.get(i) <= 0)
+				return i - 1;
+		}
+		return spellSlots.size();
+	}
 }
