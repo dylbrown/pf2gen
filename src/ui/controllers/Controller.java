@@ -1,7 +1,13 @@
 package ui.controllers;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.web.WebView;
@@ -10,6 +16,7 @@ import ui.controls.SaveLoadController;
 import ui.ftl.TemplateFiller;
 
 import java.io.File;
+import java.io.IOException;
 
 import static ui.Main.character;
 
@@ -18,7 +25,7 @@ public class Controller {
     private Tab tab_abilityScores, tab_skills, tab_decisions, tab_equipment, tab_spells;
     @FXML
     private MenuItem new_menu, open_menu, save_menu, saveAs_menu,
-            statblock_menu, printableSheet_menu, indexCard_menu, jquerySheet_menu, about_menu;
+            statblock_menu, printableSheet_menu, indexCard_menu, jquerySheet_menu, about_menu, gm_menu;
     @FXML
     private Tab displayTab;
     @FXML
@@ -62,9 +69,21 @@ public class Controller {
         about_menu.setOnAction(e -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("About");
-            alert.setHeaderText("PF2Gen v0.0.0-alpha");
+            alert.setHeaderText("PF2Gen v"+getClass().getPackage().getImplementationVersion());
             alert.setContentText("Created by Dylan Brown.");
             alert.show();
+        });
+        gm_menu.setOnAction(e->{
+            try {
+                long startTime = System.currentTimeMillis();
+                Parent root = FXMLLoader.load(getClass().getResource("/fxml/gm/gm.fxml"));
+                Scene scene = Main.getScene();
+                scene.setRoot(root);
+                root.setStyle("-fx-base: rgba(45, 49, 50, 255);");
+                System.out.println(System.currentTimeMillis() - startTime + " ms");
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
         });
     }
 }

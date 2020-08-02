@@ -12,16 +12,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 class NethysSpellScraper extends NethysListScraper {
 	private final Map<String, StringBuilder> sources = new HashMap<>();
 
 	public static void main(String[] args) {
-		new NethysSpellScraper("http://2e.aonprd.com/Spells.aspx?Focus=true&Tradition=0", "generated/focusSpells.txt");
+		new NethysSpellScraper("http://2e.aonprd.com/Spells.aspx?Focus=true&Tradition=0", "generated/focusSpells.txt", source->true);
 	}
 
-	private NethysSpellScraper(String inputURL, String outputPath) {
-		super(inputURL, outputPath, "ctl00_MainContent_DetailedOutput", href -> href.contains("ID"));
+	private NethysSpellScraper(String inputURL, String outputPath, Predicate<String> sourceValidator) {
+		super(inputURL, outputPath, "ctl00_MainContent_DetailedOutput", href -> href.contains("ID"), sourceValidator);
 	}
 
 	@Override

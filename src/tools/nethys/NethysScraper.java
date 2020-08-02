@@ -6,6 +6,7 @@ import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import java.util.Iterator;
+import java.util.function.Predicate;
 
 abstract class NethysScraper {
 	static String getAfter(Element output, String bContents) {
@@ -24,17 +25,17 @@ abstract class NethysScraper {
 				node = node.nextSibling();
 			StringBuilder builder = new StringBuilder();
 			while(true) {
-				if(node == null) return builder.toString();
+				if(node == null) break;
 				if (node instanceof TextNode)
 					builder.append(((TextNode) node).getWholeText().replaceAll(";$", ""));
 				if (node instanceof Element) {
 					String s = ((Element) node).wholeText().replaceAll(";$", "");
-					if(s.trim().length() == 0 || ((Element) node).tagName().equals("b"))
-						return builder.toString().trim();
+					if(s.trim().length() == 0 || ((Element) node).tagName().equals("b")) break;
 					builder.append(s);
 				}
 				node = node.nextSibling();
 			}
+			return builder.toString().trim().replaceAll(";\\z", "");
 		}
 		return "";
 	}
@@ -42,21 +43,47 @@ abstract class NethysScraper {
 	String getRestOfLine(Element output, String bContents) {
 		Elements elems = output.getElementsMatchingOwnText("\\A" + bContents + "\\z");
 		if(elems.size() > 0) {
-			StringBuilder string = new StringBuilder();
-			Node node = elems.first().nextSibling();
-			while(true) {
-				if(node == null) break;
-				if(node instanceof TextNode) string.append(((TextNode) node).getWholeText());
-				if(node instanceof Element) {
-					if(((Element) node).tag().getName().equals("br") || ((Element) node).tag().getName().matches("h\\d"))
-						break;
-					string.append(((Element) node).wholeText());
-				}
-				node = node.nextSibling();
-			}
-			return string.toString();
+			return getRestOfLineFromNode(elems.first());
 		}
 		return "";
+	}
+
+	protected String getRestOfLineNoTags(Element output, String bContents) {
+		Elements elems = output.getElementsMatchingOwnText("\\A" + bContents + "\\z");
+		if(elems.size() > 0) {
+			return getRestOfLineFromNodeNoTags(elems.first());
+		}
+		return "";
+	}
+
+	String getRestOfLineFromNode(Node node) {
+		StringBuilder string = new StringBuilder();
+		while(true) {
+			if(node == null) break;
+			if(node instanceof TextNode) string.append(((TextNode) node).getWholeText());
+			if(node instanceof Element) {
+				if(((Element) node).tag().getName().equals("br") || ((Element) node).tag().getName().matches("h\\d"))
+					break;
+				string.append(node.outerHtml());
+			}
+			node = node.nextSibling();
+		}
+		return string.toString();
+	}
+
+	String getRestOfLineFromNodeNoTags(Node node) {
+		StringBuilder string = new StringBuilder();
+		while(true) {
+			if(node == null) break;
+			if(node instanceof TextNode) string.append(((TextNode) node).getWholeText());
+			if(node instanceof Element) {
+				if(((Element) node).tag().getName().equals("br") || ((Element) node).tag().getName().matches("h\\d"))
+					break;
+				string.append(((Element) node).text());
+			}
+			node = node.nextSibling();
+		}
+		return string.toString();
 	}
 
 	String getEntry(String name) {
@@ -89,5 +116,15 @@ abstract class NethysScraper {
 			}
 		}
 		return "";
+	}
+
+	protected String getUntil(Node start, Predicate<Node> isEnd) {
+		Node curr = start;
+		StringBuilder builder = new StringBuilder();
+		while(!isEnd.test(curr)) {
+			builder.append(parseDesc(curr));
+			curr = curr.nextSibling();
+		}
+		return builder.toString();
 	}
 }

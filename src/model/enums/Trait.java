@@ -21,5 +21,16 @@ public enum Trait {
 
     Apex,Companion,Staff,Snare,Structure,Talisman,Trap,Wand,
 
-    Alchemical,Bomb,Contact,Elixir,Ingested,Inhaled,Injury,Mutagen,Oil,Potion,Splash,Virulent
+    Alchemical,Bomb,Contact,Elixir,Ingested,Inhaled,Injury,Mutagen,Oil,Potion,Splash,Virulent,
+
+    Rare,
+
+    //Alignments
+    LG, NG, CG, LN, N, CN, LE, NE, CE,
+
+    //Sizes
+    Tiny, Small, Medium, Large, Huge, Gargantuan,
+
+    //Creature Types
+    Undead
 }

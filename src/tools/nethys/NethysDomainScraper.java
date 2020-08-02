@@ -6,14 +6,19 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 
+import java.util.function.Predicate;
+
 public class NethysDomainScraper extends NethysListScraper {
 
     public static void main(String[] args) {
-        new NethysDomainScraper("https://2e.aonprd.com/Domains.aspx", "generated/domains.pfdyl");
+        new NethysDomainScraper(
+                "https://2e.aonprd.com/Domains.aspx",
+                "generated/domains.pfdyl",
+                source->true);
     }
 
-    private NethysDomainScraper(String inputURL, String outputPath) {
-        super(inputURL, outputPath, "ctl00_MainContent_DomainElement", href -> href.contains("ID") && href.contains("Domains"));
+    private NethysDomainScraper(String inputURL, String outputPath, Predicate<String> sourceValidator) {
+        super(inputURL, outputPath, "ctl00_MainContent_DomainElement", href -> href.contains("ID") && href.contains("Domains"), sourceValidator);
     }
 
     @Override

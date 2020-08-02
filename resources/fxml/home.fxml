@@ -83,6 +83,9 @@
                       </accelerator>
                   </MenuItem>
               </Menu>
+              <Menu mnemonicParsing="false" text="Tools">
+                  <MenuItem mnemonicParsing="false" text="GM Tools" fx:id="gm_menu" />
+              </Menu>
               <Menu mnemonicParsing="false" text="Help">
                   <MenuItem mnemonicParsing="false" text="About" fx:id="about_menu">
                   </MenuItem>

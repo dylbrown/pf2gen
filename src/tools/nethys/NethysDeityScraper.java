@@ -6,13 +6,19 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 
+import java.util.function.Predicate;
+
 public class NethysDeityScraper extends NethysListScraper {
     public static void main(String[] args) {
-        new NethysDeityScraper("https://2e.aonprd.com/Deities.aspx", "generated/deities.pfdyl");
+        new NethysDeityScraper(
+                "https://2e.aonprd.com/Deities.aspx",
+                "generated/deities.pfdyl",
+                source->true);
     }
 
-    private NethysDeityScraper(String inputURL, String outputPath) {
-        super(inputURL, outputPath, "ctl00_MainContent_DeityElement", href -> href.contains("ID") && href.contains("Deities"));
+    private NethysDeityScraper(String inputURL, String outputPath, Predicate<String> sourceValidator) {
+        super(inputURL, outputPath, "ctl00_MainContent_DeityElement",
+                href -> href.contains("ID") && href.contains("Deities"), sourceValidator);
     }
 
     @Override

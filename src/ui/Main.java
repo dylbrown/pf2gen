@@ -22,6 +22,10 @@ public class Main extends Application {
 
     private static final Property<Scene> scene = new SimpleObjectProperty<>();
 
+    public static Scene getScene() {
+        return scene.getValue();
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception{
         long startTime = System.currentTimeMillis();

@@ -24,19 +24,21 @@ public abstract class NethysListScraper extends NethysScraper {
     final AtomicInteger counter = new AtomicInteger(0);
 
     protected NethysListScraper() {
+
     }
 
-    public NethysListScraper(String inputURL, String outputPath, String container, Predicate<String> hrefValidator) {
+    public NethysListScraper(String inputURL, String outputPath, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator) {
         parseList(inputURL, container, hrefValidator, e -> true);
-        printOutput(outputPath);
+        printOutput(outputPath, sourceValidator);
     }
 
-    protected final void printOutput(String outputPath) {
-        BufferedWriter out = null;
+    protected final void printOutput(String outputPath, Predicate<String> sourceValidator) {
+        BufferedWriter out;
         try {
             out = new BufferedWriter(new FileWriter(new File(outputPath)), 65536);
         } catch (IOException e) {
             e.printStackTrace();
+            return;
         }
         try {
             for(int i = 0; i < counter.get(); i++) {
@@ -46,10 +48,11 @@ public abstract class NethysListScraper extends NethysScraper {
             e.printStackTrace();
         }
         afterThreadsCompleted();
-        if(out == null) return;
-        for (StringBuilder value : sources.values()) {
+        for (Map.Entry<String, StringBuilder> entry : sources.entrySet()) {
+            if(!sourceValidator.test(entry.getKey()))
+                continue;
             try {
-                out.write(value.toString());
+                out.write(entry.getValue().toString());
             } catch (IOException e) {
                 e.printStackTrace();
             }

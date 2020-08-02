@@ -6,18 +6,22 @@ import org.jsoup.nodes.Document;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 public class NethysArchetypesScraper extends NethysListScraper {
     private final Map<String, StringBuilder> archetypes = new ConcurrentHashMap<>();
     private final Map<String, String> sourceMap = new ConcurrentHashMap<>();
     public static void main(String[] args) {
-        new NethysArchetypesScraper("https://2e.aonprd.com/Archetypes.aspx", "generated/archetypes.pfdyl");
+        new NethysArchetypesScraper(
+                "https://2e.aonprd.com/Archetypes.aspx",
+                "generated/archetypes.pfdyl",
+                source->true);
     }
 
-    public NethysArchetypesScraper(String inputURL, String outputPath) {
+    public NethysArchetypesScraper(String inputURL, String outputPath, Predicate<String> sourceValidator) {
         parseList(inputURL, "ctl00_MainContent_DetailedOutput",
                 href->href.contains("Archetypes") && href.contains("ID"), e -> true);
-        printOutput(outputPath);
+        printOutput(outputPath, sourceValidator);
     }
 
     @Override
