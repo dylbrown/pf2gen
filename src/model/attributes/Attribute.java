@@ -99,6 +99,8 @@ public enum Attribute {
 
         @SuppressWarnings("SpellCheckingInspection")
         public static Attribute robustValueOf(String s) {
+            if(s.contains("Lore"))
+                return Lore;
             String formatted = org.apache.commons.lang3.StringUtils.
                     deleteWhitespace(StringUtils.camelCase(s.trim()));
             try {
@@ -120,8 +122,12 @@ public enum Attribute {
                     case "primalspellattacks": return PrimalSpellAttacks;
                     case "primalspelldcs": return PrimalSpellDCs;
                     case "classdc": return ClassDC;
+                    case "fort": return Fortitude;
+                    case "ref": return Reflex;
+                    case "will": return Will;
                 }
             }
+            System.out.println(s);
             throw new IllegalArgumentException();
         }
 

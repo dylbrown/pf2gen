@@ -1,44 +1,48 @@
-package model;
+package model.creatures;
 
+import model.NamedObject;
 import model.abilities.Ability;
 import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
 import model.enums.Language;
 import model.enums.Trait;
-import model.equipment.Equipment;
-import model.spells.Spell;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class Creature {
+public class Creature extends NamedObject {
     private final List<Trait> traits;
     private final Map<Attribute, Integer> modifiers;
+    private final Map<Attribute, String> modifierSpecialInfo;
     private final Map<AbilityScore, Integer> abilityModifiers;
     private final List<Language> languages;
-    private final List<Equipment> items;
-    private final int ac, hp;
-    private final String name, speed, saveMods, healthMods, immunities, resistances, weaknesses;
+    private final List<CreatureItem> items;
+    private final int level, ac, hp;
+    private final String specialLanguages, speed, acMods, saveMods, healthMods, immunities,
+            resistances, weaknesses, senses;
     private final List<Ability> miscAbilities, defensiveAbilities, offensiveAbilities;
     private final List<Attack> attacks;
-    private final List<Spell> spells;
+    private final List<CreatureSpellList> spells;
 
     private Creature(Builder builder) {
+        super(builder);
         traits = Collections.unmodifiableList(builder.traits);
         modifiers = Collections.unmodifiableMap(builder.modifiers);
+        modifierSpecialInfo = Collections.unmodifiableMap(builder.modifierSpecialInfo);
         abilityModifiers = Collections.unmodifiableMap(builder.abilityModifiers);
         languages = Collections.unmodifiableList(builder.languages);
         items = Collections.unmodifiableList(builder.items);
+        level = builder.level;
         ac = builder.ac;
         hp = builder.hp;
-        name = builder.name;
+        specialLanguages = builder.specialLanguages;
         speed = builder.speed;
+        acMods = builder.acMods;
         saveMods = builder.saveMods;
         healthMods = builder.healthMods;
         immunities = builder.immunities;
         resistances = builder.resistances;
         weaknesses = builder.weaknesses;
+        senses = builder.senses;
         miscAbilities = Collections.unmodifiableList(builder.miscAbilities);
         defensiveAbilities = Collections.unmodifiableList(builder.defensiveAbilities);
         offensiveAbilities = Collections.unmodifiableList(builder.offensiveAbilities);
@@ -54,6 +58,10 @@ public class Creature {
         return modifiers;
     }
 
+    public Map<Attribute, String> getModifierSpecialInfo() {
+        return modifierSpecialInfo;
+    }
+
     public Map<AbilityScore, Integer> getAbilityModifiers() {
         return abilityModifiers;
     }
@@ -62,24 +70,32 @@ public class Creature {
         return languages;
     }
 
-    public List<Equipment> getItems() {
+    public String getSpecialLanguages() {
+        return specialLanguages;
+    }
+
+    public List<CreatureItem> getItems() {
         return items;
     }
 
-    public int getAc() {
+    public int getLevel() {
+        return level;
+    }
+
+    public int getAC() {
         return ac;
     }
 
-    public int getHp() {
+    public int getHP() {
         return hp;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public String getSpeed() {
         return speed;
+    }
+
+    public String getACMods() {
+        return acMods;
     }
 
     public String getSaveMods() {
@@ -102,6 +118,14 @@ public class Creature {
         return weaknesses;
     }
 
+    public String getSenses() {
+        return senses;
+    }
+
+    public List<Ability> getMiscAbilities() {
+        return miscAbilities;
+    }
+
     public List<Ability> getDefensiveAbilities() {
         return defensiveAbilities;
     }
@@ -114,7 +138,7 @@ public class Creature {
         return attacks;
     }
 
-    public List<Spell> getSpells() {
+    public List<CreatureSpellList> getSpells() {
         return spells;
     }
 
@@ -123,55 +147,86 @@ public class Creature {
         return getName();
     }
 
-    public static class Builder {
+    public static class Builder extends NamedObject.Builder {
         private List<Trait> traits = Collections.emptyList();
         private Map<Attribute, Integer> modifiers = Collections.emptyMap();
+        //TODO: Support Lore
+        private Map<Attribute, String> modifierSpecialInfo = Collections.emptyMap();
         private Map<AbilityScore, Integer> abilityModifiers = Collections.emptyMap();
         private List<Language> languages= Collections.emptyList();
-        private List<Equipment> items= Collections.emptyList();
+        private List<CreatureItem> items= Collections.emptyList();
+        private int level = 0;
         private int ac = 0;
         private int hp = 0;
-        private String name, speed, saveMods, healthMods, immunities, resistances, weaknesses;
+        private String specialLanguages = "";
+        private String speed = "";
+        private String acMods = "";
+        private String saveMods = "";
+        private String healthMods = "";
+        private String immunities = "";
+        private String resistances = "";
+        private String weaknesses = "";
+        private String senses = "";
         private List<Ability> miscAbilities = Collections.emptyList();
         private List<Ability> defensiveAbilities = Collections.emptyList();
         private List<Ability> offensiveAbilities = Collections.emptyList();
         private List<Attack> attacks= Collections.emptyList();
-        private List<Spell> spells= Collections.emptyList();
+        private List<CreatureSpellList> spells= Collections.emptyList();
 
         public void setTraits(List<Trait> traits) {
             this.traits = traits;
         }
 
-        public void setModifiers(Map<Attribute, Integer> modifiers) {
-            this.modifiers = modifiers;
+        public void setModifier(Attribute attribute, int modifier) {
+            if(modifiers.size() == 0)
+                modifiers = new HashMap<>();
+            modifiers.put(attribute, modifier);
         }
 
-        public void setAbilityModifiers(Map<AbilityScore, Integer> abilityModifiers) {
-            this.abilityModifiers = abilityModifiers;
+        public void addModifierSpecialInfo(Attribute attribute, String info) {
+            if(modifierSpecialInfo.size() == 0)
+                modifierSpecialInfo = new HashMap<>();
+            modifierSpecialInfo.put(attribute, info);
+        }
+
+        public void setModifier(AbilityScore score, int modifier) {
+            if(abilityModifiers.size() == 0)
+                abilityModifiers = new HashMap<>();
+            abilityModifiers.put(score, modifier);
         }
 
         public void setLanguages(List<Language> languages) {
             this.languages = languages;
         }
 
-        public void setItems(List<Equipment> items) {
-            this.items = items;
+        public void setSpecialLanguages(String specialLanguages) {
+            this.specialLanguages = specialLanguages;
         }
 
-        public void setAc(int ac) {
+        public void addItem(CreatureItem item) {
+            if(items.size() == 0)
+                items = new ArrayList<>();
+            this.items.add(item);
+        }
+
+        public void setLevel(int level) {
+            this.level = level;
+        }
+
+        public void setAC(int ac) {
             this.ac = ac;
         }
 
-        public void setHp(int hp) {
+        public void setHP(int hp) {
             this.hp = hp;
-        }
-
-        public void setName(String name) {
-            this.name = name;
         }
 
         public void setSpeed(String speed) {
             this.speed = speed;
+        }
+
+        public void setACMods(String acMods) {
+            this.acMods = acMods;
         }
 
         public void setSaveMods(String saveMods) {
@@ -194,6 +249,10 @@ public class Creature {
             this.weaknesses = weaknesses;
         }
 
+        public void setSenses(String senses) {
+            this.senses = senses;
+        }
+
         public void setMiscAbilities(List<Ability> miscAbilities) {
             this.miscAbilities = miscAbilities;
         }
@@ -210,8 +269,14 @@ public class Creature {
             this.attacks = attacks;
         }
 
-        public void setSpells(List<Spell> spells) {
-            this.spells = spells;
+        public List<CreatureSpellList> getSpells() {
+            return Collections.unmodifiableList(spells);
+        }
+
+        public void addSpells(CreatureSpellList list) {
+            if(spells.size() == 0)
+                spells = new ArrayList<>();
+            spells.add(list);
         }
 
         public Creature build() {

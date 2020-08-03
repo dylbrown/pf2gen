@@ -1,36 +1,44 @@
 package model.enums;
 
-public enum Trait {
-    Downtime, Manipulate,
+import model.util.StringUtils;
 
-    Alchemist, Bard, Barbarian, Champion, Cleric, Druid, Fighter, Monk, Ranger, Rogue, Sorcerer, Wizard,
-    Composition, Litany, Stance, Metamagic, Concentrate, Arcane, Divine, Occult, Primal,
-    General, Skill, Archetype, Dedication, Multiclass,
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
-    Attack, Nonlethal, Poison, Flourish, Move, Open, Press,
+public class Trait implements Comparable<Trait> {
+    private static final Map<String, Trait> traits = new HashMap<>();
+    private final String name;
+    private Trait(String name) {
+        this.name = name;
+    }
 
-    Abjuration, Conjuration, Divination, Enchantment, Evocation, Illusion, Necromancy, Transmutation,
-    Auditory, Emotion, Fear, Linguistic, Mental, Mindless, Visual,
-    Aura, Cantrip, Consecration, Detection, Extradimensional, Morph, Polymorph, Prediction, Revelation, Scrying, Teleportation,
-    Curse, Darkness, Death, Disease, Fortune, Healing, Incapacitation, Light, Misfortune, Possession, Sleep,
-    Acid, Air, Chaotic, Cold, Earth, Electricity, Evil, Fire, Force, Good, Lawful, Plant, Negative, Positive, Shadow, Sonic, Water,
+    public String getName() {
+        return name;
+    }
 
-    Oath, Rage, Instinct,
-    Exploration, Secret,
-    Focused,Magical,Consumable,Mechanical,Precious,Invested,
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Trait trait = (Trait) o;
+        return name.equals(trait.name);
+    }
 
-    Apex,Companion,Staff,Snare,Structure,Talisman,Trap,Wand,
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
 
-    Alchemical,Bomb,Contact,Elixir,Ingested,Inhaled,Injury,Mutagen,Oil,Potion,Splash,Virulent,
+    public static Trait valueOf(String name) {
+        if(name == null)
+            return null;
+        name = StringUtils.camelCase(name);
+        return traits.computeIfAbsent(name, Trait::new);
+    }
 
-    Rare,
-
-    //Alignments
-    LG, NG, CG, LN, N, CN, LE, NE, CE,
-
-    //Sizes
-    Tiny, Small, Medium, Large, Huge, Gargantuan,
-
-    //Creature Types
-    Undead
+    @Override
+    public int compareTo(Trait o) {
+        return name.compareTo(o.name);
+    }
 }

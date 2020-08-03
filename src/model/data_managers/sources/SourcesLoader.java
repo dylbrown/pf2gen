@@ -4,6 +4,7 @@ import model.abc.Ancestry;
 import model.abc.Background;
 import model.abc.PClass;
 import model.abilities.Ability;
+import model.creatures.Creature;
 import model.equipment.Equipment;
 import model.equipment.armor.Armor;
 import model.xml_parsers.*;
@@ -39,6 +40,7 @@ public class SourcesLoader extends FileLoader<Source> {
     private final MultiSourceLoader<Domain> domainsLoader;
     private final SpellsMultiSourceLoader spellsLoader;
     private final MultiSourceLoader<TemplatesLoader.BuilderSupplier> templatesLoader;
+    private final MultiSourceLoader<Creature> creaturesLoader;
 
     public SourcesLoader(SourceConstructor sourceConstructor, File root) {
         super(sourceConstructor, root);
@@ -54,6 +56,7 @@ public class SourcesLoader extends FileLoader<Source> {
         List<DomainsLoader> domains = new ArrayList<>();
         List<SpellsLoader> spells = new ArrayList<>();
         List<TemplatesLoader> templates = new ArrayList<>();
+        List<CreatureLoader> creatures = new ArrayList<>();
         for (Source value : getAll().values()) {
             addIfNotNull(ancestries, value.getAncestries());
             addIfNotNull(backgrounds, value.getBackgrounds());
@@ -67,6 +70,7 @@ public class SourcesLoader extends FileLoader<Source> {
             addIfNotNull(domains, value.getDomains());
             addIfNotNull(spells, value.getSpells());
             addIfNotNull(templates, value.getTemplates());
+            addIfNotNull(creatures, value.getCreatures());
         }
         ancestriesLoader = new MultiSourceLoader<>(ancestries);
         backgroundsLoader = new MultiSourceLoader<>(backgrounds);
@@ -80,6 +84,7 @@ public class SourcesLoader extends FileLoader<Source> {
         domainsLoader = new MultiSourceLoader<>(domains);
         spellsLoader = new SpellsMultiSourceLoader(spells);
         templatesLoader = new MultiSourceLoader<>(templates);
+        creaturesLoader = new MultiSourceLoader<>(creatures);
     }
 
     private <T> void addIfNotNull(List<T> list, T ancestries) {
@@ -90,6 +95,7 @@ public class SourcesLoader extends FileLoader<Source> {
     static {
         Map<String, String> locations = new HashMap<>();
         locations.put("core_rulebook", "Core Rulebook/index.pfdyl");
+        locations.put("bestiary_1", "Bestiary 1/index.pfdyl");
         locations.put("the_amar_vale", "The Amar Vale/index.pfdyl");
         // locations.put("extinction_curse", "Extinction Curse/index.pfdyl");
         SourceConstructor sourceConstructor = new SourceConstructor(locations, false);
@@ -156,6 +162,10 @@ public class SourcesLoader extends FileLoader<Source> {
                 break;
             case "templates":
                 builder.setTemplates(new TemplatesLoader(getSourceConstructor(curr), parentFile, builder));
+                break;
+            case "creatures":
+                builder.setCreatures(new CreatureLoader(getSourceConstructor(curr), parentFile, builder));
+                break;
         }
     }
 
@@ -235,5 +245,9 @@ public class SourcesLoader extends FileLoader<Source> {
 
     public MultiSourceLoader<TemplatesLoader.BuilderSupplier> templates() {
         return templatesLoader;
+    }
+
+    public MultiSourceLoader<Creature> creatures() {
+        return creaturesLoader;
     }
 }

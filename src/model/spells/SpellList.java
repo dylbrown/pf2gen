@@ -1,4 +1,4 @@
-package model.player;
+package model.spells;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -8,10 +8,8 @@ import model.abilities.Ability;
 import model.abilities.SpellExtension;
 import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
-import model.spells.CasterType;
-import model.spells.Spell;
-import model.spells.SpellType;
-import model.spells.Tradition;
+import model.player.PC;
+import model.player.PlayerState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +28,7 @@ public class SpellList implements PlayerState {
 	private final ObservableList<ObservableList<Spell>> knownRetainer = FXCollections.observableArrayList();
 	private final String index;
 
-	SpellList(String index) {
+	public SpellList(String index) {
 		this.index = index;
 		for(int i = 0; i <= 10; i++){
 			spellSlots.add(0);
@@ -40,7 +38,7 @@ public class SpellList implements PlayerState {
 		}
 	}
 
-	void apply(Ability ability) {
+	public void apply(Ability ability) {
 		SpellExtension spellExtension = ability.getExtension(SpellExtension.class);
 		if(spellExtension != null){
 			for (Map.Entry<Integer, Integer> entry : spellExtension.getSpellSlots().entrySet()) {
@@ -60,7 +58,7 @@ public class SpellList implements PlayerState {
 		}
 	}
 
-	void remove(Ability ability) {
+	public void remove(Ability ability) {
 		SpellExtension spellExtension = ability.getExtension(SpellExtension.class);
 		if(spellExtension != null){
 			for (Map.Entry<Integer, Integer> entry : spellExtension.getSpellSlots().entrySet()) {
@@ -85,7 +83,7 @@ public class SpellList implements PlayerState {
 				case Spell:
 				case Cantrip:
 					entry.getValue().forEach(s->{
-						if(addSpellInternal(s, true))
+						if(addSpellInternal(s, s.getLevelOrCantrip(),  true))
 							addKnown(s.getLevelOrCantrip(), 1);
 					});
 					abilitySpells.addAll(entry.getValue());
@@ -117,14 +115,14 @@ public class SpellList implements PlayerState {
 		}
 	}
 
-	void addSlots(int level, int amount) {
+	public void addSlots(int level, int amount) {
 		spellSlots.set(level, amount + spellSlots.get(level));
 	}
 	private void addKnown(int level, int amount) {
 		extraSpellsKnown.set(level, amount + extraSpellsKnown.get(level));
 	}
 
-	void removeSlots(int level, int amount) {
+	public void removeSlots(int level, int amount) {
 		spellSlots.set(level, spellSlots.get(level) - amount);
 		checkKnownCap(level);
 	}
@@ -175,19 +173,19 @@ public class SpellList implements PlayerState {
 	}
 
 	public boolean addSpell(Spell spell) {
-		return addSpellInternal(spell, false);
+		return addSpellInternal(spell, spell.getLevelOrCantrip(), false);
 	}
 
-	private boolean addSpellInternal(Spell spell, boolean override) {
+	protected boolean addSpellInternal(Spell spell, int level, boolean override) {
 		if(spell == null) return false;
 		if(getCasterType().get() == CasterType.None && !override) return false;
 		if(getCasterType().get() == CasterType.Spontaneous) {
-			if(spellsKnown.get(spell.getLevelOrCantrip()).size()
-					>= spellSlots.get(spell.getLevelOrCantrip()) + extraSpellsKnown.get(spell.getLevelOrCantrip())
+			if(spellsKnown.get(level).size()
+					>= spellSlots.get(level) + extraSpellsKnown.get(level)
 					&& !override)
 				return false;
 		}
-		ObservableList<Spell> levelList = spellsKnown.get(spell.getLevelOrCantrip());
+		ObservableList<Spell> levelList = spellsKnown.get(level);
 		if(levelList.contains(spell)) return false;
 		levelList.add(spell);
 		return true;
@@ -232,11 +230,11 @@ public class SpellList implements PlayerState {
 		return Math.min(focusSpells.size(), 3);
 	}
 
-	void addFocusSpell(Spell spell) {
+	public void addFocusSpell(Spell spell) {
 		focusSpells.add(spell);
 	}
 
-	void removeFocusSpell(Spell spell) {
+	public void removeFocusSpell(Spell spell) {
 		focusSpells.remove(spell);
 	}
 

@@ -1,5 +1,6 @@
 package ui.html;
 
+import model.enums.Trait;
 import model.equipment.weapons.Damage;
 import model.equipment.weapons.Dice;
 import model.spells.HeightenedEvery;
@@ -66,7 +67,7 @@ public class SpellHTMLGenerator {
                 spell.getName(),
                 spell.getLevel(),
                 spell.getTraits().stream()
-                        .map(Enum::toString).collect(Collectors.joining(", ")),
+                        .map(Trait::toString).collect(Collectors.joining(", ")),
                 spell.getTraditions().stream()
                         .map(Enum::toString).collect(Collectors.joining(", ")),
                 castTimeRequirements,

@@ -1,4 +1,4 @@
-package model;
+package model.equipment.weapons;
 
 import model.enums.Proficiency;
 

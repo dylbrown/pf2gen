@@ -7,7 +7,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
 import model.data_managers.sources.SourcesLoader;
-import model.player.SpellList;
+import model.spells.SpellList;
 import model.spells.Spell;
 import model.spells.Tradition;
 import ui.html.SpellHTMLGenerator;

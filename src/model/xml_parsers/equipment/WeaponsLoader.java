@@ -135,4 +135,9 @@ public class WeaponsLoader extends FileLoader<Weapon> {
         getAll();
         return Collections.unmodifiableMap(weaponGroups);
     }
+
+    public Map<String, CustomTrait> getWeaponTraits() {
+        getAll();
+        return Collections.unmodifiableMap(weaponTraits);
+    }
 }

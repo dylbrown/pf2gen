@@ -77,10 +77,11 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         Ability.Builder builder;
         // Load a template
         Node firstChild = element.getFirstChild();
-        if(firstChild != null) {
-            while(firstChild.getNodeType() != Node.ELEMENT_NODE) {
+        if(firstChild != null)
+            while(firstChild != null && firstChild.getNodeType() != Node.ELEMENT_NODE)
                 firstChild = firstChild.getNextSibling();
-            }
+
+        if(firstChild != null) {
             if(((Element) firstChild).getTagName().equals("Template"))
                 builder = SourcesLoader.instance().templates().find(firstChild.getTextContent().trim()).get();
             else builder = new Ability.Builder();
@@ -227,7 +228,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     for (String s : trim.split(" ?, ?")) {
                         Trait trait = Trait.valueOf(camelCaseWord(s.trim()));
                         builder.addTraits(trait);
-                        if(trait == Trait.Dedication)
+                        if(trait == Trait.valueOf("Dedication"))
                             builder.getExtension(ArchetypeExtension.Builder.class)
                                     .setDedication(true);
                     }

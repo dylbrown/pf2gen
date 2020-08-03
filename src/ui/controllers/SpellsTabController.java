@@ -2,7 +2,7 @@ package ui.controllers;
 
 import javafx.collections.MapChangeListener;
 import javafx.fxml.FXML;
-import model.player.SpellList;
+import model.spells.SpellList;
 import ui.Main;
 
 public class SpellsTabController extends SubTabController {

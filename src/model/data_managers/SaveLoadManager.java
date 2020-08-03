@@ -18,7 +18,7 @@ import model.equipment.Equipment;
 import model.equipment.ItemCount;
 import model.equipment.runes.Rune;
 import model.equipment.runes.runedItems.RunedEquipment;
-import model.player.SpellList;
+import model.spells.SpellList;
 import model.spells.Spell;
 import model.util.Pair;
 import model.util.StringUtils;

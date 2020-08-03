@@ -11,7 +11,7 @@ import model.equipment.weapons.Weapon;
 import model.player.AttributeManager;
 import model.player.PC;
 import model.player.QualityManager;
-import model.player.SpellList;
+import model.spells.SpellList;
 import model.spells.Spell;
 
 import java.beans.IntrospectionException;

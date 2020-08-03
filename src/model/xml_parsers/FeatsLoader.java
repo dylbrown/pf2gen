@@ -33,7 +33,7 @@ public class FeatsLoader extends AbilityLoader<Ability> {
         if(category.equals("skill"))
             builder.setType(Type.Skill);
         if(builder.hasExtension(ArchetypeExtension.Builder.class)) {
-            if(builder.getTraits().contains(Trait.Dedication))
+            if(builder.getTraits().contains(Trait.valueOf("Dedication")))
                 builder.setType(Type.Dedication);
             else
                 builder.setType(Type.Class);

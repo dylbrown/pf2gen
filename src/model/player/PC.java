@@ -17,6 +17,7 @@ import model.attributes.AttributeRequirement;
 import model.enums.Alignment;
 import model.enums.Type;
 import model.spells.Spell;
+import model.spells.SpellList;
 import model.util.Pair;
 import setting.Deity;
 

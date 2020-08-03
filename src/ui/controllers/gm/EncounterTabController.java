@@ -1,5 +1,6 @@
-package ui.controllers;
+package ui.controllers.gm;
 
+import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -9,12 +10,22 @@ import javafx.scene.chart.StackedBarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TreeTableColumn;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Font;
 import javafx.scene.web.WebView;
 import javafx.util.StringConverter;
+import model.creatures.Creature;
+import model.data_managers.sources.SourcesLoader;
+import ui.controls.lists.ObservableCategoryEntryList;
+import ui.controls.lists.entries.CreatureEntry;
+import ui.controls.lists.factories.TreeCellFactory;
 
-public class GMController {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class EncounterTabController {
     @FXML
     private Spinner<Integer> partyLevel;
     @FXML
@@ -83,5 +94,37 @@ public class GMController {
         chart.setCategoryGap(0);
         chart.maxWidthProperty().bind(budget.widthProperty());
         chart.maxHeightProperty().bind(budget.heightProperty());
+
+        ObservableCategoryEntryList<Creature, CreatureEntry> allCreatures = new ObservableCategoryEntryList<>(
+                FXCollections.observableList(new ArrayList<>(
+                        SourcesLoader.instance().creatures().getAll().values())
+                ),
+                (creature, count) -> {
+                },
+                creature -> String.valueOf(creature.getLevel()),
+                creature -> "",
+                CreatureEntry::new,
+                CreatureEntry::new,
+                this::makeColumns);
+        AnchorPane.setTopAnchor(allCreatures, 0.0);
+        AnchorPane.setBottomAnchor(allCreatures, 0.0);
+        AnchorPane.setLeftAnchor(allCreatures, 0.0);
+        AnchorPane.setRightAnchor(allCreatures, 0.0);
+        rightPane.getChildren().add(allCreatures);
+    }
+
+    private List<TreeTableColumn<CreatureEntry, String>> makeColumns(ReadOnlyDoubleProperty width) {
+        TreeTableColumn<CreatureEntry, String> name = new TreeTableColumn<>("Name");
+        TreeTableColumn<CreatureEntry, String> level = new TreeTableColumn<>("Level");
+        name.setCellValueFactory(new TreeCellFactory<>("name"));
+        name.minWidthProperty().bind(width.multiply(.6));
+        level.setCellValueFactory(new TreeCellFactory<>("level"));
+        level.setStyle( "-fx-alignment: CENTER;");
+        level.setComparator((s1,s2)->{
+            double d1 = (!s1.equals(""))? Double.parseDouble(s1) : -1;
+            double d2 = (!s2.equals(""))? Double.parseDouble(s2) : -1;
+            return Double.compare(d1, d2);
+        });
+        return Arrays.asList(name, level);
     }
 }

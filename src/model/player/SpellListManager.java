@@ -3,6 +3,7 @@ package model.player;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import model.abilities.SpellExtension;
+import model.spells.SpellList;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -62,7 +62,9 @@ abstract class NethysScraper {
 			if(node == null) break;
 			if(node instanceof TextNode) string.append(((TextNode) node).getWholeText());
 			if(node instanceof Element) {
-				if(((Element) node).tag().getName().equals("br") || ((Element) node).tag().getName().matches("h\\d"))
+				if(((Element) node).tagName().equals("br") ||
+						((Element) node).tagName().matches("h\\d") ||
+						((Element) node).tagName().equals("hr"))
 					break;
 				string.append(node.outerHtml());
 			}
@@ -77,7 +79,9 @@ abstract class NethysScraper {
 			if(node == null) break;
 			if(node instanceof TextNode) string.append(((TextNode) node).getWholeText());
 			if(node instanceof Element) {
-				if(((Element) node).tag().getName().equals("br") || ((Element) node).tag().getName().matches("h\\d"))
+				if(((Element) node).tagName().equals("br") ||
+						((Element) node).tagName().matches("h\\d") ||
+						((Element) node).tagName().equals("hr"))
 					break;
 				string.append(((Element) node).text());
 			}

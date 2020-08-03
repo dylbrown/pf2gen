@@ -27,6 +27,7 @@ public final class Source {
     private final DomainsLoader domains;
     private final SpellsLoader spells;
     private final TemplatesLoader templates;
+    private final CreatureLoader creatures;
 
     private Source(Source.Builder builder) {
         this.name = builder.name;
@@ -44,6 +45,7 @@ public final class Source {
         this.domains = builder.domains;
         this.spells = builder.spells;
         this.templates = builder.templates;
+        this.creatures = builder.creatures;
         for (Consumer<Source> consumer : builder.buildListeners) {
             consumer.accept(this);
         }
@@ -110,6 +112,10 @@ public final class Source {
         return templates;
     }
 
+    public CreatureLoader getCreatures() {
+        return creatures;
+    }
+
     public static class Builder {
         private String name, shortName;
         private AncestriesLoader ancestries;
@@ -124,6 +130,7 @@ public final class Source {
         private DomainsLoader domains;
         private SpellsLoader spells;
         private TemplatesLoader templates;
+        private CreatureLoader creatures;
         private final List<Consumer<Source>> buildListeners = new ArrayList<>();
 
         public void setName(String name) {
@@ -180,6 +187,10 @@ public final class Source {
 
         public void setTemplates(TemplatesLoader templates) {
             this.templates = templates;
+        }
+
+        public void setCreatures(CreatureLoader creatures) {
+            this.creatures = creatures;
         }
 
         public Source build() {

@@ -1,7 +1,7 @@
 package ui.ftl.wrap;
 
 import freemarker.template.ObjectWrapper;
-import model.player.SpellList;
+import model.spells.SpellList;
 import model.util.WrapperTransformationList;
 
 public class SpellListWrapper extends GenericWrapper<SpellList> {

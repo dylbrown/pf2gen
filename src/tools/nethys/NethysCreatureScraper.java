@@ -158,6 +158,7 @@ public class NethysCreatureScraper extends NethysListScraper {
     );
     private Element loadAbility(Element curr, StringBuilder abilities,
                                 StringBuilder attacks, StringBuilder spells, boolean isSingleAbility) {
+        boolean loadedTraits = false;
         for (String spellString : spellStrings) {
             if(curr.text().endsWith(spellString))
                 return addSpells(curr, spells);
@@ -261,7 +262,8 @@ Loop:   while(currNode != null) {
                 }
             }else if(currNode instanceof TextNode){
                 String text = ((TextNode) currNode).text();
-                if(text.endsWith("(")) {
+                if(text.endsWith("(") && !loadedTraits) {
+                    loadedTraits = true;
                     previousPart = currPart;
                     currPart = AbilityPart.Traits;
                     builders.put(AbilityPart.Traits, new StringBuilder());
@@ -286,7 +288,7 @@ Loop:   while(currNode != null) {
         if(builders.get(AbilityPart.Description).length() == 0)
             builders.remove(AbilityPart.Description);
         for (Map.Entry<AbilityPart, StringBuilder> entry : builders.entrySet()) {
-            String s = entry.getValue().toString().trim().replaceAll("&lt;br&gt;\\z", "");
+            String s = entry.getValue().toString().trim().replaceAll("(&lt;br&gt;\\z|\\A[; ]*)", "");
             if(s.isBlank())
                 continue;
             if(entry.getKey() == AbilityPart.Traits)
@@ -310,6 +312,7 @@ Loop:   while(currNode != null) {
         String attack = (attackStart == -1) ? null : text.substring(attackStart+7, text.length()-2);
         curr = curr.nextElementSibling();
         String currLevel = null;
+        Map<String, Integer> slotsMap = new TreeMap<>(Comparator.reverseOrder());
         Map<String, List<String>> spells = new TreeMap<>(Comparator.reverseOrder());
         while(curr != null) {
             if(curr.tagName().equals("b")) {
@@ -330,6 +333,21 @@ Loop:   while(currNode != null) {
                 break;
             } else {
                 String s = curr.wholeText();
+                Node node = curr.nextSibling();
+                if(node instanceof TextNode) {
+                    boolean append = false;
+                    String s1 = ((TextNode) node).text();
+                    if(s1.matches(".*\\([^)]*\\).*"))
+                        append = true;
+                    int slots = s1.indexOf("slots");
+                    if(append && slots != -1) {
+                        int start = s1.indexOf('(');
+                        slotsMap.put(currLevel, Integer.parseInt(s1.substring(start + 1, slots - 1)));
+                        append = false;
+                    }
+                    if(append)
+                        s += s1.replaceAll("[;,]? *\\z", "");
+                }
                 if(!s.isBlank())
                     spells.get(currLevel).add(s);
             }
@@ -342,8 +360,11 @@ Loop:   while(currNode != null) {
         if(attack != null)
             builder.append("\t\t<Attack>").append(attack).append("</Attack>\n");
         for (Map.Entry<String, List<String>> entry : spells.entrySet()) {
-            builder.append("\t\t<Spells level=\"").append(entry.getKey()).append("\">")
-                    .append(String.join(", ", entry.getValue())).append("</Spells>\n");
+            builder.append("\t\t<Spells level=\"").append(entry.getKey());
+            if(slotsMap.containsKey(entry.getKey())) {
+                builder.append("\" slots=\"").append(slotsMap.get(entry.getKey()));
+            }
+            builder.append("\">").append(String.join(", ", entry.getValue())).append("</Spells>\n");
         }
         builder.append("\t</Spells>\n");
 
