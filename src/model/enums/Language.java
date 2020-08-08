@@ -4,10 +4,10 @@ public enum Language {
     //Common
     Common, Draconic, Dwarven, Elven, Gnomish, Goblin, Halfling, Jotun, Orcish, Sylvan, Undercommon,
     //Uncommon
-    Abyssal, Aklo, Alghollthu, Aquan, Auran, Celestial, Giant, Gnoll,
-    Ignan, Infernal, Necril, Shadowtongue, Sphinx, Terran, Utopian,
+    Abyssal, Aklo, Alghollthu, Amurrun, Aquan, Arboreal, Auran, Boggard, Caligni, Celestial, Cyclops, Daemonic,
+    Ettin, Giant, Gnoll, Ignan, Infernal, Iruxi, Necril, Protean, Requian, Shadowtongue, Sphinx, Tengu, Terran, Utopian,
     //Secret
-    Druidic, Free;
+    Druidic, Envisioning, Free;
 
     public static Language[] getChooseable() {
         return new Language[]{

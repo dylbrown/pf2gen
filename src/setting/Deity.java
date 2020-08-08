@@ -1,5 +1,6 @@
 package setting;
 
+import model.NamedObject;
 import model.attributes.Attribute;
 import model.enums.Alignment;
 import model.equipment.weapons.Weapon;
@@ -7,7 +8,7 @@ import model.spells.Spell;
 
 import java.util.*;
 
-public class Deity {
+public class Deity extends NamedObject {
     public static final Deity NO_DEITY;
 
     static {
@@ -17,7 +18,7 @@ public class Deity {
         builder.setDescription("You don't follow any deity in particular.");
         NO_DEITY = builder.build();
     }
-    private final String name, title, description, edicts, anathema, areasOfConcern;
+    private final String title, edicts, anathema, areasOfConcern;
     private final Alignment deityAlignment;
     private final List<Alignment> followerAlignments;
     private final boolean harmFont, healFont;
@@ -25,12 +26,10 @@ public class Deity {
     private final Weapon favoredWeapon;
     private final List<Domain> domains;
     private final Map<Integer, Spell> spells;
-    private final int page;
 
     private Deity(Builder builder) {
-        this.name = builder.name;
+        super(builder);
         this.title = builder.title;
-        this.description = builder.description;
         this.edicts = builder.edicts;
         this.anathema = builder.anathema;
         this.areasOfConcern = builder.areasOfConcern;
@@ -42,11 +41,6 @@ public class Deity {
         this.favoredWeapon = builder.favoredWeapon;
         this.domains = builder.domains;
         this.spells = builder.spells;
-        this.page = builder.page;
-    }
-
-    public String getName() {
-        return name;
     }
 
     @Override
@@ -54,10 +48,6 @@ public class Deity {
 
     public String getTitle() {
         return title;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public String getEdicts() {
@@ -104,12 +94,8 @@ public class Deity {
         return Collections.unmodifiableMap(spells);
     }
 
-    public int getPage() {
-        return page;
-    }
-
-    public static class Builder {
-        private String name = "", title = "", edicts = "", anathema = "", areasOfConcern = "", description = "";
+    public static class Builder extends NamedObject.Builder {
+        private String title = "", edicts = "", anathema = "", areasOfConcern = "";
         private Alignment deityAlignment = Alignment.N;
         private List<Alignment> followerAlignments = Collections.emptyList();
         private boolean harmFont = false, healFont = false;
@@ -117,17 +103,10 @@ public class Deity {
         private Weapon favoredWeapon = null;
         private List<Domain> domains = Collections.emptyList();
         private Map<Integer, Spell> spells = Collections.emptyMap();
-        private int page = -1;
-
-        public void setName(String name) {
-            this.name = name;
-        }
 
         public void setTitle(String title) {
             this.title = title;
         }
-
-        public void setDescription(String desc) {this.description = desc; }
 
         public void setEdicts(String edicts) {
             this.edicts = edicts;
@@ -174,10 +153,6 @@ public class Deity {
         public void addSpell(int level, Spell spell) {
             if(spells.size() == 0) spells = new TreeMap<>();
             spells.put(level, spell);
-        }
-
-        public void setPage(int page) {
-            this.page = page;
         }
 
         public Deity build() {

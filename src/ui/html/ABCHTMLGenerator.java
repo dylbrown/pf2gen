@@ -50,7 +50,7 @@ public class ABCHTMLGenerator {
                 String.join(", ", ancestry.getSenses()),
                 ancestry.getLanguages().stream().map(Language::name).collect(Collectors.joining(", ")),
                 bonusLanguages,
-                ancestry.getDesc());
+                ancestry.getDescription());
     }
 
     public static String parse(Background background) {
@@ -70,7 +70,7 @@ public class ABCHTMLGenerator {
                 "<b>Skills</b> %s<br>" +
                 "<b>Bonus Feat</b> %s",
                 background.getName(),
-                background.getDesc(),
+                background.getDescription(),
                 String.join(", ", getAbilityMods(background.getAbilityMods())),
                 background.getMods().stream().map(AttributeMod::toNiceAttributeString)
                         .collect(Collectors.joining(", ")),
@@ -110,7 +110,7 @@ public class ABCHTMLGenerator {
                         "<b>Skill Increases</b> %d plus your Int Modifier.<br>" +
                         "<b>Initial Proficiencies</b><br>%s",
                 pClass.getName(),
-                pClass.getDesc(),
+                pClass.getDescription(),
                 String.join(", ", getAbilityMods(pClass.getAbilityMods())),
                 pClass.getHP(),
                 pClass.getSkillIncrease(),

@@ -60,14 +60,19 @@ class InventoryManagerTest {
     @Test
     void buyTooMany() {
         inventory.setMoney(10);
-        Equipment item = new Weapon.Builder().setName("test").build();
+        Weapon.Builder builder = new Weapon.Builder();
+        builder.setName("test");
+        builder.setValue(5);
+        Equipment item = builder.build();
         assertFalse(inventory.buy(item, 11));
         assertEmpty();
     }
     @Test
     void buyExact() {
         inventory.setMoney(10);
-        Equipment item = new Weapon.Builder().setName("test").build();
+        Weapon.Builder builder = new Weapon.Builder();
+        builder.setName("test");
+        Equipment item = builder.build();
         assertTrue(inventory.buy(item, 10));
         checkMatches(inventory.getItems(), new ItemCount(item, 10));
         checkMatches(inventory.getUnequipped(), new ItemCount(item, 10));
@@ -125,7 +130,9 @@ class InventoryManagerTest {
 
     @Test
     void equipSome() {
-        Equipment item1 = new Armor.Builder().setName("test").build();
+        Armor.Builder builder = new Armor.Builder();
+        builder.setName("test");
+        Equipment item1 = builder.build();
         Equipment item2 = sampleItems.get(1);
         assertTrue(inventory.buy(item1, 3));
         assertTrue(inventory.buy(item2, 5));
@@ -143,7 +150,9 @@ class InventoryManagerTest {
 
     @Test
     void equipAll() {
-        Equipment item1 = new Armor.Builder().setName("test").build();
+        Armor.Builder builder = new Armor.Builder();
+        builder.setName("test");
+        Equipment item1 = builder.build();
         Equipment item2 = sampleItems.get(1);
         assertTrue(inventory.buy(item1, 3));
         assertTrue(inventory.buy(item2, 5));
@@ -160,7 +169,9 @@ class InventoryManagerTest {
 
     @Test
     void unequipSome() {
-        Equipment item1 = new Armor.Builder().setName("test").build();
+        Armor.Builder builder = new Armor.Builder();
+        builder.setName("test");
+        Equipment item1 = builder.build();
         Equipment item2 = sampleItems.get(1);
         assertTrue(inventory.buy(item1, 3));
         assertTrue(inventory.buy(item2, 5));
@@ -179,7 +190,9 @@ class InventoryManagerTest {
 
     @Test
     void unequipAll() {
-        Equipment item1 = new Armor.Builder().setName("test").build();
+        Armor.Builder builder = new Armor.Builder();
+        builder.setName("test");
+        Equipment item1 = builder.build();
         Equipment item2 = sampleItems.get(1);
         assertTrue(inventory.buy(item1, 3));
         assertTrue(inventory.buy(item2, 5));
@@ -195,7 +208,9 @@ class InventoryManagerTest {
 
     @Test
     void getEquipped() {
-        Equipment item1 = new Armor.Builder().setName("test").build();
+        Armor.Builder builder = new Armor.Builder();
+        builder.setName("test");
+        Equipment item1 = builder.build();
         inventory.buy(item1, 3);
         inventory.equip(item1, item1.getSlot(), 2);
         assertEquals(1, inventory.getUnequipped().size());
@@ -216,7 +231,9 @@ class InventoryManagerTest {
 
     @Test
     void equipOneHand() {
-        Equipment item1 = new Weapon.Builder().setName("test").build();
+        Weapon.Builder builder = new Weapon.Builder();
+        builder.setName("test");
+        Equipment item1 = builder.build();
         inventory.buy(item1, 3);
         inventory.equip(item1, item1.getSlot(), 2);
         assertEquals(1, inventory.getUnequipped().size());

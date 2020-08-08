@@ -95,7 +95,7 @@ public class DecisionsList extends TreeTableView<DecisionEntry> {
     }
 
     private static void attemptRemove(TreeItem<DecisionEntry> treeItem, int count) {
-        if(treeItem.getValue() == null || count != 2) return;
+        if(treeItem.getValue() == null || count % 2 != 0) return;
         Object value = treeItem.getValue().getChosenValue();
         if(value == null) return; // Haven't selected a chosen value
         Choice choice = treeItem.getParent().getValue().getChoice();

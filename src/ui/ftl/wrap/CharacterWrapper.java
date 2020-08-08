@@ -126,7 +126,7 @@ public class CharacterWrapper implements TemplateHashModel {
     private List<Ability> flattenAbilities(List<Ability> abilities) {
         List<Ability> items = new ArrayList<>();
         for (Ability ability: abilities) {
-            if(ability.getDesc().equals("")) continue;
+            if(ability.getDescription().equals("")) continue;
             items.add(ability);
         }
         return items;

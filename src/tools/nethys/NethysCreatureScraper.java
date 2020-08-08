@@ -414,9 +414,11 @@ Loop:   while(currNode != null) {
             endBonus = text.indexOf(' ', endBonus + 1);
         String attackModifier = text.substring(bonusSign, endBonus).replace(" ", "");
         List<String> traits = new ArrayList<>();
-        curr = curr.nextElementSibling().nextElementSibling().nextElementSibling();
+        curr = curr.nextElementSibling();
+        while(!curr.tagName().equals("b") && !curr.tagName().equals("a"))
+            curr = curr.nextElementSibling();
         while(!curr.tagName().equals("b")) {
-            if(!curr.attr("href").equals("https://2e.aonprd.com/Rules.aspx?ID=322"))
+            if(!curr.attr("href").equals("Rules.aspx?ID=322"))
                 traits.add(StringUtils.camelCaseWord(curr.text()));
             curr = curr.nextElementSibling();
         }
@@ -426,9 +428,10 @@ Loop:   while(currNode != null) {
         }while (curr != null && curr.tagName().equals("b"));
         attacks.append("\t\t<Attack type=\"").append(type.trim()).append("\">\n")
                 .append("\t\t\t<Name>").append(StringUtils.camelCase(name.trim())).append("</Name>\n")
-                .append("\t\t\t<AttackModifier>").append(attackModifier.trim()).append("</AttackModifier>\n")
-                .append("\t\t\t<Traits>").append(String.join(", ", traits)).append("</Traits>\n")
-                .append("\t\t\t<Damage>").append(damage.trim()).append("</Damage>\n")
+                .append("\t\t\t<AttackModifier>").append(attackModifier.trim()).append("</AttackModifier>\n");
+        if(traits.size() > 0)
+            attacks.append("\t\t\t<Traits>").append(String.join(", ", traits)).append("</Traits>\n");
+        attacks.append("\t\t\t<Damage>").append(damage.trim()).append("</Damage>\n")
                 .append("\t\t</Attack>\n");
         return curr;
     }

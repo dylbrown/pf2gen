@@ -1,5 +1,6 @@
 package model.spells;
 
+import model.NamedObject;
 import model.enums.Trait;
 import model.util.StringUtils;
 
@@ -7,9 +8,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Spell implements Comparable<Spell> {
-	private final String name, castTime, requirements, range, area, targets, duration, save, description, sourceBook;
-	private final int level, page;
+public class Spell extends NamedObject implements Comparable<Spell> {
+	private final String castTime, requirements, range, area, targets, duration, save;
+	private final int level;
 	private final List<Trait> traits;
 	private final List<Tradition> traditions;
 	private final List<SpellComponent> components;
@@ -17,7 +18,7 @@ public class Spell implements Comparable<Spell> {
 	private final HeightenedData heightenedData;
 
 	private Spell(Spell.Builder builder) {
-		this.name = builder.name;
+		super(builder);
 		this.level = builder.level;
 		this.traits = builder.traits;
 		this.traditions = builder.traditions;
@@ -29,9 +30,6 @@ public class Spell implements Comparable<Spell> {
 		this.targets = builder.targets;
 		this.duration = builder.duration;
 		this.save = builder.save;
-		this.description = builder.description;
-		this.page = builder.page;
-		this.sourceBook = builder.sourceBook;
 		this.isCantrip = builder.isCantrip;
 		if(builder.heightenedEvery != null) {
 			builder.heightenedEvery.setSpell(this);
@@ -40,10 +38,6 @@ public class Spell implements Comparable<Spell> {
 			builder.heightenedLevels.setSpell(this);
 			heightenedData = builder.heightenedLevels.build();
 		} else heightenedData = null;
-	}
-
-	public String getName() {
-		return name;
 	}
 
 	public String getCastTime() {
@@ -74,21 +68,8 @@ public class Spell implements Comparable<Spell> {
 		return save;
 	}
 
-	public String getDescription() {
-		return description;
-	}
-
 	public HeightenedData getHeightenedData() {
 		return heightenedData;
-	}
-
-	public int getPage() {
-		return page;
-	}
-
-	public String getSource() {
-		if(page == -1) return StringUtils.intialism(sourceBook);
-		return StringUtils.intialism(sourceBook) + " pg. " + page;
 	}
 
 	public int getLevel() {
@@ -114,7 +95,7 @@ public class Spell implements Comparable<Spell> {
 
 	@Override
 	public int compareTo(Spell o) {
-		return name.compareTo(o.name);
+		return getName().compareTo(o.getName());
 	}
 
 	public boolean isCantrip() {
@@ -125,8 +106,7 @@ public class Spell implements Comparable<Spell> {
 		return isCantrip ? 0 : getLevel();
 	}
 
-	public static class Builder {
-		private String name;
+	public static class Builder extends NamedObject.Builder {
 		private int level;
 		private final List<Trait> traits = new ArrayList<>();
 		private List<Tradition> traditions = Collections.emptyList();
@@ -139,15 +119,8 @@ public class Spell implements Comparable<Spell> {
 		private String targets = "";
 		private String duration = "";
 		private String save = "";
-		private int page = -1;
-		private String sourceBook = "Core Rulebook"; // TODO: Collect this in loader
-		private String description;
 		private HeightenedEvery.Builder heightenedEvery;
 		private HeightenedLevels.Builder heightenedLevels;
-
-		public void setName(String name) {
-			this.name = name;
-		}
 
 		public void setLevel(String level) {
 			this.level = Integer.parseInt(level);
@@ -161,10 +134,6 @@ public class Spell implements Comparable<Spell> {
 					e.printStackTrace();
 				}
 			}
-		}
-
-		public void setPage(int page) {
-			this.page = page;
 		}
 
 		public void setTraditions(String traditions) {
@@ -224,10 +193,6 @@ public class Spell implements Comparable<Spell> {
 
 		public void setSave(String save) {
 			this.save = StringUtils.camelCase(save);
-		}
-
-		public void setDescription(String description) {
-			this.description = description;
 		}
 
 		public void addHeightenedLevel(int level, String description) {

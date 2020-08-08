@@ -31,12 +31,13 @@ public class DecisionsController {
     private WebView display;
     @FXML
     private BorderPane decisionsPaneContainer, choicesContainer;
-    private Map<Choice, Node> nodes = new HashMap<>();
+    private final Map<Choice, Node> nodes = new HashMap<>();
 
     @FXML
     private void initialize() {
         DecisionsList decisionsList = new DecisionsList((treeItem, i) -> setChoices(treeItem),
                 Main.character.decisions().getDecisions());
+        decisionsList.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal)->setChoices(newVal));
         decisionsPaneContainer.setCenter(decisionsList);
     }
 

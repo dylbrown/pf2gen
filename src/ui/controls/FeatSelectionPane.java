@@ -106,11 +106,22 @@ public class FeatSelectionPane extends SelectionPane<Ability> {
             }
         });
         allItemsList = AbilityList.getTypeLevelList(allItems, (a, i) -> {
-            display.getEngine().loadContent(AbilityHTMLGenerator.parse(a));
             if(i == 2) {
                 if(character.meetsPrerequisites(a) && (a.isMultiple() || !character.abilities().haveAbility(a))) {
                     slot.add(a);
                 }
+            }
+        });
+        allItemsList.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal)->{
+            if(newVal != null && newVal.getValue() != null && newVal.getValue().getContents() != null) {
+                Ability ability = newVal.getValue().getContents();
+                display.getEngine().loadContent(AbilityHTMLGenerator.parse(ability));
+            }
+        });
+        itemsList.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal)->{
+            if(newVal != null && newVal.getValue() != null && newVal.getValue().getContents() != null) {
+                Ability ability = newVal.getValue().getContents();
+                display.getEngine().loadContent(AbilityHTMLGenerator.parse(ability));
             }
         });
 

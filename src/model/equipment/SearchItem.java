@@ -6,7 +6,13 @@ import model.enums.Slot;
 public class SearchItem extends Equipment {
 
     public SearchItem(String name) {
-        super(new Equipment.Builder().setName(name));
+        super(new SearchItem.Builder(name));
+    }
+
+    private static class Builder extends Equipment.Builder {
+        public Builder(String name) {
+            setName(name);
+        }
     }
 
     @Override
@@ -31,11 +37,6 @@ public class SearchItem extends Equipment {
 
     @Override
     public String getPrettyWeight() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getDesc() {
         throw new UnsupportedOperationException();
     }
 

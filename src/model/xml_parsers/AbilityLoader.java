@@ -92,7 +92,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         }
         builder.setName(name);
         if(!element.getAttribute("page").equals(""))
-            builder.setPageNo(Integer.parseInt(element.getAttribute("page")));
+            builder.setPage(Integer.parseInt(element.getAttribute("page")));
         String levelString = element.getAttribute("level");
         if(!levelString.equals("")) {
             if(levelString.endsWith("+")){

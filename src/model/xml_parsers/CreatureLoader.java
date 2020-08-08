@@ -3,17 +3,16 @@ package model.xml_parsers;
 import model.abilities.Ability;
 import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
-import model.creatures.Attack;
-import model.creatures.Creature;
-import model.creatures.CreatureItem;
-import model.creatures.CreatureSpellList;
+import model.creatures.*;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.data_managers.sources.SourcesLoader;
 import model.enums.Language;
 import model.enums.Trait;
 import model.enums.Type;
+import model.equipment.CustomTrait;
 import model.equipment.Equipment;
+import model.equipment.SpecialCustomTrait;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -23,7 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import static model.util.StringUtils.camelCase;
 
 public class CreatureLoader extends AbilityLoader<Creature> {
     public CreatureLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
@@ -35,7 +35,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
         Creature.Builder builder = new Creature.Builder();
         NodeList childNodes = item.getChildNodes();
         builder.setLevel(Integer.parseInt(item.getAttribute("level")));
-        builder.setPageNo(Integer.parseInt(item.getAttribute("page")));
+        builder.setPage(Integer.parseInt(item.getAttribute("page")));
         for(int i = 0; i < childNodes.getLength(); i++) {
             if(childNodes.item(i).getNodeType() != Node.ELEMENT_NODE)
                 continue;
@@ -256,6 +256,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
     private Attack makeAttack(Element element) {
         Attack.Builder builder = new Attack.Builder();
         NodeList childNodes = element.getChildNodes();
+        builder.setAttackType(AttackType.valueOf(element.getAttribute("type")));
         for(int i = 0; i < childNodes.getLength(); i++) {
             if(childNodes.item(i).getNodeType() != Node.ELEMENT_NODE)
                 continue;
@@ -269,10 +270,38 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                     builder.setModifier(Integer.parseInt(content));
                     break;
                 case "Traits":
-                    builder.setTraits(Stream.of(content.split(", "))
-                            .map(t-> SourcesLoader.instance().weapons().getWeaponTraits().get(t))
-                            .collect(Collectors.toList())
-                    );
+                    builder.setTraits(Arrays.stream(content.split(",")).map((item)->{
+                        String[] s = item.trim().split(" ", 2);
+                        if(s.length == 1) {
+                            CustomTrait trait = SourcesLoader.instance().weapons().getWeaponTraits().get(camelCase(s[0]));
+                            if(trait == null) {
+                                System.out.println(item.trim());
+                                trait = new CustomTrait(item.trim());
+                            }
+                            return trait;
+                        }  else {
+                            String custom = s[1];
+                            CustomTrait trait = SourcesLoader.instance().weapons().getWeaponTraits()
+                                    .get(camelCase(s[0]));
+                            if(trait == null) {
+                                int space = item.trim().indexOf(' ');
+                                space = item.trim().indexOf(' ', space + 1);
+                                if(space == -1) {
+                                    space = item.trim().length();
+                                    custom = "";
+                                }else custom = item.trim().substring(space+1);
+                                trait = SourcesLoader.instance().weapons().getWeaponTraits()
+                                        .get(camelCase(item.trim().substring(0, space)));
+                            }
+                            if(trait == null) {
+                                System.out.println(item.trim());
+                                trait = new CustomTrait(item.trim());
+                            }
+                            if(custom.length() == 0)
+                                return trait;
+                            return new SpecialCustomTrait(trait, custom);
+                        }
+                    }).collect(Collectors.toList()));
                     break;
                 case "Damage":
                     builder.setDamage(content);

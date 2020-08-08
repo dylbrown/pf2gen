@@ -15,6 +15,8 @@ public class Rune extends Equipment {
 
     public String getBaseRune() {
         int end = getName().indexOf("(");
+        if(end == -1)
+            end = getName().length();
         return getName().substring(0, end).trim();
     }
 

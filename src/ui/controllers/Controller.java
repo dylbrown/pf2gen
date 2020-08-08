@@ -10,6 +10,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Region;
 import javafx.scene.web.WebView;
 import ui.Main;
 import ui.controls.SaveLoadController;
@@ -17,6 +18,7 @@ import ui.ftl.TemplateFiller;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
 import static ui.Main.character;
 
@@ -69,8 +71,20 @@ public class Controller {
         about_menu.setOnAction(e -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("About");
-            alert.setHeaderText("PF2Gen v"+getClass().getPackage().getImplementationVersion());
-            alert.setContentText("Created by Dylan Brown.");
+            final Properties properties = new Properties();
+            try {
+                properties.load(this.getClass().getResourceAsStream("/project.properties"));
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+            String version = properties.getProperty("version");
+            if(version == null || version.startsWith("${"))
+                version = "-NOT COMPILED WITH MAVEN-";
+            else
+                version = "v" + version;
+            alert.setHeaderText("PF2Gen "+version);
+            alert.setContentText("Created by Dylan Brown.\nThis character creator uses trademarks and/or copyrights owned by Paizo Inc., which are used under Paizo's Community Use Policy. We are expressly prohibited from charging you to use or access this content. This character creator is not published, endorsed, or specifically approved by Paizo Inc. For more information about Paizo's Community Use Policy, please visit paizo.com/communityuse. For more information about Paizo Inc. and Paizo products, please visit paizo.com.");
+            alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
             alert.show();
         });
         gm_menu.setOnAction(e->{

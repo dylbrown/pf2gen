@@ -94,6 +94,7 @@ public class SourcesLoader extends FileLoader<Source> {
 
     static {
         Map<String, String> locations = new HashMap<>();
+        locations.put("advanced_players_guide", "Advanced Player's Guide/index.pfdyl");
         locations.put("core_rulebook", "Core Rulebook/index.pfdyl");
         locations.put("bestiary_1", "Bestiary 1/index.pfdyl");
         locations.put("the_amar_vale", "The Amar Vale/index.pfdyl");

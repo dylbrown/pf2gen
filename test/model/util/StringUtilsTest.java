@@ -17,7 +17,7 @@ class StringUtilsTest {
     @Test
     void camelCaseWord() {
         assertEquals("Test", StringUtils.camelCaseWord("tEsT"));
-        assertEquals("Test multi word", StringUtils.camelCaseWord("tEST Multi WorD"));
+        assertEquals("Test Multi Word", StringUtils.camelCaseWord("tEST Multi WorD"));
         assertEquals("", StringUtils.camelCaseWord(""));
     }
 }

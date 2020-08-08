@@ -57,11 +57,22 @@ class AttributeManagerTest {
 		assertEquals(Proficiency.Untrained, value.getValue());
 
 		AttributeModSingleChoice choice = new AttributeModSingleChoice(
-				new Attribute[]{Attribute.Athletics}, Proficiency.Trained);
+				new Attribute[]{Attribute.Athletics, Attribute.Acrobatics}, Proficiency.Trained);
 		attributes.apply(choice);
 		assertEquals(Proficiency.Untrained, value.getValue());
 
 		choice.fill(Attribute.Athletics);
+		assertEquals(Proficiency.Trained, value.getValue());
+	}
+
+	@Test
+	void applyChoiceAutomatically() {
+		ObservableValue<Proficiency> value = attributes.getProficiency(Attribute.Athletics);
+		assertEquals(Proficiency.Untrained, value.getValue());
+
+		AttributeModSingleChoice choice = new AttributeModSingleChoice(
+				new Attribute[]{Attribute.Athletics}, Proficiency.Trained);
+		attributes.apply(choice);
 		assertEquals(Proficiency.Trained, value.getValue());
 	}
 
@@ -97,7 +108,7 @@ class AttributeManagerTest {
 	@Test
 	void removeSkillIncrease() {
 		attributes.addSkillIncreases(3, 16);
-		assertEquals(2, attributes.getSkillIncreases().get(16));
+		assertEquals(3, attributes.getSkillIncreases().get(16));
 		attributes.removeSkillIncreases(2, 16);
 		assertEquals(1, attributes.getSkillIncreases().get(16));
 		attributes.removeSkillIncreases(1, 16);

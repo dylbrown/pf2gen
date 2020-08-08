@@ -11,7 +11,6 @@ import model.equipment.weapons.Damage;
 import model.equipment.weapons.DamageModifier;
 import model.equipment.weapons.RangedWeapon;
 import model.equipment.weapons.Weapon;
-import ui.Main;
 
 import java.util.*;
 
@@ -100,7 +99,7 @@ public class CombatManager implements PlayerState {
     }
 
     public Damage getDamage(Weapon weapon) {
-        Damage damage = weapon.getDamage().add(Main.character.combat().getDamageMod(weapon), weapon.getDamageType());
+        Damage damage = weapon.getDamage().add(getDamageMod(weapon), weapon.getDamageType());
         for (DamageModifier damageModifier : damageModifiers.values()) {
             damage = damageModifier.apply(weapon, damage);
         }

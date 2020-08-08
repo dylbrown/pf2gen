@@ -133,7 +133,6 @@ public class AttributeManager implements PlayerState {
         if(mod.getAttr() == null) return;
         if(mod instanceof AttributeModSingleChoice) {
             AttributeModSingleChoice choice = (AttributeModSingleChoice) mod;
-            decisions.add(choice);
             if(!choices.contains(mod)) {
                 choices.add(choice);
                 choice.getChoiceProperty().addListener((observable, oldVal, newVal)->{
@@ -141,6 +140,7 @@ public class AttributeManager implements PlayerState {
                     apply(new AttributeMod(newVal, mod.getMod()));
                 });
             }
+            decisions.add(choice);
             return;
         }
         SingleAttributeManager singleManager = singleAttributes.get(mod.getAttr());

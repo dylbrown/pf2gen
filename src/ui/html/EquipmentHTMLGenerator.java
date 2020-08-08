@@ -37,7 +37,7 @@ public class EquipmentHTMLGenerator {
             text.append("; <b>Hands</b> ").append(equipment.getHands());
         if(equipment.getTraits().size() > 0)
             text.append("<br><b>Traits</b> ").append(equipment.getTraits().stream().map(Trait::toString).collect(Collectors.joining(", ")));
-        text.append("<hr>").append(equipment.getDesc());
+        text.append("<hr>").append(equipment.getDescription());
         for (Ability ability : equipment.getAbilities()) {
             text.append("<hr>").append(AbilityHTMLGenerator.parse(ability));
         }

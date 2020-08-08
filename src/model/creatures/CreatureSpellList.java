@@ -47,7 +47,15 @@ public class CreatureSpellList extends SpellList {
         return false;
     }
 
+    public String getSpecialInfo(Spell spell, int level) {
+        return specialInfo.get(new Pair<>(spell, level));
+    }
+
     public void setHeightenedLevel(int heightenedLevel) {
         this.heightenedLevel = heightenedLevel;
+    }
+
+    public int getHeightenedLevel() {
+        return heightenedLevel;
     }
 }

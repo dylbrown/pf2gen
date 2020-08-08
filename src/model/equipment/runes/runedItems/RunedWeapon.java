@@ -59,8 +59,8 @@ public class RunedWeapon extends Weapon implements RunedEquipment<WeaponRune> {
         // Add extra weapon damage dice
         Integer bonusDice = runes.getAll().stream()
                 .map(WeaponRune::getBonusWeaponDice)
-                .reduce(0, Integer::sum);
-        Dice strikingDice = Dice.get(bonusDice, baseWeapon.getDamageDice().getSize());
+                .reduce(1, Integer::max);
+        Dice strikingDice = Dice.get(bonusDice-1, baseWeapon.getDamageDice().getSize());
         Damage striking = new Damage.Builder()
                 .addDice(strikingDice)
                 .setDamageType(baseWeapon.getDamageType())

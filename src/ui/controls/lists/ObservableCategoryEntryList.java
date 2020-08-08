@@ -46,7 +46,13 @@ public class ObservableCategoryEntryList<T, U extends ListEntry<T>> extends Abst
             }
         });
         super.construct(handler);
-        getRoot().getChildren().sort(Comparator.comparing(o -> Integer.parseInt(o.getValue().toString())));
+        getRoot().getChildren().sort(Comparator.comparing(o -> {
+            try {
+                return Integer.parseInt(o.getValue().toString());
+            }catch (NumberFormatException e) {
+                return 0;
+            }
+        }));
     }
 
     private boolean multiCategory = false;

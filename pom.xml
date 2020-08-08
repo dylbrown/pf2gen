@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>dylbrown</groupId>
     <artifactId>pf2gen</artifactId>
-    <version>0.2.1-alpha</version>
+    <version>0.3.0-alpha</version>
     <properties>
         <javafx.version>11.0.2</javafx.version>
     </properties>
@@ -22,6 +22,10 @@
         <resources>
             <resource>
                 <directory>${project.basedir}/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/resources_filtered</directory>
+                <filtering>true</filtering>
             </resource>
         </resources>
         <plugins>
@@ -69,8 +73,6 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <mainClass>ui.Java11Main</mainClass>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                         </manifest>
                     </archive>
                 </configuration>
