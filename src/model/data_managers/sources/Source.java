@@ -7,6 +7,8 @@ import model.xml_parsers.abc.PClassesLoader;
 import model.xml_parsers.equipment.ArmorLoader;
 import model.xml_parsers.equipment.EquipmentLoader;
 import model.xml_parsers.equipment.WeaponsLoader;
+import model.xml_parsers.setting.DeitiesLoader;
+import model.xml_parsers.setting.DomainsLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +28,9 @@ public final class Source {
     private final DeitiesLoader deities;
     private final DomainsLoader domains;
     private final SpellsLoader spells;
-    private final TemplatesLoader templates;
     private final CreatureLoader creatures;
+    private final TemplatesLoader templates;
+    private final TraitsLoader traits;
 
     private Source(Source.Builder builder) {
         this.name = builder.name;
@@ -44,8 +47,9 @@ public final class Source {
         this.deities = builder.deities;
         this.domains = builder.domains;
         this.spells = builder.spells;
-        this.templates = builder.templates;
         this.creatures = builder.creatures;
+        this.templates = builder.templates;
+        this.traits = builder.traits;
         for (Consumer<Source> consumer : builder.buildListeners) {
             consumer.accept(this);
         }
@@ -108,12 +112,16 @@ public final class Source {
         return spells;
     }
 
+    public CreatureLoader getCreatures() {
+        return creatures;
+    }
+
     public TemplatesLoader getTemplates() {
         return templates;
     }
 
-    public CreatureLoader getCreatures() {
-        return creatures;
+    public TraitsLoader getTraits() {
+        return traits;
     }
 
     public static class Builder {
@@ -129,8 +137,9 @@ public final class Source {
         private DeitiesLoader deities;
         private DomainsLoader domains;
         private SpellsLoader spells;
-        private TemplatesLoader templates;
         private CreatureLoader creatures;
+        private TemplatesLoader templates;
+        private TraitsLoader traits;
         private final List<Consumer<Source>> buildListeners = new ArrayList<>();
 
         public void setName(String name) {
@@ -185,12 +194,16 @@ public final class Source {
             this.spells = spells;
         }
 
+        public void setCreatures(CreatureLoader creatures) {
+            this.creatures = creatures;
+        }
+
         public void setTemplates(TemplatesLoader templates) {
             this.templates = templates;
         }
 
-        public void setCreatures(CreatureLoader creatures) {
-            this.creatures = creatures;
+        public void setTraits(TraitsLoader traits) {
+            this.traits = traits;
         }
 
         public Source build() {

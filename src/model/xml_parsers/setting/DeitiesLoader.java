@@ -1,10 +1,11 @@
-package model.xml_parsers;
+package model.xml_parsers.setting;
 
 import model.attributes.Attribute;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.data_managers.sources.SourcesLoader;
 import model.enums.Alignment;
+import model.xml_parsers.FileLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;

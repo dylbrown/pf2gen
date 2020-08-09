@@ -1,8 +1,8 @@
 package model.equipment.weapons;
 
 import model.enums.Slot;
+import model.enums.Trait;
 import model.enums.WeaponProficiency;
-import model.equipment.CustomTrait;
 import model.equipment.Equipment;
 import model.equipment.runes.runedItems.Enchantable;
 import model.equipment.runes.runedItems.RunedWeapon;
@@ -16,7 +16,7 @@ public class Weapon extends Equipment implements Enchantable {
     private final Damage damage;
     private final DamageType damageType;
     private final WeaponGroup group;
-    private final List<CustomTrait> traits;
+    private final List<Trait> traits;
     private final WeaponProficiency proficiency;
     private final boolean uncommon;
 
@@ -55,7 +55,7 @@ public class Weapon extends Equipment implements Enchantable {
         return group;
     }
 
-    public List<CustomTrait> getWeaponTraits() {
+    public List<Trait> getWeaponTraits() {
         return Collections.unmodifiableList(traits);
     }
 
@@ -85,7 +85,7 @@ public class Weapon extends Equipment implements Enchantable {
         private Dice damageDice;
         private DamageType damageType;
         private WeaponGroup group;
-        private List<CustomTrait> traits = new ArrayList<>();
+        private List<Trait> traits = new ArrayList<>();
         private WeaponProficiency proficiency;
         private boolean uncommon;
 
@@ -129,8 +129,8 @@ public class Weapon extends Equipment implements Enchantable {
             this.uncommon = uncommon;
         }
 
-        public void addWeaponTrait(CustomTrait customTrait) {
-            traits.add(customTrait);
+        public void addWeaponTrait(Trait trait) {
+            traits.add(trait);
         }
     }
 }

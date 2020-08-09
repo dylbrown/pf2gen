@@ -5,6 +5,7 @@ import model.abc.Background;
 import model.abc.PClass;
 import model.abilities.Ability;
 import model.creatures.Creature;
+import model.enums.Trait;
 import model.equipment.Equipment;
 import model.equipment.armor.Armor;
 import model.xml_parsers.*;
@@ -14,6 +15,8 @@ import model.xml_parsers.abc.PClassesLoader;
 import model.xml_parsers.equipment.ArmorLoader;
 import model.xml_parsers.equipment.EquipmentLoader;
 import model.xml_parsers.equipment.WeaponsLoader;
+import model.xml_parsers.setting.DeitiesLoader;
+import model.xml_parsers.setting.DomainsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -39,8 +42,9 @@ public class SourcesLoader extends FileLoader<Source> {
     private final MultiSourceLoader<Deity> deitiesLoader;
     private final MultiSourceLoader<Domain> domainsLoader;
     private final SpellsMultiSourceLoader spellsLoader;
-    private final MultiSourceLoader<TemplatesLoader.BuilderSupplier> templatesLoader;
     private final MultiSourceLoader<Creature> creaturesLoader;
+    private final MultiSourceLoader<TemplatesLoader.BuilderSupplier> templatesLoader;
+    private final MultiSourceLoader<Trait> traitsLoader;
 
     public SourcesLoader(SourceConstructor sourceConstructor, File root) {
         super(sourceConstructor, root);
@@ -55,8 +59,9 @@ public class SourcesLoader extends FileLoader<Source> {
         List<DeitiesLoader> deities = new ArrayList<>();
         List<DomainsLoader> domains = new ArrayList<>();
         List<SpellsLoader> spells = new ArrayList<>();
-        List<TemplatesLoader> templates = new ArrayList<>();
         List<CreatureLoader> creatures = new ArrayList<>();
+        List<TemplatesLoader> templates = new ArrayList<>();
+        List<TraitsLoader> traits = new ArrayList<>();
         for (Source value : getAll().values()) {
             addIfNotNull(ancestries, value.getAncestries());
             addIfNotNull(backgrounds, value.getBackgrounds());
@@ -69,8 +74,9 @@ public class SourcesLoader extends FileLoader<Source> {
             addIfNotNull(deities, value.getDeities());
             addIfNotNull(domains, value.getDomains());
             addIfNotNull(spells, value.getSpells());
-            addIfNotNull(templates, value.getTemplates());
             addIfNotNull(creatures, value.getCreatures());
+            addIfNotNull(templates, value.getTemplates());
+            addIfNotNull(traits, value.getTraits());
         }
         ancestriesLoader = new MultiSourceLoader<>(ancestries);
         backgroundsLoader = new MultiSourceLoader<>(backgrounds);
@@ -83,8 +89,9 @@ public class SourcesLoader extends FileLoader<Source> {
         deitiesLoader = new MultiSourceLoader<>(deities);
         domainsLoader = new MultiSourceLoader<>(domains);
         spellsLoader = new SpellsMultiSourceLoader(spells);
-        templatesLoader = new MultiSourceLoader<>(templates);
         creaturesLoader = new MultiSourceLoader<>(creatures);
+        templatesLoader = new MultiSourceLoader<>(templates);
+        traitsLoader = new MultiSourceLoader<>(traits);
     }
 
     private <T> void addIfNotNull(List<T> list, T ancestries) {
@@ -161,11 +168,14 @@ public class SourcesLoader extends FileLoader<Source> {
             case "spells":
                 builder.setSpells(new SpellsLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
+            case "creatures":
+                builder.setCreatures(new CreatureLoader(getSourceConstructor(curr), parentFile, builder));
+                break;
             case "templates":
                 builder.setTemplates(new TemplatesLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
-            case "creatures":
-                builder.setCreatures(new CreatureLoader(getSourceConstructor(curr), parentFile, builder));
+            case "traits":
+                builder.setTraits(new TraitsLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
         }
     }
@@ -244,11 +254,15 @@ public class SourcesLoader extends FileLoader<Source> {
         return spellsLoader;
     }
 
+    public MultiSourceLoader<Creature> creatures() {
+        return creaturesLoader;
+    }
+
     public MultiSourceLoader<TemplatesLoader.BuilderSupplier> templates() {
         return templatesLoader;
     }
 
-    public MultiSourceLoader<Creature> creatures() {
-        return creaturesLoader;
+    public MultiSourceLoader<Trait> traits() {
+        return traitsLoader;
     }
 }

@@ -26,7 +26,7 @@ public class NethysCreatureScraper extends NethysListScraper {
 
     public NethysCreatureScraper(String inputURL, String outputPath, Predicate<String> sourceValidator) {
         super(inputURL, outputPath, "ctl00_MainContent_TableElement",
-                href-> href.contains("Monsters") && href.contains("ID="), sourceValidator);
+                href-> href.contains("Monsters") && href.contains("ID="), sourceValidator, true);
     }
 
     @Override

@@ -3,7 +3,6 @@ package ui.html;
 import model.abilities.Ability;
 import model.enums.ArmorProficiency;
 import model.enums.Trait;
-import model.equipment.CustomTrait;
 import model.equipment.Equipment;
 import model.equipment.armor.Armor;
 import model.equipment.armor.Shield;
@@ -85,7 +84,7 @@ public class EquipmentHTMLGenerator {
             text.append("; <b>Group</b> ").append(armor.getGroup().getName());
         }
         if(armor.getArmorTraits().size() > 0)
-            text.append("<br><b>Traits</b> ").append(armor.getArmorTraits().stream().map(CustomTrait::getName).collect(Collectors.joining(", ")));
+            text.append("<br><b>Traits</b> ").append(armor.getArmorTraits().stream().map(Trait::getName).collect(Collectors.joining(", ")));
         return text.toString();
     }
 
@@ -101,7 +100,7 @@ public class EquipmentHTMLGenerator {
             text.append("; <b>Reload</b> ").append(((RangedWeapon) weapon).getReload());
         }
         if(weapon.getWeaponTraits().size() > 0)
-            text.append("<br><b>Traits</b> ").append(weapon.getWeaponTraits().stream().map(CustomTrait::getName).collect(Collectors.joining(", ")));
+            text.append("<br><b>Traits</b> ").append(weapon.getWeaponTraits().stream().map(Trait::getName).collect(Collectors.joining(", ")));
         return text.toString();
     }
 }

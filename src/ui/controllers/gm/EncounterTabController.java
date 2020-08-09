@@ -55,6 +55,7 @@ public class EncounterTabController {
 
     @FXML
     private void initialize() {
+        preview.getEngine().setUserStyleSheetLocation(getClass().getResource("/webview_style.css").toString());
         partyLevel.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 20, 1));
         xAxis = new NumberAxis(0, 180, 20);
         xAxis.setTickLabelFormatter(new StringConverter<>() {

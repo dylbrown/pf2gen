@@ -1,44 +1,60 @@
 package model.equipment;
 
-import java.util.Objects;
+import model.enums.Trait;
 
-public class CustomTrait {
-    private final String name;
-    private final String effect;
+public class CustomTrait extends Trait {
+    private final String specialText;
+    private final Trait trait;
 
-    public CustomTrait(String name, String effect) {
-        this.name = name;
-        this.effect = effect;
+    public CustomTrait(Builder builder) {
+        super(builder);
+        specialText = builder.specialText;
+        trait = builder.trait;
     }
 
-    public CustomTrait(String name) {
-        this.name = name;
-        effect = "";
+    public CustomTrait(Trait trait, String custom) {
+        super(new Builder(trait));
+        this.trait = trait;
+        this.specialText = custom;
     }
 
+    public String getSpecialText() {
+        return specialText;
+    }
+
+    public Trait getTrait() {
+        return trait;
+    }
+
+    @Override
     public String getName() {
-        return name;
-    }
-
-    String getEffect() {
-        return effect;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CustomTrait customTrait = (CustomTrait) o;
-        return name.toLowerCase().equals(customTrait.name.toLowerCase());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
+        return super.getName() + " " + specialText;
     }
 
     @Override
     public String toString() {
-        return name;
+        return super.toString() + " " + specialText;
+    }
+
+    public static class Builder extends Trait.Builder {
+        private String specialText;
+        private final Trait trait;
+
+        public Builder(Trait trait) {
+            this.trait = trait;
+            setName(trait.getName());
+            setCategory(trait.getCategory());
+            setDescription(trait.getDescription());
+            setPage(trait.getPage());
+            setSourceBook(trait.getSourceBook());
+        }
+
+        public void setSpecialText(String specialText) {
+            this.specialText = specialText;
+        }
+
+        public CustomTrait build() {
+            return new CustomTrait(this);
+        }
     }
 }

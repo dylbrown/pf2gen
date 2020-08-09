@@ -3,7 +3,7 @@ package model.xml_parsers.equipment;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.ArmorProficiency;
-import model.equipment.CustomTrait;
+import model.enums.Trait;
 import model.equipment.armor.Armor;
 import model.equipment.armor.ArmorGroup;
 import model.equipment.armor.Shield;
@@ -23,7 +23,6 @@ import static model.util.StringUtils.camelCase;
 public class ArmorLoader extends FileLoader<Armor> {
 
     private final Map<String, ArmorGroup> armorGroups = new HashMap<>();
-    private final Map<String, CustomTrait> armorTraits = new HashMap<>();
 
     public ArmorLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
         super(sourceConstructor, root, sourceBuilder);
@@ -41,11 +40,6 @@ public class ArmorLoader extends FileLoader<Armor> {
             armorGroups.put(name.toLowerCase(), new ArmorGroup(effect, name));
         });
 
-        iterateElements(doc, "ArmorTrait", (curr)->{
-            String name = curr.getElementsByTagName("Name").item(0).getTextContent().trim();
-            String desc = curr.getElementsByTagName("Description").item(0).getTextContent().trim();
-            armorTraits.put(name, new CustomTrait(name, desc));
-        });
         iterateElements(doc, "Armor", (curr)->{
             Armor armor = getArmor(curr);
             addItem(armor.getSubCategory(), armor);
@@ -106,7 +100,7 @@ public class ArmorLoader extends FileLoader<Armor> {
                     shieldBuilder.setBT(Integer.parseInt(trim));
                     break;
                 case "Traits":
-                    Arrays.stream(trim.split(",")).map((item)->armorTraits.get(camelCase(item.trim().split(" ")[0]))).forEachOrdered(builder::addArmorTrait);
+                    Arrays.stream(trim.split(",")).map((item)-> Trait.valueOf(item.trim().split(" ")[0])).forEachOrdered(builder::addArmorTrait);
                     break;
                 default:
                     EquipmentLoader.parseTag(trim, curr, builder);

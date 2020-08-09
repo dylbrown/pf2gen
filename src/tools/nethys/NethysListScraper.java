@@ -1,6 +1,7 @@
 package tools.nethys;
 
 import model.util.Pair;
+import model.util.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -21,13 +22,24 @@ public abstract class NethysListScraper extends NethysScraper {
     final Set<Integer> ids = new HashSet<>();
     final ExecutorService executorService = Executors.newCachedThreadPool();
     final CompletionService<Boolean> completionService= new ExecutorCompletionService<>(executorService);
+    final Semaphore semaphore = new Semaphore(50);
     final AtomicInteger counter = new AtomicInteger(0);
+    private final boolean multithreaded;
 
     protected NethysListScraper() {
+        this(false);
+    }
 
+    public NethysListScraper(boolean multithreaded) {
+        this.multithreaded = multithreaded;
     }
 
     public NethysListScraper(String inputURL, String outputPath, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator) {
+        this(inputURL, outputPath, container, hrefValidator, sourceValidator, false);
+    }
+
+    public NethysListScraper(String inputURL, String outputPath, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator, boolean multithreaded) {
+        this.multithreaded = multithreaded;
         parseList(inputURL, container, hrefValidator, e -> true);
         printOutput(outputPath, sourceValidator);
     }
@@ -35,11 +47,12 @@ public abstract class NethysListScraper extends NethysScraper {
     protected final void printOutput(String outputPath, Predicate<String> sourceValidator) {
         BufferedWriter out;
         try {
-            out = new BufferedWriter(new FileWriter(new File(outputPath)), 65536);
+            out = new BufferedWriter(new FileWriter(new File(outputPath)), 32768);
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
+        System.out.println("Checking Completion now");
         try {
             for(int i = 0; i < counter.get(); i++) {
                 completionService.take();
@@ -48,11 +61,12 @@ public abstract class NethysListScraper extends NethysScraper {
             e.printStackTrace();
         }
         afterThreadsCompleted();
+        System.out.println("Writing to disk");
         for (Map.Entry<String, StringBuilder> entry : sources.entrySet()) {
             if(!sourceValidator.test(entry.getKey()))
                 continue;
             try {
-                out.write(entry.getValue().toString());
+                out.append(entry.getValue());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -66,7 +80,7 @@ public abstract class NethysListScraper extends NethysScraper {
 
     protected void afterThreadsCompleted() {}
 
-    protected final void parseList(String inputURL, String container, Predicate<String> hrefValidator,
+    protected void parseList(String inputURL, String container, Predicate<String> hrefValidator,
                              Predicate<Element> elementValidator) {
         Document rootDocument;
         try  {
@@ -85,11 +99,10 @@ public abstract class NethysListScraper extends NethysScraper {
                 }catch (NumberFormatException ignored) {}
                 if(elementValidator.test(element) && hrefValidator.test(href) && !ids.contains(id)) {
                     ids.add(id);
-                    try  {
+                    if(multithreaded)
+                        setupItemMultithreaded(href);
+                    else
                         setupItem(href);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                 }
             } catch (Exception e) {
                 System.out.println(href);
@@ -102,9 +115,31 @@ public abstract class NethysListScraper extends NethysScraper {
         System.out.println(href);
         Pair<String, String> pair = addItem(Jsoup.connect("http://2e.aonprd.com/"+href).get());
         if (!pair.first.equals(""))
-            sources.computeIfAbsent(pair.second.toLowerCase(), key -> new StringBuilder())
+            sources.computeIfAbsent(StringUtils.clean(pair.second), key -> new StringBuilder())
                     .append(pair.first);
     }
 
+    protected void setupItemMultithreaded(String href) {
+        counter.incrementAndGet();
+        completionService.submit(() -> {
+            try {
+                semaphore.acquire();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return;
+            }
+            try {
+                setupItem(href);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            semaphore.release();
+        }, true);
+    }
+
     abstract Pair<String, String> addItem(Document doc);
+
+    public boolean isMultithreaded() {
+        return multithreaded;
+    }
 }

@@ -12,7 +12,6 @@ import model.enums.Trait;
 import model.enums.Type;
 import model.equipment.CustomTrait;
 import model.equipment.Equipment;
-import model.equipment.SpecialCustomTrait;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -21,9 +20,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static model.util.StringUtils.camelCase;
 
 public class CreatureLoader extends AbilityLoader<Creature> {
     public CreatureLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
@@ -51,7 +49,13 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                 case "Traits":
                     builder.setTraits(
                             Arrays.stream(contents.split(", "))
-                                    .map(Trait::valueOf)
+                                    .map(s->{
+                                        Trait trait = Trait.valueOf(s);
+                                        if(trait == null)
+                                            System.out.println(s);
+                                        return trait;
+                                    })
+                                    .filter(Objects::nonNull)
                                     .collect(Collectors.toList())
                     );
                     break;
@@ -273,16 +277,15 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                     builder.setTraits(Arrays.stream(content.split(",")).map((item)->{
                         String[] s = item.trim().split(" ", 2);
                         if(s.length == 1) {
-                            CustomTrait trait = SourcesLoader.instance().weapons().getWeaponTraits().get(camelCase(s[0]));
+                            Trait trait = SourcesLoader.instance().traits().find(s[0]);
                             if(trait == null) {
                                 System.out.println(item.trim());
-                                trait = new CustomTrait(item.trim());
                             }
                             return trait;
                         }  else {
                             String custom = s[1];
-                            CustomTrait trait = SourcesLoader.instance().weapons().getWeaponTraits()
-                                    .get(camelCase(s[0]));
+                            Trait trait = SourcesLoader.instance().traits()
+                                    .find(s[0]);
                             if(trait == null) {
                                 int space = item.trim().indexOf(' ');
                                 space = item.trim().indexOf(' ', space + 1);
@@ -290,16 +293,15 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                                     space = item.trim().length();
                                     custom = "";
                                 }else custom = item.trim().substring(space+1);
-                                trait = SourcesLoader.instance().weapons().getWeaponTraits()
-                                        .get(camelCase(item.trim().substring(0, space)));
+                                trait = SourcesLoader.instance().traits()
+                                        .find(item.trim().substring(0, space));
                             }
                             if(trait == null) {
                                 System.out.println(item.trim());
-                                trait = new CustomTrait(item.trim());
                             }
                             if(custom.length() == 0)
                                 return trait;
-                            return new SpecialCustomTrait(trait, custom);
+                            return new CustomTrait(trait, custom);
                         }
                     }).collect(Collectors.toList()));
                     break;

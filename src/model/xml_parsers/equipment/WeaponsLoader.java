@@ -2,9 +2,9 @@ package model.xml_parsers.equipment;
 
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
+import model.enums.Trait;
 import model.enums.WeaponProficiency;
 import model.equipment.CustomTrait;
-import model.equipment.SpecialCustomTrait;
 import model.equipment.weapons.*;
 import model.xml_parsers.FileLoader;
 import org.w3c.dom.Document;
@@ -23,7 +23,6 @@ import static model.util.StringUtils.camelCase;
 public class WeaponsLoader extends FileLoader<Weapon> {
 
     private static final Map<String, WeaponGroup> weaponGroups = new HashMap<>();
-    private static final Map<String, CustomTrait> weaponTraits = new HashMap<>();
 
     public WeaponsLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
         super(sourceConstructor, root, sourceBuilder);
@@ -38,12 +37,6 @@ public class WeaponsLoader extends FileLoader<Weapon> {
             String name = curr.getElementsByTagName("Name").item(0).getTextContent().trim();
             String critEffect = curr.getElementsByTagName("CritEffect").item(0).getTextContent().trim();
             weaponGroups.put(name.toLowerCase(), new WeaponGroup(critEffect, name));
-        });
-
-        iterateElements(doc, "WeaponTrait", (curr)->{
-            String name = curr.getElementsByTagName("Name").item(0).getTextContent().trim();
-            String desc = curr.getElementsByTagName("Description").item(0).getTextContent().trim();
-            weaponTraits.put(camelCase(name), new CustomTrait(name, desc));
         });
         iterateElements(doc, "Weapon", (curr)->{
             Weapon weapon = getWeapon(curr);
@@ -118,9 +111,9 @@ public class WeaponsLoader extends FileLoader<Weapon> {
                     Arrays.stream(trim.split(",")).map((item)->{
                         String[] s = item.trim().split(" ", 2);
                         if(s.length == 1)
-                            return weaponTraits.get(camelCase(s[0]));
+                            return Trait.valueOf(s[0]);
                         else
-                            return new SpecialCustomTrait(weaponTraits.get(camelCase(s[0])), s[1]);
+                            return new CustomTrait(Trait.valueOf(s[0]), s[1]);
                     }).forEachOrdered(builder::addWeaponTrait);
                     break;
                 default:
@@ -134,10 +127,5 @@ public class WeaponsLoader extends FileLoader<Weapon> {
     public Map<String, WeaponGroup> getWeaponsGroups() {
         getAll();
         return Collections.unmodifiableMap(weaponGroups);
-    }
-
-    public Map<String, CustomTrait> getWeaponTraits() {
-        getAll();
-        return Collections.unmodifiableMap(weaponTraits);
     }
 }

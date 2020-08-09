@@ -15,10 +15,11 @@ public class NethysArchetypesScraper extends NethysListScraper {
         new NethysArchetypesScraper(
                 "https://2e.aonprd.com/Archetypes.aspx",
                 "generated/archetypes.pfdyl",
-                source->true);
+                source->source.equals("Core Rulebook"));
     }
 
     public NethysArchetypesScraper(String inputURL, String outputPath, Predicate<String> sourceValidator) {
+        super(true);
         parseList(inputURL, "ctl00_MainContent_DetailedOutput",
                 href->href.contains("Archetypes") && href.contains("ID"), e -> true);
         printOutput(outputPath, sourceValidator);
@@ -26,20 +27,18 @@ public class NethysArchetypesScraper extends NethysListScraper {
 
     @Override
     protected void setupItem(String href) {
-        counter.incrementAndGet();
-        completionService.submit(() -> {
-            if (href.contains("Archetypes")) {
-                parseList("http://2e.aonprd.com/" + href, "ctl00_MainContent_DetailedOutput",
-                        s -> s.contains("Feats") && s.contains("ID"), e -> e.parent().hasClass("title"));
-            } else {
-                NethysClassFeatScraper.FeatEntry entry = NethysClassFeatScraper.addFeat(href);
-                if (!entry.contents.equals("")) {
-                    sourceMap.putIfAbsent(entry.archetype, entry.source);
-                    archetypes.computeIfAbsent(entry.archetype, key -> new StringBuilder())
-                            .append(entry.contents);
-                }
+        System.out.println(href);
+        if (href.contains("Archetypes")) {
+            parseList("http://2e.aonprd.com/" + href, "ctl00_MainContent_DetailedOutput",
+                    s -> s.contains("Feats") && s.contains("ID"), e -> e.parent().hasClass("title"));
+        } else {
+            NethysClassFeatScraper.FeatEntry entry = NethysClassFeatScraper.addFeat(href);
+            if (!entry.contents.equals("")) {
+                sourceMap.putIfAbsent(entry.archetype, entry.source);
+                archetypes.computeIfAbsent(entry.archetype, key -> new StringBuilder())
+                        .append(entry.contents);
             }
-        }, true);
+        }
     }
 
     @Override

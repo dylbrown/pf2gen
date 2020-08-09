@@ -32,6 +32,10 @@ public abstract class NamedObject {
         return page;
     }
 
+    public String getSourceBook() {
+        return sourceBook;
+    }
+
     public String getSource() {
         if(page == -1) return StringUtils.intialism(sourceBook);
         return StringUtils.intialism(sourceBook) + " pg. " + page;

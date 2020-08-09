@@ -1,6 +1,5 @@
 package model.data_managers.sources;
 
-import model.equipment.CustomTrait;
 import model.equipment.weapons.Weapon;
 import model.equipment.weapons.WeaponGroup;
 import model.xml_parsers.FileLoader;
@@ -13,7 +12,6 @@ import java.util.Map;
 
 public class WeaponsMultiSourceLoader extends MultiSourceLoader<Weapon> {
     private Map<String, WeaponGroup> weaponGroups;
-    private Map<String, CustomTrait> weaponTraits;
     public WeaponsMultiSourceLoader(List<? extends FileLoader<Weapon>> fileLoaders) {
         super(fileLoaders);
     }
@@ -28,17 +26,5 @@ public class WeaponsMultiSourceLoader extends MultiSourceLoader<Weapon> {
             }
         }
         return Collections.unmodifiableMap(weaponGroups);
-    }
-
-    public Map<String, CustomTrait> getWeaponTraits() {
-        if(weaponTraits == null) {
-            weaponTraits = new HashMap<>();
-            for (FileLoader<Weapon> loader : loaders) {
-                if (loader instanceof WeaponsLoader) {
-                    weaponTraits.putAll(((WeaponsLoader) loader).getWeaponTraits());
-                }
-            }
-        }
-        return Collections.unmodifiableMap(weaponTraits);
     }
 }

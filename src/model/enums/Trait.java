@@ -1,49 +1,38 @@
 package model.enums;
 
-import model.util.StringUtils;
+import model.NamedObject;
+import model.data_managers.sources.SourcesLoader;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+public class Trait extends NamedObject implements Comparable<Trait> {
+    private final String category;
 
-public class Trait implements Comparable<Trait> {
-    private static final Map<String, Trait> traits = new HashMap<>();
-    private final String name;
-    private Trait(String name) {
-        this.name = name;
+    protected Trait(Builder builder) {
+        super(builder);
+        category = builder.category;
     }
 
-    public String getName() {
-        return name;
+    public static Trait valueOf(String s) {
+        return SourcesLoader.instance().traits().find(s);
     }
 
-    @Override
-    public String toString() {
-        return getName();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Trait trait = (Trait) o;
-        return name.equals(trait.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
-    }
-
-    public static Trait valueOf(String name) {
-        if(name == null)
-            return null;
-        name = StringUtils.camelCase(name);
-        return traits.computeIfAbsent(name, Trait::new);
+    public String getCategory() {
+        return category;
     }
 
     @Override
     public int compareTo(Trait o) {
-        return name.compareTo(o.name);
+        return getName().compareTo(o.getName());
+    }
+
+    public static class Builder extends NamedObject.Builder {
+        private String category = "";
+
+        public void setCategory(String category) {
+            this.category = category;
+        }
+
+        public Trait build() {
+            return new Trait(this);
+        }
     }
 }

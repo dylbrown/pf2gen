@@ -2,7 +2,7 @@ package model.equipment.armor;
 
 import model.enums.ArmorProficiency;
 import model.enums.Slot;
-import model.equipment.CustomTrait;
+import model.enums.Trait;
 import model.equipment.Equipment;
 import model.equipment.runes.runedItems.Enchantable;
 import model.equipment.runes.runedItems.RunedArmor;
@@ -18,7 +18,7 @@ public class Armor extends Equipment implements Enchantable {
     private final int speedPenalty;
     private final int strength;
     private final ArmorGroup group;
-    private final List<CustomTrait> traits;
+    private final List<Trait> traits;
     private final ArmorProficiency proficiency;
     public static final Armor NO_ARMOR;
 
@@ -64,7 +64,7 @@ public class Armor extends Equipment implements Enchantable {
         return group;
     }
 
-    public List<CustomTrait> getArmorTraits() {
+    public List<Trait> getArmorTraits() {
         return Collections.unmodifiableList(traits);
     }
 
@@ -89,7 +89,7 @@ public class Armor extends Equipment implements Enchantable {
         private int speedPenalty=0;
         private int strength=0;
         private ArmorGroup group=ArmorGroup.None;
-        private List<CustomTrait> traits= new ArrayList<>();
+        private List<Trait> traits= new ArrayList<>();
         private ArmorProficiency proficiency = null;
 
         public Builder() {this.setCategory("Armor");
@@ -138,7 +138,7 @@ public class Armor extends Equipment implements Enchantable {
             this.group = group;
         }
 
-        public void setTraits(List<CustomTrait> traits) {
+        public void setTraits(List<Trait> traits) {
             this.traits = traits;
         }
 
@@ -147,7 +147,7 @@ public class Armor extends Equipment implements Enchantable {
             setSubCategory(proficiency.toString());
         }
 
-        public void addArmorTrait(CustomTrait trait) {
+        public void addArmorTrait(Trait trait) {
             this.traits.add(trait);
         }
     }

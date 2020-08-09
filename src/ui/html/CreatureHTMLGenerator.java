@@ -8,7 +8,6 @@ import model.creatures.Creature;
 import model.creatures.CreatureItem;
 import model.creatures.CreatureSpellList;
 import model.enums.Trait;
-import model.equipment.CustomTrait;
 import model.spells.Spell;
 import model.util.StringUtils;
 
@@ -78,7 +77,7 @@ public class CreatureHTMLGenerator {
             builder.append("<br>").append("<b>").append(attack.getAttackType()).append("</b> ")
                     .append(attack.getName()).append(" ").append(signed(attack.getModifier()))
                     .append(" (").append(attack.getTraits().stream()
-                                .map(CustomTrait::getName)
+                                .map(Trait::getName)
                                 .collect(Collectors.joining(", ")))
             .append("), <b>Damage</b> ").append(attack.getDamage());
         }

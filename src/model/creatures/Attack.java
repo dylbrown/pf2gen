@@ -1,6 +1,6 @@
 package model.creatures;
 
-import model.equipment.CustomTrait;
+import model.enums.Trait;
 
 import java.util.Collections;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.List;
 public class Attack {
     private final String name;
     private final int modifier;
-    private final List<CustomTrait> traits;
+    private final List<Trait> traits;
     private final String damage;
     private final AttackType attackType;
 
@@ -28,7 +28,7 @@ public class Attack {
         return modifier;
     }
 
-    public List<CustomTrait> getTraits() {
+    public List<Trait> getTraits() {
         return traits;
     }
 
@@ -43,7 +43,7 @@ public class Attack {
     public static class Builder {
         private String name = "";
         private int modifier = 0;
-        private List<CustomTrait> traits = Collections.emptyList();
+        private List<Trait> traits = Collections.emptyList();
         private String damage = "";
         private AttackType attackType;
 
@@ -55,7 +55,7 @@ public class Attack {
             this.modifier = modifier;
         }
 
-        public void setTraits(List<CustomTrait> traits) {
+        public void setTraits(List<Trait> traits) {
             this.traits = traits;
         }
 

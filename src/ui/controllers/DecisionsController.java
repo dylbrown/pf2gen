@@ -35,6 +35,7 @@ public class DecisionsController {
 
     @FXML
     private void initialize() {
+        display.getEngine().setUserStyleSheetLocation(getClass().getResource("/webview_style.css").toString());
         DecisionsList decisionsList = new DecisionsList((treeItem, i) -> setChoices(treeItem),
                 Main.character.decisions().getDecisions());
         decisionsList.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal)->setChoices(newVal));
