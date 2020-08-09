@@ -318,7 +318,9 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     return new SingleChoiceSlot(abilityName, slotLevel,
                             makeAbilities(propElem.getChildNodes()));
                 else {
-                    ChoicesLoader choices = getSource().getChoices();
+                    ChoicesLoader choices = getSource().getLoader(ChoicesLoader.class);
+                    if(choices == null)
+                        break;
                     choices.addChoices(contents, makeAbilities(propElem.getChildNodes()));
                     return new SingleChoiceSlot(abilityName, slotLevel,
                             new ArrayList<>(choices.getCategory(contents).values()));

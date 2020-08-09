@@ -5,6 +5,7 @@ import model.abc.Background;
 import model.abc.PClass;
 import model.abilities.Ability;
 import model.creatures.Creature;
+import model.creatures.CreatureFamily;
 import model.enums.Trait;
 import model.equipment.Equipment;
 import model.equipment.armor.Armor;
@@ -43,6 +44,7 @@ public class SourcesLoader extends FileLoader<Source> {
     private final MultiSourceLoader<Domain> domainsLoader;
     private final SpellsMultiSourceLoader spellsLoader;
     private final MultiSourceLoader<Creature> creaturesLoader;
+    private final MultiSourceLoader<CreatureFamily> creatureFamiliesLoader;
     private final MultiSourceLoader<TemplatesLoader.BuilderSupplier> templatesLoader;
     private final MultiSourceLoader<Trait> traitsLoader;
 
@@ -60,23 +62,25 @@ public class SourcesLoader extends FileLoader<Source> {
         List<DomainsLoader> domains = new ArrayList<>();
         List<SpellsLoader> spells = new ArrayList<>();
         List<CreatureLoader> creatures = new ArrayList<>();
+        List<CreatureFamilyLoader> creatureFamilies = new ArrayList<>();
         List<TemplatesLoader> templates = new ArrayList<>();
         List<TraitsLoader> traits = new ArrayList<>();
         for (Source value : getAll().values()) {
-            addIfNotNull(ancestries, value.getAncestries());
-            addIfNotNull(backgrounds, value.getBackgrounds());
-            addIfNotNull(classes, value.getClasses());
-            addIfNotNull(equipment, value.getEquipment());
-            addIfNotNull(armor, value.getArmor());
-            addIfNotNull(weapons, value.getWeapons());
-            addIfNotNull(feats, value.getFeats());
-            addIfNotNull(choices, value.getChoices());
-            addIfNotNull(deities, value.getDeities());
-            addIfNotNull(domains, value.getDomains());
-            addIfNotNull(spells, value.getSpells());
-            addIfNotNull(creatures, value.getCreatures());
-            addIfNotNull(templates, value.getTemplates());
-            addIfNotNull(traits, value.getTraits());
+            addIfNotNull(ancestries, value.getLoader(AncestriesLoader.class));
+            addIfNotNull(backgrounds, value.getLoader(BackgroundsLoader.class));
+            addIfNotNull(classes, value.getLoader(PClassesLoader.class));
+            addIfNotNull(equipment, value.getLoader(EquipmentLoader.class));
+            addIfNotNull(armor, value.getLoader(ArmorLoader.class));
+            addIfNotNull(weapons, value.getLoader(WeaponsLoader.class));
+            addIfNotNull(feats, value.getLoader(FeatsLoader.class));
+            addIfNotNull(choices, value.getLoader(ChoicesLoader.class));
+            addIfNotNull(deities, value.getLoader(DeitiesLoader.class));
+            addIfNotNull(domains, value.getLoader(DomainsLoader.class));
+            addIfNotNull(spells, value.getLoader(SpellsLoader.class));
+            addIfNotNull(creatures, value.getLoader(CreatureLoader.class));
+            addIfNotNull(creatureFamilies, value.getLoader(CreatureFamilyLoader.class));
+            addIfNotNull(templates, value.getLoader(TemplatesLoader.class));
+            addIfNotNull(traits, value.getLoader(TraitsLoader.class));
         }
         ancestriesLoader = new MultiSourceLoader<>(ancestries);
         backgroundsLoader = new MultiSourceLoader<>(backgrounds);
@@ -90,6 +94,7 @@ public class SourcesLoader extends FileLoader<Source> {
         domainsLoader = new MultiSourceLoader<>(domains);
         spellsLoader = new SpellsMultiSourceLoader(spells);
         creaturesLoader = new MultiSourceLoader<>(creatures);
+        creatureFamiliesLoader = new MultiSourceLoader<>(creatureFamilies);
         templatesLoader = new MultiSourceLoader<>(templates);
         traitsLoader = new MultiSourceLoader<>(traits);
     }
@@ -126,27 +131,35 @@ public class SourcesLoader extends FileLoader<Source> {
                 builder.setShortName(curr.getTextContent().trim());
                 break;
             case "ancestries":
-                builder.setAncestries(new AncestriesLoader(getSourceConstructor(curr), parentFile, builder));
+                builder.addLoader(AncestriesLoader.class,
+                        new AncestriesLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
             case "backgrounds":
-                builder.setBackgrounds(new BackgroundsLoader(getSourceConstructor(curr), parentFile, builder));
+                builder.addLoader(BackgroundsLoader.class,
+                        new BackgroundsLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
             case "classes":
-                builder.setClasses(new PClassesLoader(getSourceConstructor(curr), parentFile, builder));
+                builder.addLoader(PClassesLoader.class,
+                        new PClassesLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
             case "equipment":
-                builder.setEquipment(new EquipmentLoader(getSourceConstructor(curr), parentFile, builder));
+                builder.addLoader(EquipmentLoader.class,
+                        new EquipmentLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
             case "armor":
-                builder.setArmor(new ArmorLoader(getSourceConstructor(curr), parentFile, builder));
+                builder.addLoader(ArmorLoader.class,
+                        new ArmorLoader(getSourceConstructor(curr), parentFile, builder));
             case "weapons":
-                builder.setWeapons(new WeaponsLoader(getSourceConstructor(curr), parentFile, builder));
+                builder.addLoader(WeaponsLoader.class,
+                        new WeaponsLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
             case "feats":
-                builder.setFeats(new FeatsLoader(getSourceConstructor(curr), parentFile, builder));
+                builder.addLoader(FeatsLoader.class,
+                        new FeatsLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
             case "choices":
-                builder.setChoices(new ChoicesLoader(getSourceConstructor(curr), parentFile, builder));
+                builder.addLoader(ChoicesLoader.class,
+                        new ChoicesLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
             case "setting":
                 NodeList childNodes = curr.getChildNodes();
@@ -156,26 +169,34 @@ public class SourcesLoader extends FileLoader<Source> {
                         continue;
                     switch (((Element) item).getAttribute("name").toLowerCase()) {
                         case "deities":
-                            builder.setDeities(
+                            builder.addLoader(DeitiesLoader.class,
                                     new DeitiesLoader(getSourceConstructor((Element) item), parentFile, builder));
                             break;
                         case "domains":
-                            builder.setDomains(
+                            builder.addLoader(DomainsLoader.class,
                                     new DomainsLoader(getSourceConstructor((Element) item), parentFile, builder));
                     }
                 }
                 break;
             case "spells":
-                builder.setSpells(new SpellsLoader(getSourceConstructor(curr), parentFile, builder));
+                builder.addLoader(SpellsLoader.class,
+                        new SpellsLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
             case "creatures":
-                builder.setCreatures(new CreatureLoader(getSourceConstructor(curr), parentFile, builder));
+                builder.addLoader(CreatureLoader.class,
+                        new CreatureLoader(getSourceConstructor(curr), parentFile, builder));
+                break;
+            case "creaturefamilies":
+                builder.addLoader(CreatureFamilyLoader.class,
+                        new CreatureFamilyLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
             case "templates":
-                builder.setTemplates(new TemplatesLoader(getSourceConstructor(curr), parentFile, builder));
+                builder.addLoader(TemplatesLoader.class,
+                        new TemplatesLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
             case "traits":
-                builder.setTraits(new TraitsLoader(getSourceConstructor(curr), parentFile, builder));
+                builder.addLoader(TraitsLoader.class,
+                        new TraitsLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
         }
     }
@@ -256,6 +277,10 @@ public class SourcesLoader extends FileLoader<Source> {
 
     public MultiSourceLoader<Creature> creatures() {
         return creaturesLoader;
+    }
+
+    public MultiSourceLoader<CreatureFamily> creatureFamilies() {
+        return creatureFamiliesLoader;
     }
 
     public MultiSourceLoader<TemplatesLoader.BuilderSupplier> templates() {

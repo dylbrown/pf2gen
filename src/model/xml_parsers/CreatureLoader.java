@@ -44,7 +44,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                     builder.setName(contents);
                     break;
                 case "Family":
-                    // TODO: Support Monster Families
+                    builder.setFamily(SourcesLoader.instance().creatureFamilies().find(contents));
                     break;
                 case "Traits":
                     builder.setTraits(

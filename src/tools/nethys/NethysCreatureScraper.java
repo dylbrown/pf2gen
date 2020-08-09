@@ -36,13 +36,7 @@ public class NethysCreatureScraper extends NethysListScraper {
         Elements titles = output.getElementsByTag("h1");
         Element title = titles.get(1);
         String creature = title.getElementsByTag("a").first().text();
-        String sourcePage = getAfter(output, "Source");
-        int end = sourcePage.indexOf("pg. ");
-        int endPage = sourcePage.indexOf(' ', end + 4);
-        if(endPage == -1)
-            endPage = sourcePage.length();
-        String source = sourcePage.substring(0, end-1);
-        String page = sourcePage.substring(end+4, endPage);
+        Pair<String, String> sourcePage = getSourcePage(output);
         String family = null;
         Elements elems = output.getElementsByAttributeValueContaining("href", "MonsterFamilies");
         if(elems.size() > 0)
@@ -93,7 +87,7 @@ public class NethysCreatureScraper extends NethysListScraper {
         loadAbilities(hrs.get(0).nextElementSibling(), defensiveAbilities, attacks, spells);
         loadAbilities(hrs.get(1).nextElementSibling(), offensiveAbilities, attacks, spells);
         StringBuilder result = new StringBuilder();
-        result.append("<Creature level=\"").append(level).append("\" page=\"").append(page).append("\">\n")
+        result.append("<Creature level=\"").append(level).append("\" page=\"").append(sourcePage.second).append("\">\n")
                 .append("\t<Name>").append(creature).append("</Name>\n");
         if(family != null) {
             result.append("\t<Family>").append(family).append("</Family>\n");
@@ -127,7 +121,7 @@ public class NethysCreatureScraper extends NethysListScraper {
             result.append("\t<OffensiveAbilities>\n").append(offensiveAbilities).append("\t</OffensiveAbilities>\n");
         result.append("\t<Description>").append(description).append("</Description>\n");
         result.append("</Creature>\n");
-        return new Pair<>(result.toString(), source);
+        return new Pair<>(result.toString(), sourcePage.first);
     }
 
     private void loadAbilities(Element curr, StringBuilder abilities, StringBuilder attacks, StringBuilder spells) {

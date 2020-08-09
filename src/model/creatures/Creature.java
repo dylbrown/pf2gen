@@ -10,6 +10,7 @@ import model.enums.Trait;
 import java.util.*;
 
 public class Creature extends NamedObject {
+    private final CreatureFamily family;
     private final List<Trait> traits;
     private final Map<Attribute, Integer> modifiers;
     private final Map<Attribute, String> modifierSpecialInfo;
@@ -25,6 +26,7 @@ public class Creature extends NamedObject {
 
     private Creature(Builder builder) {
         super(builder);
+        family = builder.family;
         traits = Collections.unmodifiableList(builder.traits);
         modifiers = Collections.unmodifiableMap(builder.modifiers);
         modifierSpecialInfo = Collections.unmodifiableMap(builder.modifierSpecialInfo);
@@ -48,6 +50,10 @@ public class Creature extends NamedObject {
         offensiveAbilities = Collections.unmodifiableList(builder.offensiveAbilities);
         attacks = Collections.unmodifiableList(builder.attacks);
         spells = Collections.unmodifiableList(builder.spells);
+    }
+
+    public CreatureFamily getFamily() {
+        return family;
     }
 
     public List<Trait> getTraits() {
@@ -148,6 +154,7 @@ public class Creature extends NamedObject {
     }
 
     public static class Builder extends NamedObject.Builder {
+        private CreatureFamily family = null;
         private List<Trait> traits = Collections.emptyList();
         private Map<Attribute, Integer> modifiers = Collections.emptyMap();
         //TODO: Support Lore
@@ -172,6 +179,10 @@ public class Creature extends NamedObject {
         private List<Ability> offensiveAbilities = Collections.emptyList();
         private List<Attack> attacks= Collections.emptyList();
         private List<CreatureSpellList> spells= Collections.emptyList();
+
+        public void setFamily(CreatureFamily creatureFamily) {
+            this.family = creatureFamily;
+        }
 
         public void setTraits(List<Trait> traits) {
             this.traits = traits;

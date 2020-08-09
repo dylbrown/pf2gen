@@ -1,5 +1,6 @@
 package tools.nethys;
 
+import model.util.Pair;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
@@ -46,6 +47,17 @@ abstract class NethysScraper {
 			return getRestOfLineFromNode(elems.first());
 		}
 		return "";
+	}
+
+	static Pair<String, String> getSourcePage(Element output) {
+		String sourcePage = getAfter(output, "Source");
+		int end = sourcePage.indexOf("pg. ");
+		int endPage = sourcePage.indexOf(' ', end + 4);
+		if(endPage == -1)
+			endPage = sourcePage.length();
+		String source = sourcePage.substring(0, end-1);
+		String page = sourcePage.substring(end+4, endPage);
+		return new Pair<>(source, page);
 	}
 
 	protected String getRestOfLineNoTags(Element output, String bContents) {
@@ -100,7 +112,9 @@ abstract class NethysScraper {
 		}
 		if(curr instanceof Element) {
 			Element elem = (Element) curr;
-			if(elem.childNodeSize() > 0) {
+			if(elem.hasClass("title")) {
+				return "&lt;" + elem.tagName() + "&gt;" + elem.wholeText().trim() + "&lt;/" + elem.tagName() + "&gt;";
+			} else if(elem.childNodeSize() > 0) {
 				StringBuilder text = new StringBuilder();
 				if(elem.tagName().equals("b")) text.append("&lt;b&gt;");
 				if(elem.tagName().equals("i")) text.append("&lt;i&gt;");

@@ -18,6 +18,8 @@ public class CreatureHTMLGenerator {
         StringBuilder builder = new StringBuilder();
         builder.append("<p><b>").append(creature.getName()).append(" - Creature ")
                 .append(creature.getLevel()).append("</b><br>");
+        if(creature.getFamily() != null)
+            builder.append("<b>Family</b> ").append(creature.getFamily().getName()).append("<br>");
         builder.append("<b>Traits</b> ").append(
                 creature.getTraits().stream()
                         .map(Trait::toString)
