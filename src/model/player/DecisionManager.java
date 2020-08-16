@@ -13,11 +13,11 @@ import java.util.List;
 
 @SuppressWarnings("rawtypes")
 public class DecisionManager implements PlayerState {
-    private final ObservableList<Choice> decisions = FXCollections.observableArrayList(
+    private final ObservableList<Choice<?>> decisions = FXCollections.observableArrayList(
             choice -> new Observable[]{choice.numSelectionsProperty()});
-    private final ObservableList<Choice> unmodifiableDecisions = FXCollections.unmodifiableObservableList(decisions);
-    private final FilteredList<Choice> unmade;
-    private final SortedList<Choice> unmadeByLevel;
+    private final ObservableList<Choice<?>> unmodifiableDecisions = FXCollections.unmodifiableObservableList(decisions);
+    private final FilteredList<Choice<?>> unmade;
+    private final SortedList<Choice<?>> unmadeByLevel;
 
     DecisionManager() {
         unmade = new FilteredList<>(decisions, choice -> choice.getSelections().size() < choice.getMaxSelections());
@@ -39,15 +39,15 @@ public class DecisionManager implements PlayerState {
         }
     }
 
-    public ObservableList<Choice> getDecisions() {
+    public ObservableList<Choice<?>> getDecisions() {
         return unmodifiableDecisions;
     }
 
-    public Choice getNextUnmadeDecision() {
+    public Choice<?> getNextUnmadeDecision() {
         return unmadeByLevel.get(0);
     }
 
-    public ObservableList<Choice> getUnmadeDecisions() {
+    public ObservableList<Choice<?>> getUnmadeDecisions() {
         return FXCollections.unmodifiableObservableList(unmade);
     }
 

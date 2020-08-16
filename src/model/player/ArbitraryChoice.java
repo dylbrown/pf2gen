@@ -23,11 +23,7 @@ public class ArbitraryChoice<T> implements ChoiceList<T> {
     private final boolean multipleSelect;
     private final Class<T> optionsClass;
 
-    ArbitraryChoice(String name, List<T> choices, int maxSelections, boolean multipleSelect, Class<T> optionsClass) {
-        this(name ,choices, s->{}, s -> {}, maxSelections, multipleSelect, optionsClass);
-    }
-
-    ArbitraryChoice(String name, List<T> choices, Consumer<T> fillFunction, Consumer<T> emptyFunction,
+    public ArbitraryChoice(String name, List<T> choices, Consumer<T> fillFunction, Consumer<T> emptyFunction,
                     int maxSelections, boolean multipleSelect, Class<T> optionsClass) {
         this.name = name;
         this.choices = choices;

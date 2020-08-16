@@ -323,7 +323,7 @@ Loop:   while(currNode != null) {
                     spells.put(currLevel, spells.get(oldCurr));
                     spells.remove(oldCurr);
                 }else break;
-            } else if(curr.hasClass("hanging-indent")) {
+            } else if(curr.hasClass("hanging-indent") || curr.hasClass("title")) {
                 break;
             } else {
                 String s = curr.wholeText();

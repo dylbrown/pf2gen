@@ -374,7 +374,7 @@ public class SaveLoadManager {
     }
 
     private static boolean makeDecisions(Map<String, String> decisionStringMap) {
-        ObservableList<Choice> decisions = character.decisions().getUnmadeDecisions();
+        ObservableList<Choice<?>> decisions = character.decisions().getUnmadeDecisions();
         while(decisions.size() > 0){
             int successes = 0;
             int index = 0;

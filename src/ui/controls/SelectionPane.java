@@ -27,9 +27,10 @@ public class SelectionPane<T> extends BorderPane {
     final SplitPane side = new SplitPane();
     Choice<T> slot;
     private MultipleSelectionModel<T> selectionModel;
+    private ListView<T> list;
 
     public SelectionPane(ChoiceList<T> slot, WebView display) {
-        ListView<T> list = new ListView<>(sortedItems);
+        list = new ListView<>(sortedItems);
         this.setCenter(list);
         selectionModel = list.getSelectionModel();
         init(slot);
@@ -75,8 +76,8 @@ public class SelectionPane<T> extends BorderPane {
                 display.getEngine().loadContent(htmlGenerator.apply(newVal));
             }
         });
-        setOnMouseClicked((event) -> {
-            if(event.getClickCount() == 2) {
+        list.setOnMouseClicked((event) -> {
+            if(event.getClickCount() % 2 == 0) {
                 T selectedItem = selectionModel.getSelectedItem();
                 if(selectedItem != null && slot.getMaxSelections() > slot.getSelections().size()) {
                     slot.add(selectedItem);

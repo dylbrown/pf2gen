@@ -1,5 +1,6 @@
 package ui.controllers;
 
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.ToggleGroup;
@@ -22,27 +23,30 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-@SuppressWarnings("rawtypes")
 public class DecisionsController {
 
     @FXML
     private ToggleGroup filterChoices;
     @FXML
-    private WebView display;
+    protected WebView display;
     @FXML
-    private BorderPane decisionsPaneContainer, choicesContainer;
-    private final Map<Choice, Node> nodes = new HashMap<>();
+    protected BorderPane decisionsPaneContainer, choicesContainer;
+    private final Map<Choice<?>, Node> nodes = new HashMap<>();
 
     @FXML
     private void initialize() {
+        initialize(Main.character.decisions().getDecisions());
+    }
+
+    protected void initialize(ObservableList<Choice<?>> choices) {
         display.getEngine().setUserStyleSheetLocation(getClass().getResource("/webview_style.css").toString());
         DecisionsList decisionsList = new DecisionsList((treeItem, i) -> setChoices(treeItem),
-                Main.character.decisions().getDecisions());
+                choices);
         decisionsList.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal)->setChoices(newVal));
         decisionsPaneContainer.setCenter(decisionsList);
     }
 
-    private Choice<?> setChoices(TreeItem<DecisionEntry> treeItem) {
+    protected Choice<?> setChoices(TreeItem<DecisionEntry> treeItem) {
         if(treeItem == null) return null;
         DecisionEntry entry = treeItem.getValue();
         Choice<?> choice = entry.getChoice();
