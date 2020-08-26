@@ -15,12 +15,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.web.WebView;
 import javafx.util.StringConverter;
+import model.CharacterManager;
 import model.enums.BuySellMode;
 import model.enums.Slot;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
+import model.player.PC;
 import model.util.StringUtils;
-import ui.Main;
 import ui.controls.equipment.CategoryAllItemsList;
 import ui.controls.equipment.EquippedEntry;
 import ui.controls.equipment.LevelAllItemsList;
@@ -46,8 +47,8 @@ public class EquipTabController {
     private BorderPane allItemsContainer;
     @FXML
     private TextField search;
-    private final CategoryAllItemsList categoryGroup = new CategoryAllItemsList(this::tryToBuy);
-    private final LevelAllItemsList levelGroup = new LevelAllItemsList(this::tryToBuy);
+    private CategoryAllItemsList categoryGroup;
+    private LevelAllItemsList levelGroup;
     @FXML
     private ListView<ItemCount> inventory, unequipped;
     @FXML
@@ -80,9 +81,13 @@ public class EquipTabController {
     //Equipped List
     private final ObservableList<EquippedEntry> equipList = FXCollections.observableArrayList(entry -> new Observable[]{entry.countProperty()});
     private final FilteredList<EquippedEntry> equipFilter = new FilteredList<>(equipList);
+    private PC character;
 
     @FXML
     private void initialize() {
+        character = CharacterManager.getActive();
+        categoryGroup = new CategoryAllItemsList(character, this::tryToBuy);
+        levelGroup = new LevelAllItemsList(character, this::tryToBuy);
         // itemDisplay.setZoom(1.25);
         nameCol.setCellValueFactory(param -> param.getValue().nameProperty());
         slotCol.setCellValueFactory(param -> param.getValue().slotProperty());
@@ -105,20 +110,20 @@ public class EquipTabController {
             else
                 wrapper.set(itemEntry -> StringUtils.containsIgnoreCase(itemEntry.toString(), search.getText())
                         && (!filterLevel || (itemEntry.getContents() != null &&
-                        itemEntry.getContents().getLevel() <= Main.character.getLevel())));
+                        itemEntry.getContents().getLevel() <= character.getLevel())));
         };
         resetFilter.run();
         levelFilter.selectedToggleProperty().addListener(c->resetFilter.run());
         search.textProperty().addListener(c->resetFilter.run());
-        Main.character.levelProperty().addListener(c->resetFilter.run());
+        character.levelProperty().addListener(c->resetFilter.run());
 
         categoryGroup.setFilter(wrapper.getReadOnlyProperty());
         levelGroup.setFilter(wrapper.getReadOnlyProperty());
 
-        money.setText(generateCostString(Main.character.inventory().getMoneyProperty().get()));
-        Main.character.inventory().getMoneyProperty().addListener((event)->
-                money.setText(generateCostString(Main.character.inventory().getMoneyProperty().get())));
-        value = Main.character.inventory().getTotalValue();
+        money.setText(generateCostString(character.inventory().getMoneyProperty().get()));
+        character.inventory().getMoneyProperty().addListener((event)->
+                money.setText(generateCostString(character.inventory().getMoneyProperty().get())));
+        value = character.inventory().getTotalValue();
         totalValue.setText(value+" sp");
 
         //Set up sort options
@@ -173,7 +178,7 @@ public class EquipTabController {
         unequipped.setItems(unequipSort);
         equipped.setItems(equipFilter);
 
-        Main.character.inventory().addInventoryListener(change -> {
+        character.inventory().addInventoryListener(change -> {
             if(change.wasRemoved()) {
                 ItemCount valueRemoved = change.getValueRemoved();
                 inventoryList.remove(valueRemoved);
@@ -203,14 +208,14 @@ public class EquipTabController {
             refreshTotalValue();
         });
 
-        Main.character.inventory().addEquippedListener(change -> {
+        character.inventory().addEquippedListener(change -> {
             if(change.wasAdded() && !controllerOp) {
                 ItemCount unequippedItem = unequipMap.get(change.getValueAdded().stats());
                 if(unequippedItem != null)
                     updateFromEquip(unequippedItem, change.getKey());
             }
         });
-        Main.character.inventory().getCarried().addListener(
+        character.inventory().getCarried().addListener(
         (MapChangeListener<Equipment, ItemCount>) change -> {
             if(change.wasAdded() && !controllerOp) {
                 ItemCount unequippedItem = unequipMap.get(change.getValueAdded().stats());
@@ -248,7 +253,7 @@ public class EquipTabController {
             }
         });
         multiplier.valueProperty().addListener(((observable, oldValue, newValue) -> {
-            if(newValue != null) Main.character.inventory().setMode(newValue);
+            if(newValue != null) character.inventory().setMode(newValue);
         }));
         addMoney.setOnAction(event -> {
             TextInputDialog dialog = new TextInputDialog();
@@ -256,7 +261,7 @@ public class EquipTabController {
             dialog.setHeaderText("Add Money (in sp)");
             dialog.setContentText("Amount:");
             dialog.showAndWait().ifPresent(s ->
-                    Main.character.inventory().addMoney(Double.parseDouble(s)));
+                    character.inventory().addMoney(Double.parseDouble(s)));
         });
     }
 
@@ -294,7 +299,7 @@ public class EquipTabController {
             slot = result.get();
         }
         if(slot == Slot.None) slot = Slot.Carried;
-        if(Main.character.inventory().equip(unequippedItem.stats(), slot, 1)) {
+        if(character.inventory().equip(unequippedItem.stats(), slot, 1)) {
             updateFromEquip(unequippedItem, slot);
         }
         controllerOp = false;
@@ -323,7 +328,7 @@ public class EquipTabController {
     }
 
     private void tryToUnequip(ItemCount equippedItem, Slot slot) {
-        if(Main.character.inventory().unequip(equippedItem.stats(), slot,1)) {
+        if(character.inventory().unequip(equippedItem.stats(), slot,1)) {
             equippedItem.remove(1);
             ItemCount unequippedItem = unequipMap.get(equippedItem.stats());
             if(unequippedItem != null)
@@ -336,7 +341,7 @@ public class EquipTabController {
     }
 
     private void tryToSell(ItemCount item) {
-        if (!Main.character.inventory().sell(item.stats(), 1)) {
+        if (!character.inventory().sell(item.stats(), 1)) {
             new Alert(Alert.AlertType.INFORMATION, "Not Enough Items!").showAndWait();
         }
     }
@@ -357,7 +362,7 @@ public class EquipTabController {
 
     private void tryToBuy(Equipment item, int count) {
         if(count != 2) return;
-        if (!Main.character.inventory().buy(item, 1)) {
+        if (!character.inventory().buy(item, 1)) {
             new Alert(Alert.AlertType.INFORMATION, "Not Enough Money!").showAndWait();
         }else{
             inventory.refresh();

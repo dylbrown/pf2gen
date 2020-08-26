@@ -7,11 +7,11 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
+import model.CharacterManager;
 import model.ability_slots.Choice;
 import model.ability_slots.ChoiceList;
 import model.ability_slots.FeatSlot;
 import model.ability_slots.SingleChoiceSlot;
-import ui.Main;
 import ui.controls.FeatSelectionPane;
 import ui.controls.SelectionPane;
 import ui.controls.lists.DecisionsList;
@@ -37,7 +37,7 @@ public class DecisionsController {
     private void initialize() {
         display.getEngine().setUserStyleSheetLocation(getClass().getResource("/webview_style.css").toString());
         DecisionsList decisionsList = new DecisionsList((treeItem, i) -> setChoices(treeItem),
-                Main.character.decisions().getDecisions());
+                CharacterManager.getActive().decisions().getDecisions());
         decisionsList.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal)->setChoices(newVal));
         decisionsPaneContainer.setCenter(decisionsList);
     }

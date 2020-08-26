@@ -6,10 +6,12 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
-import model.data_managers.sources.SourcesLoader;
-import model.spells.SpellList;
+import model.CharacterManager;
+import model.player.PC;
 import model.spells.Spell;
+import model.spells.SpellList;
 import model.spells.Tradition;
+import model.util.ObjectNotFoundException;
 import ui.html.SpellHTMLGenerator;
 
 import java.util.Comparator;
@@ -36,6 +38,7 @@ public class SpellListController {
     private Label slots0, slots1, slots2, slots3, slots4, slots5, slots6, slots7, slots8, slots9, slots10;
     private Label[] slots, knowns;
     private final SpellList spells;
+    private PC character;
 
     SpellListController(SpellList spells) {
         this.spells = spells;
@@ -43,6 +46,7 @@ public class SpellListController {
 
     @FXML
     private void initialize() {
+        this.character = CharacterManager.getActive();
         slots = new Label[]{slots0, slots1, slots2, slots3, slots4, slots5, slots6, slots7, slots8, slots9, slots10};
         knowns = new Label[]{known0, known1, known2, known3, known4, known5, known6, known7, known8, known9, known10};
         allSpells.setShowRoot(false);
@@ -108,7 +112,11 @@ public class SpellListController {
                 String item = allSpells.getSelectionModel().getSelectedItem().getValue();
                 if (!item.matches("\\d{1,2}")) {
                     if (event.getClickCount() == 2) {
-                        spells.addSpell(SourcesLoader.instance().spells().find(item));
+                        try {
+                            spells.addSpell(character.sources().spells().find(item));
+                        } catch (ObjectNotFoundException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
@@ -118,7 +126,11 @@ public class SpellListController {
             if(allSpells.getSelectionModel().getSelectedItem() != null) {
                 String item = allSpells.getSelectionModel().getSelectedItem().getValue();
                 if (!item.matches("\\d{1,2}")) {
-                    renderSpell(SourcesLoader.instance().spells().find(item));
+                    try {
+                        renderSpell(character.sources().spells().find(item));
+                    } catch (ObjectNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -127,7 +139,11 @@ public class SpellListController {
             if(spellsKnown.getSelectionModel().getSelectedItem() != null) {
                 String item = spellsKnown.getSelectionModel().getSelectedItem().getValue();
                 if (!item.matches("\\d{1,2}")) {
-                    renderSpell(SourcesLoader.instance().spells().find(item));
+                    try {
+                        renderSpell(character.sources().spells().find(item));
+                    } catch (ObjectNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -136,7 +152,12 @@ public class SpellListController {
             if(spellsKnown.getSelectionModel().getSelectedItem() != null) {
                 String item = spellsKnown.getSelectionModel().getSelectedItem().getValue();
                 if (!item.matches("\\d{1,2}")) {
-                    Spell spell = SourcesLoader.instance().spells().find(item);
+                    Spell spell = null;
+                    try {
+                        spell = character.sources().spells().find(item);
+                    } catch (ObjectNotFoundException e) {
+                        e.printStackTrace();
+                    }
                     if (event.getClickCount() == 2) {
                         spells.removeSpell(spell);
                     }
@@ -148,7 +169,11 @@ public class SpellListController {
             if(allSpells.getSelectionModel().getSelectedItem() != null) {
                 String item = spellsKnown.getSelectionModel().getSelectedItem().getValue();
                 if (!item.matches("\\d{1,2}")) {
-                    renderSpell(SourcesLoader.instance().spells().find(item));
+                    try {
+                        renderSpell(character.sources().spells().find(item));
+                    } catch (ObjectNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -157,7 +182,7 @@ public class SpellListController {
             if(!newValue.equals(oldValue)){
                 if(!newValue.equals("")) {
                     filterList.getItems().setAll(
-                            SourcesLoader.instance().spells().getAll().values().stream()
+                            character.sources().spells().getAll().values().stream()
                                     .map(Spell::getName)
                                     .filter(s -> s.toLowerCase().contains(newValue.toLowerCase()))
                                     .collect(Collectors.toList()));
@@ -174,7 +199,7 @@ public class SpellListController {
         for(int i=0; i <= 10; i++) {
             allSpells.getRoot().getChildren().add(new TreeItem<>(String.valueOf(i)));
             allSpells.getRoot().getChildren().get(i).getChildren().addAll(
-                    SourcesLoader.instance().spells().getSpells(tradition, i).stream().map(s->
+                    character.sources().spells().getSpells(tradition, i).stream().map(s->
                             new TreeItem<>(s.getName())).collect(Collectors.toList()));
             allSpells.getRoot().getChildren().get(i).getChildren().sort(
                     Comparator.comparing(TreeItem::getValue));

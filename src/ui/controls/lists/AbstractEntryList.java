@@ -17,6 +17,7 @@ public abstract class AbstractEntryList<U, T extends ListEntry<U>> extends TreeT
     private final TreeItem<T> originalRoot = new TreeItem<>(null);
     private final TreeItem<T> filteredRoot = new TreeItem<>(null);
     private Predicate<T> lastPredicate = null;
+
     protected AbstractEntryList(BiConsumer<U, Integer> handler) {
         construct(handler);
     }

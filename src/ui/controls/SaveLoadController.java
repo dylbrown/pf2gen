@@ -2,15 +2,15 @@ package ui.controls;
 
 import javafx.scene.Scene;
 import javafx.stage.FileChooser;
+import model.CharacterManager;
 import model.data_managers.SaveLoadManager;
-import ui.ftl.TemplateFiller;
+import model.player.PC;
+import ui.controllers.CharacterController;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Objects;
-
-import static ui.Main.character;
 
 public class SaveLoadController {
     private File saveLocation = null;
@@ -31,7 +31,7 @@ public class SaveLoadController {
     }
 
     private File loadLocation = new File("./");
-    public void load(Scene scene) {
+    public void load(PC pc, Scene scene) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(loadLocation);
         //Set extension filter for text files
@@ -44,12 +44,13 @@ public class SaveLoadController {
         if(file == null) return;
         saveLocation = file;
         loadLocation = saveLocation.getParentFile();
-        SaveLoadManager.load(saveLocation);
+        SaveLoadManager.load(pc, saveLocation);
 
     }
 
     private File saveContainer = new File("./");
-    public void saveAs(String characterName, Scene scene) {
+    public void saveAs(PC pc, Scene scene) {
+        String characterName = pc.qualities().get("name");
         FileChooser fileChooser = new FileChooser();
         if(!Objects.equals(characterName, ""))
             fileChooser.setInitialFileName(characterName.replaceAll(" ","_"));
@@ -67,11 +68,11 @@ public class SaveLoadController {
         SaveLoadManager.save(saveLocation);
     }
 
-    public void save(String characterName, Scene scene) {
+    public void save(PC pc, Scene scene) {
         if(saveLocation != null) {
             SaveLoadManager.save(saveLocation);
         }else{
-            saveAs(characterName, scene);
+            saveAs(pc, scene);
         }
     }
 
@@ -80,8 +81,8 @@ public class SaveLoadController {
         if(exportLocation != null) {
             fileChooser.setInitialDirectory(exportLocation.getParentFile());
             fileChooser.setInitialFileName(exportLocation.getName());
-        } else if(!Objects.equals(character.qualities().get("name"), "")) {
-            fileChooser.setInitialFileName(character.qualities().get("name").replaceAll("[ ?!]",""));
+        } else if(!Objects.equals(CharacterManager.getActive().qualities().get("name"), "")) {
+            fileChooser.setInitialFileName(CharacterManager.getActive().qualities().get("name").replaceAll("[ ?!]",""));
             fileChooser.setInitialDirectory(new File("./"));
         }
         //Set extension filter for text files
@@ -95,15 +96,12 @@ public class SaveLoadController {
         if (file != null) {
             try {
                 PrintWriter out = new PrintWriter(file);
-                out.println(TemplateFiller.getInstance().getSheet(template));
+                out.println(CharacterController.getFiller(CharacterManager.getActive()).getSheet(template));
                 out.close();
+                exportLocation = file;
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    public void reset() {
-        SaveLoadManager.reset();
     }
 }

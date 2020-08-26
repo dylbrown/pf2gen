@@ -18,8 +18,11 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 
 public class PF2GenObjectWrapper extends DefaultObjectWrapper {
-    public PF2GenObjectWrapper(Version version) {
+    private final PC character;
+
+    public PF2GenObjectWrapper(Version version, PC character) {
         super(version);
+        this.character = character;
         setMethodAppearanceFineTuner((input, output) -> {
             String name = input.getMethod().getName();
             if(input.getMethod().getParameterCount() == 0 && name.startsWith("get") && name.length() > 3){
@@ -37,10 +40,10 @@ public class PF2GenObjectWrapper extends DefaultObjectWrapper {
     @Override
     protected TemplateModel handleUnknownType(Object obj) throws TemplateModelException {
         if(obj instanceof PC) return new CharacterWrapper((PC) obj, this);
-        if(obj instanceof Weapon) return new WeaponWrapper((Weapon) obj, this);
+        if(obj instanceof Weapon) return new WeaponWrapper((Weapon) obj, this, character);
         if(obj instanceof ItemCount) return new ItemCountWrapper((ItemCount) obj, this);
         if(obj instanceof StringProperty) return new StringPropertyWrapper((StringProperty) obj);
-        if(obj instanceof AttributeManager) return new AttributesWrapper((AttributeManager) obj, this);
+        if(obj instanceof AttributeManager) return new AttributesWrapper((AttributeManager) obj, this, character);
         if(obj instanceof QualityManager) return new QualitiesWrapper((QualityManager) obj, this);
         if(obj instanceof Spell) return new SpellWrapper((Spell) obj, this);
         if(obj instanceof SpellList) return new SpellListWrapper((SpellList) obj, this);

@@ -1,96 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.input.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.web.WebView?>
-<?import ui.controls.SkillTab?>
-<AnchorPane minHeight="600.0" minWidth="900.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.Controller">
-   <BorderPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-      <center>
-          <TabPane fx:id="rootTabs" BorderPane.alignment="CENTER">
-              <Tab closable="false" text="Home">
-                  <fx:include source="infoTab.fxml" />
-              </Tab>
-              <Tab closable="false" text="Starting Choices">
-                  <fx:include source="starting.fxml" />
-              </Tab>
-              <Tab closable="false" text="Ability Scores" fx:id="tab_abilityScores">
-                  <fx:include source="abilityScoreTab.fxml" />
-              </Tab>
-              <Tab closable="false" text="Skills" fx:id="tab_skills">
-                  <SkillTab />
-              </Tab>
-              <Tab closable="false" text="Decisions" fx:id="tab_decisions">
-                  <fx:include source="decisionsTab.fxml" />
-              </Tab>
-              <Tab closable="false" text="Equipment" fx:id="tab_equipment">
-                  <fx:include source="equip/equipTab.fxml" />
-              </Tab>
-              <Tab closable="false" text="Spells" fx:id="tab_spells">
-                  <fx:include source="spellsTab.fxml" />
-              </Tab>
-              <Tab fx:id="displayTab" closable="false" text="Preview">
-                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
-                      <WebView fx:id="display" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                  </AnchorPane>
-              </Tab>
-          </TabPane>
-      </center>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+
+<AnchorPane minHeight="600.0" minWidth="900.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.Controller">
+   <BorderPane fx:id="main" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <top>
-          <MenuBar BorderPane.alignment="CENTER">
-              <Menu mnemonicParsing="false" text="File">
-                  <MenuItem mnemonicParsing="false" text="New" fx:id="new_menu">
-                      <accelerator>
-                          <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
-                      </accelerator>
+          <HBox BorderPane.alignment="CENTER">
+              <MenuBar HBox.hgrow="SOMETIMES">
+                  <Menu mnemonicParsing="false" text="File">
+                      <MenuItem fx:id="new_menu" mnemonicParsing="false" text="New">
+                          <accelerator>
+                              <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                          </accelerator>
+                      </MenuItem>
+                      <MenuItem fx:id="open_menu" mnemonicParsing="false" text="Open">
+                          <accelerator>
+                              <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                          </accelerator>
+                      </MenuItem>
+                  <MenuItem fx:id="close_menu" mnemonicParsing="false" text="Close">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="W" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
                   </MenuItem>
-                  <MenuItem mnemonicParsing="false" text="Open" fx:id="open_menu">
-                      <accelerator>
-                          <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
-                      </accelerator>
-                  </MenuItem>
-                  <MenuItem mnemonicParsing="false" text="Save" fx:id="save_menu">
-                      <accelerator>
-                          <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
-                      </accelerator>
-                  </MenuItem>
-                  <MenuItem mnemonicParsing="false" text="Save As..." fx:id="saveAs_menu">
-                      <accelerator>
-                          <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP"/>
-                      </accelerator>
-                  </MenuItem>
-              </Menu>
-              <Menu mnemonicParsing="false" text="Export">
-                  <MenuItem mnemonicParsing="false" text="Statblock" fx:id="statblock_menu">
-                      <accelerator>
-                          <KeyCodeCombination alt="DOWN" code="DIGIT1" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
-                      </accelerator>
-                  </MenuItem>
-                  <MenuItem mnemonicParsing="false" text="Printable Sheet" fx:id="printableSheet_menu">
-                      <accelerator>
-                          <KeyCodeCombination alt="DOWN" code="DIGIT2" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
-                      </accelerator>
-                  </MenuItem>
-                  <MenuItem mnemonicParsing="false" text="4x6 Index Card" fx:id="indexCard_menu">
-                      <accelerator>
-                          <KeyCodeCombination alt="DOWN" code="DIGIT3" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
-                      </accelerator>
-                  </MenuItem>
-                  <MenuItem mnemonicParsing="false" text="JQuery Sheet" fx:id="jquerySheet_menu">
-                      <accelerator>
-                          <KeyCodeCombination alt="DOWN" code="DIGIT4" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
-                      </accelerator>
-                  </MenuItem>
-              </Menu>
-              <Menu mnemonicParsing="false" text="Tools">
-                  <MenuItem mnemonicParsing="false" text="GM Tools" fx:id="gm_menu" />
-              </Menu>
-              <Menu mnemonicParsing="false" text="Help">
-                  <MenuItem mnemonicParsing="false" text="About" fx:id="about_menu">
-                  </MenuItem>
-              </Menu>
-          </MenuBar>
+                      <MenuItem fx:id="save_menu" mnemonicParsing="false" text="Save">
+                          <accelerator>
+                              <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                          </accelerator>
+                      </MenuItem>
+                      <MenuItem fx:id="saveAs_menu" mnemonicParsing="false" text="Save As...">
+                          <accelerator>
+                              <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                          </accelerator>
+                      </MenuItem>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Export">
+                      <MenuItem fx:id="statblock_menu" mnemonicParsing="false" text="Statblock">
+                          <accelerator>
+                              <KeyCodeCombination alt="DOWN" code="DIGIT1" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                          </accelerator>
+                      </MenuItem>
+                      <MenuItem fx:id="printableSheet_menu" mnemonicParsing="false" text="Printable Sheet">
+                          <accelerator>
+                              <KeyCodeCombination alt="DOWN" code="DIGIT2" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                          </accelerator>
+                      </MenuItem>
+                      <MenuItem fx:id="indexCard_menu" mnemonicParsing="false" text="4x6 Index Card">
+                          <accelerator>
+                              <KeyCodeCombination alt="DOWN" code="DIGIT3" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                          </accelerator>
+                      </MenuItem>
+                      <MenuItem fx:id="jquerySheet_menu" mnemonicParsing="false" text="JQuery Sheet">
+                          <accelerator>
+                              <KeyCodeCombination alt="DOWN" code="DIGIT4" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                          </accelerator>
+                      </MenuItem>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Tools">
+                      <MenuItem fx:id="gm_menu" mnemonicParsing="false" text="GM Tools" />
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Help">
+                      <MenuItem fx:id="about_menu" mnemonicParsing="false" text="About">
+                      </MenuItem>
+                  </Menu>
+              </MenuBar>
+              <ComboBox fx:id="characterSelect" prefWidth="150.0" />
+          </HBox>
       </top>
    </BorderPane>
 </AnchorPane>

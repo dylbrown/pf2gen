@@ -15,6 +15,7 @@ import model.enums.*;
 import model.spells.CasterType;
 import model.spells.SpellType;
 import model.spells.Tradition;
+import model.util.ObjectNotFoundException;
 import model.util.Pair;
 import model.xml_parsers.equipment.WeaponsLoader;
 import org.w3c.dom.Element;
@@ -82,8 +83,14 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                 firstChild = firstChild.getNextSibling();
 
         if(firstChild != null) {
-            if(((Element) firstChild).getTagName().equals("Template"))
-                builder = SourcesLoader.instance().templates().find(firstChild.getTextContent().trim()).get();
+            if(((Element) firstChild).getTagName().equals("Template")) {
+                try {
+                    builder = SourcesLoader.ALL_SOURCES.templates().find(firstChild.getTextContent().trim()).get();
+                } catch (ObjectNotFoundException e) {
+                    e.printStackTrace();
+                    builder = new Ability.Builder();
+                }
+            }
             else builder = new Ability.Builder();
         } else builder = new Ability.Builder();
         if(!element.getAttribute("cost").equals("")) {
@@ -217,9 +224,13 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                         case "Focus": spellType = SpellType.Focus; break;
                         case "Focus Cantrip": spellType = SpellType.FocusCantrip; break;
                     }
-                    builder.getExtension(SpellExtension.Builder.class)
-                            .addBonusSpell(spellType, SourcesLoader.instance()
-                            .spells().find(propElem.getAttribute("name")));
+                    try {
+                        builder.getExtension(SpellExtension.Builder.class)
+                                .addBonusSpell(spellType, SourcesLoader.ALL_SOURCES
+                                .spells().find(propElem.getAttribute("name")));
+                    } catch (ObjectNotFoundException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case "AbilitySlot":
                     builder.addAbilitySlot(makeAbilitySlot(propElem, level));
@@ -277,7 +288,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
     private AttributeRequirement getRequirement(String option) {
         String[] split = option.split(" [iI]n ");
         Proficiency reqProf = Proficiency.valueOf(camelCaseWord(split[0].trim()));
-        int bracketIndex = split[1].indexOf("(");
+        int bracketIndex = option.indexOf("(");
         if(bracketIndex != -1) {
             String data = camelCase(option.substring(bracketIndex+1).trim().trim().replaceAll("[()]", ""));
             return new AttributeRequirement(Attribute.robustValueOf(option.substring(0, bracketIndex)), reqProf, data);

@@ -25,12 +25,12 @@ class InventoryManagerTest {
 
     @BeforeEach
     void setUp() {
-        pc = new PC();
+        pc = new PC(SourcesLoader.ALL_SOURCES);
         inventory = pc.inventory();
         inventory.setMoney(30000000);
         sampleItems = new ArrayList<>();
         int i=0;
-        for (Equipment equipment : SourcesLoader.instance().equipment()
+        for (Equipment equipment : SourcesLoader.ALL_SOURCES.equipment()
                 .getAll().values()) {
             sampleItems.add(equipment);
             if(i>=20) break;

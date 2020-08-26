@@ -3,8 +3,8 @@ package ui.controls.equipment;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
-import model.data_managers.sources.SourcesLoader;
 import model.equipment.Equipment;
+import model.player.PC;
 import model.xml_parsers.equipment.EquipmentLoader;
 import ui.controls.lists.AbstractEntryList;
 import ui.controls.lists.entries.ItemEntry;
@@ -14,21 +14,25 @@ import java.util.*;
 import java.util.function.BiConsumer;
 
 public class CategoryAllItemsList extends AbstractEntryList<Equipment, ItemEntry> {
-    public CategoryAllItemsList(BiConsumer<Equipment, Integer> handler) {
-        super(handler);
+    private final PC character;
+
+    public CategoryAllItemsList(PC character, BiConsumer<Equipment, Integer> handler) {
+        this(character);
+        construct(handler);
     }
 
-    protected CategoryAllItemsList() {
+    protected CategoryAllItemsList(PC character) {
         super();
+        this.character = character;
     }
 
     @Override
     protected void addItems(TreeItem<ItemEntry> root) {
-        for (String category : SourcesLoader.instance().equipment().getCategories()) {
-            addCategory(root, category, SourcesLoader.instance().equipment().getCategory(category).values());
+        for (String category : character.sources().equipment().getCategories()) {
+            addCategory(root, category, character.sources().equipment().getCategory(category).values());
         }
-        addCategory(root, "armor_and_shields", SourcesLoader.instance().armor().getAll().values());
-        addCategory(root, "weapons", SourcesLoader.instance().weapons().getAll().values());
+        addCategory(root, "armor_and_shields", character.sources().armor().getAll().values());
+        addCategory(root, "weapons", character.sources().weapons().getAll().values());
         root.getChildren().sort(Comparator.comparing(o -> o.getValue().toString()));
     }
 
@@ -49,7 +53,7 @@ public class CategoryAllItemsList extends AbstractEntryList<Equipment, ItemEntry
         cat.getChildren().addAll(subCats.values());
     }
 
-    public static List<TreeTableColumn<ItemEntry, String>> makeColumns(ReadOnlyDoubleProperty width) {
+    public static List<TreeTableColumn<ItemEntry, ?>> makeColumns(ReadOnlyDoubleProperty width) {
         TreeTableColumn<ItemEntry, String> name = new TreeTableColumn<>("Name");
         TreeTableColumn<ItemEntry, String> cost = new TreeTableColumn<>("Cost");
         TreeTableColumn<ItemEntry, String> level = new TreeTableColumn<>("Level");

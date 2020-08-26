@@ -26,12 +26,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static model.util.StringUtils.camelCaseWord;
-import static ui.Main.character;
 
 public class CharacterWrapper implements TemplateHashModel {
     private final Map<String, Object> map = new HashMap<>();
     private final ObjectWrapper wrapper;
+    private final PC character;
+
     public CharacterWrapper(PC character, ObjectWrapper wrapper) {
+        this.character = character;
         this.wrapper = wrapper;
 
         //map.put("totalweight", (NumberSupplier) ()->character.inventory().getTotalWeight());
@@ -83,13 +85,13 @@ public class CharacterWrapper implements TemplateHashModel {
         for (Attribute value : Attribute.getSkills()) {
             if(value.equals(Attribute.Lore)) {
                 for (String lore : character.attributes().lores()) {
-                    entries.add(new AttributeEntry(value, lore,
+                    entries.add(new AttributeEntry(character, value, lore,
                             character.attributes().getProficiency(value, lore),
                             character.levelProperty(),
                             wrapper));
                 }
             }
-            entries.add(new AttributeEntry(value, "",
+            entries.add(new AttributeEntry(character, value, "",
                     character.attributes().getProficiency(value, ""),
                     character.levelProperty(),
                     wrapper));

@@ -2,6 +2,7 @@ package model.enums;
 
 import model.NamedObject;
 import model.data_managers.sources.SourcesLoader;
+import model.util.ObjectNotFoundException;
 
 public class Trait extends NamedObject implements Comparable<Trait> {
     private final String category;
@@ -11,8 +12,13 @@ public class Trait extends NamedObject implements Comparable<Trait> {
         category = builder.category;
     }
 
-    public static Trait valueOf(String s) {
-        return SourcesLoader.instance().traits().find(s);
+    public static Trait valueOf(String traitName) {
+        try {
+            return SourcesLoader.ALL_SOURCES.traits().find(traitName);
+        } catch (ObjectNotFoundException e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     public String getCategory() {

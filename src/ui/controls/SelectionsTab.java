@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.ToIntFunction;
 
-import static ui.Main.character;
+import static ui.character;
 
 public class SelectionsTab extends AnchorPane {
     private final ComboBox<Choice> box = new ComboBox<>();

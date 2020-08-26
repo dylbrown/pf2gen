@@ -8,17 +8,17 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import model.attributes.Attribute;
 import model.enums.Proficiency;
+import model.player.PC;
 
-import static ui.Main.character;
-
-class ProfSelector extends HBox {
+public class ProfSelector extends HBox {
     private final Attribute skill;
+    private final PC character;
     private String data;
     private final CheckBox[] checkBoxes = {new CheckBox(), new CheckBox(), new CheckBox(), new CheckBox()};
     private final Proficiency[] profs = {Proficiency.Trained, Proficiency.Expert, Proficiency.Master, Proficiency.Legendary};
-    private boolean infiniteStopper = false;
 
-    ProfSelector(Attribute skill, String data) {
+    public ProfSelector(Attribute skill, String data, PC character) {
+        this.character = character;
         this.skill = skill;
         this.data = data;
         this.getChildren().addAll(new VBox(new Label("T"), checkBoxes[0]),new VBox(new Label("E"), checkBoxes[1]),new VBox(new Label("M"), checkBoxes[2]),new VBox(new Label("L"), checkBoxes[3]));

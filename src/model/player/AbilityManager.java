@@ -11,8 +11,8 @@ import model.abilities.AbilitySetExtension;
 import model.abilities.ArchetypeExtension;
 import model.abilities.ScalingExtension;
 import model.ability_slots.*;
-import model.data_managers.sources.SourcesLoader;
 import model.enums.Type;
+import model.util.ObjectNotFoundException;
 import model.util.StringUtils;
 
 import java.util.*;
@@ -34,10 +34,12 @@ public class AbilityManager implements PlayerState {
 	private final Function<Ability, Boolean> meetsPrereqs;
 	private final Map<String, Set<Ability>> archetypeAbilities = new HashMap<>();
 	private final Map<String, Ability> archetypeDedications = new HashMap<>();
+	private final SourcesManager sources;
 
-	AbilityManager(DecisionManager decisions, ReadOnlyObjectProperty<Ancestry> ancestry,
+	AbilityManager(SourcesManager sources, DecisionManager decisions, ReadOnlyObjectProperty<Ancestry> ancestry,
 	               ReadOnlyObjectProperty<PClass> pClass, Applier applier,
 	               Function<Ability, Boolean> meetsPrereqs) {
+		this.sources = sources;
 		this.applier = applier;
 		this.decisions = decisions;
 		this.ancestry = ancestry;
@@ -93,12 +95,14 @@ public class AbilityManager implements PlayerState {
 						if (bracket != -1) {
 							int close = allowedType.indexOf(")");
 							String className = allowedType.substring(bracket + 1, close);
-							PClass specificClass = SourcesLoader.instance().classes().find(className);
-							if(specificClass != null)
-								results.addAll(specificClass.getFeats(maxLevel));
+							try {
+								results.addAll(sources.classes().find(className).getFeats(maxLevel));
+							} catch (ObjectNotFoundException e) {
+								e.printStackTrace();
+							}
 						}else if (pClass.get() != null) {
 							results.addAll(pClass.get().getFeats(maxLevel));
-							for (Ability a : SourcesLoader.instance().feats().getCategory("Archetype").values()) {
+							for (Ability a : sources.feats().getCategory("Archetype").values()) {
 								if(a.getLevel() <= maxLevel) {
 									if(a.getExtension(ScalingExtension.class) != null) {
 										results.add(a.getExtension(ScalingExtension.class).getAbility(maxLevel));
@@ -116,12 +120,12 @@ public class AbilityManager implements PlayerState {
 							results.addAll(ancestry.get().getHeritages());
 						break;
 					case "General":
-						for (Ability ability : SourcesLoader.instance().feats().getCategory("Skill").values()) {
+						for (Ability ability : sources.feats().getCategory("Skill").values()) {
 							if(ability.getLevel() <= maxLevel)
 								results.add(ability);
 						}
 					default:
-						for (Ability ability : SourcesLoader.instance().feats().getCategory(allowedType).values()) {
+						for (Ability ability : sources.feats().getCategory(allowedType).values()) {
 							if(ability.getLevel() <= maxLevel)
 								results.add(ability);
 						}

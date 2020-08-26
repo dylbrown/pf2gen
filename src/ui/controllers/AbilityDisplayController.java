@@ -5,22 +5,25 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import model.CharacterManager;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityScore;
 import model.enums.Type;
+import model.player.PC;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static ui.Main.character;
-
 public class AbilityDisplayController {
     @FXML
     private GridPane gridPane;
     private final List<Label> boxes = new ArrayList<>();
+    private PC character;
+
     @FXML
     private void initialize() {
+        character = CharacterManager.getActive();
         for(Node node: gridPane.getChildren()) {
             if(!(node instanceof Label))
                 continue;

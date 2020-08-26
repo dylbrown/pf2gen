@@ -108,7 +108,7 @@ public class Spell extends NamedObject implements Comparable<Spell> {
 
 	public static class Builder extends NamedObject.Builder {
 		private int level;
-		private final List<Trait> traits = new ArrayList<>();
+		private List<Trait> traits = Collections.emptyList();
 		private List<Tradition> traditions = Collections.emptyList();
 		private final List<SpellComponent> cast = new ArrayList<>();
 		private boolean isCantrip = false;
@@ -126,14 +126,10 @@ public class Spell extends NamedObject implements Comparable<Spell> {
 			this.level = Integer.parseInt(level);
 		}
 
-		public void setTraits(String traits) {
-			for (String trait : traits.split(", ?")) {
-				try {
-					this.traits.add(Trait.valueOf(StringUtils.camelCaseWord(trait)));
-				}catch(Exception e) {
-					e.printStackTrace();
-				}
-			}
+		public void addTrait(Trait trait) {
+			if(traits.isEmpty())
+				traits = new ArrayList<>();
+			traits.add(trait);
 		}
 
 		public void setTraditions(String traditions) {

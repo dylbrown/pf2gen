@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.web.WebView?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="400" minWidth="600" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <TabPane fx:id="rootTabs" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <Tab closable="false" text="Home">
+            <fx:include source="infoTab.fxml" />
+        </Tab>
+        <Tab closable="false" text="Starting Choices">
+            <fx:include source="starting.fxml" />
+        </Tab>
+        <Tab fx:id="tab_abilityScores" closable="false" text="Ability Scores">
+            <fx:include source="abilityScoreTab.fxml" />
+        </Tab>
+        <Tab fx:id="tab_skills" closable="false" text="Skills">
+            <fx:include source="skillTab.fxml" />
+        </Tab>
+        <Tab fx:id="tab_decisions" closable="false" text="Decisions">
+            <fx:include source="decisionsTab.fxml" />
+        </Tab>
+        <Tab fx:id="tab_equipment" closable="false" text="Equipment">
+            <fx:include source="equip/equipTab.fxml" />
+        </Tab>
+        <Tab fx:id="tab_spells" closable="false" text="Spells">
+            <fx:include source="spellsTab.fxml" />
+        </Tab>
+        <Tab fx:id="displayTab" closable="false" text="Preview">
+            <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                <WebView fx:id="display" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+            </AnchorPane>
+        </Tab>
+    </TabPane>
+</AnchorPane>

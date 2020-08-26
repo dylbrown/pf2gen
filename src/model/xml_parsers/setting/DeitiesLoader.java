@@ -5,6 +5,7 @@ import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.data_managers.sources.SourcesLoader;
 import model.enums.Alignment;
+import model.util.ObjectNotFoundException;
 import model.xml_parsers.FileLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -69,11 +70,20 @@ public class DeitiesLoader extends FileLoader<Deity> {
                     builder.setDivineSkills(Stream.of(trim.split(" or ")).map(Attribute::robustValueOf).collect(Collectors.toList()));
                     break;
                 case "favoredweapon":
-                        builder.setFavoredWeapon(SourcesLoader.instance().weapons().find(trim));
+                    try {
+                        builder.setFavoredWeapon(SourcesLoader.ALL_SOURCES.weapons().find(trim));
+                    } catch (ObjectNotFoundException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case "domains":
                     for (String s : trim.split(", ?")) {
-                        Domain domain = SourcesLoader.instance().domains().find(s);
+                        Domain domain = null;
+                        try {
+                            domain = SourcesLoader.ALL_SOURCES.domains().find(s);
+                        } catch (ObjectNotFoundException e) {
+                            e.printStackTrace();
+                        }
                         if(domain != null)
                             builder.addDomains(domain);
                         else
@@ -86,8 +96,12 @@ public class DeitiesLoader extends FileLoader<Deity> {
                         if (spellsList.item(j).getNodeType() != Node.ELEMENT_NODE)
                             continue;
                         Element currSpell = (Element) spellsList.item(j);
-                        builder.addSpell(Integer.parseInt(currSpell.getAttribute("level")),
-                                SourcesLoader.instance().spells().find(currSpell.getAttribute("name")));
+                        try {
+                            builder.addSpell(Integer.parseInt(currSpell.getAttribute("level")),
+                                    SourcesLoader.ALL_SOURCES.spells().find(currSpell.getAttribute("name")));
+                        } catch (ObjectNotFoundException e) {
+                            e.printStackTrace();
+                        }
                     }
                     break;
             }

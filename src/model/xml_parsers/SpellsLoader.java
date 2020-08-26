@@ -2,6 +2,7 @@ package model.xml_parsers;
 
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
+import model.enums.Trait;
 import model.spells.Spell;
 import model.spells.Tradition;
 import org.w3c.dom.Element;
@@ -52,7 +53,11 @@ public class SpellsLoader extends FileLoader<Spell> {
 				}else if(level.length() > 0){
 					builder.addHeightenedLevel(Integer.parseInt(level), trim);
 				}
-			}else {
+			}else if(curr.getTagName().equals("Traits")){
+				for (String traitName : trim.split(", ?")) {
+					builder.addTrait(Trait.valueOf(traitName));
+				}
+			} else {
 				try {
 					Method setter = builder.getClass().getMethod("set" + curr.getTagName(), String.class);
 					setter.invoke(builder, trim);

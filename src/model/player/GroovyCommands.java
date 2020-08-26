@@ -22,6 +22,7 @@ import model.enums.Proficiency;
 import model.equipment.weapons.Damage;
 import model.equipment.weapons.WeaponGroup;
 import model.spells.Spell;
+import model.util.ObjectNotFoundException;
 import model.util.StringUtils;
 import model.xml_parsers.AbilityLoader;
 import setting.Deity;
@@ -33,7 +34,7 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"rawtypes", "unused", "unchecked"})
+@SuppressWarnings({"rawtypes", "unchecked"})
 class GroovyCommands {
     private final ObservableMap<String, Integer> mods = FXCollections.observableHashMap();
     private final BooleanProperty applying = new SimpleBooleanProperty(true);
@@ -47,8 +48,10 @@ class GroovyCommands {
     private final ReadOnlyObjectProperty<Deity> deity;
     private final CustomGetter customGetter;
     private final AbilityManager abilities;
+    private final SourcesManager sources;
 
-    GroovyCommands(CustomGetter customGetter, AbilityManager abilities, AttributeManager attributes, DecisionManager decisions, CombatManager combat, SpellListManager spells, ReadOnlyObjectProperty<Deity> deity, ReadOnlyObjectProperty<Integer> levelProperty) {
+    GroovyCommands(CustomGetter customGetter, SourcesManager sources, AbilityManager abilities, AttributeManager attributes, DecisionManager decisions, CombatManager combat, SpellListManager spells, ReadOnlyObjectProperty<Deity> deity, ReadOnlyObjectProperty<Integer> levelProperty) {
+        this.sources = sources;
         this.abilities = abilities;
         this.attributes = attributes;
         this.decisions = decisions;
@@ -74,7 +77,7 @@ class GroovyCommands {
                     if(loader instanceof MultiSourceLoader) {
                         return ((MultiSourceLoader) loader).find(name);
                     }
-                } catch (IllegalAccessException | InvocationTargetException e) {
+                } catch (IllegalAccessException | InvocationTargetException | ObjectNotFoundException e) {
                     e.printStackTrace();
                 }
             }
@@ -117,9 +120,11 @@ class GroovyCommands {
         }
     }
     public void spell(String spellName, String spellListName) {
-        Spell spell = SourcesLoader.instance().spells().find(spellName);
-        if(spell != null) {
-            spell(spell, spellListName);
+        Spell spell = null;
+        try {
+            spell(sources.spells().find(spellName), spellListName);
+        } catch (ObjectNotFoundException e) {
+            e.printStackTrace();
         }
     }
     public void spell(Spell spell, String spellListName) {
@@ -183,7 +188,7 @@ class GroovyCommands {
                     optionsClass = Attribute.class;
                     break;
                 case "weapongroup":
-                    selections = new ArrayList<>(SourcesLoader.instance().weapons()
+                    selections = new ArrayList<>(sources.weapons()
                             .getWeaponGroups().values());
                     optionsClass = WeaponGroup.class;
                     break;
@@ -250,13 +255,12 @@ class GroovyCommands {
     public void weaponGroupProficiency(String group, String prof) {
         if(applying.get()) {
             attributes.apply(new WeaponGroupMod(
-                    SourcesLoader.instance().weapons().getWeaponGroups().get(group.toLowerCase()),
+                    sources.weapons().getWeaponGroups().get(group.toLowerCase()),
                     Proficiency.valueOf(StringUtils.camelCaseWord(prof.trim()))
             ));
         } else {
             attributes.remove(new WeaponGroupMod(
-                    SourcesLoader.instance().weapons()
-                            .getWeaponGroups().get(group.toLowerCase()),
+                    sources.weapons().getWeaponGroups().get(group.toLowerCase()),
                     Proficiency.valueOf(StringUtils.camelCaseWord(prof.trim()))
             ));
         }

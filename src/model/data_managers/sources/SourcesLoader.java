@@ -1,14 +1,7 @@
 package model.data_managers.sources;
 
-import model.abc.Ancestry;
-import model.abc.Background;
-import model.abc.PClass;
-import model.abilities.Ability;
-import model.creatures.Creature;
-import model.creatures.CreatureFamily;
-import model.enums.Trait;
-import model.equipment.Equipment;
-import model.equipment.armor.Armor;
+import model.player.SourcesManager;
+import model.util.StringUtils;
 import model.xml_parsers.*;
 import model.xml_parsers.abc.AncestriesLoader;
 import model.xml_parsers.abc.BackgroundsLoader;
@@ -21,104 +14,49 @@ import model.xml_parsers.setting.DomainsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import setting.Deity;
-import setting.Domain;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class SourcesLoader extends FileLoader<Source> {
 
-    private final MultiSourceLoader<Ancestry> ancestriesLoader;
-    private final MultiSourceLoader<Background> backgroundsLoader;
-    private final MultiSourceLoader<PClass> classesLoader;
-    private final MultiSourceLoader<Equipment> equipmentLoader;
-    private final MultiSourceLoader<Armor> armorLoader;
-    private final WeaponsMultiSourceLoader weaponsLoader;
-    private final MultiSourceLoader<Ability> featsLoader;
-    private final MultiSourceLoader<Ability> choicesLoader;
-    private final MultiSourceLoader<Deity> deitiesLoader;
-    private final MultiSourceLoader<Domain> domainsLoader;
-    private final SpellsMultiSourceLoader spellsLoader;
-    private final MultiSourceLoader<Creature> creaturesLoader;
-    private final MultiSourceLoader<CreatureFamily> creatureFamiliesLoader;
-    private final MultiSourceLoader<TemplatesLoader.BuilderSupplier> templatesLoader;
-    private final MultiSourceLoader<Trait> traitsLoader;
+    private static final SourcesLoader INSTANCE;
+    public static final SourcesManager ALL_SOURCES;
 
-    public SourcesLoader(SourceConstructor sourceConstructor, File root) {
-        super(sourceConstructor, root);
-        List<AncestriesLoader> ancestries = new ArrayList<>();
-        List<BackgroundsLoader> backgrounds = new ArrayList<>();
-        List<PClassesLoader> classes = new ArrayList<>();
-        List<EquipmentLoader> equipment = new ArrayList<>();
-        List<ArmorLoader> armor = new ArrayList<>();
-        List<WeaponsLoader> weapons = new ArrayList<>();
-        List<FeatsLoader> feats = new ArrayList<>();
-        List<ChoicesLoader> choices = new ArrayList<>();
-        List<DeitiesLoader> deities = new ArrayList<>();
-        List<DomainsLoader> domains = new ArrayList<>();
-        List<SpellsLoader> spells = new ArrayList<>();
-        List<CreatureLoader> creatures = new ArrayList<>();
-        List<CreatureFamilyLoader> creatureFamilies = new ArrayList<>();
-        List<TemplatesLoader> templates = new ArrayList<>();
-        List<TraitsLoader> traits = new ArrayList<>();
-        for (Source value : getAll().values()) {
-            addIfNotNull(ancestries, value.getLoader(AncestriesLoader.class));
-            addIfNotNull(backgrounds, value.getLoader(BackgroundsLoader.class));
-            addIfNotNull(classes, value.getLoader(PClassesLoader.class));
-            addIfNotNull(equipment, value.getLoader(EquipmentLoader.class));
-            addIfNotNull(armor, value.getLoader(ArmorLoader.class));
-            addIfNotNull(weapons, value.getLoader(WeaponsLoader.class));
-            addIfNotNull(feats, value.getLoader(FeatsLoader.class));
-            addIfNotNull(choices, value.getLoader(ChoicesLoader.class));
-            addIfNotNull(deities, value.getLoader(DeitiesLoader.class));
-            addIfNotNull(domains, value.getLoader(DomainsLoader.class));
-            addIfNotNull(spells, value.getLoader(SpellsLoader.class));
-            addIfNotNull(creatures, value.getLoader(CreatureLoader.class));
-            addIfNotNull(creatureFamilies, value.getLoader(CreatureFamilyLoader.class));
-            addIfNotNull(templates, value.getLoader(TemplatesLoader.class));
-            addIfNotNull(traits, value.getLoader(TraitsLoader.class));
-        }
-        ancestriesLoader = new MultiSourceLoader<>(ancestries);
-        backgroundsLoader = new MultiSourceLoader<>(backgrounds);
-        classesLoader = new MultiSourceLoader<>(classes);
-        equipmentLoader = new MultiSourceLoader<>(equipment);
-        armorLoader = new MultiSourceLoader<>(armor);
-        weaponsLoader = new WeaponsMultiSourceLoader(weapons);
-        featsLoader = new MultiSourceLoader<>(feats);
-        choicesLoader = new MultiSourceLoader<>(choices);
-        deitiesLoader = new MultiSourceLoader<>(deities);
-        domainsLoader = new MultiSourceLoader<>(domains);
-        spellsLoader = new SpellsMultiSourceLoader(spells);
-        creaturesLoader = new MultiSourceLoader<>(creatures);
-        creatureFamiliesLoader = new MultiSourceLoader<>(creatureFamilies);
-        templatesLoader = new MultiSourceLoader<>(templates);
-        traitsLoader = new MultiSourceLoader<>(traits);
-    }
-
-    private <T> void addIfNotNull(List<T> list, T ancestries) {
-        if(ancestries != null)
-            list.add(ancestries);
+    public static SourcesLoader instance() {
+        return INSTANCE;
     }
 
     static {
         Map<String, String> locations = new HashMap<>();
-        locations.put("advanced_players_guide", "Advanced Player's Guide/index.pfdyl");
-        locations.put("core_rulebook", "Core Rulebook/index.pfdyl");
-        locations.put("bestiary_1", "Bestiary 1/index.pfdyl");
-        locations.put("the_amar_vale", "The Amar Vale/index.pfdyl");
-        // locations.put("extinction_curse", "Extinction Curse/index.pfdyl");
+        for (File file : Objects.requireNonNull(new File("data").listFiles())) {
+            if(file.isDirectory() && !file.getName().startsWith(".")) {
+                locations.put(StringUtils.clean(file.getName()), file.getName()+"/index.pfdyl");
+            }
+        }
+        try {
+            URL url = new URL("https://dylbrown.github.io/pf2gen_data/data/index.txt");
+            if(((HttpURLConnection) url.openConnection()).getResponseCode() == HttpURLConnection.HTTP_OK) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+                reader.lines().forEach(s->locations.putIfAbsent(StringUtils.clean(s), s+"/index.pfdyl"));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         SourceConstructor sourceConstructor = new SourceConstructor(locations, false);
         INSTANCE = new SourcesLoader(sourceConstructor, new File("data"));
+        ALL_SOURCES = new SourcesManager(INSTANCE.getAll().values());
     }
 
-    private static final SourcesLoader INSTANCE;
-
-    public static SourcesLoader instance() {
-        return INSTANCE;
+    private SourcesLoader(SourceConstructor sourceConstructor, File root) {
+        super(sourceConstructor, root);
     }
 
     private void parseElement(File parentFile, Element curr, Source.Builder builder) {
@@ -129,6 +67,15 @@ public class SourcesLoader extends FileLoader<Source> {
                 break;
             case "shortname":
                 builder.setShortName(curr.getTextContent().trim());
+                break;
+            case "description":
+                builder.setDescription(curr.getTextContent().trim());
+                break;
+            case "category":
+                builder.setCategory(curr.getTextContent().trim());
+                break;
+            case "subcategory":
+                builder.setSubCategory(curr.getTextContent().trim());
                 break;
             case "ancestries":
                 builder.addLoader(AncestriesLoader.class,
@@ -229,65 +176,5 @@ public class SourcesLoader extends FileLoader<Source> {
             parseElement(file.getParentFile(), curr, builder);
         }
         return builder.build();
-    }
-
-    public MultiSourceLoader<Ancestry> ancestries() {
-        return ancestriesLoader;
-    }
-
-    public MultiSourceLoader<Background> backgrounds() {
-        return backgroundsLoader;
-    }
-
-    public MultiSourceLoader<PClass> classes() {
-        return classesLoader;
-    }
-
-    public MultiSourceLoader<Equipment> equipment() {
-        return equipmentLoader;
-    }
-
-    public MultiSourceLoader<Armor> armor() {
-        return armorLoader;
-    }
-
-    public WeaponsMultiSourceLoader weapons() {
-        return weaponsLoader;
-    }
-
-    public MultiSourceLoader<Ability> feats() {
-        return featsLoader;
-    }
-
-    public MultiSourceLoader<Ability> choices() {
-        return choicesLoader;
-    }
-
-    public MultiSourceLoader<Deity> deities() {
-        return deitiesLoader;
-    }
-
-    public MultiSourceLoader<Domain> domains() {
-        return domainsLoader;
-    }
-
-    public SpellsMultiSourceLoader spells() {
-        return spellsLoader;
-    }
-
-    public MultiSourceLoader<Creature> creatures() {
-        return creaturesLoader;
-    }
-
-    public MultiSourceLoader<CreatureFamily> creatureFamilies() {
-        return creatureFamiliesLoader;
-    }
-
-    public MultiSourceLoader<TemplatesLoader.BuilderSupplier> templates() {
-        return templatesLoader;
-    }
-
-    public MultiSourceLoader<Trait> traits() {
-        return traitsLoader;
     }
 }

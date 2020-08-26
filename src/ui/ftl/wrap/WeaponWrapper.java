@@ -2,32 +2,34 @@ package ui.ftl.wrap;
 
 import freemarker.template.ObjectWrapper;
 import model.equipment.weapons.Weapon;
-import ui.Main;
+import model.player.PC;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
+import java.util.Arrays;
 
 public class WeaponWrapper extends GenericWrapper<Weapon> {
-    private static final Map<String, Function<Weapon, Object>> map = new HashMap<>();
+    private final PC character;
 
-    static {
-        map.put("attack", (weapon)->Main.character.combat().getAttackMod(weapon));
-        map.put("damage", (weapon)->Main.character.combat().getDamage(weapon));
-        map.put("traits", Weapon::getWeaponTraits);
-    }
-
-    public WeaponWrapper(Weapon weapon, ObjectWrapper wrapper) {
+    public WeaponWrapper(Weapon weapon, ObjectWrapper wrapper, PC character) {
         super(weapon, wrapper);
+        this.character = character;
     }
 
     @Override
     boolean hasSpecialCase(String s) {
-        return map.containsKey(s);
+        return Arrays.asList("attack", "damage", "traits").contains(s);
     }
 
     @Override
     Object getSpecialCase(String s, Weapon weapon) {
-        return map.get(s).apply(weapon);
+        switch (s) {
+            case "attack":
+                return character.combat().getAttackMod(weapon);
+            case "damage":
+                return character.combat().getDamage(weapon);
+            case "traits":
+                return weapon.getWeaponTraits();
+            default:
+                return null;
+        }
     }
 }

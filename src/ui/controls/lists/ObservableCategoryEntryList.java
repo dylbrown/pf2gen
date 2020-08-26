@@ -17,7 +17,7 @@ public class ObservableCategoryEntryList<T, U extends ListEntry<T>> extends Abst
     private final Function<T, String> getSubCategory;
     private final Function<T, U> makeEntry;
     private final Function<String, U> makeLabelEntry;
-    private final Function<ReadOnlyDoubleProperty, List<TreeTableColumn<U, String>>> makeColumns;
+    private final Function<ReadOnlyDoubleProperty, List<TreeTableColumn<U, ?>>> makeColumns;
 
     public ObservableCategoryEntryList(ObservableList<T> items,
                                        BiConsumer<T, Integer> handler,
@@ -25,7 +25,7 @@ public class ObservableCategoryEntryList<T, U extends ListEntry<T>> extends Abst
                                        Function<T, String> getSubCategory,
                                        Function<T, U> makeEntry,
                                         Function<String, U> makeLabelEntry,
-                                       Function<ReadOnlyDoubleProperty, List<TreeTableColumn<U, String>>> makeColumns) {
+                                       Function<ReadOnlyDoubleProperty, List<TreeTableColumn<U, ?>>> makeColumns) {
         super();
         this.items = items;
         this.getCategory = getCategory;

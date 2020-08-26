@@ -4,6 +4,7 @@ import model.abc.PClass;
 import model.abilities.Ability;
 import model.data_managers.sources.SourcesLoader;
 import model.enums.Type;
+import model.util.ObjectNotFoundException;
 
 public class DynamicFilledSlot extends AbilitySlot {
     private final Type type;
@@ -28,7 +29,12 @@ public class DynamicFilledSlot extends AbilitySlot {
         switch(type){
             case General:
             case Skill:
-                return SourcesLoader.instance().feats().find(contents);
+                try {
+                    return SourcesLoader.ALL_SOURCES.feats().find(contents);
+                } catch (ObjectNotFoundException e) {
+                    e.printStackTrace();
+                    return null;
+                }
             case Class:
                 if(hasClass){
                     return pClass.findFeat(contents);

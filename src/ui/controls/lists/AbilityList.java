@@ -34,7 +34,7 @@ public class AbilityList extends ObservableCategoryEntryList<Ability, AbilityEnt
                 AbilityEntry::new, AbilityEntry::new, AbilityList::makeColumns);
     }
 
-    private static List<TreeTableColumn<AbilityEntry, String>> makeColumns(ReadOnlyDoubleProperty width) {
+    private static List<TreeTableColumn<AbilityEntry, ?>> makeColumns(ReadOnlyDoubleProperty width) {
         TreeTableColumn<AbilityEntry, String> name = new TreeTableColumn<>("Name");
         TreeTableColumn<AbilityEntry, String> level = new TreeTableColumn<>("Level");
         TreeTableColumn<AbilityEntry, String> type = new TreeTableColumn<>("Type");

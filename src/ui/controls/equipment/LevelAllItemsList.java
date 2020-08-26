@@ -2,12 +2,12 @@ package ui.controls.equipment;
 
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
-import model.data_managers.sources.SourcesLoader;
 import model.equipment.Equipment;
+import model.player.PC;
 import model.xml_parsers.equipment.EquipmentLoader;
 import ui.controls.lists.AbstractEntryList;
-import ui.controls.lists.factories.TreeCellFactory;
 import ui.controls.lists.entries.ItemEntry;
+import ui.controls.lists.factories.TreeCellFactory;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -16,8 +16,12 @@ import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
 public class LevelAllItemsList extends AbstractEntryList<Equipment, ItemEntry> {
-    public LevelAllItemsList(BiConsumer<Equipment, Integer> handler) {
-        super(handler);
+    private final PC character;
+
+    public LevelAllItemsList(PC character, BiConsumer<Equipment, Integer> handler) {
+        super();
+        this.character = character;
+        construct(handler);
     }
 
     @Override
@@ -39,13 +43,13 @@ public class LevelAllItemsList extends AbstractEntryList<Equipment, ItemEntry> {
     @Override
     protected void addItems(TreeItem<ItemEntry> root) {
         Map<Integer, Map<String, TreeItem<ItemEntry>>> cats = new TreeMap<>();
-        for (Equipment equipment : SourcesLoader.instance().equipment().getAll().values()) {
+        for (Equipment equipment : character.sources().equipment().getAll().values()) {
             addItem(cats, equipment);
         }
-        for (Equipment equipment : SourcesLoader.instance().armor().getAll().values()) {
+        for (Equipment equipment : character.sources().armor().getAll().values()) {
             addItem(cats, equipment);
         }
-        for (Equipment equipment : SourcesLoader.instance().weapons().getAll().values()) {
+        for (Equipment equipment : character.sources().weapons().getAll().values()) {
             addItem(cats, equipment);
         }
         for (Map.Entry<Integer, Map<String, TreeItem<ItemEntry>>> entry : cats.entrySet()) {

@@ -9,8 +9,9 @@ import java.util.*;
 
 public class SpellsMultiSourceLoader extends MultiSourceLoader<Spell> {
     private Map<Tradition, SortedMap<Integer, List<Spell>>> spellsByLevel = new HashMap<>();
-    public SpellsMultiSourceLoader(List<? extends FileLoader<Spell>> fileLoaders) {
-        super(fileLoaders);
+
+    public SpellsMultiSourceLoader() {
+        super("Spell");
     }
 
     public List<Spell> getSpells(Tradition tradition, int level) {

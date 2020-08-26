@@ -18,16 +18,21 @@ import model.enums.Alignment;
 import model.enums.Type;
 import model.spells.Spell;
 import model.spells.SpellList;
+import model.util.ObjectNotFoundException;
 import model.util.Pair;
 import setting.Deity;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static model.ability_scores.AbilityScore.*;
 
 public class PC {
+    private final SourcesManager sources;
+
     public static final int MAX_LEVEL = 20;
     private final ReadOnlyObjectWrapper<Ancestry> ancestry = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<Background> background = new ReadOnlyObjectWrapper<>();
@@ -36,11 +41,11 @@ public class PC {
     private final ReadOnlyObjectWrapper<Integer> level = new ReadOnlyObjectWrapper<>(0);
     private final PropertyChangeSupport ancestryWatcher = new PropertyChangeSupport(ancestry);
     private final Applier applier = new Applier();
-    private ReadOnlyObjectWrapper<Alignment> alignment = new ReadOnlyObjectWrapper<>();
+    private final ReadOnlyObjectWrapper<Alignment> alignment = new ReadOnlyObjectWrapper<>();
+
     private final DecisionManager decisions = new DecisionManager();
     private final SpellListManager spells = new SpellListManager(applier);
-    private final AbilityManager abilities = new AbilityManager(decisions, getAncestryProperty(),
-            getPClassProperty(), applier, this::meetsPrerequisites);
+    private final AbilityManager abilities;
     private final AbilityScoreManager scores = new AbilityScoreManager(applier, ()->{
         PClass currClass = pClass.get();
         if(currClass == null) return None;
@@ -57,17 +62,21 @@ public class PC {
     private final QualityManager qualities = new QualityManager(decisions::add, decisions::remove);
     private final CombatManager combat = new CombatManager(scores, attributes, inventory, levelProperty());
     private final GroovyModManager modManager;
+    private final List<PlayerState> stateManagers = new ArrayList<>(Arrays.asList(
+            decisions, spells, scores, attributes, inventory, qualities, combat
+    ));
 
-    {
-        GroovyCommands groovyCommands = new GroovyCommands(customGetter, abilities, attributes, decisions, combat,
-                spells, deity.getReadOnlyProperty(), level.getReadOnlyProperty());
+    public PC(SourcesManager sources) {
+        this.sources = sources;
+        abilities = new AbilityManager(sources, decisions, getAncestryProperty(),
+                getPClassProperty(), applier, this::meetsPrerequisites);
+        stateManagers.add(abilities);
+        GroovyCommands groovyCommands = new GroovyCommands(
+                customGetter, sources, abilities, attributes, decisions, combat,
+                spells, deity.getReadOnlyProperty(), level.getReadOnlyProperty()
+        );
         modManager = new GroovyModManager(groovyCommands, applier, level.getReadOnlyProperty());
-    }
-    private final PlayerState[] stateManagers = new PlayerState[]{
-                decisions, spells, abilities, scores, attributes, inventory, qualities, combat, modManager
-        };
-
-    public PC() {
+        stateManagers.add(modManager);
         scores.getScoreEyeball(Int).addPropertyChangeListener(((o) -> {
             attributes.updateSkillCount(getPClass().getSkillIncrease() + scores.getMod(Int));
             qualities.updateInt(scores.getMod(Int));
@@ -273,7 +282,16 @@ outerLoop:  for (String orClause : split) {
         return (pClass.get() != null) ? pClass.get() : PClass.NO_CLASS;
     }
     public Deity getDeity() {
-        return (deity.get() != null) ? deity.get() : Deity.NO_DEITY;
+        try {
+            return (deity.get() != null) ? deity.get() : sources.deities().find("no deity");
+        } catch (ObjectNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public SourcesManager sources() {
+        return sources;
     }
 
     public InventoryManager inventory() {return inventory;}
@@ -331,7 +349,7 @@ outerLoop:  for (String orClause : split) {
         setAncestry(Ancestry.NO_ANCESTRY);
         setBackground(Background.NO_BACKGROUND);
         setPClass(PClass.NO_CLASS);
-        deity.set(Deity.NO_DEITY);
+        deity.set(null);
         ResetEvent resetEvent = new ResetEvent();
         for (PlayerState stateManager : stateManagers) {
             stateManager.reset(resetEvent);
@@ -346,5 +364,13 @@ outerLoop:  for (String orClause : split) {
         public boolean isActive() {
             return active;
         }
+    }
+
+    @Override
+    public String toString() {
+        String name = qualities.get("name");
+        if(name == null || name.isBlank())
+            name = "Unnamed PC";
+        return name;
     }
 }

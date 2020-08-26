@@ -9,15 +9,6 @@ import model.spells.Spell;
 import java.util.*;
 
 public class Deity extends NamedObject {
-    public static final Deity NO_DEITY;
-
-    static {
-        Builder builder = new Builder();
-        builder.setName("No Deity");
-        builder.setTitle("No Title");
-        builder.setDescription("You don't follow any deity in particular.");
-        NO_DEITY = builder.build();
-    }
     private final String title, edicts, anathema, areasOfConcern;
     private final Alignment deityAlignment;
     private final List<Alignment> followerAlignments;

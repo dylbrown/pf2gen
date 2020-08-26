@@ -6,19 +6,20 @@ import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
 import model.attributes.Attribute;
 import model.player.AttributeManager;
+import model.player.PC;
 import ui.ftl.entries.AttributeEntry;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import static ui.Main.character;
-
 public class AttributesWrapper implements TemplateHashModel {
     private final AttributeManager attributes;
     private final PF2GenObjectWrapper wrapper;
+    private final PC character;
 
-    public AttributesWrapper(AttributeManager attributes, PF2GenObjectWrapper wrapper) {
+    public AttributesWrapper(AttributeManager attributes, PF2GenObjectWrapper wrapper, PC character) {
+        this.character = character;
         this.attributes = attributes;
         this.wrapper = wrapper;
     }
@@ -31,7 +32,7 @@ public class AttributesWrapper implements TemplateHashModel {
         if(s.equals("get"))
             return wrapper.wrap((TemplateMethodModelEx) (List arguments) -> {
                 Attribute attr = Attribute.robustValueOf(arguments.get(0).toString());
-                return new AttributeEntry(attr,
+                return new AttributeEntry(character, attr,
                         arguments.get(1).toString(),
                         attributes.getProficiency(attr,
                                 (arguments.get(1) == null) ? null : arguments.get(1).toString()),
@@ -52,7 +53,7 @@ public class AttributesWrapper implements TemplateHashModel {
         }
         Attribute attribute = Attribute.robustValueOf(s);
         if(attribute != null)
-            return new AttributeEntry(attribute,
+            return new AttributeEntry(character, attribute,
                     "",
                     attributes.getProficiency(attribute),
                     character.levelProperty(),

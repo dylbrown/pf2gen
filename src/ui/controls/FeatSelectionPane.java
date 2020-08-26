@@ -7,26 +7,28 @@ import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.web.WebView;
+import model.CharacterManager;
 import model.abilities.Ability;
 import model.ability_slots.FeatSlot;
 import model.ability_slots.SingleChoice;
 import model.enums.Type;
 import model.player.AbilityManager;
+import model.player.PC;
 import ui.controls.lists.AbilityList;
 import ui.html.AbilityHTMLGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static ui.Main.character;
-
 public class FeatSelectionPane extends SelectionPane<Ability> {
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private final List<Ability> unmetPrereqs = new ArrayList<>();
     private final ObservableList<Ability> allItems = FXCollections.observableArrayList();
     private final AbilityList itemsList, allItemsList;
+    private final PC character;
 
     public FeatSelectionPane(SingleChoice<Ability> slot, WebView display, ToggleGroup filterChoices) {
+        character = CharacterManager.getActive();
         this.display = display;
         AbilityManager abilities = character.abilities();
         init(slot);

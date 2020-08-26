@@ -7,13 +7,13 @@ import model.xml_parsers.equipment.WeaponsLoader;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class WeaponsMultiSourceLoader extends MultiSourceLoader<Weapon> {
     private Map<String, WeaponGroup> weaponGroups;
-    public WeaponsMultiSourceLoader(List<? extends FileLoader<Weapon>> fileLoaders) {
-        super(fileLoaders);
+
+    public WeaponsMultiSourceLoader() {
+        super("Weapon");
     }
 
     public Map<String, WeaponGroup> getWeaponGroups() {

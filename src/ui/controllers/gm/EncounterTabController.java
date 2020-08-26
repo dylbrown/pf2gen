@@ -117,10 +117,10 @@ public class EncounterTabController {
 
         ObservableCategoryEntryList<Creature, CreatureEntry> allCreatures = new ObservableCategoryEntryList<>(
                 FXCollections.observableList(new ArrayList<>(
-                        SourcesLoader.instance().creatures().getAll().values())
+                        SourcesLoader.ALL_SOURCES.creatures().getAll().values())
                 ),
                 (creature, count) -> {
-                    if(count % 2 == 0) {
+                    if (count % 2 == 0) {
                         addToEncounter(creature);
                     }
                 },
@@ -279,7 +279,7 @@ public class EncounterTabController {
         xAxis.layout();
     }
 
-    private List<TreeTableColumn<CreatureEntry, String>> makeColumns(ReadOnlyDoubleProperty width) {
+    private List<TreeTableColumn<CreatureEntry, ?>> makeColumns(ReadOnlyDoubleProperty width) {
         TreeTableColumn<CreatureEntry, String> name = new TreeTableColumn<>("Name");
         TreeTableColumn<CreatureEntry, String> level = new TreeTableColumn<>("Level");
         name.setCellValueFactory(new TreeCellFactory<>("name"));
@@ -294,7 +294,7 @@ public class EncounterTabController {
         return Arrays.asList(name, level);
     }
 
-    private List<TreeTableColumn<CreatureCountEntry, String>> makeCountColumns(ReadOnlyDoubleProperty width) {
+    private List<TreeTableColumn<CreatureCountEntry, ?>> makeCountColumns(ReadOnlyDoubleProperty width) {
         TreeTableColumn<CreatureCountEntry, String> name = new TreeTableColumn<>("Name");
         TreeTableColumn<CreatureCountEntry, String> level = new TreeTableColumn<>("Level");
         TreeTableColumn<CreatureCountEntry, String> count = new TreeTableColumn<>("Count");

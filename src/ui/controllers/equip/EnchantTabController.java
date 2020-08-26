@@ -10,13 +10,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
-import model.data_managers.sources.SourcesLoader;
+import model.CharacterManager;
 import model.equipment.Equipment;
 import model.equipment.ItemCount;
 import model.equipment.runes.Rune;
 import model.equipment.runes.runedItems.*;
+import model.player.PC;
 import model.util.Pair;
-import ui.Main;
 import ui.controls.equipment.ItemsList;
 import ui.controls.lists.entries.ItemEntry;
 import ui.html.EquipmentHTMLGenerator;
@@ -39,10 +39,12 @@ public class EnchantTabController {
     private ObservableList<Equipment> runesList = FXCollections.observableArrayList();
     private Equipment selectedItem = null;
     private Equipment selectedRune = null;
+    private PC character;
 
     @FXML
     private void initialize() {
-        for (Map.Entry<Equipment, ItemCount> entry : Main.character.inventory().getItems().entrySet()) {
+        character = CharacterManager.getActive();
+        for (Map.Entry<Equipment, ItemCount> entry : character.inventory().getItems().entrySet()) {
             int count = entry.getValue().getCount();
             addItem(entry.getKey(), count);
         }
@@ -50,7 +52,7 @@ public class EnchantTabController {
         removeButton.setOnAction(this::removeRune);
         upgradeButton.setOnAction(this::upgradeRune);
 
-        Main.character.inventory().addBuySellWatcher((o, oldVal, newVal) -> {
+        character.inventory().addBuySellWatcher((o, oldVal, newVal) -> {
             int countChange = newVal.getCount() - oldVal.getCount();
             if(countChange < 0) {
                 for(int i = 0; i > countChange; i--) {
@@ -85,7 +87,7 @@ public class EnchantTabController {
             notifyFail("add rune.", "Selected Rune not a rune.");
             return;
         }
-        Pair<Boolean, Equipment> item = Main.character.inventory().tryToAddRune(selectedItem, (Rune) selectedRune);
+        Pair<Boolean, Equipment> item = character.inventory().tryToAddRune(selectedItem, (Rune) selectedRune);
         if(!item.first)
             notifyFail("add rune.", "Could not add rune.");
         select(item.second, itemsIL.getRoot());
@@ -97,7 +99,7 @@ public class EnchantTabController {
             notifyFail("remove rune.", "Selected Rune not a rune.");
             return;
         }
-        Pair<Boolean, Equipment> item = Main.character.inventory().tryToRemoveRune(selectedItem, (Rune) selectedRune);
+        Pair<Boolean, Equipment> item = character.inventory().tryToRemoveRune(selectedItem, (Rune) selectedRune);
         if(!item.first)
             notifyFail("remove rune.", "Could not remove rune.");
         select(item.second, itemsIL.getRoot());
@@ -114,7 +116,7 @@ public class EnchantTabController {
             notifyFail("remove rune.", "No rune to upgrade to.");
             return;
         }
-        boolean result = Main.character.inventory().tryToUpgradeRune(selectedItem, (Rune) selectedRune, upgradedRune);
+        boolean result = character.inventory().tryToUpgradeRune(selectedItem, (Rune) selectedRune, upgradedRune);
         if(!result) return;
         refreshLabels();
     }
@@ -185,7 +187,7 @@ public class EnchantTabController {
             default: return null;
         }
         String target = rune.getBaseRune()+" ?\\("+newTier+"\\) ?";
-        for (Equipment newRune : SourcesLoader.instance().equipment().getCategory("Runes").values()) {
+        for (Equipment newRune : character.sources().equipment().getCategory("Runes").values()) {
             if(newRune.getName().matches(target)) {
                 if(!(newRune instanceof Rune)) continue;
                 return (Rune) newRune;

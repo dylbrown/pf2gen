@@ -11,14 +11,8 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-import model.player.PC;
 
 public class Main extends Application {
-    public static final PC character;
-
-    static{
-        character = new PC();
-    }
 
     private static final Property<Scene> scene = new SimpleObjectProperty<>();
 

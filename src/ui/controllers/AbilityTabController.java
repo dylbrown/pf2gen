@@ -4,9 +4,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
+import model.CharacterManager;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
-import ui.Main;
+import model.player.PC;
 import ui.controls.AbilityEntry;
 
 import java.util.ArrayList;
@@ -20,18 +21,20 @@ public class AbilityTabController {
 
     private final List<AbilityModChoice> choices = new ArrayList<>();
     private final Map<AbilityModChoice, AbilityEntry> tracker = new HashMap<>();
+    private PC character;
 
     @FXML
     private void initialize() {
+        character = CharacterManager.getActive();
         updateTable();
-        Main.character.scores().addAbilityListener((observable)->updateTable());
+        character.scores().addAbilityListener((observable)->updateTable());
         abilitiesList.prefWrapLengthProperty().bind(abilitiesList.widthProperty());
     }
 
     private void updateTable() {
         List<AbilityModChoice> removals = new ArrayList<>();
         for (AbilityModChoice abilityModChoice : tracker.keySet()) {
-            if(!Main.character.scores().getAbilityScoreChoices().contains(abilityModChoice)) {
+            if(!character.scores().getAbilityScoreChoices().contains(abilityModChoice)) {
                 removals.add(abilityModChoice);
             }
         }
@@ -39,7 +42,7 @@ public class AbilityTabController {
             abilitiesList.getChildren().remove(tracker.remove(removal));
             choices.remove(removal);
         }
-        for (AbilityModChoice choice : Main.character.scores().getAbilityScoreChoices()) {
+        for (AbilityModChoice choice : character.scores().getAbilityScoreChoices()) {
             boolean contains = false;
             for (AbilityModChoice abilityModChoice : choices) {
                 if (abilityModChoice == choice) {
@@ -52,7 +55,7 @@ public class AbilityTabController {
                 Label label = new Label("Type: "+choice.getType().name());
                 ComboBox<AbilityScore> dropdown = new ComboBox<>();
                 dropdown.getItems().addAll(choice.getChoices());
-                dropdown.setOnAction((event -> Main.character.scores().choose(choice, dropdown.getValue())));
+                dropdown.setOnAction((event -> character.scores().choose(choice, dropdown.getValue())));
                 AbilityEntry entry = new AbilityEntry(label, dropdown);
                 abilitiesList.getChildren().add(entry);
                 tracker.put(choice, entry);

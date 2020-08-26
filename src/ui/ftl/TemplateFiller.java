@@ -12,6 +12,7 @@ import model.equipment.armor.Armor;
 import model.equipment.armor.Shield;
 import model.equipment.weapons.RangedWeapon;
 import model.equipment.weapons.Weapon;
+import model.player.PC;
 import model.spells.CasterType;
 import ui.ftl.wrap.CharacterWrapper;
 import ui.ftl.wrap.PF2GenObjectWrapper;
@@ -23,27 +24,19 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-
-import static ui.Main.character;
 public class TemplateFiller {
-    private static final Configuration cfg;
-    private static final TemplateFiller instance;
+    private final Configuration cfg;
     private final CharacterWrapper wrapper;
 
-    public static ObjectWrapper getWrapper(){
+    public ObjectWrapper getWrapper(){
         return cfg.getObjectWrapper();
     }
-
-    public static TemplateFiller getInstance() {
-        return instance;
-    }
-
-
-    static{
-        cfg = new Configuration(Configuration.VERSION_2_3_28);
-        if(new File("/data").isDirectory()) {
+    private final Map<String, Object> root;
+    public TemplateFiller(PC character) {
+        cfg = new Configuration(Configuration.VERSION_2_3_29);
+        if(new File("/sheets").isDirectory()) {
             try {
-                cfg.setTemplateLoader(new FileTemplateLoader(new File("/data")));
+                cfg.setTemplateLoader(new FileTemplateLoader(new File("/sheets")));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -60,7 +53,7 @@ public class TemplateFiller {
                 }
             });
         }
-        File file = new File("data/");
+        File file = new File("sheets/");
         if(file.exists()) {
             try {
                 cfg.setDirectoryForTemplateLoading(file);
@@ -72,7 +65,7 @@ public class TemplateFiller {
                 @Override
                 protected URL getURL(String s) {
                     try {
-                        return new URL("https://dylbrown.github.io/pf2gen_data/data/"+s);
+                        return new URL("https://dylbrown.github.io/pf2gen_data/sheets/"+s);
                     } catch (MalformedURLException e) {
                         e.printStackTrace();
                     }
@@ -93,14 +86,11 @@ public class TemplateFiller {
 
 
 
-        cfg.setObjectWrapper(new PF2GenObjectWrapper(Configuration.VERSION_2_3_29));
+        cfg.setObjectWrapper(new PF2GenObjectWrapper(Configuration.VERSION_2_3_29, character));
         Map<String, TemplateNumberFormatFactory> customNumberFormats = new HashMap<>();
         customNumberFormats.put("s", SignedTemplateNumberFormatFactory.INSTANCE);
         cfg.setCustomNumberFormats(customNumberFormats);
-        instance = new TemplateFiller();
-    }
-    private Map<String, Object> root;
-    private TemplateFiller() {
+
         root = new HashMap<>();
         wrapper = new CharacterWrapper(character, cfg.getObjectWrapper());
         root.put("character", wrapper);
@@ -119,8 +109,8 @@ public class TemplateFiller {
         }
     }
 
-    public static String getStatBlock() {
-        return instance.getSheet("sheets/statblock.ftl");
+    public String getStatBlock() {
+        return getSheet("statblock.ftl");
     }
 
     public String getSheet(String templatePath) {

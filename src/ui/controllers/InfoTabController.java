@@ -5,9 +5,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import model.CharacterManager;
 import model.enums.Alignment;
-
-import static ui.Main.character;
+import model.player.PC;
 
 public class InfoTabController {
 	@FXML
@@ -18,9 +18,11 @@ public class InfoTabController {
 	private Label level;
 	@FXML
 	private Button levelUp, levelDown;
+	private PC character;
 
 	@FXML
 	void initialize() {
+		character = CharacterManager.getActive();
 		alignment.getItems().addAll(Alignment.values());
 		alignment.getSelectionModel().selectedItemProperty()
 				.addListener((o, oldValue, newValue)-> character.setAlignment(newValue));

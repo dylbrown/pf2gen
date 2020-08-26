@@ -1,11 +1,15 @@
-package ui.controls;
+package ui.controllers;
 
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
+import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
+import model.CharacterManager;
 import model.attributes.Attribute;
 import model.enums.Proficiency;
+import model.player.PC;
+import ui.controls.ProfSelector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,9 +17,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import static model.attributes.Attribute.*;
-import static ui.Main.character;
 
-public class SkillTab extends AnchorPane {
+public class SkillTabController {
     private final List<Label> labels = new ArrayList<>(Arrays.asList(new Label[18]));
     private final List<ProfSelector> profSelectors = new ArrayList<>(Arrays.asList(new ProfSelector[18]));
     private final List<Label> totals = new ArrayList<>(Arrays.asList(new Label[18]));
@@ -24,11 +27,16 @@ public class SkillTab extends AnchorPane {
     private final Attribute[] skills = {Acrobatics, Arcana, Athletics, Crafting, Deception, Diplomacy, Intimidation, Lore, Lore, Medicine, Nature, Occultism, Performance, Religion, Society, Stealth, Survival, Thievery};
     String lore1, lore2;
     private final Label remainingIncreases = new Label("T:0, E:0, M:0, L:0");
+    @FXML
+    private AnchorPane root;
+    private PC character;
 
-    public SkillTab() {
+    @FXML
+    private void initialize() {
+        character = CharacterManager.getActive();
         BorderPane border = new BorderPane();
         GridPane grid = new GridPane();
-        this.getChildren().add(border);
+        root.getChildren().add(border);
         border.setCenter(grid);
         border.setBottom(remainingIncreases);
 
@@ -68,8 +76,8 @@ public class SkillTab extends AnchorPane {
 
             labels.set(i, new Label(leftName));
             labels.set(i+9, new Label(rightName));
-            profSelectors.set(i, new ProfSelector(leftSkill, leftData));
-            profSelectors.set(i+9, new ProfSelector(rightSkill, rightData));
+            profSelectors.set(i, new ProfSelector(leftSkill, leftData, character));
+            profSelectors.set(i+9, new ProfSelector(rightSkill, rightData, character));
             totals.set(i, new Label());
             totals.get(i).setStyle("-fx-border-color:black;");
             totals.set(i+9, new Label());

@@ -1,5 +1,7 @@
 package model.data_managers.sources;
 
+import model.util.StringUtils;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,7 +30,7 @@ public class SourceLoadTracker {
             case SingleFileSingleItem:
                 return !allLoaded;
             case MultiFileSingleItem:
-                return !isLoaded.contains(name);
+                return !isLoaded.contains(StringUtils.clean(name));
             case MultiItemMultiFile:
                 return isNotAllLoaded();
         }

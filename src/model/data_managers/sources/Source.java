@@ -7,12 +7,15 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public final class Source {
-    private final String name, shortName;
+    private final String name, shortName, description, category, subCategory;
     private final Map<Class<? extends FileLoader<?>>, FileLoader<?>> loaders;
 
     private Source(Source.Builder builder) {
         name = builder.name;
         shortName = builder.shortName;
+        description = builder.description;
+        category = builder.category;
+        subCategory = builder.subCategory;
         loaders = builder.loaders;
         if(loaders.get(ChoicesLoader.class) == null)
             loaders.put(ChoicesLoader.class, new ChoicesLoader(null, null, null));
@@ -25,13 +28,25 @@ public final class Source {
         return name;
     }
 
+    public String getShortName() {
+        return shortName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public String getSubCategory() {
+        return subCategory;
+    }
+
     @Override
     public String toString() {
         return getName();
-    }
-
-    public String getShortName() {
-        return shortName;
     }
 
     public <T, U extends FileLoader<T>> U getLoader(Class<U> loaderClass) {
@@ -42,7 +57,7 @@ public final class Source {
     }
 
     public static class Builder {
-        private String name, shortName;
+        private String name, shortName, description, category, subCategory;
         private ChoicesLoader choices;
         private final Map<Class<? extends FileLoader<?>>, FileLoader<?>> loaders = new HashMap<>();
         private final List<Consumer<Source>> buildListeners = new ArrayList<>();
@@ -53,6 +68,18 @@ public final class Source {
 
         public void setShortName(String shortName) {
             this.shortName = shortName;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public void setCategory(String category) {
+            this.category = category;
+        }
+
+        public void setSubCategory(String subCategory) {
+            this.subCategory = subCategory;
         }
 
         public <T, U extends FileLoader<T>> void addLoader(Class<U> loaderClass, U loader) {

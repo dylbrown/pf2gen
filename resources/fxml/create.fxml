@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TreeTableColumn?>
+<?import javafx.scene.control.TreeTableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.web.WebView?>
+
+<AnchorPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <SplitPane dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+         <BorderPane fx:id="sources" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <center>
+                  <TreeTableView prefHeight="200.0" prefWidth="200.0">
+                      <columns>
+                          <TreeTableColumn editable="false" maxWidth="1.7976931348623157E308" prefWidth="186.00007033348083" sortable="false" text="Source" />
+                          <TreeTableColumn editable="false" maxWidth="1.7976931348623157E308" prefWidth="33.199951171875" sortable="false" text="ID" />
+                          <TreeTableColumn editable="false" maxWidth="1.7976931348623157E308" prefWidth="75.59996032714844" sortable="false" text="Enabled?" />
+                      </columns>
+                      <columnResizePolicy>
+                          <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                      </columnResizePolicy>
+                  </TreeTableView>
+            </center>
+            <top>
+               <BorderPane BorderPane.alignment="CENTER">
+                  <left>
+                     <Label text="Select Sources" BorderPane.alignment="CENTER">
+                        <font>
+                           <Font name="System Bold" size="12.0" />
+                        </font>
+                        <padding>
+                           <Insets left="5.0" />
+                        </padding>
+                     </Label>
+                  </left>
+                  <right>
+                     <Button fx:id="done" mnemonicParsing="false" text="Done" BorderPane.alignment="CENTER" />
+                  </right>
+               </BorderPane>
+            </top>
+         </BorderPane>
+        </AnchorPane>
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+            <WebView fx:id="display" layoutX="82.0" layoutY="75.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+        </AnchorPane>
+    </SplitPane>
+</AnchorPane>

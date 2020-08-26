@@ -12,6 +12,7 @@ import model.enums.Trait;
 import model.enums.Type;
 import model.equipment.CustomTrait;
 import model.equipment.Equipment;
+import model.util.ObjectNotFoundException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -44,7 +45,11 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                     builder.setName(contents);
                     break;
                 case "Family":
-                    builder.setFamily(SourcesLoader.instance().creatureFamilies().find(contents));
+                    try {
+                        builder.setFamily(SourcesLoader.ALL_SOURCES.creatureFamilies().find(contents));
+                    } catch (ObjectNotFoundException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case "Traits":
                     builder.setTraits(
@@ -113,7 +118,12 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                 case "Items":
                     Arrays.stream(contents.split(", "))
                             .forEach(s->{
-                                Equipment equipment = SourcesLoader.instance().equipment().find(s);
+                                Equipment equipment = null;
+                                try {
+                                    equipment = SourcesLoader.ALL_SOURCES.equipment().find(s);
+                                } catch (ObjectNotFoundException e) {
+                                    e.printStackTrace();
+                                }
                                 if(equipment != null)
                                     builder.addItem(new CreatureItem(equipment));
                                 else
@@ -246,12 +256,20 @@ public class CreatureLoader extends AbilityLoader<Creature> {
             for (String s : elem.getTextContent().split(", ")) {
                 int bracket = s.indexOf('(');
                 if(bracket == -1) {
-                    list.addSpell(SourcesLoader.instance().spells().find(s), levelNumber);
+                    try {
+                        list.addSpell(SourcesLoader.ALL_SOURCES.spells().find(s), levelNumber);
+                    } catch (ObjectNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 } else {
                     int endBracket = s.indexOf(')');
-                    list.addSpell(SourcesLoader.instance().spells().find(s.substring(0, bracket - 1)),
-                            levelNumber,
-                            s.substring(bracket + 1, endBracket));
+                    try {
+                        list.addSpell(SourcesLoader.ALL_SOURCES.spells().find(s.substring(0, bracket - 1)),
+                                levelNumber,
+                                s.substring(bracket + 1, endBracket));
+                    } catch (ObjectNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -277,27 +295,34 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                     builder.setTraits(Arrays.stream(content.split(",")).map((item)->{
                         String[] s = item.trim().split(" ", 2);
                         if(s.length == 1) {
-                            Trait trait = SourcesLoader.instance().traits().find(s[0]);
-                            if(trait == null) {
-                                System.out.println(item.trim());
+                            Trait trait = null;
+                            try {
+                                trait = SourcesLoader.ALL_SOURCES.traits().find(s[0]);
+                            } catch (ObjectNotFoundException e) {
+                                e.printStackTrace();
                             }
                             return trait;
                         }  else {
                             String custom = s[1];
-                            Trait trait = SourcesLoader.instance().traits()
-                                    .find(s[0]);
-                            if(trait == null) {
+                            Trait trait = null;
+                            try {
+                                trait = SourcesLoader.ALL_SOURCES.traits()
+                                        .find(s[0]);
+                            } catch (ObjectNotFoundException e) {
                                 int space = item.trim().indexOf(' ');
                                 space = item.trim().indexOf(' ', space + 1);
                                 if(space == -1) {
-                                    space = item.trim().length();
                                     custom = "";
-                                }else custom = item.trim().substring(space+1);
-                                trait = SourcesLoader.instance().traits()
-                                        .find(item.trim().substring(0, space));
-                            }
-                            if(trait == null) {
-                                System.out.println(item.trim());
+                                    e.printStackTrace();
+                                }else {
+                                    custom = item.trim().substring(space+1);
+                                    try {
+                                        trait = SourcesLoader.ALL_SOURCES.traits()
+                                                .find(item.trim().substring(0, space));
+                                    } catch (ObjectNotFoundException e2) {
+                                        e2.printStackTrace();
+                                    }
+                                }
                             }
                             if(custom.length() == 0)
                                 return trait;
