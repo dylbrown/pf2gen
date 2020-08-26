@@ -23,7 +23,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class SourcesLoader extends FileLoader<Source> {
 
@@ -36,9 +35,12 @@ public class SourcesLoader extends FileLoader<Source> {
 
     static {
         Map<String, String> locations = new HashMap<>();
-        for (File file : Objects.requireNonNull(new File("data").listFiles())) {
-            if(file.isDirectory() && !file.getName().startsWith(".")) {
-                locations.put(StringUtils.clean(file.getName()), file.getName()+"/index.pfdyl");
+        File[] data = new File("data").listFiles();
+        if(data != null) {
+            for (File file : data) {
+                if (file.isDirectory() && !file.getName().startsWith(".")) {
+                    locations.put(StringUtils.clean(file.getName()), file.getName() + "/index.pfdyl");
+                }
             }
         }
         try {
