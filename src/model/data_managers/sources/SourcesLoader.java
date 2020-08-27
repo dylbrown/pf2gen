@@ -73,6 +73,16 @@ public class SourcesLoader extends FileLoader<Source> {
             case "description":
                 builder.setDescription(curr.getTextContent().trim());
                 break;
+            case "dependencies":
+                NodeList childNodes = curr.getChildNodes();
+                for(int j = 0; j < childNodes.getLength(); j++) {
+                    Node item = childNodes.item(j);
+                    if(item.getNodeType() != Node.ELEMENT_NODE)
+                        continue;
+
+                    builder.addDependency(item.getTextContent().trim());
+                }
+                break;
             case "category":
                 builder.setCategory(curr.getTextContent().trim());
                 break;
@@ -111,7 +121,7 @@ public class SourcesLoader extends FileLoader<Source> {
                         new ChoicesLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
             case "setting":
-                NodeList childNodes = curr.getChildNodes();
+                childNodes = curr.getChildNodes();
                 for(int j = 0; j < childNodes.getLength(); j++) {
                     Node item = childNodes.item(j);
                     if(item.getNodeType() != Node.ELEMENT_NODE)

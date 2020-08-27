@@ -4,16 +4,13 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
+import ui.controls.lists.ThreeState;
 import ui.controls.lists.entries.SourceEntry;
 
-public class ThreeStateCell extends TreeTableCell<SourceEntry, Boolean> {
+public class ThreeStateCell extends TreeTableCell<SourceEntry, ThreeState> {
     private CheckBox checkBox = new CheckBox();
 
-    public ThreeStateCell(TreeTableColumn<SourceEntry, Boolean> list) {
-        tableRowProperty().addListener((o, oldVal, newVal)->{
-            if(newVal.getItem() != null)
-                checkBox.indeterminateProperty().bindBidirectional(newVal.getItem().indeterminateProperty());
-        });
+    public ThreeStateCell(TreeTableColumn<SourceEntry, ThreeState> list) {
         checkBox.selectedProperty().addListener((obs,wasSelected,isNowSelected) -> {
             int sel=getTreeTableRow().getIndex();
             TreeItem<SourceEntry> item = list.getTreeTableView().getSelectionModel().getModelItem(sel);
@@ -23,8 +20,11 @@ public class ThreeStateCell extends TreeTableCell<SourceEntry, Boolean> {
 
     private void update(TreeItem<SourceEntry> item, Boolean value) {
         SourceEntry selectedItem = item.getValue();
-        selectedItem.enabledProperty().set(value);
-        selectedItem.indeterminateProperty().set(false);
+        if(value)
+            selectedItem.enabledProperty().set(ThreeState.True);
+        else
+            selectedItem.enabledProperty().set(ThreeState.False);
+        checkBox.setIndeterminate(false);
         for (TreeItem<SourceEntry> child : item.getChildren()) {
             update(child, value);
         }
@@ -36,26 +36,27 @@ public class ThreeStateCell extends TreeTableCell<SourceEntry, Boolean> {
             return;
         boolean indeterminate = false;
         for (TreeItem<SourceEntry> child : parent.getChildren()) {
-            if(child.getValue().isEnabled() != value) {
+            if(child.getValue().getEnabled().asBoolean() != value) {
                 indeterminate = true;
                 break;
             }
         }
-        parent.getValue().indeterminateProperty().set(indeterminate);
-        if(!indeterminate)
-            parent.getValue().enabledProperty().set(value);
+        if(indeterminate)
+            parent.getValue().enabledProperty().set(ThreeState.Indeterminate);
+        else
+            parent.getValue().enabledProperty().set(ThreeState.valueOf(value));
     }
 
     @Override
-    protected void updateItem(Boolean b, boolean empty) {
-        super.updateItem(b, empty);
+    protected void updateItem(ThreeState s, boolean empty) {
+        super.updateItem(s, empty);
         if(empty){
             setGraphic(null);
         }else{
-            if(b != null) {
-                checkBox.setSelected(b);
+            if(s.asBoolean() != null) {
+                checkBox.setSelected(s.asBoolean());
             }
-            checkBox.setIndeterminate(b == null);
+            checkBox.setIndeterminate(s.asBoolean() == null);
             setGraphic(checkBox);
         }
     }

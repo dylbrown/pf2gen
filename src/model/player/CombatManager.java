@@ -3,7 +3,6 @@ package model.player;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import model.attributes.Attribute;
 import model.enums.Slot;
-import model.enums.Trait;
 import model.equipment.Equipment;
 import model.equipment.armor.Armor;
 import model.equipment.armor.Shield;
@@ -78,7 +77,7 @@ public class CombatManager implements PlayerState {
     public int getAttackMod(Weapon weapon) {
         int mod = attributes.getProficiency(weapon.getProficiency(), weapon).getMod(level.get());
 
-        if(weapon.getWeaponTraits().contains(Trait.valueOf("Finesse")))
+        if(weapon.getWeaponTraits().stream().anyMatch(t->t.getName().equals("Finesse")))
             return mod + weapon.getAttackBonus() + Math.max(scores.getMod(Str), scores.getMod(Dex));
         else if(weapon instanceof RangedWeapon)
             return mod + weapon.getAttackBonus() + scores.getMod(Dex);
@@ -108,7 +107,7 @@ public class CombatManager implements PlayerState {
     }
 
     private int getDamageMod(Weapon weapon) {
-        if(weapon.getWeaponTraits().contains(Trait.valueOf("Thrown")))
+        if(weapon.getWeaponTraits().stream().anyMatch(t->t.getName().equals("Thrown")))
             return scores.getMod(Str);
         else if(weapon instanceof RangedWeapon)
             return 0;

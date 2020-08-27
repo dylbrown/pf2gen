@@ -1,6 +1,7 @@
 package model.xml_parsers.abc;
 
 import model.abc.Background;
+import model.abilities.Ability;
 import model.attributes.Attribute;
 import model.attributes.AttributeMod;
 import model.attributes.AttributeModSingleChoice;
@@ -8,7 +9,9 @@ import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.Proficiency;
 import model.enums.Type;
+import model.util.ObjectNotFoundException;
 import model.util.Pair;
+import model.xml_parsers.FeatsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -34,6 +37,16 @@ public class BackgroundsLoader extends ABCLoader<Background, Background.Builder>
         switch (curr.getTagName()) {
             case "Feat":
                 builder.setFeat(trim);
+                builder.setAbilityFunction(
+                        name->{
+                            Ability a = null;
+                            try {
+                                a = findFromDependencies("Ability", FeatsLoader.class, name);
+                            } catch (ObjectNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                            return a;
+                        });
                 break;
             case "Skill":
                 AttributeMod[] mods = {null, null};

@@ -10,7 +10,6 @@ import model.ability_slots.*;
 import model.attributes.*;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
-import model.data_managers.sources.SourcesLoader;
 import model.enums.*;
 import model.spells.CasterType;
 import model.spells.SpellType;
@@ -75,7 +74,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
     }
 
     protected Ability.Builder makeAbility(Element element, String name, int level) {
-        Ability.Builder builder;
+        Ability.Builder builder = null;
         // Load a template
         Node firstChild = element.getFirstChild();
         if(firstChild != null)
@@ -85,14 +84,16 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         if(firstChild != null) {
             if(((Element) firstChild).getTagName().equals("Template")) {
                 try {
-                    builder = SourcesLoader.ALL_SOURCES.templates().find(firstChild.getTextContent().trim()).get();
+                    builder = findFromDependencies(
+                            "Template",
+                            TemplatesLoader.class,
+                            firstChild.getTextContent()).get();
                 } catch (ObjectNotFoundException e) {
                     e.printStackTrace();
-                    builder = new Ability.Builder();
                 }
             }
-            else builder = new Ability.Builder();
-        } else builder = new Ability.Builder();
+        }
+        if (builder == null) builder = new Ability.Builder();
         if(!element.getAttribute("cost").equals("")) {
             builder.getExtension(ActivityExtension.Builder.class)
                     .setCost(Action.robustValueOf(element.getAttribute("cost")));
@@ -177,7 +178,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     break;
                 case "Weapon":
                     builder.getExtension(AttackExtension.Builder.class)
-                            .addWeapon(WeaponsLoader.getWeapon(propElem));
+                            .addWeapon(WeaponsLoader.getWeapon(propElem, this));
                     break;
                 case "CustomMod":
                     builder.setCustomMod(trim);
@@ -226,8 +227,13 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     }
                     try {
                         builder.getExtension(SpellExtension.Builder.class)
-                                .addBonusSpell(spellType, SourcesLoader.ALL_SOURCES
-                                .spells().find(propElem.getAttribute("name")));
+                                .addBonusSpell(
+                                        spellType,
+                                        findFromDependencies(
+                                                "Spell",
+                                                SpellsLoader.class,
+                                                propElem.getAttribute("name")
+                                        ));
                     } catch (ObjectNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -237,11 +243,19 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     break;
                 case "Traits":
                     for (String s : trim.split(" ?, ?")) {
-                        Trait trait = Trait.valueOf(camelCaseWord(s.trim()));
-                        builder.addTraits(trait);
-                        if(trait == Trait.valueOf("Dedication"))
-                            builder.getExtension(ArchetypeExtension.Builder.class)
-                                    .setDedication(true);
+                        try {
+                            Trait trait = findFromDependencies(
+                                    "Trait",
+                                    TraitsLoader.class,
+                                    s.trim()
+                                    );
+                            builder.addTraits(trait);
+                            if(trait.getName().equals("Dedication"))
+                                builder.getExtension(ArchetypeExtension.Builder.class)
+                                        .setDedication(true);
+                        } catch (ObjectNotFoundException e) {
+                            e.printStackTrace();
+                        }
                     }
             }
         }
@@ -315,7 +329,16 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     Type dynamicType = getDynamicType(type);
                     DynamicFilledSlot contents = new DynamicFilledSlot(abilityName, slotLevel,
                             propElem.getAttribute("contents"),
-                            dynamicType, dynamicType.equals(Type.Class));
+                            dynamicType, dynamicType.equals(Type.Class),
+                            name->{
+                                Ability a = null;
+                                try {
+                                    a = findFromDependencies("Ability", FeatsLoader.class, name);
+                                } catch (ObjectNotFoundException e) {
+                                    e.printStackTrace();
+                                }
+                                return a;
+                            });
                     if(dynamicType.equals(Type.Class))
                         dynSlots.add(contents);
                     return contents;

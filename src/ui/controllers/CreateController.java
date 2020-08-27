@@ -8,6 +8,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import model.data_managers.sources.Source;
 import ui.controls.lists.SourceList;
+import ui.controls.lists.ThreeState;
 import ui.controls.lists.entries.SourceEntry;
 
 import java.util.ArrayList;
@@ -51,7 +52,8 @@ public class CreateController {
     public List<Source> getSources() {
         List<Source> sources = new ArrayList<>();
         for (TreeItem<SourceEntry> treeItem : sourceList.getRoot().getChildren()) {
-            if(treeItem.getValue().isEnabled() && treeItem.getValue().getContents() != null) {
+            if(treeItem.getValue().enabledProperty().get() == ThreeState.True
+                    && treeItem.getValue().getContents() != null) {
                 sources.add(treeItem.getValue().getContents());
             }
         }

@@ -16,14 +16,24 @@ public class ItemAbilityLoader extends AbilityLoader<Ability> {
         sources.put(ItemAbilityLoader.class, e -> Type.Item);
     }
 
+    private final Source.Builder sourceBuilder;
+    private BloodlinesLoader bloodlineLoader;
+
     public ItemAbilityLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
         super(sourceConstructor, root, sourceBuilder);
+        this.sourceBuilder = sourceBuilder;
     }
 
     @Override
     protected Ability parseItem(File file, Element item) {
         if(file.getName().toLowerCase().contains("bloodline"))
-            return BloodlinesLoader.makeBloodlineStatic(item);
+            return makeBloodline(item);
         return makeAbility(item,  item.getAttribute("name")).build();
+    }
+
+    private Ability makeBloodline(Element item) {
+        if (bloodlineLoader == null)
+            bloodlineLoader = new BloodlinesLoader(sourceBuilder);
+        return bloodlineLoader.makeBloodline(item);
     }
 }

@@ -6,17 +6,16 @@ import model.enums.Trait;
 import model.enums.WeaponProficiency;
 import model.equipment.CustomTrait;
 import model.equipment.weapons.*;
+import model.util.ObjectNotFoundException;
 import model.xml_parsers.FileLoader;
+import model.xml_parsers.TraitsLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static model.util.StringUtils.camelCase;
 
@@ -39,17 +38,17 @@ public class WeaponsLoader extends FileLoader<Weapon> {
             weaponGroups.put(name.toLowerCase(), new WeaponGroup(critEffect, name));
         });
         iterateElements(doc, "Weapon", (curr)->{
-            Weapon weapon = getWeapon(curr);
+            Weapon weapon = getWeapon(curr, this);
             addItem(weapon.getSubCategory(), weapon);
         });
     }
 
     @Override
     protected Weapon parseItem(File file, Element item) {
-        return getWeapon(item);
+        return getWeapon(item, this);
     }
 
-    public static Weapon getWeapon(Element weapon) {
+    public static Weapon getWeapon(Element weapon, FileLoader<?> loader) {
         Weapon.Builder builder = new Weapon.Builder();
         RangedWeapon.Builder rangedBuilder = null;
         Node proficiencyNode= weapon.getParentNode();
@@ -110,14 +109,31 @@ public class WeaponsLoader extends FileLoader<Weapon> {
                 case "Traits":
                     Arrays.stream(trim.split(",")).map((item)->{
                         String[] s = item.trim().split(" ", 2);
-                        if(s.length == 1)
-                            return Trait.valueOf(s[0]);
-                        else
-                            return new CustomTrait(Trait.valueOf(s[0]), s[1]);
-                    }).forEachOrdered(builder::addWeaponTrait);
+                        if(s.length == 1) {
+                            Trait trait = null;
+                            try {
+                                trait = loader.findFromDependencies("Trait",
+                                        TraitsLoader.class,
+                                        item.trim());
+                            } catch (ObjectNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                            return trait;
+                        }else {
+                            Trait trait = null;
+                            try {
+                                trait = loader.findFromDependencies("Trait",
+                                        TraitsLoader.class,
+                                        s[0]);
+                            } catch (ObjectNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                            return new CustomTrait(trait, s[1]);
+                        }
+                    }).filter(Objects::nonNull).forEachOrdered(builder::addWeaponTrait);
                     break;
                 default:
-                    EquipmentLoader.parseTag(trim, curr, builder);
+                    EquipmentLoader.parseTag(trim, curr, builder, loader);
                     break;
             }
         }

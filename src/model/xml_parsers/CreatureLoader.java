@@ -6,13 +6,15 @@ import model.attributes.Attribute;
 import model.creatures.*;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
-import model.data_managers.sources.SourcesLoader;
 import model.enums.Language;
 import model.enums.Trait;
 import model.enums.Type;
 import model.equipment.CustomTrait;
 import model.equipment.Equipment;
 import model.util.ObjectNotFoundException;
+import model.xml_parsers.equipment.ArmorLoader;
+import model.xml_parsers.equipment.EquipmentLoader;
+import model.xml_parsers.equipment.WeaponsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -46,7 +48,9 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                     break;
                 case "Family":
                     try {
-                        builder.setFamily(SourcesLoader.ALL_SOURCES.creatureFamilies().find(contents));
+                        builder.setFamily(findFromDependencies("CreatureFamily",
+                                CreatureFamilyLoader.class,
+                                contents));
                     } catch (ObjectNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -55,9 +59,14 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                     builder.setTraits(
                             Arrays.stream(contents.split(", "))
                                     .map(s->{
-                                        Trait trait = Trait.valueOf(s);
-                                        if(trait == null)
-                                            System.out.println(s);
+                                        Trait trait = null;
+                                        try {
+                                            trait = findFromDependencies("Trait",
+                                                    TraitsLoader.class,
+                                                    s);
+                                        } catch (ObjectNotFoundException e) {
+                                            e.printStackTrace();
+                                        }
                                         return trait;
                                     })
                                     .filter(Objects::nonNull)
@@ -120,9 +129,23 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                             .forEach(s->{
                                 Equipment equipment = null;
                                 try {
-                                    equipment = SourcesLoader.ALL_SOURCES.equipment().find(s);
+                                    equipment = findFromDependencies("Equipment",
+                                            EquipmentLoader.class,
+                                            s);
                                 } catch (ObjectNotFoundException e) {
-                                    e.printStackTrace();
+                                    try {
+                                        equipment = findFromDependencies("Armor",
+                                                ArmorLoader.class,
+                                                s);
+                                    } catch (ObjectNotFoundException e2) {
+                                        try {
+                                            equipment = findFromDependencies("Weapon",
+                                                    WeaponsLoader.class,
+                                                    s);
+                                        } catch (ObjectNotFoundException e3) {
+                                            e.printStackTrace();
+                                        }
+                                    }
                                 }
                                 if(equipment != null)
                                     builder.addItem(new CreatureItem(equipment));
@@ -257,14 +280,18 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                 int bracket = s.indexOf('(');
                 if(bracket == -1) {
                     try {
-                        list.addSpell(SourcesLoader.ALL_SOURCES.spells().find(s), levelNumber);
+                        list.addSpell(findFromDependencies("Spell",
+                                SpellsLoader.class,
+                                s), levelNumber);
                     } catch (ObjectNotFoundException e) {
                         e.printStackTrace();
                     }
                 } else {
                     int endBracket = s.indexOf(')');
                     try {
-                        list.addSpell(SourcesLoader.ALL_SOURCES.spells().find(s.substring(0, bracket - 1)),
+                        list.addSpell(findFromDependencies("Spell",
+                                SpellsLoader.class,
+                                s.substring(0, bracket - 1)),
                                 levelNumber,
                                 s.substring(bracket + 1, endBracket));
                     } catch (ObjectNotFoundException e) {
@@ -297,7 +324,9 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                         if(s.length == 1) {
                             Trait trait = null;
                             try {
-                                trait = SourcesLoader.ALL_SOURCES.traits().find(s[0]);
+                                trait = findFromDependencies("Trait",
+                                        TraitsLoader.class,
+                                        s[0]);
                             } catch (ObjectNotFoundException e) {
                                 e.printStackTrace();
                             }
@@ -306,8 +335,9 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                             String custom = s[1];
                             Trait trait = null;
                             try {
-                                trait = SourcesLoader.ALL_SOURCES.traits()
-                                        .find(s[0]);
+                                trait = findFromDependencies("Trait",
+                                        TraitsLoader.class,
+                                        s[0]);
                             } catch (ObjectNotFoundException e) {
                                 int space = item.trim().indexOf(' ');
                                 space = item.trim().indexOf(' ', space + 1);
@@ -317,8 +347,9 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                                 }else {
                                     custom = item.trim().substring(space+1);
                                     try {
-                                        trait = SourcesLoader.ALL_SOURCES.traits()
-                                                .find(item.trim().substring(0, space));
+                                        trait = findFromDependencies("Trait",
+                                                TraitsLoader.class,
+                                                item.trim().substring(0, space));
                                     } catch (ObjectNotFoundException e2) {
                                         e2.printStackTrace();
                                     }

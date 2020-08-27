@@ -1,15 +1,13 @@
 package ui.controls.lists.entries;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import model.data_managers.sources.Source;
+import ui.controls.lists.ThreeState;
 
 public class SourceEntry extends ListEntry<Source> {
     private final ReadOnlyStringWrapper id = new ReadOnlyStringWrapper("");
-    private final BooleanProperty enabled = new SimpleBooleanProperty(false);
-    private final BooleanProperty indeterminate = new SimpleBooleanProperty(false);
+    private final ObjectProperty<ThreeState> enabled = new SimpleObjectProperty<>(ThreeState.False);
     public SourceEntry(Source source) {
         super(source, source.getName());
         id.set(source.getShortName());
@@ -27,20 +25,12 @@ public class SourceEntry extends ListEntry<Source> {
         return id;
     }
 
-    public Boolean isEnabled() {
+    public ThreeState getEnabled() {
         return enabled.get();
     }
 
-    public BooleanProperty enabledProperty() {
+    public ObjectProperty<ThreeState> enabledProperty() {
         return enabled;
-    }
-
-    public Boolean isIndeterminate() {
-        return indeterminate.get();
-    }
-
-    public BooleanProperty indeterminateProperty() {
-        return indeterminate;
     }
 
     @Override

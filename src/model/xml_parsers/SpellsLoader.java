@@ -2,9 +2,9 @@ package model.xml_parsers;
 
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
-import model.enums.Trait;
 import model.spells.Spell;
 import model.spells.Tradition;
+import model.util.ObjectNotFoundException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -55,7 +55,13 @@ public class SpellsLoader extends FileLoader<Spell> {
 				}
 			}else if(curr.getTagName().equals("Traits")){
 				for (String traitName : trim.split(", ?")) {
-					builder.addTrait(Trait.valueOf(traitName));
+					try {
+						builder.addTrait(findFromDependencies("Trait",
+								TraitsLoader.class,
+								traitName));
+					} catch (ObjectNotFoundException e) {
+						e.printStackTrace();
+					}
 				}
 			} else {
 				try {

@@ -7,7 +7,9 @@ import model.enums.Trait;
 import model.equipment.armor.Armor;
 import model.equipment.armor.ArmorGroup;
 import model.equipment.armor.Shield;
+import model.util.ObjectNotFoundException;
 import model.xml_parsers.FileLoader;
+import model.xml_parsers.TraitsLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -17,6 +19,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static model.util.StringUtils.camelCase;
 
@@ -100,10 +103,20 @@ public class ArmorLoader extends FileLoader<Armor> {
                     shieldBuilder.setBT(Integer.parseInt(trim));
                     break;
                 case "Traits":
-                    Arrays.stream(trim.split(",")).map((item)-> Trait.valueOf(item.trim().split(" ")[0])).forEachOrdered(builder::addArmorTrait);
+                    Arrays.stream(trim.split(",")).map((item)->{
+                        Trait trait = null;
+                        try {
+                            trait = findFromDependencies("Trait",
+                                    TraitsLoader.class,
+                                    item.trim().split(" ")[0]);
+                        } catch (ObjectNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        return trait;
+                    }).filter(Objects::nonNull).forEachOrdered(builder::addArmorTrait);
                     break;
                 default:
-                    EquipmentLoader.parseTag(trim, curr, builder);
+                    EquipmentLoader.parseTag(trim, curr, builder, this);
             }
         }
         return (shieldBuilder != null) ? shieldBuilder.build() : builder.build();

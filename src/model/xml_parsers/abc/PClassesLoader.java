@@ -1,10 +1,13 @@
 package model.xml_parsers.abc;
 
 import model.abc.PClass;
+import model.abilities.Ability;
 import model.ability_slots.*;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.Type;
+import model.util.ObjectNotFoundException;
+import model.xml_parsers.FeatsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -54,7 +57,16 @@ public class PClassesLoader extends ACLoader<PClass, PClass.Builder> {
                                 if(type.equals("")) type = "General";
                                 DynamicFilledSlot dynamicFilledSlot = new DynamicFilledSlot(abilityName, level,
                                         slotNode.getAttribute("contents"),
-                                        getDynamicType(type), true);
+                                        getDynamicType(type), true,
+                                        name->{
+                                            Ability a = null;
+                                            try {
+                                                a = findFromDependencies("Ability", FeatsLoader.class, name);
+                                            } catch (ObjectNotFoundException e) {
+                                                e.printStackTrace();
+                                            }
+                                            return a;
+                                        });
                                 abilitySlots.add(dynamicFilledSlot);
                                 dynSlots.add(dynamicFilledSlot);
                             }
@@ -89,7 +101,7 @@ public class PClassesLoader extends ACLoader<PClass, PClass.Builder> {
         }
         PClass pClass = builder.build();
         for (DynamicFilledSlot dynSlot : dynSlots) {
-            dynSlot.setpClass(pClass);
+            dynSlot.setPClass(pClass);
         }
         return pClass;
     }

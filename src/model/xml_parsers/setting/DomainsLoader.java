@@ -2,9 +2,9 @@ package model.xml_parsers.setting;
 
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
-import model.data_managers.sources.SourcesLoader;
 import model.util.ObjectNotFoundException;
 import model.xml_parsers.FileLoader;
+import model.xml_parsers.SpellsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -37,14 +37,18 @@ public class DomainsLoader extends FileLoader<Domain> {
                     break;
                 case "domainspell":
                     try {
-                        builder.setDomainSpell(SourcesLoader.ALL_SOURCES.spells().find(trim));
+                        builder.setDomainSpell(findFromDependencies("Spell",
+                                SpellsLoader.class,
+                                trim));
                     } catch (ObjectNotFoundException e) {
                         e.printStackTrace();
                     }
                     break;
                 case "advanceddomainspell":
                     try {
-                        builder.setAdvancedDomainSpell(SourcesLoader.ALL_SOURCES.spells().find(trim));
+                        builder.setAdvancedDomainSpell(findFromDependencies("Spell",
+                                SpellsLoader.class,
+                                trim));
                     } catch (ObjectNotFoundException e) {
                         e.printStackTrace();
                     }

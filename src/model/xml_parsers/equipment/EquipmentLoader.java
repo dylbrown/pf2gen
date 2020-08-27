@@ -13,8 +13,10 @@ import model.equipment.runes.WeaponRune;
 import model.equipment.weapons.Damage;
 import model.equipment.weapons.DamageType;
 import model.equipment.weapons.Dice;
+import model.util.ObjectNotFoundException;
 import model.util.StringUtils;
 import model.xml_parsers.FileLoader;
+import model.xml_parsers.TraitsLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -75,7 +77,7 @@ public class EquipmentLoader extends FileLoader<Equipment> {
                 continue;
             Element curr = (Element) nodeList.item(i);
             String trim = curr.getTextContent().trim();
-            parseTag(trim, curr, builder);
+            parseTag(trim, curr, builder, this);
         }
         return builder.build();
     }
@@ -171,11 +173,11 @@ public class EquipmentLoader extends FileLoader<Equipment> {
         if ("GrantsProperties".equals(curr.getTagName())) {
             builder.setGrantsProperties(Integer.parseInt(trim));
         } else {
-            parseTag(trim, curr, builder);
+            parseTag(trim, curr, builder, this);
         }
     }
 
-    static void parseTag(String trim, Element curr, Equipment.Builder builder) {
+    static void parseTag(String trim, Element curr, Equipment.Builder builder, FileLoader<?> loader) {
         switch (curr.getTagName()) {
             case "Name":
                 builder.setName(trim);
@@ -198,12 +200,15 @@ public class EquipmentLoader extends FileLoader<Equipment> {
             case "Traits":
                 Arrays.stream(trim.split(",")).map((item)->
                 {
-                    try{
-                        return Trait.valueOf(camelCaseWord(item.trim()));
-                    }catch(IllegalArgumentException e){
-                        System.out.println(e.getMessage());
-                        return null;
+                    Trait trait = null;
+                    try {
+                        trait = loader.findFromDependencies("Trait",
+                                TraitsLoader.class,
+                                item.trim());
+                    } catch (ObjectNotFoundException e) {
+                        e.printStackTrace();
                     }
+                    return trait;
                 }).filter(Objects::nonNull)
                     .forEachOrdered(builder::addTrait);
                 break;

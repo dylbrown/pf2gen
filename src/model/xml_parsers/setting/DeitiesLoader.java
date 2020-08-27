@@ -3,10 +3,11 @@ package model.xml_parsers.setting;
 import model.attributes.Attribute;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
-import model.data_managers.sources.SourcesLoader;
 import model.enums.Alignment;
 import model.util.ObjectNotFoundException;
 import model.xml_parsers.FileLoader;
+import model.xml_parsers.SpellsLoader;
+import model.xml_parsers.equipment.WeaponsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -71,7 +72,9 @@ public class DeitiesLoader extends FileLoader<Deity> {
                     break;
                 case "favoredweapon":
                     try {
-                        builder.setFavoredWeapon(SourcesLoader.ALL_SOURCES.weapons().find(trim));
+                        builder.setFavoredWeapon(findFromDependencies("Weapon",
+                                WeaponsLoader.class,
+                                trim));
                     } catch (ObjectNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -80,7 +83,9 @@ public class DeitiesLoader extends FileLoader<Deity> {
                     for (String s : trim.split(", ?")) {
                         Domain domain = null;
                         try {
-                            domain = SourcesLoader.ALL_SOURCES.domains().find(s);
+                            domain = findFromDependencies("Domain",
+                                    DomainsLoader.class,
+                                    s);
                         } catch (ObjectNotFoundException e) {
                             e.printStackTrace();
                         }
@@ -98,7 +103,9 @@ public class DeitiesLoader extends FileLoader<Deity> {
                         Element currSpell = (Element) spellsList.item(j);
                         try {
                             builder.addSpell(Integer.parseInt(currSpell.getAttribute("level")),
-                                    SourcesLoader.ALL_SOURCES.spells().find(currSpell.getAttribute("name")));
+                                    findFromDependencies("Spell",
+                                            SpellsLoader.class,
+                                            currSpell.getAttribute("name")));
                         } catch (ObjectNotFoundException e) {
                             e.printStackTrace();
                         }

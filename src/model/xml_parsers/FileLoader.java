@@ -3,6 +3,8 @@ package model.xml_parsers;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.data_managers.sources.SourceLoadTracker;
+import model.data_managers.sources.SourcesLoader;
+import model.util.ObjectNotFoundException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -37,15 +39,16 @@ public abstract class FileLoader<T> {
 
     public FileLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
         this.sourceConstructor = sourceConstructor;
-        this.loadTracker = new SourceLoadTracker(sourceConstructor);
+        this.loadTracker = new SourceLoadTracker(sourceConstructor, sourceBuilder);
         this.root = root;
-        if(sourceBuilder != null)
-            sourceBuilder.onBuild((source)->this.source = source);
+        if(sourceBuilder != null) {
+            source = sourceBuilder.onBuild((source)->this.source = source);
+        }
     }
 
     protected FileLoader(SourceConstructor sourceConstructor, File root) {
         this.sourceConstructor = sourceConstructor;
-        this.loadTracker = new SourceLoadTracker(sourceConstructor);
+        this.loadTracker = new SourceLoadTracker(sourceConstructor, null);
         this.root = root;
     }
 
@@ -87,6 +90,22 @@ public abstract class FileLoader<T> {
 
     public T find(String category, String name) {
         return getCategory(category).get(clean(name));
+    }
+
+    public <A, B extends FileLoader<A>> A findFromDependencies(String nameOfA, Class<B> loaderClass, String name) throws ObjectNotFoundException {
+        A a;
+        B loader = source.getLoader(loaderClass);
+        a = (loader != null) ? loader.find(name) : null;
+        if(a != null) return a;
+        for (String dependency : source.getDependencies()) {
+            source = SourcesLoader.instance().find(dependency);
+            if(source != null) {
+                loader = source.getLoader(loaderClass);
+                a = (loader != null) ? loader.find(name) : null;
+                if(a != null) return a;
+            }
+        }
+        throw new ObjectNotFoundException(nameOfA, name);
     }
 
     public NavigableMap<String, T> getCategory(String category) {

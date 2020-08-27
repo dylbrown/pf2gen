@@ -7,7 +7,7 @@ import model.ability_scores.AbilityScore;
 import model.ability_slots.FilledSlot;
 import model.attributes.Attribute;
 import model.attributes.AttributeMod;
-import model.data_managers.sources.SourcesLoader;
+import model.data_managers.sources.Source;
 import model.enums.Proficiency;
 import model.enums.Type;
 import model.spells.CasterType;
@@ -24,19 +24,13 @@ import java.util.Collections;
 import java.util.List;
 
 public class BloodlinesLoader extends AbilityLoader<Ability> {
-	private static BloodlinesLoader bloodlinesLoader;
 
 	static {
 		sources.put(BloodlinesLoader.class, (element -> Type.Choice));
 	}
 
-	private BloodlinesLoader() {
-		super(null, null, null);
-	}
-
-	public static Ability makeBloodlineStatic(Element item) {
-		if(bloodlinesLoader == null) bloodlinesLoader = new BloodlinesLoader();
-		return bloodlinesLoader.makeBloodline(item);
+	public BloodlinesLoader(Source.Builder sourceBuilder) {
+		super(null, null, sourceBuilder);
 	}
 
 	@Override
@@ -44,7 +38,7 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 		return makeBloodline(item);
 	}
 
-	private Ability makeBloodline(Element item) {
+	public Ability makeBloodline(Element item) {
 		Ability.Builder bloodline = new Ability.Builder();
 		bloodline.setType(Type.Choice);
 		SpellExtension.Builder spellExt = bloodline.getExtension(SpellExtension.Builder.class);
@@ -71,7 +65,10 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 				builder.setPrerequisites(Collections.singletonList(split[0]+"-level spells"));
 			try {
 				builder.getExtension(SpellExtension.Builder.class)
-						.addBonusSpell(SpellType.Spell, SourcesLoader.ALL_SOURCES.spells().find(split[1]));
+						.addBonusSpell(SpellType.Spell, findFromDependencies(
+								"Spell",
+								SpellsLoader.class,
+								split[1]));
 			} catch (ObjectNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -86,7 +83,9 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 		//Bloodline Spells
 		String[] bSpells = item.getElementsByTagName("BloodlineSpells").item(0).getTextContent().split(", ?");
 		try {
-			spellExt.addBonusSpell(SpellType.Focus, SourcesLoader.ALL_SOURCES.spells().find(bSpells[0].split(": ")[1]));
+			spellExt.addBonusSpell(SpellType.Focus, findFromDependencies("Spell",
+					SpellsLoader.class,
+					bSpells[0].split(": ")[1]));
 		} catch (ObjectNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -94,14 +93,18 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 		Ability.Builder greater = new Ability.Builder();  greater.setName("Greater Bloodline Spell");
 		try {
 			advanced.getExtension(SpellExtension.Builder.class)
-					.addBonusSpell(SpellType.Focus, SourcesLoader.ALL_SOURCES.spells().find(bSpells[1].split(": ")[1]));
+					.addBonusSpell(SpellType.Focus, findFromDependencies("Spell",
+							SpellsLoader.class,
+							bSpells[1].split(": ")[1]));
 		} catch (ObjectNotFoundException e) {
 			e.printStackTrace();
 		}
 		advanced.getExtension(SpellExtension.Builder.class).setSpellListName("Sorcerer");
 		try {
 			greater.getExtension(SpellExtension.Builder.class)
-					.addBonusSpell(SpellType.Focus, SourcesLoader.ALL_SOURCES.spells().find(bSpells[2].split(": ")[1]));
+					.addBonusSpell(SpellType.Focus, findFromDependencies("Spells",
+							SpellsLoader.class,
+							bSpells[2].split(": ")[1]));
 		} catch (ObjectNotFoundException e) {
 			e.printStackTrace();
 		}

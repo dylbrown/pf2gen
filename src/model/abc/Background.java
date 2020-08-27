@@ -1,5 +1,6 @@
 package model.abc;
 
+import model.abilities.Ability;
 import model.ability_slots.AbilitySlot;
 import model.ability_slots.DynamicFilledSlot;
 import model.attributes.AttributeMod;
@@ -7,6 +8,7 @@ import model.enums.Type;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 public class Background extends ABC {
     public static final Background NO_BACKGROUND;
@@ -26,7 +28,7 @@ public class Background extends ABC {
         this.modString = builder.modString;
         this.mod1 = builder.mod1;
         this.mod2 = builder.mod2;
-        this.freeFeat = new DynamicFilledSlot("Background Feat", 1, builder.feat, Type.Skill, false);
+        this.freeFeat = new DynamicFilledSlot("Background Feat", 1, builder.feat, Type.Skill, false, builder.abilityFunction);
     }
 
     public List<AttributeMod> getMods() {
@@ -46,6 +48,7 @@ public class Background extends ABC {
         private AttributeMod mod2 = AttributeMod.NONE;
         private String feat = "";
         private String modString;
+        private Function<String, Ability> abilityFunction;
 
         public void setMod1(AttributeMod mod1) {
             this.mod1 = mod1;
@@ -61,6 +64,10 @@ public class Background extends ABC {
 
         public void setModString(String modString) {
             this.modString = modString;
+        }
+
+        public void setAbilityFunction(Function<String, Ability> abilityFunction) {
+            this.abilityFunction = abilityFunction;
         }
 
         public Background build() {
