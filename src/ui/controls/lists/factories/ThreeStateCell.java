@@ -20,10 +20,12 @@ public class ThreeStateCell extends TreeTableCell<SourceEntry, ThreeState> {
 
     private void update(TreeItem<SourceEntry> item, Boolean value) {
         SourceEntry selectedItem = item.getValue();
+        if(selectedItem.isLocked())
+            return;
         if(value)
-            selectedItem.enabledProperty().set(ThreeState.True);
+            selectedItem.stateProperty().set(ThreeState.True);
         else
-            selectedItem.enabledProperty().set(ThreeState.False);
+            selectedItem.stateProperty().set(ThreeState.False);
         checkBox.setIndeterminate(false);
         for (TreeItem<SourceEntry> child : item.getChildren()) {
             update(child, value);
@@ -31,20 +33,22 @@ public class ThreeStateCell extends TreeTableCell<SourceEntry, ThreeState> {
         updateParent(item.getParent(), value);
     }
 
-    private void updateParent(TreeItem<SourceEntry> parent, Boolean value) {
+    public static void updateParent(TreeItem<SourceEntry> parent, Boolean value) {
         if(parent == null || parent.getValue() == null)
             return;
         boolean indeterminate = false;
         for (TreeItem<SourceEntry> child : parent.getChildren()) {
-            if(child.getValue().getEnabled().asBoolean() != value) {
+            if(child.getValue().getState().asBoolean() != value) {
                 indeterminate = true;
                 break;
             }
         }
-        if(indeterminate)
-            parent.getValue().enabledProperty().set(ThreeState.Indeterminate);
-        else
-            parent.getValue().enabledProperty().set(ThreeState.valueOf(value));
+        if(!parent.getValue().isLocked()) {
+            if(indeterminate)
+                parent.getValue().stateProperty().set(ThreeState.Indeterminate);
+            else
+                parent.getValue().stateProperty().set(ThreeState.valueOf(value));
+        }
     }
 
     @Override
@@ -58,6 +62,7 @@ public class ThreeStateCell extends TreeTableCell<SourceEntry, ThreeState> {
             }
             checkBox.setIndeterminate(s.asBoolean() == null);
             setGraphic(checkBox);
+            checkBox.setDisable(s == ThreeState.LockedTrue);
         }
     }
 }

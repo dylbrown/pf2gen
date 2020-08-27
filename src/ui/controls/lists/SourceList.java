@@ -18,7 +18,7 @@ import java.util.function.BiConsumer;
 
 public class SourceList extends ObservableCategoryEntryList<Source, SourceEntry> {
 
-    private Map<String, SourceEntry> entryMap = new HashMap<>();
+    private Map<String, TreeItem<SourceEntry>> entryMap = new HashMap<>();
 
     public SourceList(BiConsumer<Source, Integer> handler) {
         super(FXCollections.observableArrayList(SourcesLoader.instance().getAll().values()),
@@ -38,16 +38,18 @@ public class SourceList extends ObservableCategoryEntryList<Source, SourceEntry>
             SourceEntry value = treeItem.getValue();
             if(value.getContents() != null) {
                 String name = value.getContents().getName();
-                entryMap.put(name, value);
-                value.enabledProperty().addListener((o, oldVal, newVal)->{
+                entryMap.put(name, treeItem);
+                value.stateProperty().addListener((o, oldVal, newVal)->{
                     if(newVal == ThreeState.True) {
                         for (String dependency : value.getContents().getDependencies()) {
-                            entryMap.get(dependency).enabledProperty().set(ThreeState.True);
+                            if(!entryMap.get(dependency).getValue().isLocked())
+                                entryMap.get(dependency).getValue().stateProperty().set(ThreeState.True);
                         }
                     } else if(newVal == ThreeState.False) {
-                        for (SourceEntry sourceEntry : entryMap.values()) {
-                            if(sourceEntry.getContents().getDependencies().contains(name)){
-                                sourceEntry.enabledProperty().set(ThreeState.False);
+                        for (TreeItem<SourceEntry> sourceEntry : entryMap.values()) {
+                            if(sourceEntry.getValue().getContents().getDependencies().contains(name)){
+                                if(!sourceEntry.getValue().isLocked())
+                                    sourceEntry.getValue().stateProperty().set(ThreeState.False);
                             }
                         }
                     }
@@ -67,8 +69,21 @@ public class SourceList extends ObservableCategoryEntryList<Source, SourceEntry>
         id.setCellValueFactory(new TreeCellFactory<>("id"));
         id.setStyle( "-fx-alignment: CENTER;");
         enabled.setCellFactory(ThreeStateCell::new);
-        enabled.setCellValueFactory(features -> features.getValue().getValue().enabledProperty());
+        enabled.setCellValueFactory(features -> features.getValue().getValue().stateProperty());
         enabled.setStyle( "-fx-alignment: CENTER;");
         return Arrays.asList(name, id, enabled);
+    }
+
+    public void selectAndLock(List<Source> preSelectedSources) {
+        for (Source source : preSelectedSources) {
+            TreeItem<SourceEntry> entry = entryMap.get(source.getName());
+            entry.getValue().stateProperty().set(ThreeState.LockedTrue);
+            entry.getValue().lock();
+            ThreeStateCell.updateParent(entry.getParent(), true);
+            if(entry.getParent().getValue().stateProperty().get() == ThreeState.True) {
+                entry.getParent().getValue().stateProperty().set(ThreeState.LockedTrue);
+                entry.getParent().getValue().lock();
+            }
+        }
     }
 }

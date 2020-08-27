@@ -12,10 +12,12 @@ import ui.controls.lists.ThreeState;
 import ui.controls.lists.entries.SourceEntry;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class CreateController {
+public class SourceSelectController {
     private final Stage stage;
+    private final List<Source> preSelectedSources;
     @FXML
     private BorderPane sources;
     @FXML
@@ -29,14 +31,20 @@ public class CreateController {
         return success;
     }
 
-    public CreateController(Stage stage) {
+    public SourceSelectController(Stage stage) {
+        this(stage, Collections.emptyList());
+    }
+
+    public SourceSelectController(Stage stage, List<Source> preSelectedSources) {
         this.stage = stage;
+        this.preSelectedSources = preSelectedSources;
     }
 
     @FXML
     private void initialize() {
         display.getEngine().setUserStyleSheetLocation(getClass().getResource("/webview_style.css").toString());
         sourceList = new SourceList((source, i) -> display.getEngine().loadContent(source.getDescription()));
+        sourceList.selectAndLock(preSelectedSources);
         sourceList.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal) -> {
             if(newVal.getValue() != null && newVal.getValue().getContents() != null) {
                 display.getEngine().loadContent(newVal.getValue().getContents().getDescription());
@@ -51,12 +59,17 @@ public class CreateController {
 
     public List<Source> getSources() {
         List<Source> sources = new ArrayList<>();
-        for (TreeItem<SourceEntry> treeItem : sourceList.getRoot().getChildren()) {
-            if(treeItem.getValue().enabledProperty().get() == ThreeState.True
+        getSources(sources, sourceList.getRoot());
+        return sources;
+    }
+
+    private void getSources(List<Source> sources, TreeItem<SourceEntry> root) {
+        for (TreeItem<SourceEntry> treeItem : root.getChildren()) {
+            if(treeItem.getValue().stateProperty().get() == ThreeState.True
                     && treeItem.getValue().getContents() != null) {
                 sources.add(treeItem.getValue().getContents());
             }
+            getSources(sources, treeItem);
         }
-        return sources;
     }
 }

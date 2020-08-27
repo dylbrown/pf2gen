@@ -1,7 +1,7 @@
 package ui.controls.lists;
 
 public enum ThreeState {
-    True, False, Indeterminate;
+    True, False, Indeterminate, LockedTrue;
 
     public static ThreeState valueOf(Boolean value) {
         if(value == null)
@@ -14,7 +14,9 @@ public enum ThreeState {
 
     public Boolean asBoolean() {
         switch (this) {
-            case True: return true;
+            case True:
+            case LockedTrue:
+                return true;
             case False:  return false;
             case Indeterminate: return null;
         }

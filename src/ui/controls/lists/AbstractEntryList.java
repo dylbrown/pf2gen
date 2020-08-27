@@ -5,10 +5,12 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
+import model.data_managers.sources.Source;
 import ui.controls.lists.entries.ListEntry;
 import ui.controls.lists.factories.SelectRowFactory;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;

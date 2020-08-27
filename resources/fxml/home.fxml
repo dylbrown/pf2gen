@@ -41,6 +41,13 @@
                           </accelerator>
                       </MenuItem>
                   </Menu>
+                  <Menu mnemonicParsing="false" text="Edit">
+                      <MenuItem fx:id="addSources_menu" mnemonicParsing="false" text="Add Sources">
+                          <accelerator>
+                              <KeyCodeCombination alt="UP" code="P" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                          </accelerator>
+                      </MenuItem>
+                  </Menu>
                   <Menu mnemonicParsing="false" text="Export">
                       <MenuItem fx:id="statblock_menu" mnemonicParsing="false" text="Statblock">
                           <accelerator>

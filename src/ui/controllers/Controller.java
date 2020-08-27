@@ -14,6 +14,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import model.CharacterManager;
+import model.data_managers.sources.Source;
 import model.player.PC;
 import model.player.SourcesManager;
 import ui.Main;
@@ -31,7 +32,7 @@ public class Controller {
     private ComboBox<PC> characterSelect;
     private final Map<PC, Node> characterPanes = new HashMap<>();
     @FXML
-    private MenuItem new_menu, open_menu, close_menu, save_menu, saveAs_menu,
+    private MenuItem new_menu, open_menu, close_menu, save_menu, saveAs_menu, addSources_menu,
             statblock_menu, printableSheet_menu, indexCard_menu, jquerySheet_menu, about_menu, gm_menu;
 
     @FXML
@@ -67,10 +68,10 @@ public class Controller {
         });
 
         new_menu.setOnAction(e -> {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/create.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/sourceSelect.fxml"));
             Stage popup = new Stage();
             popup.initModality(Modality.APPLICATION_MODAL);
-            CreateController controller = new CreateController(popup);
+            SourceSelectController controller = new SourceSelectController(popup);
             loader.setController(controller);
             try {
                 popup.setScene(new Scene(loader.load()));
@@ -104,6 +105,26 @@ public class Controller {
         });
         save_menu.setOnAction(e -> SaveLoadController.getInstance().save(CharacterManager.getActive(), main.getScene()));
         saveAs_menu.setOnAction(e -> SaveLoadController.getInstance().saveAs(CharacterManager.getActive(), main.getScene()));
+        addSources_menu.setOnAction(e -> {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/sourceSelect.fxml"));
+            Stage popup = new Stage();
+            popup.initModality(Modality.APPLICATION_MODAL);
+            SourceSelectController controller = new SourceSelectController(popup, CharacterManager.getActive().sources().getSources());
+            loader.setController(controller);
+            try {
+                popup.setScene(new Scene(loader.load()));
+                popup.getScene().getRoot().setStyle("-fx-base: rgba(45, 49, 50, 255);");
+                popup.getScene().getStylesheets().add("/style.css");
+                popup.showAndWait();
+                if(controller.isSuccess()) {
+                    for (Source source : controller.getSources()) {
+                        CharacterManager.getActive().sources().add(source);
+                    }
+                }
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
         statblock_menu.setOnAction(e ->
                 SaveLoadController.getInstance().export("statblock.ftl", main.getScene()));
         printableSheet_menu.setOnAction(e ->

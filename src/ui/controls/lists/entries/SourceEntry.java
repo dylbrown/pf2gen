@@ -7,7 +7,8 @@ import ui.controls.lists.ThreeState;
 
 public class SourceEntry extends ListEntry<Source> {
     private final ReadOnlyStringWrapper id = new ReadOnlyStringWrapper("");
-    private final ObjectProperty<ThreeState> enabled = new SimpleObjectProperty<>(ThreeState.False);
+    private final ObjectProperty<ThreeState> state = new SimpleObjectProperty<>(ThreeState.False);
+    private boolean locked = false;
     public SourceEntry(Source source) {
         super(source, source.getName());
         id.set(source.getShortName());
@@ -25,12 +26,20 @@ public class SourceEntry extends ListEntry<Source> {
         return id;
     }
 
-    public ThreeState getEnabled() {
-        return enabled.get();
+    public ThreeState getState() {
+        return state.get();
     }
 
-    public ObjectProperty<ThreeState> enabledProperty() {
-        return enabled;
+    public ObjectProperty<ThreeState> stateProperty() {
+        return state;
+    }
+
+    public void lock() {
+        locked = true;
+    }
+
+    public boolean isLocked() {
+        return locked;
     }
 
     @Override
@@ -38,7 +47,7 @@ public class SourceEntry extends ListEntry<Source> {
         switch (propertyName) {
             case "name": return nameProperty();
             case "id": return idProperty();
-            case "enabled": return enabled.asString();
+            case "enabled": return state.asString();
         }
         return null;
     }
