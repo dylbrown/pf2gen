@@ -31,6 +31,8 @@ public class SingleChoicePageController<T> {
     private void initialize() {
         preview.getEngine().setUserStyleSheetLocation(getClass().getResource("/webview_style.css").toString());
         this.options.setItems(optionsList);
+        if (value.get() != null)
+            chosen.getItems().add(value.get());
         value.addListener((o, oldVal, newVal) -> {
             if (newVal != null) {
                 if(chosen.getItems().size() == 0)

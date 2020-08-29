@@ -15,6 +15,7 @@ import model.util.ObjectNotFoundException;
 import ui.html.SpellHTMLGenerator;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class SpellListController {
@@ -59,53 +60,34 @@ public class SpellListController {
             spells.getSpellsKnown(i).addListener((ListChangeListener<Spell>) change -> {
                 while(change.next()) {
                     if(change.wasAdded()) {
-                        for (Spell spell : change.getAddedSubList()) {
-                            int j = spellsKnown.getRoot().getChildren().size();
-                            while(j <= spell.getLevelOrCantrip()) {
-                                spellsKnown.getRoot().getChildren().add(new TreeItem<>(String.valueOf(j)));
-                                j++;
-                            }
-                            spellsKnown.getRoot().getChildren().get(spell.getLevelOrCantrip())
-                                    .getChildren().add(new TreeItem<>(spell.getName()));
-                            spellsKnown.getRoot().getChildren().get(spell.getLevelOrCantrip())
-                                    .getChildren().sort(Comparator.comparing(TreeItem::getValue));
-                        }
+                        addKnown(change.getAddedSubList());
                     }
                     if(change.wasRemoved()) {
-                        for (Spell spell : change.getRemoved()) {
-                            spellsKnown.getRoot().getChildren().get(spell.getLevelOrCantrip())
-                                    .getChildren().removeIf(o->o.getValue().equals(spell.getName()));
-                            int j = spellsKnown.getRoot().getChildren().size();
-                            while(j > 0 && spellsKnown.getRoot().getChildren().get(j-1).getChildren().size() == 0) {
-                                spellsKnown.getRoot().getChildren().remove(j-1);
-                                j--;
-                            }
-                        }
+                        removeKnown(change.getRemoved());
                     }
                 }
             });
+        }
+        for (ObservableList<Spell> list : spells.getSpellsKnown()) {
+            addKnown(list);
         }
         ObservableList<Integer> spellSlots = spells.getSpellSlots();
         ObservableList<Integer> extraSpellsKnown = spells.getExtraSpellsKnown();
         spellSlots.addListener((ListChangeListener<Integer>) c->{
             while(c.next()) {
                 if (c.wasReplaced()) {
-                    for (int i = c.getFrom() ; i < c.getTo() ; i++) {
-                        slots[i].setText(String.valueOf(spellSlots.get(i)));
-                        knowns[i].setText(String.valueOf(spellSlots.get(i) + extraSpellsKnown.get(i)));
-                    }
+                    updateRange(c.getFrom(), c.getTo());
                 }
             }
         });
         extraSpellsKnown.addListener((ListChangeListener<Integer>) c->{
             while(c.next()) {
                 if (c.wasReplaced()) {
-                    for (int i = c.getFrom() ; i < c.getTo() ; i++) {
-                        knowns[i].setText(String.valueOf(spellSlots.get(i) + extraSpellsKnown.get(i)));
-                    }
+                    updateRange(c.getFrom(), c.getTo());
                 }
             }
         });
+        updateRange(0, 11);
 
         allSpells.setOnMouseClicked(event -> {
             if(allSpells.getSelectionModel().getSelectedItem() != null) {
@@ -192,6 +174,40 @@ public class SpellListController {
                 }
             }
         });
+    }
+
+    private void updateRange(int from, int to) {
+        for (int i = from ; i < to ; i++) {
+            slots[i].setText(String.valueOf(spells.getSpellSlots().get(i)));
+            knowns[i].setText(String.valueOf(spells.getSpellSlots().get(i) + spells.getExtraSpellsKnown().get(i)));
+            knowns[i].setText(String.valueOf(spells.getSpellSlots().get(i) + spells.getExtraSpellsKnown().get(i)));
+        }
+    }
+
+    private void addKnown(List<? extends Spell> list) {
+        for (Spell spell : list) {
+            int j = spellsKnown.getRoot().getChildren().size();
+            while(j <= spell.getLevelOrCantrip()) {
+                spellsKnown.getRoot().getChildren().add(new TreeItem<>(String.valueOf(j)));
+                j++;
+            }
+            spellsKnown.getRoot().getChildren().get(spell.getLevelOrCantrip())
+                    .getChildren().add(new TreeItem<>(spell.getName()));
+            spellsKnown.getRoot().getChildren().get(spell.getLevelOrCantrip())
+                    .getChildren().sort(Comparator.comparing(TreeItem::getValue));
+        }
+    }
+
+    private void removeKnown(List<? extends Spell> list) {
+        for (Spell spell : list) {
+            spellsKnown.getRoot().getChildren().get(spell.getLevelOrCantrip())
+                    .getChildren().removeIf(o->o.getValue().equals(spell.getName()));
+            int j = spellsKnown.getRoot().getChildren().size();
+            while(j > 0 && spellsKnown.getRoot().getChildren().get(j-1).getChildren().size() == 0) {
+                spellsKnown.getRoot().getChildren().remove(j-1);
+                j--;
+            }
+        }
     }
 
     private void showAllSpells(Tradition tradition) {

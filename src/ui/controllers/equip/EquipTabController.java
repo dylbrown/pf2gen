@@ -187,26 +187,17 @@ public class EquipTabController {
             }
             if(change.wasAdded()) {
                 ItemCount valueAdded = change.getValueAdded();
-                inventoryList.add(valueAdded);
-                ItemCount unequippedItem = new ItemCount(valueAdded.stats(), valueAdded.getCount());
-                unequipList.add(unequippedItem);
-                valueAdded.countProperty().addListener((o,oldVal,newVal)->{
-                    if (newVal > oldVal) {
-                        unequippedItem.add(newVal - oldVal);
-                    }else if (oldVal  > newVal){
-                        if(unequippedItem.getCount() >= oldVal - newVal)
-                            unequippedItem.remove(oldVal - newVal);
-                        else {
-                            ItemCount equipCount = find(equipFilter, valueAdded.stats(), EquippedEntry::getItemCount);
-                            if(equipCount != null) {
-                                equipCount.remove(oldVal - newVal);
-                            }
-                        }
-                    }
-                });
+                addHandler(valueAdded);
             }
             refreshTotalValue();
         });
+        for (ItemCount itemCount : character.inventory().getItems().values()) {
+            addHandler(itemCount);
+        }
+        for (Map.Entry<Slot, ItemCount> entry : character.inventory().getEquipped().entrySet()) {
+            updateFromEquip(entry.getValue(), entry.getKey());
+        }
+
 
         character.inventory().addEquippedListener(change -> {
             if(change.wasAdded() && !controllerOp) {
@@ -262,6 +253,26 @@ public class EquipTabController {
             dialog.setContentText("Amount:");
             dialog.showAndWait().ifPresent(s ->
                     character.inventory().addMoney(Double.parseDouble(s)));
+        });
+    }
+
+    private void addHandler(ItemCount valueAdded) {
+        inventoryList.add(valueAdded);
+        ItemCount unequippedItem = new ItemCount(valueAdded.stats(), valueAdded.getCount());
+        unequipList.add(unequippedItem);
+        valueAdded.countProperty().addListener((o,oldVal,newVal)->{
+            if (newVal > oldVal) {
+                unequippedItem.add(newVal - oldVal);
+            }else if (oldVal  > newVal){
+                if(unequippedItem.getCount() >= oldVal - newVal)
+                    unequippedItem.remove(oldVal - newVal);
+                else {
+                    ItemCount equipCount = find(equipFilter, valueAdded.stats(), EquippedEntry::getItemCount);
+                    if(equipCount != null) {
+                        equipCount.remove(oldVal - newVal);
+                    }
+                }
+            }
         });
     }
 

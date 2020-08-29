@@ -5,6 +5,8 @@ import javafx.fxml.FXML;
 import model.CharacterManager;
 import model.spells.SpellList;
 
+import java.util.Map;
+
 public class SpellsTabController extends SubTabController {
 
 	@FXML
@@ -18,6 +20,11 @@ public class SpellsTabController extends SubTabController {
 				removeTab(c.getKey());
 			}
 		});
+		for (Map.Entry<String, SpellList> c :
+				CharacterManager.getActive().spells().getSpellLists().entrySet()) {
+			addTab(c.getKey(), new SpellListController(c.getValue()));
+		}
+		sortTabs();
 	}
 
 	@Override

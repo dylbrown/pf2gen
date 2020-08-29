@@ -55,6 +55,7 @@ public class AbilityTabController {
                 Label label = new Label("Type: "+choice.getType().name());
                 ComboBox<AbilityScore> dropdown = new ComboBox<>();
                 dropdown.getItems().addAll(choice.getChoices());
+                dropdown.getSelectionModel().select(choice.getTarget());
                 dropdown.setOnAction((event -> character.scores().choose(choice, dropdown.getValue())));
                 AbilityEntry entry = new AbilityEntry(label, dropdown);
                 abilitiesList.getChildren().add(entry);
