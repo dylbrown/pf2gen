@@ -253,14 +253,18 @@ class GroovyCommands {
         }
     }
     public void weaponGroupProficiency(String group, String prof) {
+        weaponGroupProficiency(sources.weapons().getWeaponGroups().get(group),
+                prof);
+    }
+    public void weaponGroupProficiency(WeaponGroup weaponGroup, String prof) {
         if(applying.get()) {
             attributes.apply(new WeaponGroupMod(
-                    sources.weapons().getWeaponGroups().get(group.toLowerCase()),
+                    weaponGroup,
                     Proficiency.valueOf(StringUtils.camelCaseWord(prof.trim()))
             ));
         } else {
             attributes.remove(new WeaponGroupMod(
-                    sources.weapons().getWeaponGroups().get(group.toLowerCase()),
+                    weaponGroup,
                     Proficiency.valueOf(StringUtils.camelCaseWord(prof.trim()))
             ));
         }

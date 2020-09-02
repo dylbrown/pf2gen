@@ -1,7 +1,7 @@
 package model.util;
 
 public class ObjectNotFoundException extends Exception {
-    public ObjectNotFoundException(String name, String type) {
+    public ObjectNotFoundException(String type, String name) {
         super("Could not find a " + type + " named " + name);
     }
 

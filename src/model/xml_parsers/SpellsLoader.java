@@ -32,6 +32,8 @@ public class SpellsLoader extends FileLoader<Spell> {
 				}
 			}
 		}
+		if(spellsByLevel.get(tradition) == null)
+			return Collections.emptyList();
 		return Collections.unmodifiableList(spellsByLevel.get(tradition).get(level));
 	}
 

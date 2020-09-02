@@ -98,9 +98,9 @@ public abstract class FileLoader<T> {
         a = (loader != null) ? loader.find(name) : null;
         if(a != null) return a;
         for (String dependency : source.getDependencies()) {
-            source = SourcesLoader.instance().find(dependency);
-            if(source != null) {
-                loader = source.getLoader(loaderClass);
+            Source childSource = SourcesLoader.instance().find(dependency);
+            if(childSource != null) {
+                loader = childSource.getLoader(loaderClass);
                 a = (loader != null) ? loader.find(name) : null;
                 if(a != null) return a;
             }
