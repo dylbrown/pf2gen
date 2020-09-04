@@ -2,7 +2,7 @@ package ui.controls.equipment;
 
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
-import model.equipment.Equipment;
+import model.equipment.Item;
 import model.player.PC;
 import model.xml_parsers.equipment.EquipmentLoader;
 import ui.controls.lists.AbstractEntryList;
@@ -15,10 +15,10 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
-public class LevelAllItemsList extends AbstractEntryList<Equipment, ItemEntry> {
+public class LevelAllItemsList extends AbstractEntryList<Item, ItemEntry> {
     private final PC character;
 
-    public LevelAllItemsList(PC character, BiConsumer<Equipment, Integer> handler) {
+    public LevelAllItemsList(PC character, BiConsumer<Item, Integer> handler) {
         super();
         this.character = character;
         construct(handler);
@@ -43,14 +43,14 @@ public class LevelAllItemsList extends AbstractEntryList<Equipment, ItemEntry> {
     @Override
     protected void addItems(TreeItem<ItemEntry> root) {
         Map<Integer, Map<String, TreeItem<ItemEntry>>> cats = new TreeMap<>();
-        for (Equipment equipment : character.sources().equipment().getAll().values()) {
-            addItem(cats, equipment);
+        for (Item item : character.sources().equipment().getAll().values()) {
+            addItem(cats, item);
         }
-        for (Equipment equipment : character.sources().armor().getAll().values()) {
-            addItem(cats, equipment);
+        for (Item item : character.sources().armor().getAll().values()) {
+            addItem(cats, item);
         }
-        for (Equipment equipment : character.sources().weapons().getAll().values()) {
-            addItem(cats, equipment);
+        for (Item item : character.sources().weapons().getAll().values()) {
+            addItem(cats, item);
         }
         for (Map.Entry<Integer, Map<String, TreeItem<ItemEntry>>> entry : cats.entrySet()) {
             TreeItem<ItemEntry> level = new TreeItem<>(new ItemEntry(String.valueOf(entry.getKey())));
@@ -59,11 +59,11 @@ public class LevelAllItemsList extends AbstractEntryList<Equipment, ItemEntry> {
         }
     }
 
-    private void addItem(Map<Integer, Map<String, TreeItem<ItemEntry>>> cats, Equipment equipment) {
-        int level = equipment.getLevel();
+    private void addItem(Map<Integer, Map<String, TreeItem<ItemEntry>>> cats, Item item) {
+        int level = item.getLevel();
         cats.computeIfAbsent(level, (s)->new HashMap<>())
-                .computeIfAbsent(equipment.getCategory(), (s)->new TreeItem<>(new ItemEntry(s)))
-                .getChildren().add(new TreeItem<>(new ItemEntry(equipment)));
+                .computeIfAbsent(item.getCategory(), (s)->new TreeItem<>(new ItemEntry(s)))
+                .getChildren().add(new TreeItem<>(new ItemEntry(item)));
     }
 
 

@@ -7,7 +7,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.collections.transformation.SortedList;
 import model.enums.Slot;
-import model.equipment.Equipment;
+import model.equipment.Item;
 import model.equipment.ItemCount;
 import model.util.Pair;
 import ui.ftl.wrap.ItemCountWrapper;
@@ -23,7 +23,7 @@ public class EquipmentList implements TemplateSequenceModel {
     private final SortedList<ItemCount> unequip = new SortedList<>(unequipList, Comparator.comparing(ItemCount::stats));
     private final ObjectWrapper wrapper;
 
-    public EquipmentList(ObservableMap<Equipment, ItemCount> unequipped, ObservableMap<Slot, ItemCount> equipped, ObjectWrapper wrapper) {
+    public EquipmentList(ObservableMap<Item, ItemCount> unequipped, ObservableMap<Slot, ItemCount> equipped, ObjectWrapper wrapper) {
         this.wrapper = wrapper;
         for (Map.Entry<Slot, ItemCount> entry : equipped.entrySet()) {
             equipList.add(new Pair<>(entry.getKey(), entry.getValue()));
@@ -38,7 +38,7 @@ public class EquipmentList implements TemplateSequenceModel {
                         equip, 0, equip.size()));
             }
         });
-        unequipped.addListener((MapChangeListener<Equipment, ItemCount>) change -> {
+        unequipped.addListener((MapChangeListener<Item, ItemCount>) change -> {
             if(change.wasAdded()) {
                 unequipList.add(change.getValueAdded());
             }

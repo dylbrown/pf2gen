@@ -1,27 +1,16 @@
 package model.equipment.weapons;
 
-import model.equipment.Equipment;
-import model.equipment.runes.runedItems.Enchantable;
-import model.equipment.runes.runedItems.RunedRangedWeapon;
+import model.equipment.Item;
+import model.equipment.ItemExtension;
 
-public class RangedWeapon extends Weapon implements Enchantable {
+public class RangedWeapon extends ItemExtension {
     private final int range;
     private final int reload;
 
-    public RangedWeapon(RangedWeapon.Builder builder) {
-        super(builder);
+    public RangedWeapon(Builder builder, Item baseItem) {
+        super(baseItem);
         this.range = builder.range;
         this.reload = builder.reload;
-    }
-
-    @Override
-    public Equipment makeRuned() {
-        return new RunedRangedWeapon(this);
-    }
-
-    @Override
-    public boolean isRanged(){
-        return true;
     }
 
     public int getRange() {
@@ -32,25 +21,20 @@ public class RangedWeapon extends Weapon implements Enchantable {
         return reload;
     }
 
-    public static class Builder extends Weapon.Builder {
+    public static class Builder extends ItemExtension.Builder {
         private int range = 0;
         private int reload = 0;
 
-        public Builder(Weapon.Builder builder) {
-            super(builder.build());
-            this.setCategory("Ranged Weapon");
-        }
+        public Builder() {}
 
         public Builder(RangedWeapon weapon) {
-            super(weapon);
             range = weapon.range;
             reload = weapon.reload;
-            this.setCategory("Ranged Weapon");
         }
 
         @Override
-        public RangedWeapon build() {
-            return new RangedWeapon(this);
+        public RangedWeapon build(Item baseItem) {
+            return new RangedWeapon(this, baseItem);
         }
 
         public void setRange(int range) {

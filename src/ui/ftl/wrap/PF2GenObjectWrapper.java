@@ -6,13 +6,13 @@ import freemarker.template.TemplateModelException;
 import freemarker.template.Version;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.StringProperty;
+import model.equipment.Item;
 import model.equipment.ItemCount;
-import model.equipment.weapons.Weapon;
 import model.player.AttributeManager;
 import model.player.PC;
 import model.player.QualityManager;
-import model.spells.SpellList;
 import model.spells.Spell;
+import model.spells.SpellList;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -40,7 +40,8 @@ public class PF2GenObjectWrapper extends DefaultObjectWrapper {
     @Override
     protected TemplateModel handleUnknownType(Object obj) throws TemplateModelException {
         if(obj instanceof PC) return new CharacterWrapper((PC) obj, this);
-        if(obj instanceof Weapon) return new WeaponWrapper((Weapon) obj, this, character);
+        if(obj instanceof Item)
+            return new ItemWrapper(character, (Item) obj, this);
         if(obj instanceof ItemCount) return new ItemCountWrapper((ItemCount) obj, this);
         if(obj instanceof StringProperty) return new StringPropertyWrapper((StringProperty) obj);
         if(obj instanceof AttributeManager) return new AttributesWrapper((AttributeManager) obj, this, character);

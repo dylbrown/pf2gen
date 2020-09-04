@@ -3,58 +3,52 @@ package model.equipment.runes.runedItems;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.attributes.AttributeBonus;
+import model.equipment.Item;
+import model.equipment.ItemExtension;
 import model.equipment.armor.Armor;
 import model.equipment.runes.ArmorRune;
 
-public class RunedArmor extends Armor implements RunedEquipment<ArmorRune> {
+public class RunedArmor extends ItemExtension {
     private final Runes<ArmorRune> runes;
-    private final Armor baseArmor;
     private final ObservableList<AttributeBonus> bonuses = FXCollections.observableArrayList();
 
-    public RunedArmor(Armor armor) {
-        super(new Armor.Builder(armor));
-        this.baseArmor = armor;
-        bonuses.addAll(armor.getBonuses());
-        runes = new Runes<>(armor.getName(), ArmorRune.class);
+    public RunedArmor(Item item) {
+        super(item);
+        bonuses.addAll(item.getBonuses());
+        runes = new Runes<>(item.getName(), ArmorRune.class);
         runes.addListener(c->{
             if(c.wasAdded()) {
-                bonuses.addAll(c.getValueAdded().getBonuses());
+                bonuses.addAll(c.getValueAdded().getBaseItem().getBonuses());
             }
             if(c.wasRemoved()) {
-                bonuses.removeAll(c.getValueRemoved().getBonuses());
+                bonuses.removeAll(c.getValueRemoved().getBaseItem().getBonuses());
             }
         });
+        if(!item.hasExtension(Armor.class))
+            throw new RuntimeException("RunedArmor is not Armor");
     }
 
-    @Override
-    public Armor getBaseItem() {
-        return baseArmor;
+    @ItemDecorator
+    public double getValue(double value) {
+        return value + runes.getValue();
     }
 
-    @Override
-    public double getValue() {
-        return super.getValue() + runes.getValue();
+    @ItemDecorator
+    public String getName(String name) {
+        return runes.makeRuneName(name);
     }
 
-    @Override
-    public String getName() {
-        return runes.makeRuneName(super.getName());
-    }
-
-    @Override
     public Runes<ArmorRune> getRunes() {
         return this.runes;
     }
 
-    @Override
-    public int getAC() {
+    @ItemDecorator
+    public int getAC(int ac) {
         return runes.getAll().stream()
                 .map(ArmorRune::getBonusAC)
-                .reduce(super.getAC(), Integer::sum);
+                .reduce(ac, Integer::sum);
     }
 
-
-    @Override
     public ObservableList<AttributeBonus> getBonuses() {
         return bonuses;
     }

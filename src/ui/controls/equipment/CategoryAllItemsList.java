@@ -3,7 +3,7 @@ package ui.controls.equipment;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
-import model.equipment.Equipment;
+import model.equipment.Item;
 import model.player.PC;
 import model.xml_parsers.equipment.EquipmentLoader;
 import ui.controls.lists.AbstractEntryList;
@@ -13,10 +13,10 @@ import ui.controls.lists.factories.TreeCellFactory;
 import java.util.*;
 import java.util.function.BiConsumer;
 
-public class CategoryAllItemsList extends AbstractEntryList<Equipment, ItemEntry> {
+public class CategoryAllItemsList extends AbstractEntryList<Item, ItemEntry> {
     private final PC character;
 
-    public CategoryAllItemsList(PC character, BiConsumer<Equipment, Integer> handler) {
+    public CategoryAllItemsList(PC character, BiConsumer<Item, Integer> handler) {
         this(character);
         construct(handler);
     }
@@ -36,18 +36,18 @@ public class CategoryAllItemsList extends AbstractEntryList<Equipment, ItemEntry
         root.getChildren().sort(Comparator.comparing(o -> o.getValue().toString()));
     }
 
-    private void addCategory(TreeItem<ItemEntry> root, String category, Iterable<? extends Equipment> iterable) {
+    private void addCategory(TreeItem<ItemEntry> root, String category, Iterable<? extends Item> iterable) {
         TreeItem<ItemEntry> cat = new TreeItem<>(new ItemEntry(category));
         root.getChildren().add(cat);
         Map<String, TreeItem<ItemEntry>> subCats = new TreeMap<>();
-        for (Equipment equipment : iterable) {
-            String subCategory = equipment.getSubCategory();
+        for (Item item : iterable) {
+            String subCategory = item.getSubCategory();
             if(subCategory.isBlank())
-                cat.getChildren().add(new TreeItem<>(new ItemEntry(equipment)));
+                cat.getChildren().add(new TreeItem<>(new ItemEntry(item)));
             else {
                 subCats.computeIfAbsent(subCategory, (s -> new TreeItem<>(new ItemEntry(s))))
                         .getChildren()
-                        .add(new TreeItem<>(new ItemEntry(equipment)));
+                        .add(new TreeItem<>(new ItemEntry(item)));
             }
         }
         cat.getChildren().addAll(subCats.values());

@@ -16,13 +16,17 @@ import model.enums.Alignment;
 import model.enums.BuySellMode;
 import model.enums.Slot;
 import model.enums.Type;
-import model.equipment.Equipment;
+import model.equipment.Item;
 import model.equipment.ItemCount;
+import model.equipment.runes.ArmorRune;
 import model.equipment.runes.Rune;
-import model.equipment.runes.runedItems.RunedEquipment;
+import model.equipment.runes.WeaponRune;
+import model.equipment.runes.runedItems.RunedArmor;
+import model.equipment.runes.runedItems.RunedWeapon;
+import model.equipment.runes.runedItems.Runes;
 import model.player.PC;
-import model.spells.SpellList;
 import model.spells.Spell;
+import model.spells.SpellList;
 import model.util.ObjectNotFoundException;
 import model.util.Pair;
 import model.util.StringUtils;
@@ -104,14 +108,20 @@ public class SaveLoadManager {
             writeOutLine(out, "money = " + character.inventory().getMoney());
             writeOutLine(out, "Inventory");
             for (ItemCount item : character.inventory().getItems().values()) {
-                if(item.stats() instanceof RunedEquipment) {
-                    RunedEquipment stats = (RunedEquipment) item.stats();
-                    writeOutLine(out, " @ "+item.getCount()+" "+stats.getBaseItem().getName());
+                Runes<?> runes = item.stats().getExtension(RunedArmor.class).getRunes();
+                if(runes != null)
+                    runes = item.stats().getExtension(RunedWeapon.class).getRunes();
+                if(runes != null) {
+                    Item stats = item.stats();
+                    writeOutLine(out, " @ "+item.getCount()+" "+stats.getName());
                     List<Rune> fundamentalRunes = new ArrayList<>();
                     List<Rune> propertyRunes = new ArrayList<>();
-                    for (Object o : stats.getRunes().list()) {
-                        if(o instanceof Rune) {
-                            Rune rune = (Rune) o;
+
+                    for (Item o : runes.list()) {
+                        Rune rune = item.stats().getExtension(ArmorRune.class);
+                        if(rune == null)
+                            rune = item.stats().getExtension(WeaponRune.class);
+                        if(rune != null) {
                             if(rune.isFundamental())
                                 fundamentalRunes.add(rune);
                             else
@@ -119,9 +129,9 @@ public class SaveLoadManager {
                         }
                     }
                     for (Rune rune : fundamentalRunes)
-                        writeOutLine(out, "   - " + rune.getName());
+                        writeOutLine(out, "   - " + rune.getBaseItem().getName());
                     for (Rune rune : propertyRunes)
-                        writeOutLine(out, "   - " + rune.getName());
+                        writeOutLine(out, "   - " + rune.getBaseItem().getName());
                 }else writeOutLine(out, " - "+item.getCount()+" "+item.stats().getName());
             }
             writeOutLine(out, "Equipped");
@@ -332,7 +342,7 @@ public class SaveLoadManager {
                 if (s.startsWith(" - ")) {
                     String[] split = s.substring(3).split(" ", 2);
                     String cleanedName = StringUtils.clean(split[1]);
-                    Equipment item = null;
+                    Item item = null;
                     try {
                         item = character.sources().equipment().find(cleanedName);
                     } catch (ObjectNotFoundException e) {
@@ -350,7 +360,7 @@ public class SaveLoadManager {
                         character.inventory().buy(item, Integer.parseInt(split[0]));
                 } else if (s.startsWith(" @ ")) {
                     String itemName = StringUtils.clean(s.substring(3).split(" ", 2)[1]);
-                    Equipment item = null;
+                    Item item = null;
                     try {
                         item = character.sources().equipment().find(itemName);
                     } catch (ObjectNotFoundException e) {
@@ -471,7 +481,7 @@ public class SaveLoadManager {
         return decisions.isEmpty();
     }
 
-    private static void upgradeItem(PC character, Equipment item, Pair<List<String>, Integer> lines) {
+    private static void upgradeItem(PC character, Item item, Pair<List<String>, Integer> lines) {
         String s;
         while (true) {
             try { s = nextLine(lines); }
@@ -482,11 +492,11 @@ public class SaveLoadManager {
             }
             String itemName = s.substring(5);
             try {
-                Equipment rune = character.sources().equipment()
+                Item rune = character.sources().equipment()
                         .find(itemName);
-                if(rune instanceof Rune) {
+                if(Rune.isRune(rune)) {
                     character.inventory().buy(rune, 1);
-                    item = character.inventory().tryToAddRune(item, (Rune) rune).second;
+                    item = character.inventory().tryToAddRune(item, Rune.getRune(rune)).second;
                 }
             } catch (ObjectNotFoundException e) {
                 e.printStackTrace();

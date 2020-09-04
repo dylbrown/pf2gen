@@ -2,9 +2,12 @@ package model.xml_parsers.equipment;
 
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
+import model.enums.Rarity;
 import model.enums.Trait;
 import model.enums.WeaponProficiency;
+import model.equipment.BaseItem;
 import model.equipment.CustomTrait;
+import model.equipment.Item;
 import model.equipment.weapons.*;
 import model.util.ObjectNotFoundException;
 import model.xml_parsers.FileLoader;
@@ -19,7 +22,7 @@ import java.util.*;
 
 import static model.util.StringUtils.camelCase;
 
-public class WeaponsLoader extends FileLoader<Weapon> {
+public class WeaponsLoader extends FileLoader<Item> {
 
     private static final Map<String, WeaponGroup> weaponGroups = new HashMap<>();
 
@@ -38,29 +41,29 @@ public class WeaponsLoader extends FileLoader<Weapon> {
             weaponGroups.put(name.toLowerCase(), new WeaponGroup(critEffect, name));
         });
         iterateElements(doc, "Weapon", (curr)->{
-            Weapon weapon = getWeapon(curr, this);
-            addItem(weapon.getSubCategory(), weapon);
+            Item weapon = getWeapon(curr, this);
+            addItem(weapon.getExtension(Weapon.class).getProficiency().name(), weapon);
         });
     }
 
     @Override
-    protected Weapon parseItem(File file, Element item) {
+    protected Item parseItem(File file, Element item) {
         return getWeapon(item, this);
     }
 
-    public static Weapon getWeapon(Element weapon, FileLoader<?> loader) {
-        Weapon.Builder builder = new Weapon.Builder();
-        RangedWeapon.Builder rangedBuilder = null;
+    public static Item getWeapon(Element weapon, FileLoader<?> loader) {
+        BaseItem.Builder item = new BaseItem.Builder();
+        Weapon.Builder weaponExt = item.getExtension(Weapon.Builder.class);
         Node proficiencyNode= weapon.getParentNode();
         Node rangeNode = proficiencyNode.getParentNode();
         if(rangeNode.getNodeName().equals("Ranged"))
-            builder = rangedBuilder = new RangedWeapon.Builder(builder);
+            item.getExtension(RangedWeapon.Builder.class);
 
 
         if(weapon.hasAttribute("Uncommon") || weapon.hasAttribute("uncommon"))
-            builder.setUncommon(true);
+            item.setRarity(Rarity.Uncommon);
 
-        builder.setProficiency(WeaponProficiency.valueOf(camelCase(proficiencyNode.getNodeName())));
+        weaponExt.setProficiency(WeaponProficiency.valueOf(camelCase(proficiencyNode.getNodeName())));
         NodeList nodeList = weapon.getChildNodes();
         for(int i=0; i<nodeList.getLength(); i++) {
             if(nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)
@@ -71,56 +74,53 @@ public class WeaponsLoader extends FileLoader<Weapon> {
                 case "Damage":
                     String[] split = trim.split(" ");
                     String[] diceSplit = split[0].split("d");
-                    builder.setDamageDice(Dice.get(Integer.parseInt(diceSplit[0]), Integer.parseInt(diceSplit[1])));
+                    weaponExt.setDamageDice(Dice.get(Integer.parseInt(diceSplit[0]), Integer.parseInt(diceSplit[1])));
                     switch(split[1].toUpperCase()) {
                         case "B":
-                            builder.setDamageType(DamageType.Bludgeoning);
+                            weaponExt.setDamageType(DamageType.Bludgeoning);
                             break;
                         case "P":
-                            builder.setDamageType(DamageType.Piercing);
+                            weaponExt.setDamageType(DamageType.Piercing);
                             break;
                         case "S":
-                            builder.setDamageType(DamageType.Slashing);
+                            weaponExt.setDamageType(DamageType.Slashing);
                             break;
                     }
                     break;
                 case "Range":
-                    if(rangedBuilder == null)
-                        builder = rangedBuilder = new RangedWeapon.Builder(builder);
-                    rangedBuilder.setRange(Integer.parseInt(trim.split(" ")[0]));
+                    item.getExtension(RangedWeapon.Builder.class)
+                            .setRange(Integer.parseInt(trim.split(" ")[0]));
                     break;
                 case "Hands":
-                    builder.setHands(Integer.parseInt(trim));
+                    item.setHands(Integer.parseInt(trim));
                     break;
                 case "Reload":
-                    if(rangedBuilder == null)
-                        builder = rangedBuilder = new RangedWeapon.Builder(builder);
-                    rangedBuilder.setReload(Integer.parseInt(trim));
+                    item.getExtension(RangedWeapon.Builder.class)
+                            .setReload(Integer.parseInt(trim));
                     break;
                 case "Bulk":
                     if (trim.toUpperCase().equals("L"))
-                        builder.setWeight(.1);
+                        item.setWeight(.1);
                     else
-                        builder.setWeight(Double.parseDouble(trim));
+                        item.setWeight(Double.parseDouble(trim));
                     break;
                 case "Group":
-                    builder.setGroup(weaponGroups.get(trim.toLowerCase()));
+                    weaponExt.setGroup(weaponGroups.get(trim.toLowerCase()));
                     break;
                 case "Traits":
-                    Arrays.stream(trim.split(",")).map((item)->{
-                        String[] s = item.trim().split(" ", 2);
+                    Arrays.stream(trim.split(",")).map((traitString)->{
+                        String[] s = traitString.trim().split(" ", 2);
+                        Trait trait = null;
                         if(s.length == 1) {
-                            Trait trait = null;
                             try {
                                 trait = loader.findFromDependencies("Trait",
                                         TraitsLoader.class,
-                                        item.trim());
+                                        traitString.trim());
                             } catch (ObjectNotFoundException e) {
                                 e.printStackTrace();
                             }
                             return trait;
                         }else {
-                            Trait trait = null;
                             try {
                                 trait = loader.findFromDependencies("Trait",
                                         TraitsLoader.class,
@@ -130,14 +130,14 @@ public class WeaponsLoader extends FileLoader<Weapon> {
                             }
                             return new CustomTrait(trait, s[1]);
                         }
-                    }).filter(Objects::nonNull).forEachOrdered(builder::addWeaponTrait);
+                    }).filter(Objects::nonNull).forEachOrdered(item::addTrait);
                     break;
                 default:
-                    EquipmentLoader.parseTag(trim, curr, builder, loader);
+                    EquipmentLoader.parseTag(trim, curr, item, loader);
                     break;
             }
         }
-        return (rangedBuilder != null) ? rangedBuilder.build() : builder.build();
+        return item.build();
     }
 
     public Map<String, WeaponGroup> getWeaponsGroups() {

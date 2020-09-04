@@ -7,14 +7,15 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.collections.transformation.FilteredList;
-import model.equipment.weapons.WeaponGroupMod;
-import model.equipment.weapons.WeaponMod;
 import model.attributes.*;
 import model.enums.Proficiency;
 import model.enums.Type;
 import model.enums.WeaponProficiency;
+import model.equipment.Item;
 import model.equipment.weapons.Weapon;
 import model.equipment.weapons.WeaponGroup;
+import model.equipment.weapons.WeaponGroupMod;
+import model.equipment.weapons.WeaponMod;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -429,20 +430,20 @@ public class AttributeManager implements PlayerState {
         groupProficiencies.put(weaponGroupMod.getGroup(), null);
     }
 
-    Proficiency getProficiency(WeaponProficiency attr, Weapon weapon) {
+    Proficiency getProficiency(WeaponProficiency attr, Item weapon) {
         return getProficiency(Attribute.valueOf(attr), weapon);
     }
 
-    Proficiency getProficiency(Attribute attr, Weapon weapon) {
+    Proficiency getProficiency(Attribute attr, Item weapon) {
         return Proficiency.max(getProficiency(attr, "").getValue(),
-                groupProficiencies.getOrDefault(weapon.getGroup(), Proficiency.Untrained),
+                groupProficiencies.getOrDefault(weapon.getExtension(Weapon.class).getGroup(), Proficiency.Untrained),
                 getSpecificWeaponProficiency(weapon));
     }
 
-    private Proficiency getSpecificWeaponProficiency(Weapon weapon) {
+    private Proficiency getSpecificWeaponProficiency(Item weapon) {
         for (String customWeaponString : customWeaponStrings) {
             Object o = customGetter.get(customWeaponString);
-            if(o instanceof Weapon && weapon.getName().equals(((Weapon) o).getName())) {
+            if(o instanceof Item && weapon.getName().equals(((Item) o).getName())) {
                 return Proficiency.max(
                         weaponProficiencies.getOrDefault(customWeaponString.toLowerCase(), Proficiency.Untrained),
                         weaponProficiencies.getOrDefault(weapon.getName().toLowerCase(), Proficiency.Untrained)

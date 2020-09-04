@@ -105,7 +105,7 @@ public abstract class FileLoader<T> {
                 if(a != null) return a;
             }
         }
-        throw new ObjectNotFoundException(nameOfA, name);
+        throw new ObjectNotFoundException(name, nameOfA);
     }
 
     public NavigableMap<String, T> getCategory(String category) {

@@ -1,25 +1,24 @@
 package model.equipment.armor;
 
-import model.enums.ArmorProficiency;
-import model.enums.Slot;
-import model.equipment.Equipment;
-import model.equipment.runes.runedItems.Enchantable;
-import model.equipment.runes.runedItems.RunedShield;
+import model.equipment.BaseItem;
+import model.equipment.Item;
+import model.equipment.ItemExtension;
 
-public class Shield extends Armor implements Enchantable {
+public class Shield extends ItemExtension {
     public static final Shield NO_SHIELD;
 
     static {
-        Builder builder = new Builder();
-        builder.setName("No Shield");
-        NO_SHIELD = builder.build();
+        BaseItem.Builder builder = new BaseItem.Builder();
+        builder.getExtension(Armor.Builder.class);
+        builder.getExtension(Shield.Builder.class);
+        NO_SHIELD = builder.build().getExtension(Shield.class);
     }
     private final int hardness;
     private final int hp;
     private final int bt;
 
-    public Shield(Shield.Builder builder) {
-        super(builder);
+    public Shield(Shield.Builder builder, Item baseItem) {
+        super(baseItem);
         this.hardness = builder.hardness;
         this.hp = builder.hp;
         this.bt = builder.bt;
@@ -37,44 +36,26 @@ public class Shield extends Armor implements Enchantable {
         return bt;
     }
 
-    @Override
     public Shield copy() {
-        return new Shield.Builder(this).build();
+        return new Shield.Builder(this).build(getBaseItem());
     }
 
-    @Override
-    public Equipment makeRuned() {
-        return new RunedShield(this);
-    }
-
-    public static class Builder extends Armor.Builder {
+    public static class Builder extends ItemExtension.Builder {
         private int hardness;
         private int hp;
         private int bt;
 
-        public Builder() { init(); }
-
-        public Builder(Armor.Builder builder) {
-            super(builder.build());
-            init();
-        }
+        public Builder() {}
 
         public Builder(Shield shield) {
-            super(shield);
             this.hardness = shield.hardness;
             this.hp = shield.hp;
             this.bt = shield.bt;
         }
 
-        private void init() {
-            this.setProficiency(ArmorProficiency.Shield);
-            this.setSlot(Slot.OneHand);
-        }
-
         @Override
-        public Shield build() {
-            setSubCategory("Shield");
-            return new Shield(this);
+        public Shield build(Item baseItem) {
+            return new Shield(this, baseItem);
         }
 
         public void setHardness(int hardness) {

@@ -18,7 +18,7 @@ import javafx.util.StringConverter;
 import model.CharacterManager;
 import model.enums.BuySellMode;
 import model.enums.Slot;
-import model.equipment.Equipment;
+import model.equipment.Item;
 import model.equipment.ItemCount;
 import model.player.PC;
 import model.util.StringUtils;
@@ -76,7 +76,7 @@ public class EquipTabController {
     private final ObservableList<ItemCount> unequipList = FXCollections.observableArrayList(count -> new Observable[]{count.countProperty()});
     private final FilteredList<ItemCount> unequipFilter = new FilteredList<>(unequipList);
     private final SortedList<ItemCount> unequipSort = new SortedList<>(unequipFilter, Comparator.comparing(o -> o.stats().getName()));
-    private final Map<Equipment, ItemCount> unequipMap = new HashMap<>();
+    private final Map<Item, ItemCount> unequipMap = new HashMap<>();
 
     //Equipped List
     private final ObservableList<EquippedEntry> equipList = FXCollections.observableArrayList(entry -> new Observable[]{entry.countProperty()});
@@ -130,7 +130,7 @@ public class EquipTabController {
 
         ChangeListener<TreeItem<ItemEntry>> listener = (obs, oldVal, selectedItem) -> {
             if(selectedItem == null || selectedItem.getValue() == null) return;
-            Equipment item = selectedItem.getValue().getContents();
+            Item item = selectedItem.getValue().getContents();
             if (item != null) setDisplay(item);
         };
 
@@ -207,7 +207,7 @@ public class EquipTabController {
             }
         });
         character.inventory().getCarried().addListener(
-        (MapChangeListener<Equipment, ItemCount>) change -> {
+        (MapChangeListener<Item, ItemCount>) change -> {
             if(change.wasAdded() && !controllerOp) {
                 ItemCount unequippedItem = unequipMap.get(change.getValueAdded().stats());
                 if(unequippedItem != null)
@@ -284,7 +284,7 @@ public class EquipTabController {
         totalValue.setText(value+" sp");
     }
 
-    private void setDisplay(Equipment selectedItem) {
+    private void setDisplay(Item selectedItem) {
         String s = EquipmentHTMLGenerator.parse(selectedItem);
         itemDisplay.getEngine().loadContent(s);
 //        System.out.println(s);
@@ -357,7 +357,7 @@ public class EquipTabController {
         }
     }
 
-    private <T> ItemCount find(List<T> list, Equipment stats, Function<T,ItemCount> converter) {
+    private <T> ItemCount find(List<T> list, Item stats, Function<T,ItemCount> converter) {
         int first = 0; int last = list.size();
         while(first < last) {
             ItemCount count = converter.apply(list.get((first + last) / 2));
@@ -371,7 +371,7 @@ public class EquipTabController {
         return null;
     }
 
-    private void tryToBuy(Equipment item, int count) {
+    private void tryToBuy(Item item, int count) {
         if(count != 2) return;
         if (!character.inventory().buy(item, 1)) {
             new Alert(Alert.AlertType.INFORMATION, "Not Enough Money!").showAndWait();

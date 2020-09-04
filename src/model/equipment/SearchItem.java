@@ -1,23 +1,63 @@
 package model.equipment;
 
+import model.abilities.Ability;
+import model.attributes.AttributeBonus;
 import model.enums.Rarity;
 import model.enums.Slot;
+import model.enums.Trait;
 
-public class SearchItem extends Equipment {
+import java.util.Collection;
+import java.util.List;
 
+public class SearchItem implements Item {
+    private final String name;
     public SearchItem(String name) {
-        super(new SearchItem.Builder(name));
-    }
-
-    private static class Builder extends Equipment.Builder {
-        public Builder(String name) {
-            setName(name);
-        }
+        this.name = name;
     }
 
     @Override
-    public Equipment copy() {
-        return new SearchItem(getName());
+    public Item copy() {
+        return new SearchItem(name);
+    }
+
+    @Override
+    public List<Trait> getTraits() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<AttributeBonus> getBonuses() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<Ability> getAbilities() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <T extends ItemExtension> T getExtension(Class<T> extensionClass) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Collection<ItemExtension> getExtensions() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ItemExtension getExtensionByName(String extensionName) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <T extends ItemExtension> boolean hasExtension(Class<T> extensionClass) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean hasExtension(String extensionName) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -43,5 +83,40 @@ public class SearchItem extends Equipment {
     @Override
     public Slot getSlot() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getHands() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getLevel() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getCategory() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getSubCategory() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getDescription() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int compareTo(Item o) {
+        return name.compareTo(o.getName());
     }
 }

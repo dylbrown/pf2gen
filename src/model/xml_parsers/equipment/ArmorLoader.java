@@ -4,6 +4,8 @@ import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.ArmorProficiency;
 import model.enums.Trait;
+import model.equipment.BaseItem;
+import model.equipment.Item;
 import model.equipment.armor.Armor;
 import model.equipment.armor.ArmorGroup;
 import model.equipment.armor.Shield;
@@ -23,7 +25,7 @@ import java.util.Objects;
 
 import static model.util.StringUtils.camelCase;
 
-public class ArmorLoader extends FileLoader<Armor> {
+public class ArmorLoader extends FileLoader<Item> {
 
     private final Map<String, ArmorGroup> armorGroups = new HashMap<>();
 
@@ -44,23 +46,21 @@ public class ArmorLoader extends FileLoader<Armor> {
         });
 
         iterateElements(doc, "Armor", (curr)->{
-            Armor armor = getArmor(curr);
+            Item armor = getArmor(curr);
             addItem(armor.getSubCategory(), armor);
         });
     }
 
     @Override
-    protected Armor parseItem(File file, Element item) {
+    protected Item parseItem(File file, Element item) {
         return getArmor(item);
     }
 
-    private Armor getArmor(Element armor) {
-        Armor.Builder builder = new Armor.Builder();
-        Shield.Builder shieldBuilder = null;
+    private Item getArmor(Element armor) {
+        BaseItem.Builder builder = new BaseItem.Builder();
+        Armor.Builder armorExt = builder.getExtension(Armor.Builder.class);
         Node proficiencyNode= armor.getParentNode();
-        if(proficiencyNode.getNodeName().trim().equals("Shield"))
-            builder = shieldBuilder = new Shield.Builder(builder);
-        builder.setProficiency(ArmorProficiency.valueOf(camelCase(proficiencyNode.getNodeName())));
+        armorExt.setProficiency(ArmorProficiency.valueOf(camelCase(proficiencyNode.getNodeName())));
         NodeList nodeList = armor.getChildNodes();
 
         for(int i=0; i<nodeList.getLength(); i++) {
@@ -70,37 +70,34 @@ public class ArmorLoader extends FileLoader<Armor> {
             String trim = curr.getTextContent().trim();
             switch (curr.getTagName()) {
                 case "AC":
-                    builder.setAC(Integer.parseInt(trim.replaceAll("\\+","")));
+                    armorExt.setAC(Integer.parseInt(trim.replaceAll("\\+","")));
                     break;
                 case "MaxDex":
-                    builder.setMaxDex(Integer.parseInt(trim.replaceAll("\\+","")));
+                    armorExt.setMaxDex(Integer.parseInt(trim.replaceAll("\\+","")));
                     break;
                 case "ACP":
-                    builder.setACP(Integer.parseInt(trim.replaceAll("\\+","")));
+                    armorExt.setACP(Integer.parseInt(trim.replaceAll("\\+","")));
                     break;
                 case "SpeedPenalty":
-                    builder.setSpeedPenalty(Integer.parseInt(trim.replaceAll("\\+","")));
+                    armorExt.setSpeedPenalty(Integer.parseInt(trim.replaceAll("\\+","")));
                     break;
                 case "Group":
-                    builder.setGroup(armorGroups.get(trim.toLowerCase()));
+                    armorExt.setGroup(armorGroups.get(trim.toLowerCase()));
                     break;
                 case "Strength":
-                    builder.setStrength(Integer.parseInt(trim));
+                    armorExt.setStrength(Integer.parseInt(trim));
                     break;
                 case "Hardness":
-                    if(shieldBuilder == null)
-                        builder = shieldBuilder = new Shield.Builder(builder);
-                    shieldBuilder.setHardness(Integer.parseInt(trim));
+                    builder.getExtension(Shield.Builder.class)
+                            .setHardness(Integer.parseInt(trim));
                     break;
                 case "HP":
-                    if(shieldBuilder == null)
-                        builder = shieldBuilder = new Shield.Builder(builder);
-                    shieldBuilder.setHP(Integer.parseInt(trim));
+                    builder.getExtension(Shield.Builder.class)
+                            .setHP(Integer.parseInt(trim));
                     break;
                 case "BT":
-                    if(shieldBuilder == null)
-                        builder = shieldBuilder = new Shield.Builder(builder);
-                    shieldBuilder.setBT(Integer.parseInt(trim));
+                    builder.getExtension(Shield.Builder.class)
+                            .setBT(Integer.parseInt(trim));
                     break;
                 case "Traits":
                     Arrays.stream(trim.split(",")).map((item)->{
@@ -113,12 +110,12 @@ public class ArmorLoader extends FileLoader<Armor> {
                             e.printStackTrace();
                         }
                         return trait;
-                    }).filter(Objects::nonNull).forEachOrdered(builder::addArmorTrait);
+                    }).filter(Objects::nonNull).forEachOrdered(builder::addTrait);
                     break;
                 default:
                     EquipmentLoader.parseTag(trim, curr, builder, this);
             }
         }
-        return (shieldBuilder != null) ? shieldBuilder.build() : builder.build();
+        return builder.build();
     }
 }

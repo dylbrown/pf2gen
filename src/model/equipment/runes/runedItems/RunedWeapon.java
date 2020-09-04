@@ -1,5 +1,7 @@
 package model.equipment.runes.runedItems;
 
+import model.equipment.Item;
+import model.equipment.ItemExtension;
 import model.equipment.runes.WeaponRune;
 import model.equipment.weapons.Damage;
 import model.equipment.weapons.Dice;
@@ -9,47 +11,38 @@ import model.equipment.weapons.Weapon;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class RunedWeapon extends Weapon implements RunedEquipment<WeaponRune> {
+public class RunedWeapon extends ItemExtension {
     private final Runes<WeaponRune> runes;
-    private final Weapon baseWeapon;
 
-    public RunedWeapon(Weapon weapon) {
-        super(new Weapon.Builder(weapon));
-        runes = new Runes<>(weapon.getName(), WeaponRune.class);
-        baseWeapon = weapon;
+    public RunedWeapon(Item item) {
+        super(item);
+        runes = new Runes<>(item.getName(), WeaponRune.class);
+        if(!item.hasExtension(Weapon.class))
+            throw new RuntimeException("RunedWeapon is not Weapon");
     }
 
-    @Override
-    public Weapon getBaseItem() {
-        return baseWeapon;
-    }
-
-    @Override
-    public String getName() {
+    @ItemDecorator
+    public String getName(String baseName) {
         return runes.getFullName().get();
     }
 
-    @Override
-    public double getValue() {
-        return super.getValue() + runes.getValue();
+    @ItemDecorator
+    public double getValue(double baseValue) {
+        return getBaseItem().getValue() + runes.getValue();
     }
 
-    @Override
     public Runes<WeaponRune> getRunes() {
         return runes;
     }
 
-
-    @Override
     public int getAttackBonus() {
         return runes.getAll().stream()
                 .map(WeaponRune::getAttackBonus)
                 .reduce(0, Integer::sum);
     }
 
-    @Override
     public Damage getDamage() {
-        return getDamageStatic(runes, baseWeapon);
+        return getDamageStatic(runes, getBaseItem().getExtension(Weapon.class));
     }
 
     static Damage getDamageStatic(Runes<WeaponRune> runes, Weapon baseWeapon) {

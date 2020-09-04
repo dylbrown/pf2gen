@@ -6,9 +6,9 @@ import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.Trait;
 import model.enums.Type;
-import model.equipment.Equipment;
+import model.equipment.BaseItem;
+import model.equipment.Item;
 import model.equipment.runes.ArmorRune;
-import model.equipment.runes.Rune;
 import model.equipment.runes.WeaponRune;
 import model.equipment.weapons.Damage;
 import model.equipment.weapons.DamageType;
@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 
 import static model.util.StringUtils.camelCaseWord;
 
-public class EquipmentLoader extends FileLoader<Equipment> {
+public class EquipmentLoader extends FileLoader<Item> {
     private static final ItemAbilityLoader abilityLoader = new ItemAbilityLoader(null, null, null);
 
     public EquipmentLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
@@ -44,7 +44,7 @@ public class EquipmentLoader extends FileLoader<Equipment> {
         File subFile = getSubFile(location);
         Document doc = getDoc(subFile);
         Consumer<Element> parser = (curr) -> {
-            Equipment item = parseItem(subFile, curr);
+            Item item = parseItem(subFile, curr);
             addItem(item.getCategory(), item);
         };
         iterateElements(doc, "Item", parser);
@@ -53,7 +53,7 @@ public class EquipmentLoader extends FileLoader<Equipment> {
     }
 
     @Override
-    protected Equipment parseItem(File file, Element item) {
+    protected Item parseItem(File file, Element item) {
         String niceName = StringUtils.unclean(file.getName().replaceAll(".pfdyl", ""));
         switch(StringUtils.clean(item.getTagName())) {
             case "weaponrune": return makeWeaponRune(niceName, item);
@@ -62,8 +62,8 @@ public class EquipmentLoader extends FileLoader<Equipment> {
         return makeItem(niceName, item);
     }
 
-    private Equipment makeItem(String niceName, Element item) {
-        Equipment.Builder builder = new Equipment.Builder();
+    private Item makeItem(String niceName, Element item) {
+        BaseItem.Builder builder = new BaseItem.Builder();
         builder.setCategory(niceName);
         Node parentNode = item.getParentNode();
         if(parentNode instanceof Element && ((Element) parentNode).getTagName().equals("SubCategory")) {
@@ -83,8 +83,9 @@ public class EquipmentLoader extends FileLoader<Equipment> {
     }
 
 
-    private Equipment makeArmorRune(String niceName, Element item) {
-        ArmorRune.Builder builder = new ArmorRune.Builder();
+    private Item makeArmorRune(String niceName, Element item) {
+        BaseItem.Builder builder = new BaseItem.Builder();
+        ArmorRune.Builder runeExt = builder.getExtension(ArmorRune.Builder.class);
         builder.setCategory(niceName);
         Node parentNode = item.getParentNode();
         if(parentNode instanceof Element && ((Element) parentNode).getTagName().equals("SubCategory")) {
@@ -93,7 +94,7 @@ public class EquipmentLoader extends FileLoader<Equipment> {
         if(item.hasAttribute("level"))
             builder.setLevel(Integer.parseInt(item.getAttribute("level")));
         if(item.hasAttribute("fundamental"))
-            builder.setFundamental(true);
+            runeExt.setFundamental(true);
         NodeList nodeList = item.getChildNodes();
         for(int i=0; i<nodeList.getLength(); i++) {
             if(nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)
@@ -101,16 +102,19 @@ public class EquipmentLoader extends FileLoader<Equipment> {
             Element curr = (Element) nodeList.item(i);
             String trim = curr.getTextContent().trim();
             if ("BonusAC".equals(curr.getTagName())) {
-                builder.setBonusAC(Integer.parseInt(trim));
+                runeExt.setBonusAC(Integer.parseInt(trim));
+            }else if("GrantsProperties".equals(curr.getTagName())){
+                runeExt.setGrantsProperties(Integer.parseInt(trim));
             } else {
-                parseRuneTag(trim, curr, builder);
+                parseTag(trim, curr, builder, this);
             }
         }
         return builder.build();
     }
 
-    private Equipment makeWeaponRune(String niceName, Element item) {
-        WeaponRune.Builder builder = new WeaponRune.Builder();
+    private Item makeWeaponRune(String niceName, Element item) {
+        BaseItem.Builder builder = new BaseItem.Builder();
+        WeaponRune.Builder runeExt = builder.getExtension(WeaponRune.Builder.class);
         builder.setCategory(niceName);
         Node parentNode = item.getParentNode();
         if(parentNode instanceof Element && ((Element) parentNode).getTagName().equals("SubCategory")) {
@@ -119,7 +123,7 @@ public class EquipmentLoader extends FileLoader<Equipment> {
         if(item.hasAttribute("level"))
             builder.setLevel(Integer.parseInt(item.getAttribute("level")));
         if(item.hasAttribute("fundamental"))
-            builder.setFundamental(true);
+            runeExt.setFundamental(true);
         NodeList nodeList = item.getChildNodes();
         for(int i=0; i<nodeList.getLength(); i++) {
             if(nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)
@@ -128,15 +132,19 @@ public class EquipmentLoader extends FileLoader<Equipment> {
             String trim = curr.getTextContent().trim();
             switch (curr.getTagName()) {
                 case "AttackBonus":
-                    builder.setAttackBonus(Integer.parseInt(trim));
+                    runeExt.setAttackBonus(Integer.parseInt(trim));
                     break;
                 case "BonusDamage":
-                    builder.setBonusDamage(parseDamage(trim));
+                    runeExt.setBonusDamage(parseDamage(trim));
                     break;
                 case "WeaponDice":
-                    builder.setBonusWeaponDice(Integer.parseInt(trim));
+                    runeExt.setBonusWeaponDice(Integer.parseInt(trim));
+                    break;
+                case "GrantsProperties":
+                    runeExt.setGrantsProperties(Integer.parseInt(trim));
+                    break;
                 default:
-                    parseRuneTag(trim, curr, builder);
+                    parseTag(trim, curr, builder, this);
             }
         }
         return builder.build();
@@ -169,15 +177,7 @@ public class EquipmentLoader extends FileLoader<Equipment> {
         }
     }
 
-    private void parseRuneTag(String trim, Element curr, Rune.Builder builder) {
-        if ("GrantsProperties".equals(curr.getTagName())) {
-            builder.setGrantsProperties(Integer.parseInt(trim));
-        } else {
-            parseTag(trim, curr, builder, this);
-        }
-    }
-
-    static void parseTag(String trim, Element curr, Equipment.Builder builder, FileLoader<?> loader) {
+    static void parseTag(String trim, Element curr, BaseItem.Builder builder, FileLoader<?> loader) {
         switch (curr.getTagName()) {
             case "Name":
                 builder.setName(trim);

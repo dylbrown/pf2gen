@@ -1,12 +1,12 @@
 package model.creatures;
 
-import model.equipment.Equipment;
+import model.equipment.Item;
 
 public class CreatureItem {
     private final String itemName;
-    private final Equipment item;
+    private final Item item;
 
-    public CreatureItem(Equipment item) {
+    public CreatureItem(Item item) {
         this.itemName = item.getName();
         this.item = item;
     }
@@ -20,7 +20,7 @@ public class CreatureItem {
         return itemName;
     }
 
-    public Equipment getItem() {
+    public Item getItem() {
         return item;
     }
 }

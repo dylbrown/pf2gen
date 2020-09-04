@@ -11,11 +11,6 @@ public class SpellListWrapper extends GenericWrapper<SpellList> {
     }
 
     @Override
-    boolean hasSpecialCase(String s) {
-        return s.equals("spellsknown");
-    }
-
-    @Override
     Object getSpecialCase(String s, SpellList spellList) {
         if(!s.equals("spellsknown")) return null;
         return new WrapperTransformationList<>(

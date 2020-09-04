@@ -11,6 +11,7 @@ import model.attributes.*;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.*;
+import model.equipment.weapons.Weapon;
 import model.spells.CasterType;
 import model.spells.SpellType;
 import model.spells.Tradition;
@@ -178,7 +179,8 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     break;
                 case "Weapon":
                     builder.getExtension(AttackExtension.Builder.class)
-                            .addWeapon(WeaponsLoader.getWeapon(propElem, this));
+                            .addWeapon(WeaponsLoader.getWeapon(propElem, this)
+                                    .getExtension(Weapon.class));
                     break;
                 case "CustomMod":
                     builder.setCustomMod(trim);

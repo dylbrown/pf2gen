@@ -1,9 +1,11 @@
 package model.equipment.runes;
 
+import model.equipment.Item;
+
 public class ArmorRune extends Rune {
     private final int bonusAC;
-    private ArmorRune(Builder builder) {
-        super(builder);
+    private ArmorRune(Builder builder, Item baseItem) {
+        super(builder, baseItem);
         bonusAC = builder.bonusAC;
 
     }
@@ -19,8 +21,8 @@ public class ArmorRune extends Rune {
             this.bonusAC = bonusAC;
         }
 
-        public ArmorRune build() {
-            return new ArmorRune(this);
+        public ArmorRune build(Item baseItem) {
+            return new ArmorRune(this, baseItem);
         }
     }
 }

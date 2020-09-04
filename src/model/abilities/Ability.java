@@ -34,7 +34,7 @@ public class Ability extends NamedObject implements Comparable<Ability> {
     private final int skillIncreases;
     private final Map<Class<? extends AbilityExtension>, AbilityExtension> extensions;
 
-    public Ability(Builder builder, Map<Class<? extends AbilityExtension>, AbilityExtension> extensions) {
+    private Ability(Builder builder, Map<Class<? extends AbilityExtension>, AbilityExtension> extensions) {
         super(builder);
         this.level = builder.level;
         this.modifiers = builder.modifiers;
@@ -55,7 +55,7 @@ public class Ability extends NamedObject implements Comparable<Ability> {
         this.extensions = extensions;
     }
 
-    protected Ability(Ability.Builder builder) {
+    private Ability(Ability.Builder builder) {
         this(builder, new HashMap<>());
         for (AbilityExtension.Builder extensionBuilder : builder.extensions.values()) {
             AbilityExtension extension = extensionBuilder.build(this);

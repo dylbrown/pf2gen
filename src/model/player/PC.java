@@ -16,6 +16,7 @@ import model.attributes.Attribute;
 import model.attributes.AttributeRequirement;
 import model.enums.Alignment;
 import model.enums.Type;
+import model.equipment.armor.Armor;
 import model.spells.Spell;
 import model.spells.SpellList;
 import model.util.ObjectNotFoundException;
@@ -210,8 +211,8 @@ public class PC {
 
     public int getTotalMod(Attribute attribute, String data) {
         int acp = 0;
-        if(attribute.hasACP() && combat.getArmor().getStrength() > scores.getScore(Str))
-            acp -= combat.getArmor().getACP();
+        if(attribute.hasACP() && combat.getArmor().getExtension(Armor.class).getStrength() > scores.getScore(Str))
+            acp -= combat.getArmor().getExtension(Armor.class).getACP();
         return scores.getMod(attribute.getKeyAbility(), data)
                 + attributes.getProficiency(attribute, data).getValue().getMod(level.get())
                 + attributes.getBonus(attribute) + acp;

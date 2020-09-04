@@ -5,7 +5,7 @@ import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
 import model.enums.Slot;
-import model.equipment.Equipment;
+import model.equipment.Item;
 import model.equipment.ItemCount;
 import model.util.Pair;
 
@@ -35,7 +35,7 @@ public class ItemCountWrapper implements TemplateHashModel {
         }
     }
 
-    public Equipment stats(){return itemCount.stats();}
+    public Item stats(){return itemCount.stats();}
 
     public int count() {
         return itemCount.getCount();

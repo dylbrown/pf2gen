@@ -11,8 +11,7 @@ import model.data_managers.sources.Source;
 import model.data_managers.sources.SpellsMultiSourceLoader;
 import model.data_managers.sources.WeaponsMultiSourceLoader;
 import model.enums.Trait;
-import model.equipment.Equipment;
-import model.equipment.armor.Armor;
+import model.equipment.Item;
 import model.xml_parsers.*;
 import model.xml_parsers.abc.AncestriesLoader;
 import model.xml_parsers.abc.BackgroundsLoader;
@@ -35,8 +34,8 @@ public class SourcesManager {
     private final MultiSourceLoader<Ancestry> ancestries = new MultiSourceLoader<>("Ancestry");
     private final MultiSourceLoader<Background> backgrounds = new MultiSourceLoader<>("Background");
     private final MultiSourceLoader<PClass> classes = new MultiSourceLoader<>("Class");
-    private final MultiSourceLoader<Equipment> equipment = new MultiSourceLoader<>("Equipment");
-    private final MultiSourceLoader<Armor> armor = new MultiSourceLoader<>("Armor");
+    private final MultiSourceLoader<Item> equipment = new MultiSourceLoader<>("Equipment");
+    private final MultiSourceLoader<Item> armor = new MultiSourceLoader<>("Armor");
     private final WeaponsMultiSourceLoader weapons = new WeaponsMultiSourceLoader();
     private final MultiSourceLoader<Ability> feats = new MultiSourceLoader<>("Feat");
     private final MultiSourceLoader<Ability> choices = new MultiSourceLoader<>("Ability Choice");
@@ -92,11 +91,11 @@ public class SourcesManager {
         return classes;
     }
 
-    public MultiSourceLoader<Equipment> equipment() {
+    public MultiSourceLoader<Item> equipment() {
         return equipment;
     }
 
-    public MultiSourceLoader<Armor> armor() {
+    public MultiSourceLoader<Item> armor() {
         return armor;
     }
 

@@ -1,13 +1,14 @@
 package model.equipment.runes;
 
+import model.equipment.Item;
 import model.equipment.weapons.Damage;
 
 public class WeaponRune extends Rune {
     private final Damage bonusDamage;
     private final int attackBonus;
     private final int bonusWeaponDice;
-    private WeaponRune(Builder builder) {
-        super(builder);
+    private WeaponRune(Builder builder, Item baseItem) {
+        super(builder, baseItem);
         bonusDamage = builder.bonusDamage;
         attackBonus = builder.bonusAttack;
         bonusWeaponDice = builder.bonusWeaponDice;
@@ -42,8 +43,8 @@ public class WeaponRune extends Rune {
             this.bonusWeaponDice = bonusWeaponDice;
         }
 
-        public WeaponRune build() {
-            return new WeaponRune(this);
+        public WeaponRune build(Item baseItem) {
+            return new WeaponRune(this, baseItem);
         }
     }
 }

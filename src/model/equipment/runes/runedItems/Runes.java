@@ -7,7 +7,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import model.equipment.Equipment;
+import model.equipment.Item;
 import model.equipment.runes.Rune;
 import model.util.Pair;
 import model.util.StringUtils;
@@ -19,13 +19,30 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Runes<T extends Rune> {
+
+    public static Runes<?> getRunes(Item item) {
+        Runes<?> runes = null;
+        RunedArmor runedArmor = item.getExtension(RunedArmor.class);
+        if(runedArmor != null) runes = runedArmor.getRunes();
+        RunedWeapon runedWeapon = item.getExtension(RunedWeapon.class);
+        if(runedWeapon != null) runes = runedWeapon.getRunes();
+        return runes;
+    }
+
+    public static boolean isRuned(Item item) {
+        RunedArmor runedArmor = item.getExtension(RunedArmor.class);
+        if(runedArmor != null) return true;
+        RunedWeapon runedWeapon = item.getExtension(RunedWeapon.class);
+        return runedWeapon != null;
+    }
+
     private final String itemName;
     private final ReadOnlyStringWrapper fullName;
     private final Class<T> clazz;
-    private ObservableMap<String, T> runes = FXCollections.observableHashMap();
-    private ObservableList<Equipment> runesList = FXCollections.observableArrayList();
-    private ReadOnlyIntegerWrapper numProperties = new ReadOnlyIntegerWrapper(0);
-    private ReadOnlyIntegerWrapper maxProperties = new ReadOnlyIntegerWrapper(0);
+    private final ObservableMap<String, T> runes = FXCollections.observableHashMap();
+    private final ObservableList<Item> runesList = FXCollections.observableArrayList();
+    private final ReadOnlyIntegerWrapper numProperties = new ReadOnlyIntegerWrapper(0);
+    private final ReadOnlyIntegerWrapper maxProperties = new ReadOnlyIntegerWrapper(0);
 
     public Runes(String name, Class<T> clazz) {
         itemName = name;
@@ -34,7 +51,7 @@ public class Runes<T extends Rune> {
         this.clazz = clazz;
     }
 
-    public ObservableList<Equipment> list() {
+    public ObservableList<Item> list() {
         return FXCollections.unmodifiableObservableList(runesList);
     }
 
@@ -50,7 +67,7 @@ public class Runes<T extends Rune> {
         numProperties.set(numProperties.get() + ((rune.isFundamental()) ? 0 : 1));
 
         runes.put(rune.getBaseRune(), rune);
-        runesList.add(rune);
+        runesList.add(rune.getBaseItem());
         return true;
     }
 
@@ -61,7 +78,7 @@ public class Runes<T extends Rune> {
         maxProperties.subtract(rune.getGrantsProperty());
         numProperties.set(numProperties.get() - ((rune.isFundamental()) ? 0 : 1));
 
-        runesList.remove(runes.get(rune.getBaseRune()));
+        runesList.remove(rune.getBaseItem());
         runes.remove(rune.getBaseRune());
         return true;
     }
@@ -74,8 +91,8 @@ public class Runes<T extends Rune> {
         maxProperties.set(maxProperties.get() - rune.getGrantsProperty() + upgradedRune.getGrantsProperty());
 
         runes.put(rune.getBaseRune(), upgradedRune);
-        runesList.remove(rune);
-        runesList.add(upgradedRune);
+        runesList.remove(rune.getBaseItem());
+        runesList.add(upgradedRune.getBaseItem());
         return true;
     }
 
@@ -113,7 +130,7 @@ public class Runes<T extends Rune> {
                 .sorted(Comparator.comparingInt(Rune::getGrantsProperty).reversed()
                         .thenComparing((o1, o2) -> Boolean.compare(o1.isFundamental(), o2.isFundamental())))
                 .map(r -> {
-            String name = r.getName();
+            String name = r.getBaseItem().getName();
             if (name.contains("(")) {
                 Pair<String, String> namePair = StringUtils.getInAndOutBrackets(name);
                 if (namePair.first.matches(".*Potency.*")) return namePair.second;
@@ -129,7 +146,7 @@ public class Runes<T extends Rune> {
     }
 
     public double getValue() {
-        return runes.values().stream().map(Equipment::getValue).reduce(0.0, Double::sum);
+        return runesList.stream().map(Item::getValue).reduce(0.0, Double::sum);
     }
 
     private boolean hasRune(Rune rune) {

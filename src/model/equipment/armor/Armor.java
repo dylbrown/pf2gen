@@ -2,42 +2,41 @@ package model.equipment.armor;
 
 import model.enums.ArmorProficiency;
 import model.enums.Slot;
-import model.enums.Trait;
-import model.equipment.Equipment;
-import model.equipment.runes.runedItems.Enchantable;
-import model.equipment.runes.runedItems.RunedArmor;
+import model.equipment.BaseItem;
+import model.equipment.Item;
+import model.equipment.ItemExtension;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-public class Armor extends Equipment implements Enchantable {
+public class Armor extends ItemExtension {
     private final int AC;
     private final int maxDex;
     private final int ACP;
     private final int speedPenalty;
     private final int strength;
     private final ArmorGroup group;
-    private final List<Trait> traits;
     private final ArmorProficiency proficiency;
     public static final Armor NO_ARMOR;
 
     static{
-        Builder builder = new Builder();
-        builder.setProficiency(ArmorProficiency.Unarmored);
-        NO_ARMOR = builder.build();
+        BaseItem.Builder builder = new BaseItem.Builder();
+        builder.getExtension(Armor.Builder.class)
+                .setProficiency(ArmorProficiency.Unarmored);
+        NO_ARMOR = builder.build().getExtension(Armor.class);
     }
 
-    public Armor(Armor.Builder builder) {
-        super(builder);
+    private Armor(Armor.Builder builder, Item baseItem) {
+        super(baseItem);
         this.AC = builder.AC;
         this.maxDex = builder.maxDex;
         this.ACP = builder.ACP;
         this.speedPenalty = builder.speedPenalty;
         this.strength = builder.strength;
         this.group = builder.group;
-        this.traits = builder.traits;
         this.proficiency = builder.proficiency;
+    }
+
+    @ItemDecorator
+    public Slot getSlot(Slot slot) {
+        return (getBaseItem().hasExtension(Shield.class)) ? Slot.OneHand : Slot.Armor;
     }
 
     public int getAC() {
@@ -64,54 +63,38 @@ public class Armor extends Equipment implements Enchantable {
         return group;
     }
 
-    public List<Trait> getArmorTraits() {
-        return Collections.unmodifiableList(traits);
-    }
-
     public ArmorProficiency getProficiency() {
         return proficiency;
     }
 
-    @Override
     public Armor copy() {
-        return new Armor.Builder(this).build();
+        return new Armor.Builder(this).build(getBaseItem());
     }
 
-    @Override
-    public Equipment makeRuned() {
-        return new RunedArmor(this);
-    }
-
-    public static class Builder extends Equipment.Builder {
+    public static class Builder extends ItemExtension.Builder {
         private int AC=0;
         private int maxDex=0;
         private int ACP=0;
         private int speedPenalty=0;
         private int strength=0;
         private ArmorGroup group=ArmorGroup.None;
-        private List<Trait> traits= new ArrayList<>();
         private ArmorProficiency proficiency = null;
 
-        public Builder() {this.setCategory("Armor");
-        this.setSlot(Slot.Armor);}
+        public Builder() {}
 
         public Builder(Armor armor) {
-            super(armor);
             this.AC = armor.AC;
             this.maxDex = armor.maxDex;
             this.ACP = armor.ACP;
             this.speedPenalty = armor.speedPenalty;
             this.strength = armor.strength;
             this.group = armor.group;
-            this.traits = armor.traits;
             this.proficiency = armor.proficiency;
-            this.setCategory("Armor");
-            this.setSubCategory(armor.getSubCategory());
         }
 
         @Override
-        public Armor build() {
-            return new Armor(this);
+        public Armor build(Item baseItem) {
+            return new Armor(this, baseItem);
         }
 
         public void setAC(int AC) {
@@ -138,17 +121,8 @@ public class Armor extends Equipment implements Enchantable {
             this.group = group;
         }
 
-        public void setTraits(List<Trait> traits) {
-            this.traits = traits;
-        }
-
         public void setProficiency(ArmorProficiency proficiency) {
             this.proficiency = proficiency;
-            setSubCategory(proficiency.toString());
-        }
-
-        public void addArmorTrait(Trait trait) {
-            this.traits.add(trait);
         }
     }
 }

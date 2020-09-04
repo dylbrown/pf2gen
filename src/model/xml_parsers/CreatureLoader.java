@@ -10,7 +10,7 @@ import model.enums.Language;
 import model.enums.Trait;
 import model.enums.Type;
 import model.equipment.CustomTrait;
-import model.equipment.Equipment;
+import model.equipment.Item;
 import model.util.ObjectNotFoundException;
 import model.xml_parsers.equipment.ArmorLoader;
 import model.xml_parsers.equipment.EquipmentLoader;
@@ -127,7 +127,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                 case "Items":
                     Arrays.stream(contents.split(", "))
                             .forEach(s->{
-                                Equipment equipment = null;
+                                Item equipment = null;
                                 try {
                                     equipment = findFromDependencies("Equipment",
                                             EquipmentLoader.class,

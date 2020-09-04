@@ -5,10 +5,10 @@ import javafx.beans.property.ReadOnlyProperty;
 
 public class ItemCount {
 
-    private final Equipment baseItem;
+    private final Item baseItem;
     private final ReadOnlyObjectWrapper<Integer> count;
 
-    public ItemCount(Equipment baseItem, int count) {
+    public ItemCount(Item baseItem, int count) {
         this.baseItem = baseItem;
         this.count = new ReadOnlyObjectWrapper<>(count);
     }
@@ -22,7 +22,7 @@ public class ItemCount {
         this(ic.baseItem, count);
     }
 
-    public Equipment stats() {
+    public Item stats() {
         return baseItem;
     }
 
