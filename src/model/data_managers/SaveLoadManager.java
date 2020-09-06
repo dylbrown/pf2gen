@@ -21,8 +21,6 @@ import model.equipment.ItemCount;
 import model.equipment.runes.ArmorRune;
 import model.equipment.runes.Rune;
 import model.equipment.runes.WeaponRune;
-import model.equipment.runes.runedItems.RunedArmor;
-import model.equipment.runes.runedItems.RunedWeapon;
 import model.equipment.runes.runedItems.Runes;
 import model.player.PC;
 import model.spells.Spell;
@@ -108,9 +106,7 @@ public class SaveLoadManager {
             writeOutLine(out, "money = " + character.inventory().getMoney());
             writeOutLine(out, "Inventory");
             for (ItemCount item : character.inventory().getItems().values()) {
-                Runes<?> runes = item.stats().getExtension(RunedArmor.class).getRunes();
-                if(runes != null)
-                    runes = item.stats().getExtension(RunedWeapon.class).getRunes();
+                Runes<?> runes = Runes.getRunes(item.stats());
                 if(runes != null) {
                     Item stats = item.stats();
                     writeOutLine(out, " @ "+item.getCount()+" "+stats.getName());
