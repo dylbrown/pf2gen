@@ -32,7 +32,7 @@ public class SpellsLoader extends FileLoader<Spell> {
 				}
 			}
 		}
-		if(spellsByLevel.get(tradition) == null)
+		if(spellsByLevel.get(tradition) == null || spellsByLevel.get(tradition).get(level) == null)
 			return Collections.emptyList();
 		return Collections.unmodifiableList(spellsByLevel.get(tradition).get(level));
 	}

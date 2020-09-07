@@ -26,6 +26,7 @@ public class InfoTabController {
 		alignment.getItems().addAll(Alignment.values());
 		alignment.getSelectionModel().selectedItemProperty()
 				.addListener((o, oldValue, newValue)-> character.setAlignment(newValue));
+		alignment.getSelectionModel().select(character.getAlignment());
 		character.alignmentProperty().addListener(c ->
 				alignment.getSelectionModel().select(character.getAlignment()));
 		characterName.textProperty().bindBidirectional(character.qualities().getProperty("name"));
@@ -36,7 +37,7 @@ public class InfoTabController {
 		eyes.textProperty().bindBidirectional(character.qualities().getProperty("eyes"));
 		hair.textProperty().bindBidirectional(character.qualities().getProperty("hair"));
 		gender.textProperty().bindBidirectional(character.qualities().getProperty("gender"));
-		level.setText("0");
+		level.setText(character.levelProperty().get().toString());
 		character.levelProperty().addListener((event)-> level.setText(character.levelProperty().get().toString()));
 		levelUp.setOnAction((event -> character.levelUp()));
 		levelDown.setOnAction((event -> character.levelDown()));
