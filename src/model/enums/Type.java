@@ -3,6 +3,7 @@ package model.enums;
 public enum Type {
     Initial, Ancestry, Background, Class, Feat, Heritage, General, Skill, Dedication, None, Apex,
     Choice, // These are not feats in the game, they are things like Rogue's Rackets
+    ClassFeature, // These are feats that are shared across classes like Weapon Specialization
     Misc, Defensive, Offensive, // These are used for creature abilities
     Item,
     Five,Ten,Fifteen,Twenty;

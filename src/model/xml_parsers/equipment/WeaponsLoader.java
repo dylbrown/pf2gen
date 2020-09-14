@@ -22,7 +22,7 @@ import java.util.*;
 
 import static model.util.StringUtils.camelCase;
 
-public class WeaponsLoader extends FileLoader<Item> {
+public class WeaponsLoader extends EquipmentLoader {
 
     private static final Map<String, WeaponGroup> weaponGroups = new HashMap<>();
 
@@ -51,7 +51,7 @@ public class WeaponsLoader extends FileLoader<Item> {
         return getWeapon(item, this);
     }
 
-    public static Item getWeapon(Element weapon, FileLoader<?> loader) {
+    public Item getWeapon(Element weapon, FileLoader<?> loader) {
         BaseItem.Builder item = new BaseItem.Builder();
         Weapon.Builder weaponExt = item.getExtension(Weapon.Builder.class);
         Node proficiencyNode= weapon.getParentNode();
@@ -133,7 +133,7 @@ public class WeaponsLoader extends FileLoader<Item> {
                     }).filter(Objects::nonNull).forEachOrdered(item::addTrait);
                     break;
                 default:
-                    EquipmentLoader.parseTag(trim, curr, item, loader);
+                    parseTag(trim, curr, item, loader);
                     break;
             }
         }

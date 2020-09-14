@@ -10,7 +10,6 @@ import model.equipment.armor.Armor;
 import model.equipment.armor.ArmorGroup;
 import model.equipment.armor.Shield;
 import model.util.ObjectNotFoundException;
-import model.xml_parsers.FileLoader;
 import model.xml_parsers.TraitsLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -25,7 +24,7 @@ import java.util.Objects;
 
 import static model.util.StringUtils.camelCase;
 
-public class ArmorLoader extends FileLoader<Item> {
+public class ArmorLoader extends EquipmentLoader {
 
     private final Map<String, ArmorGroup> armorGroups = new HashMap<>();
 
@@ -113,7 +112,7 @@ public class ArmorLoader extends FileLoader<Item> {
                     }).filter(Objects::nonNull).forEachOrdered(builder::addTrait);
                     break;
                 default:
-                    EquipmentLoader.parseTag(trim, curr, builder, this);
+                    parseTag(trim, curr, builder, this);
             }
         }
         return builder.build();

@@ -17,6 +17,7 @@ import model.spells.SpellType;
 import model.spells.Tradition;
 import model.util.ObjectNotFoundException;
 import model.util.Pair;
+import model.util.StringUtils;
 import model.xml_parsers.equipment.WeaponsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -31,10 +32,12 @@ import static model.util.StringUtils.camelCaseWord;
 
 public abstract class AbilityLoader<T> extends FileLoader<T> {
 
-    protected static List<DynamicFilledSlot> dynSlots;
+    protected final static Stack<Pair<String, DynamicFilledSlot>> dynSlots = new Stack<>();
+    private final WeaponsLoader weaponsLoader;
 
     public AbilityLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
         super(sourceConstructor, root, sourceBuilder);
+        weaponsLoader = new WeaponsLoader(null, root, sourceBuilder);
     }
 
    protected static Map<Class<? extends AbilityLoader<?>>, Function<Element, Type>> sources = new HashMap<>();
@@ -179,7 +182,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     break;
                 case "Weapon":
                     builder.getExtension(AttackExtension.Builder.class)
-                            .addWeapon(WeaponsLoader.getWeapon(propElem, this)
+                            .addWeapon(weaponsLoader.getWeapon(propElem, this)
                                     .getExtension(Weapon.class));
                     break;
                 case "CustomMod":
@@ -331,18 +334,19 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     Type dynamicType = getDynamicType(type);
                     DynamicFilledSlot contents = new DynamicFilledSlot(abilityName, slotLevel,
                             propElem.getAttribute("contents"),
-                            dynamicType, dynamicType.equals(Type.Class),
-                            name->{
+                            dynamicType,
+                            (featType, name)->{
                                 Ability a = null;
                                 try {
-                                    a = findFromDependencies("Ability", FeatsLoader.class, name);
+                                    a = findFromDependencies("Ability", FeatsLoader.class, name,
+                                            featType.toString());
                                 } catch (ObjectNotFoundException e) {
                                     e.printStackTrace();
                                 }
                                 return a;
                             });
-                    if(dynamicType.equals(Type.Class))
-                        dynSlots.add(contents);
+                    if(dynamicType.equals(Type.Class) || dynamicType.equals(Type.ClassFeature))
+                        dynSlots.add(new Pair<>(StringUtils.getInBrackets(type), contents));
                     return contents;
                 }
             case "feat":
@@ -367,7 +371,10 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
     }
 
     protected static Type getDynamicType(String type) {
-        return Type.valueOf(type.trim().replaceAll(" [fF]eat", ""));
+        return Type.valueOf(type
+                .replaceAll(" [fF]eat", "")
+                .replaceAll("\\([^)]*\\)", "")
+                .trim());
     }
 
     private static List<AbilityMod> getBoosts(int count, int level) {

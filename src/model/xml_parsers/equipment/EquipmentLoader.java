@@ -1,5 +1,7 @@
 package model.xml_parsers.equipment;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import model.attributes.Attribute;
 import model.attributes.AttributeBonus;
 import model.data_managers.sources.Source;
@@ -7,15 +9,20 @@ import model.data_managers.sources.SourceConstructor;
 import model.enums.Trait;
 import model.enums.Type;
 import model.equipment.BaseItem;
+import model.equipment.BaseItemChoices;
 import model.equipment.Item;
 import model.equipment.runes.ArmorRune;
 import model.equipment.runes.WeaponRune;
 import model.equipment.weapons.Damage;
 import model.equipment.weapons.DamageType;
 import model.equipment.weapons.Dice;
+import model.player.ArbitraryChoice;
+import model.spells.Spell;
+import model.spells.Tradition;
 import model.util.ObjectNotFoundException;
 import model.util.StringUtils;
 import model.xml_parsers.FileLoader;
+import model.xml_parsers.SpellsLoader;
 import model.xml_parsers.TraitsLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -24,7 +31,9 @@ import org.w3c.dom.NodeList;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static model.util.StringUtils.camelCaseWord;
@@ -177,7 +186,7 @@ public class EquipmentLoader extends FileLoader<Item> {
         }
     }
 
-    static void parseTag(String trim, Element curr, BaseItem.Builder builder, FileLoader<?> loader) {
+    void parseTag(String trim, Element curr, BaseItem.Builder builder, FileLoader<?> loader) {
         switch (curr.getTagName()) {
             case "Name":
                 builder.setName(trim);
@@ -226,7 +235,76 @@ public class EquipmentLoader extends FileLoader<Item> {
             case "Ability":
                 builder.addAbility(abilityLoader.makeAbility(curr).build());
                 break;
+            case "Choices":
+                NodeList childNodes = curr.getChildNodes();
+                for(int j = 0; j < childNodes.getLength(); j++) {
+                    Node item = childNodes.item(j);
+                    if(item.getNodeType() != Node.ELEMENT_NODE)
+                        continue;
+                    Element childElem = (Element) item;
+                    switch (StringUtils.clean(childElem.getTagName())) {
+                        case "spell":
+                            addSpellChoice(builder, childElem);
+                            break;
+                    }
+                }
+                break;
         }
+    }
+
+    private <T> void addSpellChoice(BaseItem.Builder builder, Element choice) {
+        ArbitraryChoice.Builder<Spell> spell = new ArbitraryChoice.Builder<>();
+        spell.setOptionsClass(Spell.class);
+        spell.setMaxSelections(1);
+        NodeList childNodes = choice.getChildNodes();
+        Set<Integer> levels = new HashSet<>();
+        Set<Tradition> traditions = new HashSet<>();
+        for(int i = 0; i < childNodes.getLength(); i++) {
+            Node item = childNodes.item(i);
+            if(item.getNodeType() != Node.ELEMENT_NODE)
+                continue;
+            Element curr = (Element) item;
+            switch (curr.getTagName().toLowerCase()) {
+                case "name":
+                    spell.setName(curr.getTextContent().trim());
+                    break;
+                case "levels":
+                    for (String s : curr.getTextContent().split(", ?")) {
+                        int dash = s.indexOf("-");
+                        if(dash != -1) {
+                            int start = Integer.parseInt(s.substring(0, dash));
+                            int end = Integer.parseInt(s.substring(dash + 1));
+                            for(int j = start; j <= end; j++) {
+                                levels.add(j);
+                            }
+                        }else{
+                            levels.add(Integer.parseInt(s));
+                        }
+                    }
+                    break;
+                case "traditions":
+                    for (String s : curr.getTextContent().split(", ?")) {
+                        traditions.add(Tradition.valueOf(StringUtils.camelCaseWord(s.trim())));
+                    }
+                    break;
+            }
+        }
+        if(levels.isEmpty())
+            levels.addAll(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+        if(traditions.isEmpty())
+            traditions.addAll(Arrays.asList(Tradition.values()));
+        ObservableList<Spell> choices = FXCollections.observableArrayList();
+        SpellsLoader loader = getSource().getLoader(SpellsLoader.class);
+        if(loader != null) {
+            for (Spell value : loader.getAll().values()) {
+                if(value.getTraditions().stream().anyMatch(traditions::contains) &&
+                levels.contains(value.getLevel())) { // TODO: Support heightened level
+                    choices.add(value);
+                }
+            }
+        }
+        spell.setChoices(choices);
+        builder.getExtension(BaseItemChoices.Builder.class).addChoice(spell.build());
     }
 
 

@@ -16,10 +16,17 @@ public class QualityManager implements PlayerState {
     private final Set<Language> languages = new TreeSet<>();
     private final Set<String> senses = new TreeSet<>();
     private final ObservableList<String> bonusLanguages = FXCollections.observableArrayList();
-    private final ArbitraryChoice<String> bonusLanguageChoice = new ArbitraryChoice<>("Bonus Languages",
-            bonusLanguages, this::addBonusLanguage,  this::removeBonusLanguage, 0, false, String.class);
+    private final ArbitraryChoice<String> bonusLanguageChoice;
 
     QualityManager(Consumer<ArbitraryChoice<String>> addDecision, Consumer<ArbitraryChoice<String>> removeDecision) {
+        ArbitraryChoice.Builder<String> builder = new ArbitraryChoice.Builder<>();
+        builder.setName("Bonus Languages");
+        builder.setChoices(bonusLanguages);
+        builder.setFillFunction(this::addBonusLanguage);
+        builder.setEmptyFunction(this::removeBonusLanguage);
+        builder.setMaxSelections(0);
+        builder.setOptionsClass(String.class);
+        bonusLanguageChoice = builder.build();
         bonusLanguageChoice.maxSelectionsProperty().addListener((o, oldVal, newVal) -> {
             if(oldVal.intValue() > 0 && newVal.intValue() <= 0) removeDecision.accept(bonusLanguageChoice);
             if(oldVal.intValue() <= 0 && newVal.intValue() > 0) addDecision.accept(bonusLanguageChoice);

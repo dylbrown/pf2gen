@@ -60,6 +60,7 @@ public class StringUtils {
 
     public static String getInBrackets(String str, char start, char end) {
         int startIndex = str.indexOf(start);
+        if(startIndex == -1) return "";
         int endIndex = str.indexOf(end);
         if(endIndex == -1) endIndex = str.length();
         return str.substring(startIndex + 1, endIndex);

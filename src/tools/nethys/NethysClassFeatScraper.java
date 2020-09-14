@@ -22,7 +22,7 @@ class NethysClassFeatScraper extends NethysScraper {
 	private final Map<String, StringBuilder> sources = new HashMap<>();
 
 	public static void main(String[] args) {
-		new NethysClassFeatScraper("http://2e.aonprd.com/Feats.aspx?Traits=166", "generated/classFeats.txt");
+		new NethysClassFeatScraper("http://2e.aonprd.com/Feats.aspx?Traits=321", "generated/classFeats.txt");
 	}
 
 	private NethysClassFeatScraper(String inputURL, String outputPath) {
@@ -40,7 +40,7 @@ class NethysClassFeatScraper extends NethysScraper {
 			if(!firstRow.get()) {
 				String href = "";
 				try {
-					href = element.child(0).child(0).attr("href");
+					href = element.child(0).child(1).child(0).attr("href");
 					FeatEntry entry = addFeat(href);
 					if(!entry.contents.equals(""))
 						sources.computeIfAbsent(entry.source.toLowerCase(), key->new StringBuilder())
@@ -147,7 +147,7 @@ class NethysClassFeatScraper extends NethysScraper {
 
 		// Template Detection
 		if(description.startsWith("You gain the basic spellcasting benefits.")) {
-			feat.append("\t\t<Template>Basic Spellcasting Benefit</Template>\n");
+			feat.append("\t\t<Template>Basic Spellcasting Benefits</Template>\n");
 		}else if(description.startsWith("You gain the expert spellcasting benefits.")){
 			feat.append("\t\t<Template>Expert Spellcasting Benefits</Template>\n");
 		}else if(description.startsWith("You gain the master spellcasting benefits.")){

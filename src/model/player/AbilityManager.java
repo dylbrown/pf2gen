@@ -111,6 +111,9 @@ public class AbilityManager implements PlayerState {
 							}
 						}
 						break;
+					case "ClassFeature":
+					case "Choice":
+						throw new RuntimeException("Feats of type "+allowedType+" should not be selectable!");
 					case "Ancestry":
 						if (ancestry.get() != null)
 							results.addAll(ancestry.get().getFeats(maxLevel));

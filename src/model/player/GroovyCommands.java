@@ -144,16 +144,15 @@ class GroovyCommands {
     public void spellSlot(int level, int count, Ability source) {
         spellSlot(level, count, source.getExtension(SpellExtension.class).getSpellListName());
     }
-    public void choose(String things, String name, Closure callback, String secondParam, int numSelections) {
+    public void choose(String things, String name, Closure callback, String secondParam, int maxSelections) {
         if(applying.get()) {
             if(arbitraryChoices.get(name) != null){
-                arbitraryChoices.get(name).increaseChoices(numSelections);
+                arbitraryChoices.get(name).increaseChoices(maxSelections);
                 return;
             }
-            List<?> selections = Collections.emptyList();
-            Class<?> optionsClass = Object.class;
             String[] listSplit = things.split(" ?: ?");
             String[] words = listSplit[0].split(" ");
+            ArbitraryChoice.Builder<?> builder = null;
             switch (words[0].toLowerCase()){
                 case "deitydomain":
                     ObservableList<Domain> domains = FXCollections.observableArrayList();
@@ -168,8 +167,10 @@ class GroovyCommands {
                         }
                         domains.sort(Comparator.comparing(Object::toString));
                     });
-                    selections = domains;
-                    optionsClass = Domain.class;
+                    ArbitraryChoice.Builder<Domain> domain = new ArbitraryChoice.Builder<>();
+                    domain.setChoices(domains);
+                    domain.setOptionsClass(Domain.class);
+                    builder = domain;
                     break;
                 case "divineskill":
                     ObservableList<Attribute> skills = FXCollections.observableArrayList();
@@ -177,60 +178,81 @@ class GroovyCommands {
                         skills.addAll(deity.get().getDivineSkillChoices());
 
                     deity.addListener((o, oldVal, newVal)->{
-                        skills.removeIf(s->!newVal.getDivineSkillChoices().contains(s));
-                        for (Attribute skill : newVal.getDivineSkillChoices()) {
-                            if(!skills.contains(skill))
-                                skills.add(skill);
+                        if(newVal == null) {
+                            skills.clear();
+                        }else {
+                            skills.removeIf(s -> !newVal.getDivineSkillChoices().contains(s));
+                            for (Attribute skill : newVal.getDivineSkillChoices()) {
+                                if (!skills.contains(skill))
+                                    skills.add(skill);
+                            }
+                            skills.sort(Comparator.comparing(Object::toString));
                         }
-                        skills.sort(Comparator.comparing(Object::toString));
                     });
-                    selections = skills;
-                    optionsClass = Attribute.class;
+                    ArbitraryChoice.Builder<Attribute> attribute = new ArbitraryChoice.Builder<>();
+                    attribute.setChoices(skills);
+                    attribute.setOptionsClass(Attribute.class);
+                    builder = attribute;
                     break;
                 case "weapongroup":
-                    selections = new ArrayList<>(sources.weapons()
-                            .getWeaponGroups().values());
-                    optionsClass = WeaponGroup.class;
+                    ArbitraryChoice.Builder<WeaponGroup> groups = new ArbitraryChoice.Builder<>();
+                    groups.setChoices(FXCollections.observableArrayList(sources.weapons()
+                            .getWeaponGroups().values()));
+                    groups.setOptionsClass(WeaponGroup.class);
+                    builder = groups;
                     break;
                 case "skill":
+                    ArbitraryChoice.Builder<String> stringChoice = new ArbitraryChoice.Builder<>();
                     if(words.length > 1){
                         Proficiency min = Proficiency.valueOf(words[1].replaceAll("[()]", ""));
-                        selections = attributes.getMinList(min);
+                        stringChoice.setChoices(attributes.getMinList(min));
                     }else
-                        selections = Arrays.stream(Attribute.getSkills()).map(
-                                Enum::toString).collect(Collectors.toCollection(ArrayList::new));
-                    optionsClass = String.class;
+                        stringChoice.setChoices(Arrays.stream(Attribute.getSkills()).map(
+                                Enum::toString).collect(Collectors.toCollection(FXCollections::observableArrayList)));
+                    stringChoice.setOptionsClass(String.class);
+                    builder = stringChoice;
                     break;
                 case "saving throw":
+                    stringChoice = new ArbitraryChoice.Builder<>();
                     if(words.length > 1){
                         Proficiency min = Proficiency.valueOf(words[1].replaceAll("[()]", ""));
-                        selections = attributes.getMinSavesList(min);
+                        stringChoice.setChoices(attributes.getMinSavesList(min));
                     }else
-                        selections = Arrays.stream(Attribute.getSaves()).map(
-                                Enum::toString).collect(Collectors.toCollection(ArrayList::new));
-                    optionsClass = String.class;
+                        stringChoice.setChoices(Arrays.stream(Attribute.getSaves()).map(
+                                Enum::toString).collect(Collectors.toCollection(FXCollections::observableArrayList)));
+                    stringChoice.setOptionsClass(String.class);
+                    builder = stringChoice;
                     break;
                 case "attributes":
                     String[] items = listSplit[1].split("[, ]+");
-                    selections = new ArrayList<>(Arrays.asList(items));
-                    optionsClass = String.class;
+                    stringChoice = new ArbitraryChoice.Builder<>();
+                    stringChoice.setChoices(FXCollections.observableArrayList(items));
+                    stringChoice.setOptionsClass(String.class);
+                    builder = stringChoice;
                     break;
             }
-            ArbitraryChoice choice = new ArbitraryChoice(name, selections, (response) -> {
+            if(builder == null)
+                builder = new ArbitraryChoice.Builder<String>();
+            builder.setName(name);
+            builder.setFillFunction((response) -> {
                 choices.computeIfAbsent(name, (key)->new ArrayList<>()).add(response);
                 applying.set(true);
                 if(secondParam != null)
                     callback.call(response, secondParam);
                 else
                     callback.call(response);
-            },(response) -> {
+            });
+            builder.setEmptyFunction((response) -> {
                 choices.computeIfAbsent(name, (key)->new ArrayList<>()).remove(response);
                 applying.set(false);
                 if(secondParam != null)
                     callback.call(response, secondParam);
                 else
                     callback.call(response);
-            }, numSelections, false, optionsClass);
+            });
+            builder.setMaxSelections(maxSelections);
+
+            ArbitraryChoice choice = builder.build();
             arbitraryChoices.put(name, choice);
             decisions.add(choice);
             if(choices.get(name) != null) {
@@ -239,8 +261,8 @@ class GroovyCommands {
                 choice.addAll(strings);
             }
         } else {
-            if(arbitraryChoices.get(name).getMaxSelections() > numSelections){
-                arbitraryChoices.get(name).decreaseChoices(numSelections);
+            if(arbitraryChoices.get(name).getMaxSelections() > maxSelections){
+                arbitraryChoices.get(name).decreaseChoices(maxSelections);
                 return;
             }
             if(choices.get(name) != null) {

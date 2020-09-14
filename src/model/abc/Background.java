@@ -28,7 +28,7 @@ public class Background extends ABC {
         this.modString = builder.modString;
         this.mod1 = builder.mod1;
         this.mod2 = builder.mod2;
-        this.freeFeat = new DynamicFilledSlot("Background Feat", 1, builder.feat, Type.Skill, false, builder.abilityFunction);
+        this.freeFeat = new DynamicFilledSlot("Background Feat", 1, builder.feat, Type.Skill, (type, name)->builder.abilityFunction.apply(name));
     }
 
     public List<AttributeMod> getMods() {

@@ -15,7 +15,7 @@ public class NethysArchetypesScraper extends NethysListScraper {
         new NethysArchetypesScraper(
                 "https://2e.aonprd.com/Archetypes.aspx",
                 "generated/archetypes.pfdyl",
-                source->source.equals("Core Rulebook"));
+                source->source.equals("Advanced Player's Guide"));
     }
 
     public NethysArchetypesScraper(String inputURL, String outputPath, Predicate<String> sourceValidator) {

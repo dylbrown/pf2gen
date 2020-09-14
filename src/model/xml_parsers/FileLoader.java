@@ -108,6 +108,22 @@ public abstract class FileLoader<T> {
         throw new ObjectNotFoundException(name, nameOfA);
     }
 
+    public <A, B extends FileLoader<A>> A findFromDependencies(String nameOfA, Class<B> loaderClass, String name, String category) throws ObjectNotFoundException {
+        A a;
+        B loader = source.getLoader(loaderClass);
+        a = (loader != null) ? loader.find(category, name) : null;
+        if(a != null) return a;
+        for (String dependency : source.getDependencies()) {
+            Source childSource = SourcesLoader.instance().find(dependency);
+            if(childSource != null) {
+                loader = childSource.getLoader(loaderClass);
+                a = (loader != null) ? loader.find(category, name) : null;
+                if(a != null) return a;
+            }
+        }
+        throw new ObjectNotFoundException(name, nameOfA);
+    }
+
     public NavigableMap<String, T> getCategory(String category) {
         if(source != null && sourceConstructor.getType() != SourceConstructor.Type.MultiItemMultiFile)
             return getAll();
