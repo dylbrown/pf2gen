@@ -1,6 +1,7 @@
 package ui.ftl.wrap;
 
 import freemarker.template.ObjectWrapper;
+import freemarker.template.TemplateMethodModelEx;
 import model.equipment.Item;
 import model.equipment.ItemExtension;
 import model.equipment.weapons.Weapon;
@@ -20,6 +21,9 @@ public class ItemWrapper extends GenericWrapper<Item> {
 
     @Override
     Object getSpecialCase(String s, Item item) {
+        if(s.equalsIgnoreCase("hasextension")) {
+            return (TemplateMethodModelEx) list -> item.hasExtension(list.get(0).toString());
+        }
         if(item.hasExtension(Weapon.class)) {
             switch (s) {
                 case "attack":

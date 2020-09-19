@@ -78,6 +78,8 @@ public class EquipmentLoader extends FileLoader<Item> {
         if(parentNode instanceof Element && ((Element) parentNode).getTagName().equals("SubCategory")) {
             builder.setSubCategory(((Element) parentNode).getAttribute("name"));
         }
+        if(item.hasAttribute("category"))
+            builder.setCategory(item.getAttribute("category"));
         if(item.hasAttribute("level"))
             builder.setLevel(Integer.parseInt(item.getAttribute("level")));
         NodeList nodeList = item.getChildNodes();

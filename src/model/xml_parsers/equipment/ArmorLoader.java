@@ -57,10 +57,19 @@ public class ArmorLoader extends EquipmentLoader {
 
     private Item getArmor(Element armor) {
         BaseItem.Builder builder = new BaseItem.Builder();
+        if(armor.getTagName().equalsIgnoreCase("shield"))
+            builder.setCategory("Shields");
+        else
+            builder.setCategory("Armor");
         Armor.Builder armorExt = builder.getExtension(Armor.Builder.class);
         Node proficiencyNode= armor.getParentNode();
-        armorExt.setProficiency(ArmorProficiency.valueOf(camelCase(proficiencyNode.getNodeName())));
+        ArmorProficiency armorProficiency = ArmorProficiency.valueOf(camelCase(proficiencyNode.getNodeName()));
+        armorExt.setProficiency(armorProficiency);
+        builder.setSubCategory(armorProficiency.name());
         NodeList nodeList = armor.getChildNodes();
+
+        if(armor.hasAttribute("category"))
+            builder.setCategory(armor.getAttribute("category"));
 
         for(int i=0; i<nodeList.getLength(); i++) {
             if(nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)

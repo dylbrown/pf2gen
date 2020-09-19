@@ -1,38 +1,46 @@
 package ui.controls.equipment;
 
 import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import model.equipment.Item;
 import model.player.PC;
 import model.xml_parsers.equipment.EquipmentLoader;
-import ui.controls.lists.AbstractEntryList;
+import ui.controls.lists.ObservableCategoryEntryList;
 import ui.controls.lists.entries.ItemEntry;
 import ui.controls.lists.factories.TreeCellFactory;
 
 import java.util.*;
 import java.util.function.BiConsumer;
 
-public class CategoryAllItemsList extends AbstractEntryList<Item, ItemEntry> {
+public class CategoryAllItemsList extends ObservableCategoryEntryList<Item, ItemEntry> {
     private final PC character;
+    private final ObservableList<Item> list;
 
     public CategoryAllItemsList(PC character, BiConsumer<Item, Integer> handler) {
-        this(character);
-        construct(handler);
+        this(character, handler, FXCollections.observableArrayList());
     }
 
-    protected CategoryAllItemsList(PC character) {
-        super();
+    private CategoryAllItemsList(PC character, BiConsumer<Item, Integer> handler, ObservableList<Item> items) {
+        super(items, handler,
+                Item::getCategory,
+                Item::getSubCategory,
+                ItemEntry::new, ItemEntry::new,
+                CategoryAllItemsList::makeColumns);
+        list = items;
         this.character = character;
+        addItems(getRoot());
     }
 
     @Override
     protected void addItems(TreeItem<ItemEntry> root) {
-        for (String category : character.sources().equipment().getCategories()) {
-            addCategory(root, category, character.sources().equipment().getCategory(category).values());
-        }
-        addCategory(root, "armor_and_shields", character.sources().armor().getAll().values());
-        addCategory(root, "weapons", character.sources().weapons().getAll().values());
+        if(list == null)
+            return;
+        list.addAll(character.sources().equipment().getAll().values());
+        list.addAll(character.sources().armor().getAll().values());
+        list.addAll(character.sources().weapons().getAll().values());
         root.getChildren().sort(Comparator.comparing(o -> o.getValue().toString()));
     }
 

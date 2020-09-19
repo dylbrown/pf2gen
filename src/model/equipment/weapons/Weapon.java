@@ -29,11 +29,6 @@ public class Weapon extends ItemExtension {
     }
 
     @ItemDecorator
-    public String getCategory(String category) {
-        return "Weapon";
-    }
-
-    @ItemDecorator
     public String getSubCategory(String subCategory) {
         return proficiency.name();
     }

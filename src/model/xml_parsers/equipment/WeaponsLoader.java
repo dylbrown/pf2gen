@@ -56,12 +56,18 @@ public class WeaponsLoader extends EquipmentLoader {
         Weapon.Builder weaponExt = item.getExtension(Weapon.Builder.class);
         Node proficiencyNode= weapon.getParentNode();
         Node rangeNode = proficiencyNode.getParentNode();
-        if(rangeNode.getNodeName().equals("Ranged"))
+        if(rangeNode.getNodeName().equals("Ranged")) {
             item.getExtension(RangedWeapon.Builder.class);
+            item.setCategory("Ranged Weapons");
+        }else item.setCategory("Weapons");
 
 
         if(weapon.hasAttribute("Uncommon") || weapon.hasAttribute("uncommon"))
             item.setRarity(Rarity.Uncommon);
+
+
+        if(weapon.hasAttribute("category"))
+            item.setCategory(weapon.getAttribute("category"));
 
         weaponExt.setProficiency(WeaponProficiency.valueOf(camelCase(proficiencyNode.getNodeName())));
         NodeList nodeList = weapon.getChildNodes();

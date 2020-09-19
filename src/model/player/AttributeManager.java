@@ -220,6 +220,39 @@ public class AttributeManager implements PlayerState {
         proficiencyChange.firePropertyChange("removeAttributeMod", null, null);
     }
 
+    private void downScale() {
+        boolean canSpend = false;
+        int minSpendLevel = 0;
+        for (Map.Entry<Integer, Integer> entry : skillIncreases.entrySet()) {
+            if(getSkillIncreasesRemaining(entry.getKey()) > 0 & !canSpend) {
+                canSpend = true;
+                minSpendLevel = entry.getKey();
+                continue;
+            }
+            if(canSpend) {
+                SkillIncrease increase = null;
+outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
+                    for (SkillIncrease skillIncrease : skillChoices.get(entry.getKey())) {
+                        if(skillIncrease.getMod().getMinLevel() <= minSpendLevel) {
+                            increase = skillIncrease;
+                            minSpendLevel = i;
+                            break outer;
+                        }
+                    }
+                }
+                if(increase != null) {
+                    skillChoices.get(increase.getLevel()).remove(increase);
+                    remove(increase);
+                    SkillIncrease skillIncrease = new SkillIncrease(increase.getAttr(), increase.getMod(), minSpendLevel, increase.getData());
+                    skillChoices.get(minSpendLevel).add(skillIncrease);
+                    apply(skillIncrease);
+                    downScale();
+                    return;
+                }
+            }
+        }
+    }
+
     /**
      * Reduces the proficiency until we have an applied mod for the proficiency level in the tracker
      * @param tracker Map from proficiency to currently applied mods of that proficiency
@@ -364,6 +397,7 @@ public class AttributeManager implements PlayerState {
                 continue;
             choices.remove(increase);
             remove(increase);
+            downScale();
             return true;
         }
 
