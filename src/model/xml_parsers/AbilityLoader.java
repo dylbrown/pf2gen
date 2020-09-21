@@ -143,9 +143,6 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                 case "Description":
                     builder.setDescription(trim);
                     break;
-                case "Prerequisites":
-                    builder.setPrerequisites(Arrays.asList(trim.split(", ?")));
-                    break;
                 case "PrereqStrings":
                     builder.setPrereqStrings(Arrays.asList(trim.split(", ?")));
                     break;
@@ -156,29 +153,26 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     builder.setRequirements(trim);
                     break;
                 case "Requires":
-                    List<AttributeRequirement> requiredAttrs = new ArrayList<>();
-                    List<Pair<AbilityScore, Integer>> requiredScores = new ArrayList<>();
-                    for (String s : trim.split(",")) {
+                case "Prerequisites":
+                    for (String s : trim.split(", ?")) {
                         if(s.matches(".*\\d.*")) {
                             String[] split = s.trim().split(" ", 2);
-                            requiredScores.add(
-                                    new Pair<>(AbilityScore.robustValueOf(split[0]), Integer.parseInt(split[1])));
-                        } else {
+                            builder.addRequiredScore(new Pair<>(AbilityScore.robustValueOf(split[0]), Integer.parseInt(split[1])));
+                        } else if(s.matches("(Trained|Expert|Master|Legendary) in .*")) {
                             if(s.contains("or")) {
                                 String[] orStrings = s.split(" or ");
                                 List<AttributeRequirement> orRequirements = new ArrayList<>();
                                 for (String option : orStrings) {
                                     orRequirements.add(getRequirement(option));
                                 }
-                                requiredAttrs.add(new AttributeRequirementList(orRequirements));
+                                builder.addRequiredAttr(new AttributeRequirementList(orRequirements));
                             } else {
-                                requiredAttrs.add(getRequirement(s));
+                                builder.addRequiredAttr(getRequirement(s));
                             }
+                        } else {
+                            builder.addPrerequisite(s.trim());
                         }
                     }
-
-                    builder.setRequiredAttrs(requiredAttrs);
-                    builder.setRequiredScores(requiredScores);
                     break;
                 case "Weapon":
                     builder.getExtension(AttackExtension.Builder.class)

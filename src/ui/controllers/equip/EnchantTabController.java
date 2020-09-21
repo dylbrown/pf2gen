@@ -13,8 +13,12 @@ import javafx.scene.web.WebView;
 import model.CharacterManager;
 import model.equipment.Item;
 import model.equipment.ItemCount;
+import model.equipment.armor.Armor;
+import model.equipment.runes.ArmorRune;
 import model.equipment.runes.Rune;
-import model.equipment.runes.runedItems.*;
+import model.equipment.runes.WeaponRune;
+import model.equipment.runes.runedItems.Runes;
+import model.equipment.weapons.Weapon;
 import model.player.PC;
 import model.util.Pair;
 import ui.controls.equipment.ItemsList;
@@ -135,14 +139,10 @@ public class EnchantTabController {
 
     private void addItem(Item item, int count) {
         if(count > 0) {
-            String cat = item.getCategory();
-            if(cat.equals("Weapon")
-                    || cat.equals("Armor")
-                    || cat.equals("Ranged Weapon")
-                    || cat.equals("Shield")) {
+            if(item.hasExtension(Weapon.class) || item.hasExtension(Armor.class)) {
                 for(int i = 0; i < count; i++)
                     itemsList.add(item);
-            }else if (cat.equals("Runes")) {
+            }else if (item.hasExtension(ArmorRune.class) || item.hasExtension(WeaponRune.class)) {
                 for(int i = 0; i < count; i++)
                     runesList.add(item);
             }

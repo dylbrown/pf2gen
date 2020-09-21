@@ -103,7 +103,7 @@ public class PClassesLoader extends ACLoader<PClass, PClass.Builder> {
         PClass pClass = builder.build();
         while (!dynSlots.isEmpty()) {
             Pair<String, DynamicFilledSlot> pair = dynSlots.pop();
-            if(pair.first.equalsIgnoreCase(pClass.getName()))
+            if(pair.first.equalsIgnoreCase(pClass.getName()) || pair.first.isBlank())
                 pair.second.setPClass(pClass);
         }
         return pClass;

@@ -243,8 +243,10 @@ public class Ability extends NamedObject implements Comparable<Ability> {
             this.recalculate = ability.recalculate;
         }
 
-        public void setPrerequisites(List<String> prerequisites) {
-            this.prerequisites = prerequisites;
+        public void addPrerequisite(String prerequisite) {
+            if(prerequisites.isEmpty())
+                prerequisites = new ArrayList<>();
+            prerequisites.add(prerequisite);
         }
 
         public void setRequirements(String requirements) {
@@ -257,18 +259,16 @@ public class Ability extends NamedObject implements Comparable<Ability> {
 
         public void setGivesPrerequisites(List<String> given) {this.givenPrerequisites = given;}
 
-        public void setRequiredAttrs(List<AttributeRequirement> requiredAttrs) {
+        public void addRequiredAttr(AttributeRequirement requiredAttr) {
             if(requiredAttrs.isEmpty())
-                this.requiredAttrs = Collections.emptyList();
-            else
-                this.requiredAttrs = requiredAttrs;
+                this.requiredAttrs = new ArrayList<>();
+            requiredAttrs.add(requiredAttr);
         }
 
-        public void setRequiredScores(List<Pair<AbilityScore, Integer>> requiredScores) {
+        public void addRequiredScore(Pair<AbilityScore, Integer> requiredScore) {
             if(requiredScores.isEmpty())
-                this.requiredScores = Collections.emptyList();
-            else
-                this.requiredScores = requiredScores;
+                this.requiredScores = new ArrayList<>();
+            requiredScores.add(requiredScore);
         }
 
         public void setCustomMod(String customMod) {

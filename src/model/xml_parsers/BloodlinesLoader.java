@@ -62,7 +62,7 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 			if(split[0].equals("")) split[0] = "0th";
 			Ability.Builder builder = new Ability.Builder(); builder.setName(split[0]+"-level granted spells");
 			if(!split[0].trim().equals("") && !split[0].equals("1st"))
-				builder.setPrerequisites(Collections.singletonList(split[0]+"-level spells"));
+				builder.addPrerequisite(split[0]+"-level spells");
 			try {
 				builder.getExtension(SpellExtension.Builder.class)
 						.addBonusSpell(SpellType.Spell, findFromDependencies(
@@ -109,8 +109,8 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 			e.printStackTrace();
 		}
 		greater.getExtension(SpellExtension.Builder.class).setSpellListName("Sorcerer");
-		advanced.setPrerequisites(Collections.singletonList("Advanced Bloodline"));
-		advanced.setPrerequisites(Collections.singletonList("Greater Bloodline"));
+		advanced.addPrerequisite("Advanced Bloodline");
+		greater.addPrerequisite("Greater Bloodline");
 		bloodline.addAbilitySlot(new FilledSlot("Advanced Bloodline Spell", 1, advanced.build()));
 		bloodline.addAbilitySlot(new FilledSlot("Greater Bloodline Spell", 1, greater.build()));
 
