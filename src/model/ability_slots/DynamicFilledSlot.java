@@ -28,25 +28,31 @@ public class DynamicFilledSlot extends AbilitySlot {
             hasClass = true;
     }
 
+   private boolean gettingAbility = false;
+
     @Override
-    public Ability getCurrentAbility() {
-        switch(type){
-            case General:
-            case Skill:
-            case ClassFeature:
-                if(hasClass) {
-                    try {
-                        return pClass.findClassFeature(contents);
-                    } catch (ObjectNotFoundException ignored) {
+    public synchronized Ability getCurrentAbility() {
+            switch(type){
+                case General:
+                case Skill:
+                case ClassFeature:
+                    if(hasClass && !gettingAbility) {
+                        try {
+                            gettingAbility = true;
+                            Ability classFeature = pClass.findClassFeature(contents);
+                            gettingAbility = false;
+                            return classFeature;
+                        } catch (ObjectNotFoundException ignored) {
+                            gettingAbility = false;
+                        }
                     }
-                }
-                return abilityFunction.apply(type, contents);
-            case Class:
-                if(hasClass){
-                    return pClass.findFeat(contents);
-                }
-            default:
-                return null;
-        }
+                    return abilityFunction.apply(type, contents);
+                case Class:
+                    if(hasClass){
+                        return pClass.findFeat(contents);
+                    }
+                default:
+                    return null;
+            }
     }
 }

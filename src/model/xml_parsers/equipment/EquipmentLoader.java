@@ -97,7 +97,7 @@ public class EquipmentLoader extends FileLoader<Item> {
     private Item makeArmorRune(String niceName, Element item) {
         BaseItem.Builder builder = new BaseItem.Builder();
         ArmorRune.Builder runeExt = builder.getExtension(ArmorRune.Builder.class);
-        builder.setCategory(niceName);
+        builder.setCategory("Runes");
         Node parentNode = item.getParentNode();
         if(parentNode instanceof Element && ((Element) parentNode).getTagName().equals("SubCategory")) {
             builder.setSubCategory(((Element) parentNode).getAttribute("name"));
@@ -126,7 +126,7 @@ public class EquipmentLoader extends FileLoader<Item> {
     private Item makeWeaponRune(String niceName, Element item) {
         BaseItem.Builder builder = new BaseItem.Builder();
         WeaponRune.Builder runeExt = builder.getExtension(WeaponRune.Builder.class);
-        builder.setCategory(niceName);
+        builder.setCategory("Runes");
         Node parentNode = item.getParentNode();
         if(parentNode instanceof Element && ((Element) parentNode).getTagName().equals("SubCategory")) {
             builder.setSubCategory(((Element) parentNode).getAttribute("name"));

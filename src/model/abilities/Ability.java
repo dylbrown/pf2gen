@@ -82,7 +82,7 @@ public class Ability extends NamedObject implements Comparable<Ability> {
     public boolean hasExtension(String extensionName) {
         extensionName = extensionName.toLowerCase();
         for (Class<? extends AbilityExtension> aClass : extensions.keySet()) {
-            if(aClass.getName().toLowerCase().contains(extensionName))
+            if(aClass.getName().toLowerCase().endsWith(extensionName))
                 return true;
         }
         return false;
