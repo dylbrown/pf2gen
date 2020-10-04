@@ -16,15 +16,13 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.StackedBarChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Label;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.*;
 import javafx.scene.web.WebView;
+import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
 import model.creatures.Creature;
 import model.data_managers.sources.SourcesLoader;
@@ -33,18 +31,22 @@ import ui.controls.lists.entries.CreatureCount;
 import ui.controls.lists.entries.CreatureCountEntry;
 import ui.controls.lists.entries.CreatureEntry;
 import ui.controls.lists.factories.TreeCellFactory;
+import ui.ftl.CreaturesTemplateFiller;
 import ui.html.CreatureHTMLGenerator;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class EncounterTabController {
     @FXML
     private Spinner<Integer> partyLevel;
     @FXML
     private WebView preview;
+    @FXML
+    private Button exportAll;
     @FXML
     private AnchorPane leftPane, rightPane, budget;
     private final ObservableList<CreatureCount> selected = FXCollections.observableArrayList();
@@ -55,8 +57,9 @@ public class EncounterTabController {
 
     @FXML
     private void initialize() {
+        exportAll.setOnAction(e -> export("creature_index_card.html.ftl", selected));
         preview.getEngine().setUserStyleSheetLocation(getClass().getResource("/webview_style.css").toString());
-        partyLevel.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 20, 1));
+        partyLevel.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(-1, 20, 1));
         xAxis = new NumberAxis(0, 180, 20);
         xAxis.setTickLabelFormatter(new StringConverter<>() {
             @Override
@@ -167,6 +170,36 @@ public class EncounterTabController {
                 }
             }
         });
+    }
+
+    private File exportLocation = null;
+    private void export(String template, ObservableList<CreatureCount> selected) {
+        FileChooser fileChooser = new FileChooser();
+        if(exportLocation != null) {
+            fileChooser.setInitialDirectory(exportLocation.getParentFile());
+            fileChooser.setInitialFileName(exportLocation.getName());
+        } else {
+            fileChooser.setInitialDirectory(new File("./"));
+        }
+        //Set extension filter for text files
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("HTML files", "*.html")
+        );
+
+        //Show save file dialog
+        File file = fileChooser.showSaveDialog(chart.getScene().getWindow());
+
+        if (file != null) {
+            try {
+                List<Creature> creatures = selected.stream().map(CreatureCount::getCreature).collect(Collectors.toList());
+                PrintWriter out = new PrintWriter(file);
+                out.println(new CreaturesTemplateFiller(creatures).getSheet(template));
+                out.close();
+                exportLocation = file;
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void addToEncounter(Creature creature) {

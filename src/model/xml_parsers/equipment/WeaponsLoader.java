@@ -131,11 +131,19 @@ public class WeaponsLoader extends EquipmentLoader {
                                 trait = loader.findFromDependencies("Trait",
                                         TraitsLoader.class,
                                         s[0]);
+                                return new CustomTrait(trait, s[1]);
                             } catch (ObjectNotFoundException e) {
-                                e.printStackTrace();
+                                try {
+                                    trait = loader.findFromDependencies("Trait",
+                                            TraitsLoader.class,
+                                            traitString);
+                                    return trait;
+                                } catch (ObjectNotFoundException e2) {
+                                    e2.printStackTrace();
+                                }
                             }
-                            return new CustomTrait(trait, s[1]);
                         }
+                        return null;
                     }).filter(Objects::nonNull).forEachOrdered(item::addTrait);
                     break;
                 default:

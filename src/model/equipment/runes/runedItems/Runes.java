@@ -59,6 +59,11 @@ public class Runes<T extends Rune> {
         runes.addListener(listener);
     }
 
+    public void tryToAddRune(Item item) {
+        if(item != null)
+            tryToAddRune(item.getExtension(clazz));
+    }
+
     public boolean tryToAddRune(Rune genericRune) {
         if(!canAddRune(genericRune)) return false;
         T rune = clazz.cast(genericRune);

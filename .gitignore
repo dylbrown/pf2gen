@@ -1,6 +1,7 @@
 .idea/*
 out/*
 data/*
+sheets/*
 schemata/*
 generated/*
 lib/*

@@ -1,8 +1,8 @@
 package tools.nethys;
 
-import model.util.Pair;
 import org.jsoup.nodes.Document;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,15 +47,14 @@ public class NethysArchetypesScraper extends NethysListScraper {
         for (String archetype : keys) {
             StringBuilder entry = archetypes.get(archetype);
             String source = sourceMap.get(archetype);
-            sources.computeIfAbsent(source, s->new StringBuilder())
-                    .append("<!--").append(archetype).append("-->\n")
-                    .append(entry);
+            sources.computeIfAbsent(source, s->new HashMap<>())
+                    .put(archetype, "<!--" + archetype + "-->\n" + entry);
         }
 
     }
 
     @Override
-    Pair<String, String> addItem(Document doc) {
+    Entry addItem(Document doc) {
         throw new UnsupportedOperationException();
     }
 }

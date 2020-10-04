@@ -16,12 +16,16 @@ public class ItemInstance implements Item {
 
     private final BaseItem item;
 
-    public Item getSourceItem() {
+    public BaseItem getSourceItem() {
         return item;
     }
 
-    public ItemInstance(BaseItem item) {
-        this.item = item;
+    public ItemInstance(Item item) {
+        if(item instanceof BaseItem)
+            this.item = (BaseItem) item;
+        else if(item instanceof ItemInstance)
+            this.item = ((ItemInstance) item).getSourceItem();
+        else this.item = null;
     }
 
     public <T extends ItemExtension> T addExtension(Class<T> extensionClass) {

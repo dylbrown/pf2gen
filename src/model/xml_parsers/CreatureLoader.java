@@ -11,6 +11,12 @@ import model.enums.Trait;
 import model.enums.Type;
 import model.equipment.CustomTrait;
 import model.equipment.Item;
+import model.equipment.ItemInstance;
+import model.equipment.armor.Armor;
+import model.equipment.runes.runedItems.RunedArmor;
+import model.equipment.runes.runedItems.RunedWeapon;
+import model.equipment.runes.runedItems.Runes;
+import model.equipment.weapons.Weapon;
 import model.util.ObjectNotFoundException;
 import model.xml_parsers.equipment.ArmorLoader;
 import model.xml_parsers.equipment.EquipmentLoader;
@@ -129,23 +135,9 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                             .forEach(s->{
                                 Item equipment = null;
                                 try {
-                                    equipment = findFromDependencies("Equipment",
-                                            EquipmentLoader.class,
-                                            s);
+                                    equipment = getItem(s, true, builder);
                                 } catch (ObjectNotFoundException e) {
-                                    try {
-                                        equipment = findFromDependencies("Armor",
-                                                ArmorLoader.class,
-                                                s);
-                                    } catch (ObjectNotFoundException e2) {
-                                        try {
-                                            equipment = findFromDependencies("Weapon",
-                                                    WeaponsLoader.class,
-                                                    s);
-                                        } catch (ObjectNotFoundException e3) {
-                                            e.printStackTrace();
-                                        }
-                                    }
+                                    System.out.println(e.getMessage());
                                 }
                                 if(equipment != null)
                                     builder.addItem(new CreatureItem(equipment));
@@ -156,7 +148,8 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                 case "AC":
                     endMod = contents.indexOf(" (");
                     if(endMod != -1) {
-                        builder.setACMods(contents.substring(endMod + 2));
+                        int endModString = contents.indexOf(')', endMod);
+                        builder.setACMods(contents.substring(endMod + 2, endModString));
                     } else endMod = contents.length();
                     builder.setAC(Integer.parseInt(contents.substring(0, endMod)));
                     break;
@@ -265,6 +258,124 @@ public class CreatureLoader extends AbilityLoader<Creature> {
         return builder.build();
     }
 
+    private Item getItem(String name, boolean canBeEnchanted, Creature.Builder builder) throws ObjectNotFoundException {
+        if(name.endsWith("armor"))
+            return getItem(name.substring(0, name.length()-6), canBeEnchanted, builder);
+        if(name.matches(".*\\([^+][^)]*\\) *\\z")) {
+            int bracket = name.lastIndexOf('(');
+            String newName = name.substring(0, bracket);
+            String ammo = name.substring(bracket + 1, name.indexOf(')', bracket));
+            name = newName;
+            if(builder != null && ammo.matches("\\A\\d+ .*")) {
+                try {
+                    Item ammoItem = getItem(ammo, false, null);
+                    builder.addItem(new CreatureItem(ammoItem));
+                } catch (ObjectNotFoundException e) {
+                    builder.addItem(new CreatureItem(ammo));
+                }
+            }
+        }
+        try {
+            return findFromDependencies("Equipment",
+                    EquipmentLoader.class,
+                    name);
+        } catch (ObjectNotFoundException e) {
+            try {
+                return findFromDependencies("Armor",
+                        ArmorLoader.class,
+                        name);
+            } catch (ObjectNotFoundException e2) {
+                try {
+                    return findFromDependencies("Weapon",
+                            WeaponsLoader.class,
+                            name);
+                } catch (ObjectNotFoundException e3) {
+                    if(canBeEnchanted) {
+                        try {
+                            return parseEnchantedItem(name, builder);
+                        } catch (ObjectNotFoundException e4) {
+                            throw e;
+                        }
+                    } else throw e;
+                }
+            }
+        }
+    }
+
+    private enum ItemType {
+        Armor, Weapon
+    }
+
+    private Item parseEnchantedItem(String s, Creature.Builder builder) throws ObjectNotFoundException {
+        String[] words = s.split(" ");
+        Item baseItem = null;
+        ItemType type = null;
+        int startOfItem = words.length - 1;
+        while(baseItem == null && startOfItem > 0) {
+            if(Arrays.asList("composite", "half", "hand", "bo").contains(words[startOfItem - 1])) {
+                startOfItem--;
+                continue;
+            }
+            String itemName = String.join(" ", Arrays.asList(words).subList(startOfItem, words.length));
+            try{
+                baseItem = getItem(itemName, true, builder);
+            }catch (ObjectNotFoundException e) {
+                startOfItem--;
+                continue;
+            }
+            if(!baseItem.hasExtension(Weapon.class) && !baseItem.hasExtension(Armor.class)) {
+                baseItem = null;
+                startOfItem--;
+            }else if(baseItem.hasExtension(Armor.class))
+                type = ItemType.Armor;
+            else
+                type = ItemType.Weapon;
+        }
+        if(baseItem == null) {
+            throw new ObjectNotFoundException(s, "Item");
+        }
+        ItemInstance runedItem = new ItemInstance(baseItem);
+        Runes<?> runes;
+        if(type == ItemType.Armor){
+            runedItem.addExtension(RunedArmor.class);
+            runes = runedItem.getExtension(RunedArmor.class).getRunes();
+        }else{
+            runedItem.addExtension(RunedWeapon.class);
+            runes = runedItem.getExtension(RunedWeapon.class).getRunes();
+        }
+        for(int i = 0; i < startOfItem; i++) {
+            String word = words[i].toLowerCase();
+            switch (word) {
+                case "greater":
+                    word = words[i+1].toLowerCase() + " (Greater)";
+                    break;
+                case "major":
+                    word = words[i+1].toLowerCase() + " (Major)";
+                    break;
+                case "+1":
+                    if(baseItem.hasExtension(Weapon.class))
+                        word = "Weapon Potency (+1)";
+                    else
+                        word = "Armor Potency (+1)";
+                    break;
+                case "+2":
+                    if(baseItem.hasExtension(Weapon.class))
+                        word = "Weapon Potency (+2)";
+                    else
+                        word = "Armor Potency (+2)";
+                    break;
+                case "+3":
+                    if(baseItem.hasExtension(Weapon.class))
+                        word = "Weapon Potency (+3)";
+                    else
+                        word = "Armor Potency (+3)";
+                    break;
+            }
+            runes.tryToAddRune(getItem(word, false, null));
+        }
+        return runedItem;
+    }
+
     private void makeSpells(CreatureSpellList list, Element elem) {
         String level = elem.getAttribute("level");
         int space = level.indexOf(" ");
@@ -320,7 +431,8 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                     break;
                 case "Traits":
                     builder.setTraits(Arrays.stream(content.split(",")).map((item)->{
-                        String[] s = item.trim().split(" ", 2);
+                        item = item.trim();
+                        String[] s = item.split(" ", 2);
                         if(s.length == 1) {
                             Trait trait = null;
                             try {
@@ -339,11 +451,17 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                                         TraitsLoader.class,
                                         s[0]);
                             } catch (ObjectNotFoundException e) {
-                                int space = item.trim().indexOf(' ');
-                                space = item.trim().indexOf(' ', space + 1);
+                                int space = item.indexOf(' ');
+                                space = item.indexOf(' ', space + 1);
                                 if(space == -1) {
                                     custom = "";
-                                    e.printStackTrace();
+                                    try {
+                                        trait = findFromDependencies("Trait",
+                                                TraitsLoader.class,
+                                                item);
+                                    } catch (ObjectNotFoundException objectNotFoundException) {
+                                        System.out.println(e.getMessage());
+                                    }
                                 }else {
                                     custom = item.trim().substring(space+1);
                                     try {
@@ -355,7 +473,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                                     }
                                 }
                             }
-                            if(custom.length() == 0)
+                            if(custom.isBlank())
                                 return trait;
                             return new CustomTrait(trait, custom);
                         }

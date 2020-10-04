@@ -2,13 +2,8 @@ package ui.ftl;
 
 import freemarker.cache.*;
 import freemarker.core.TemplateNumberFormatFactory;
-import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.*;
-import model.abilities.Ability;
-import model.enums.Slot;
-import model.player.PC;
-import model.spells.CasterType;
-import ui.ftl.wrap.CharacterWrapper;
+import model.creatures.Creature;
 import ui.ftl.wrap.PF2GenObjectWrapper;
 
 import java.io.File;
@@ -17,16 +12,17 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-public class TemplateFiller {
+
+public class CreaturesTemplateFiller {
     private final Configuration cfg;
-    private final CharacterWrapper wrapper;
 
     public ObjectWrapper getWrapper(){
         return cfg.getObjectWrapper();
     }
     private final Map<String, Object> root;
-    public TemplateFiller(PC character) {
+    public CreaturesTemplateFiller(List<Creature> creatures) {
         cfg = new Configuration(Configuration.VERSION_2_3_29);
         if(new File("/sheets").isDirectory()) {
             try {
@@ -80,30 +76,17 @@ public class TemplateFiller {
 
 
 
-        cfg.setObjectWrapper(new PF2GenObjectWrapper(Configuration.VERSION_2_3_29, character));
+        cfg.setObjectWrapper(new PF2GenObjectWrapper(Configuration.VERSION_2_3_29));
         Map<String, TemplateNumberFormatFactory> customNumberFormats = new HashMap<>();
         customNumberFormats.put("s", SignedTemplateNumberFormatFactory.INSTANCE);
         cfg.setCustomNumberFormats(customNumberFormats);
 
         root = new HashMap<>();
-        wrapper = new CharacterWrapper(character, cfg.getObjectWrapper());
-        root.put("character", wrapper);
-        root.put("Ability", Ability.class);
-        try {
-            root.put("Slot", ((BeansWrapper)cfg.getObjectWrapper()).getEnumModels().get(Slot.class.getName()));
-            root.put("CasterType", ((BeansWrapper)cfg.getObjectWrapper()).getEnumModels().get(CasterType.class.getName()));
-        } catch (TemplateModelException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public String getStatBlock() {
-        return getSheet("statblock.ftl");
+        root.put("creatures", creatures);
     }
 
     public String getSheet(String templatePath) {
         long startTime = System.currentTimeMillis();
-        wrapper.refresh();
         Template template;
         try {
             template = cfg.getTemplate(templatePath);

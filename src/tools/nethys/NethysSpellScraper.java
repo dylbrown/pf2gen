@@ -26,7 +26,7 @@ class NethysSpellScraper extends NethysListScraper {
 	}
 
 	@Override
-	Pair<String, String> addItem(Document doc) {
+	Entry addItem(Document doc) {
 		Element output = doc.getElementById("ctl00_MainContent_DetailedOutput");
 
 		String spellName = output.getElementsByClass("title").first().ownText();
@@ -116,6 +116,6 @@ class NethysSpellScraper extends NethysListScraper {
 		}
 		results.append("\n</Spell>\n");
 
-		return new Pair<>(results.toString(), source);
+		return new Entry(spellName, results.toString(), source);
 	}
 }

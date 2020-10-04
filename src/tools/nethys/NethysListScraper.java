@@ -1,6 +1,5 @@
 package tools.nethys;
 
-import model.util.Pair;
 import model.util.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,12 +12,13 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 public abstract class NethysListScraper extends NethysScraper {
-    final Map<String, StringBuilder> sources = new ConcurrentHashMap<>();
+    final Map<String, Map<String, String>> sources = new ConcurrentHashMap<>();
     final Set<Integer> ids = new HashSet<>();
     final ExecutorService executorService = Executors.newCachedThreadPool();
     final CompletionService<Boolean> completionService= new ExecutorCompletionService<>(executorService);
@@ -62,11 +62,13 @@ public abstract class NethysListScraper extends NethysScraper {
         }
         afterThreadsCompleted();
         System.out.println("Writing to disk");
-        for (Map.Entry<String, StringBuilder> entry : sources.entrySet()) {
+        for (Map.Entry<String, Map<String, String>> entry : sources.entrySet()) {
             if(!sourceValidator.test(entry.getKey()))
                 continue;
             try {
-                out.append(entry.getValue());
+                for (String value : new TreeMap<>(entry.getValue()).values()) {
+                    out.append(value);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -87,6 +89,7 @@ public abstract class NethysListScraper extends NethysScraper {
             rootDocument = Jsoup.connect(inputURL).get();
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.println(inputURL);
             return;
         }
         rootDocument.getElementById(container).getElementsByTag("a").forEach(element -> {
@@ -113,10 +116,10 @@ public abstract class NethysListScraper extends NethysScraper {
 
     protected void setupItem(String href) throws IOException {
         System.out.println(href);
-        Pair<String, String> pair = addItem(Jsoup.connect("http://2e.aonprd.com/"+href).get());
-        if (!pair.first.equals(""))
-            sources.computeIfAbsent(StringUtils.clean(pair.second), key -> new StringBuilder())
-                    .append(pair.first);
+        Entry entry = addItem(Jsoup.connect("http://2e.aonprd.com/"+href).get());
+        if (!entry.entry.isBlank())
+            sources.computeIfAbsent(StringUtils.clean(entry.source), key -> new ConcurrentHashMap<>())
+                    .put(entry.entryName, entry.entry);
     }
 
     protected void setupItemMultithreaded(String href) {
@@ -130,14 +133,26 @@ public abstract class NethysListScraper extends NethysScraper {
             }
             try {
                 setupItem(href);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             semaphore.release();
         }, true);
     }
 
-    abstract Pair<String, String> addItem(Document doc);
+    public static class Entry {
+        public final String entryName;
+        public final String entry;
+        public final String source;
+
+        public Entry(String entryName, String entry, String source) {
+            this.entryName = entryName;
+            this.entry = entry;
+            this.source = source;
+        }
+    }
+
+    abstract Entry addItem(Document doc);
 
     public boolean isMultithreaded() {
         return multithreaded;

@@ -6,6 +6,7 @@ import freemarker.template.TemplateModelException;
 import freemarker.template.Version;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.StringProperty;
+import model.creatures.Creature;
 import model.equipment.Item;
 import model.equipment.ItemCount;
 import model.player.AttributeManager;
@@ -35,11 +36,15 @@ public class PF2GenObjectWrapper extends DefaultObjectWrapper {
         });
     }
 
+    public PF2GenObjectWrapper(Version version) {
+        this(version, null);
+    }
 
 
     @Override
     protected TemplateModel handleUnknownType(Object obj) throws TemplateModelException {
         if(obj instanceof PC) return new CharacterWrapper((PC) obj, this);
+        if(obj instanceof Creature) return new CreatureWrapper((Creature) obj, this);
         if(obj instanceof Item)
             return new ItemWrapper(character, (Item) obj, this);
         if(obj instanceof ItemCount) return new ItemCountWrapper((ItemCount) obj, this);

@@ -72,7 +72,7 @@ public class BaseItem extends NamedObject implements Item {
     public boolean hasExtension(String extensionName) {
         extensionName = extensionName.toLowerCase();
         for (Class<? extends ItemExtension> aClass : extensions.keySet()) {
-            if(aClass.getName().toLowerCase().endsWith(extensionName))
+            if(aClass.getSimpleName().toLowerCase().matches(extensionName+"(extension)?"))
                 return true;
         }
         return false;

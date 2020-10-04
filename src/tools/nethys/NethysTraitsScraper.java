@@ -1,6 +1,5 @@
 package tools.nethys;
 
-import model.util.Pair;
 import model.util.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -66,11 +65,11 @@ public class NethysTraitsScraper extends NethysListScraper {
 
     private void setupItem(String href, String currentSection) throws IOException {
         System.out.println(href);
-        Pair<String, String> pair = addItem(Jsoup.connect("http://2e.aonprd.com/"+href).get());
-        if (!pair.first.equals(""))
-            builders.computeIfAbsent(StringUtils.clean(pair.second), s->new HashMap<>())
+        Entry entry = addItem(Jsoup.connect("http://2e.aonprd.com/"+href).get());
+        if (!entry.entry.isBlank())
+            builders.computeIfAbsent(StringUtils.clean(entry.source), s->new HashMap<>())
                     .computeIfAbsent(currentSection, key -> new StringBuilder())
-                    .append(pair.first);
+                    .append(entry.entry);
     }
 
     private void setupItemMultithreaded(String href, String currentSection) {
@@ -94,18 +93,18 @@ public class NethysTraitsScraper extends NethysListScraper {
     @Override
     protected void afterThreadsCompleted() {
         for (Map.Entry<String, Map<String, StringBuilder>> entry : builders.entrySet()) {
-            StringBuilder source = new StringBuilder();
             for (Map.Entry<String, StringBuilder> subEntry : entry.getValue().entrySet()) {
-                source.append("<Category name=\"").append(subEntry.getKey()).append("\">\n");
-                source.append(subEntry.getValue());
-                source.append("</Category>\n");
+                String category = "<Category name=\"" + subEntry.getKey() + "\">\n" +
+                        subEntry.getValue() +
+                        "</Category>\n";
+                sources.computeIfAbsent(StringUtils.clean(entry.getKey()), s->new HashMap<>())
+                        .put(subEntry.getKey(), category);
             }
-            sources.put(StringUtils.clean(entry.getKey()), source);
         }
     }
 
     @Override
-    Pair<String, String> addItem(Document doc) {
+    Entry addItem(Document doc) {
         StringBuilder result = new StringBuilder();
         Element output = doc.getElementById("ctl00_MainContent_DetailedOutput");
         String sourcePage = getAfter(output, "Source");
@@ -113,10 +112,11 @@ public class NethysTraitsScraper extends NethysListScraper {
         int endPage = sourcePage.indexOf(' ', end + 4);
         if(endPage == -1)
             endPage = sourcePage.length();
+        String name = output.getElementsByTag("h1").first().text();
         String source = sourcePage.substring(0, end-1);
         String page = sourcePage.substring(end+4, endPage);
         result.append("\t<Trait page=\"").append(page).append("\">\n\t\t<Name>")
-                .append(output.getElementsByTag("h1").first().text())
+                .append(name)
                 .append("</Name>\n\t\t<Description>");
         Node curr = output.getElementsByTag("br").first().nextSibling();
         while (curr != null && !(curr instanceof Element && ((Element) curr).tagName().equals("h2"))) {
@@ -124,6 +124,6 @@ public class NethysTraitsScraper extends NethysListScraper {
             curr = curr.nextSibling();
         }
         result.append("</Description>\n\t</Trait>\n");
-        return new Pair<>(result.toString(), source);
+        return new Entry(name, result.toString(), source);
     }
 }
