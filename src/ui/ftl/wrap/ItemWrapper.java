@@ -2,6 +2,8 @@ package ui.ftl.wrap;
 
 import freemarker.template.ObjectWrapper;
 import freemarker.template.TemplateMethodModelEx;
+import model.creatures.Attack;
+import model.creatures.Creature;
 import model.equipment.Item;
 import model.equipment.ItemExtension;
 import model.equipment.weapons.Weapon;
@@ -9,14 +11,41 @@ import model.player.PC;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.function.Function;
 
 public class ItemWrapper extends GenericWrapper<Item> {
 
-    private final PC character;
+    private final Function<Item, Integer> getAttackMod;
+    private final Function<Item, Object> getDamage;
 
     public ItemWrapper(PC character, Item item, ObjectWrapper wrapper) {
         super(item, wrapper);
-        this.character = character;
+        getAttackMod = character.combat()::getAttackMod;
+        getDamage = character.combat()::getDamage;
+    }
+
+    public ItemWrapper(Item item, ObjectWrapper wrapper) {
+        super(item, wrapper);
+        getAttackMod = null;
+        getDamage = null;
+    }
+
+    public ItemWrapper(Creature creature, Item item, ObjectWrapper wrapper) {
+        super(item, wrapper);
+        getAttackMod = i -> {
+            for (Attack attack : creature.getAttacks()) {
+                if(attack.getName().equalsIgnoreCase(i.getName()))
+                    return attack.getModifier();
+            }
+            throw new RuntimeException("Could not find attack");
+        };
+        getDamage = i -> {
+            for (Attack attack : creature.getAttacks()) {
+                if(attack.getName().equalsIgnoreCase(i.getName()))
+                    return attack.getDamage();
+            }
+            throw new RuntimeException("Could not find attack");
+        };
     }
 
     @Override
@@ -27,9 +56,13 @@ public class ItemWrapper extends GenericWrapper<Item> {
         if(item.hasExtension(Weapon.class)) {
             switch (s) {
                 case "attack":
-                    return character.combat().getAttackMod(item);
+                    if(getAttackMod != null)
+                        return getAttackMod.apply(item);
+                    break;
                 case "damage":
-                    return character.combat().getDamage(item);
+                    if(getDamage != null)
+                        return getDamage.apply(item);
+                    break;
             }
         }
         for (ItemExtension extension : item.getExtensions()) {

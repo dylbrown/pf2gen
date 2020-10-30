@@ -4,7 +4,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import model.equipment.Item;
 import model.player.PC;
-import model.xml_parsers.equipment.EquipmentLoader;
+import model.xml_parsers.equipment.ItemLoader;
 import ui.controls.lists.AbstractEntryList;
 import ui.controls.lists.entries.ItemEntry;
 import ui.controls.lists.factories.TreeCellFactory;
@@ -34,7 +34,7 @@ public class LevelAllItemsList extends AbstractEntryList<Item, ItemEntry> {
         cost.setStyle( "-fx-alignment: CENTER;");
         subCat.setCellValueFactory(new TreeCellFactory<>("subCategory"));
         subCat.setStyle( "-fx-alignment: CENTER;");
-        cost.setComparator(Comparator.comparingDouble(EquipmentLoader::getPrice));
+        cost.setComparator(Comparator.comparingDouble(ItemLoader::getPrice));
         //noinspection unchecked
         this.getColumns().addAll(name, cost, subCat);
         name.minWidthProperty().bind(this.widthProperty().multiply(.5));

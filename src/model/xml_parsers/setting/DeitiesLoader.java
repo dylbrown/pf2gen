@@ -12,8 +12,8 @@ import model.xml_parsers.equipment.WeaponsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import setting.Deity;
-import setting.Domain;
+import model.setting.Deity;
+import model.setting.Domain;
 
 import java.io.File;
 import java.util.stream.Collectors;

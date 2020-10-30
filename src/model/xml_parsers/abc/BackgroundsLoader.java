@@ -17,6 +17,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 import static model.util.StringUtils.*;
@@ -59,7 +60,7 @@ public class BackgroundsLoader extends ABCLoader<Background, Background.Builder>
                             attributes[l] = makeAttribute(orCheck[l]).first;
                         }
 
-                        mods[k] = new AttributeModSingleChoice(attributes, Proficiency.Trained);
+                        mods[k] = new AttributeModSingleChoice(Arrays.asList(attributes), Proficiency.Trained);
                     }else{
                         Pair<Attribute, String> pair = makeAttribute(split[k]);
                         mods[k] = new AttributeMod(pair.first, Proficiency.Trained, pair.second);

@@ -38,11 +38,16 @@ import java.util.function.Consumer;
 
 import static model.util.StringUtils.camelCaseWord;
 
-public class EquipmentLoader extends FileLoader<Item> {
+public class ItemLoader extends FileLoader<Item> {
     private static final ItemAbilityLoader abilityLoader = new ItemAbilityLoader(null, null, null);
 
-    public EquipmentLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
+    public ItemLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
         super(sourceConstructor, root, sourceBuilder);
+    }
+
+    @Override
+    protected String getName(Item item) {
+        return item.getRawName();
     }
 
     @Override

@@ -17,6 +17,26 @@ public class SaveCompatibilityConverter {
                         " - Core Rulebook"
                 ));
                 break;
+            case 2:
+                boolean inventory = false;
+                for (int i = 0; i < lines.first.size(); i++) {
+                    String line = lines.first.get(i);
+                    if(!inventory) {
+                        if(line.startsWith("Inventory")) {
+                            inventory = true;
+                        }
+                        continue;
+                    }
+                    if(line.startsWith(" @ ")) {
+                        lines.first.add(i + 1, "    Runes");
+                        i++;
+                    }else if(line.startsWith("   - ")) {
+                        lines.first.set(i, "     - " + line.substring(5));
+                    }else if(!line.startsWith(" - "))
+                        break;
+                }
+
+                break;
         }
     }
 }

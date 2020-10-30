@@ -36,7 +36,7 @@ public class Armor extends ItemExtension {
 
     @ItemDecorator
     public Slot getSlot(Slot slot) {
-        return (getBaseItem().hasExtension(Shield.class)) ? Slot.OneHand : Slot.Armor;
+        return (getItem().hasExtension(Shield.class)) ? Slot.OneHand : Slot.Armor;
     }
 
     public int getAC() {
@@ -68,7 +68,7 @@ public class Armor extends ItemExtension {
     }
 
     public Armor copy() {
-        return new Armor.Builder(this).build(getBaseItem());
+        return new Armor.Builder(this).build(getItem());
     }
 
     public static class Builder extends ItemExtension.Builder {

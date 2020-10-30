@@ -26,12 +26,32 @@ public class ItemInstance implements Item {
         else if(item instanceof ItemInstance)
             this.item = ((ItemInstance) item).getSourceItem();
         else this.item = null;
+
+        for (ItemExtension extension : item.getExtensions()) {
+            extension.applyToCreatedInstance(this);
+        }
     }
 
     public <T extends ItemExtension> T addExtension(Class<T> extensionClass) {
+        if(ItemInstanceExtension.class.isAssignableFrom(extensionClass)) {
+            throw new UnsupportedOperationException("Adding an instance exception");
+        }
         try {
             Constructor<T> constructor = extensionClass.getDeclaredConstructor(Item.class);
             T newExtension = constructor.newInstance(this);
+            extensions.put(extensionClass, newExtension);
+            return newExtension;
+        } catch (NoSuchMethodException | IllegalAccessException
+                | InstantiationException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public <T extends ItemExtension, U extends ItemInstanceExtension<T>> U addInstanceExtension(Class<U> extensionClass, Class<T> parentExtension) {
+        try {
+            Constructor<U> constructor = extensionClass.getDeclaredConstructor(ItemInstance.class, parentExtension);
+            U newExtension = constructor.newInstance(this, this.getExtension(parentExtension));
             extensions.put(extensionClass, newExtension);
             return newExtension;
         } catch (NoSuchMethodException | IllegalAccessException
@@ -121,12 +141,17 @@ public class ItemInstance implements Item {
 
     @Override
     public String getName() {
-        return resolveDecoration(item.getName(), "getName");
+        return resolveDecoration(item.getRawName(), "getName");
+    }
+
+    @Override
+    public String getRawName() {
+        return item.getRawName();
     }
 
     @Override
     public String getDescription() {
-        return resolveDecoration(item.getDescription(), "getDescription");
+        return resolveDecoration(item.getRawDescription(), "getDescription");
     }
 
     @Override
@@ -164,15 +189,23 @@ public class ItemInstance implements Item {
     }
 
     <T> T resolveDecoration(T value, String functionName, Class<T> valueClass) {
-        value = item.resolveDecoration(value, functionName, valueClass);
+        for (ItemExtension extension : item.getExtensions()) {
+            value = resolveDecoration(value, extension, functionName, valueClass);
+        }
         for (ItemExtension extension : extensions.values()) {
-            try {
-                Method method = extension.getClass().getMethod(functionName, valueClass);
+            value = resolveDecoration(value, extension, functionName, valueClass);
+        }
+        return value;
+    }
+
+    private <T> T resolveDecoration(T value, ItemExtension extension, String functionName, Class<T> valueClass) {
+        try {
+            Method method = extension.getClass().getMethod(functionName, valueClass);
+            if(!method.isAnnotationPresent(ItemExtension.BaseItemOnly.class))
                 value = valueClass.cast(method.invoke(extension, value));
-            } catch (NoSuchMethodException ignored) {
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
+        } catch (NoSuchMethodException ignored) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
         }
         return value;
     }

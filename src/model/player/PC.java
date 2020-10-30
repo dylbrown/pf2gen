@@ -21,7 +21,7 @@ import model.spells.Spell;
 import model.spells.SpellList;
 import model.util.ObjectNotFoundException;
 import model.util.Pair;
-import setting.Deity;
+import model.setting.Deity;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;

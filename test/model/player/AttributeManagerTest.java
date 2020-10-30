@@ -9,6 +9,9 @@ import model.enums.Proficiency;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AttributeManagerTest {
@@ -57,7 +60,7 @@ class AttributeManagerTest {
 		assertEquals(Proficiency.Untrained, value.getValue());
 
 		AttributeModSingleChoice choice = new AttributeModSingleChoice(
-				new Attribute[]{Attribute.Athletics, Attribute.Acrobatics}, Proficiency.Trained);
+				Arrays.asList(Attribute.Athletics, Attribute.Acrobatics), Proficiency.Trained);
 		attributes.apply(choice);
 		assertEquals(Proficiency.Untrained, value.getValue());
 
@@ -71,7 +74,7 @@ class AttributeManagerTest {
 		assertEquals(Proficiency.Untrained, value.getValue());
 
 		AttributeModSingleChoice choice = new AttributeModSingleChoice(
-				new Attribute[]{Attribute.Athletics}, Proficiency.Trained);
+				Collections.singletonList(Attribute.Athletics), Proficiency.Trained);
 		attributes.apply(choice);
 		assertEquals(Proficiency.Trained, value.getValue());
 	}

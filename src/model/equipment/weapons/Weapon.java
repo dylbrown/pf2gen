@@ -35,7 +35,7 @@ public class Weapon extends ItemExtension {
 
     @ItemDecorator
     public Slot getSlot(Slot slot) {
-        return getBaseItem().getHands() == 2 ? Slot.TwoHands : Slot.OneHand;
+        return getItem().getHands() == 2 ? Slot.TwoHands : Slot.OneHand;
     }
 
     public Dice getDamageDice() {
@@ -59,7 +59,7 @@ public class Weapon extends ItemExtension {
     }
 
     public boolean isRanged(){
-        return getBaseItem().hasExtension(RangedWeapon.class);
+        return getItem().hasExtension(RangedWeapon.class);
     }
 
     public static class Builder extends ItemExtension.Builder {

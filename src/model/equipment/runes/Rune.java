@@ -29,10 +29,10 @@ public abstract class Rune extends ItemExtension {
     }
 
     public String getBaseRune() {
-        int end = getBaseItem().getName().indexOf("(");
+        int end = getItem().getName().indexOf("(");
         if(end == -1)
-            end = getBaseItem().getName().length();
-        return getBaseItem().getName().substring(0, end).trim();
+            end = getItem().getName().length();
+        return getItem().getName().substring(0, end).trim();
     }
 
     public boolean isFundamental() {
@@ -44,7 +44,7 @@ public abstract class Rune extends ItemExtension {
     }
 
     public String getTier() {
-        return StringUtils.getInBrackets(getBaseItem().getName());
+        return StringUtils.getInBrackets(getItem().getName());
     }
 
     public static abstract class Builder extends ItemExtension.Builder {

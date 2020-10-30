@@ -7,7 +7,7 @@ import model.xml_parsers.abc.AncestriesLoader;
 import model.xml_parsers.abc.BackgroundsLoader;
 import model.xml_parsers.abc.PClassesLoader;
 import model.xml_parsers.equipment.ArmorLoader;
-import model.xml_parsers.equipment.EquipmentLoader;
+import model.xml_parsers.equipment.ItemLoader;
 import model.xml_parsers.equipment.WeaponsLoader;
 import model.xml_parsers.setting.DeitiesLoader;
 import model.xml_parsers.setting.DomainsLoader;
@@ -102,8 +102,8 @@ public class SourcesLoader extends FileLoader<Source> {
                         new PClassesLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
             case "equipment":
-                builder.addLoader(EquipmentLoader.class,
-                        new EquipmentLoader(getSourceConstructor(curr), parentFile, builder));
+                builder.addLoader(ItemLoader.class,
+                        new ItemLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
             case "armor":
                 builder.addLoader(ArmorLoader.class,

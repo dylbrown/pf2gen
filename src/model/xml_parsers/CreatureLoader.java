@@ -19,7 +19,7 @@ import model.equipment.runes.runedItems.Runes;
 import model.equipment.weapons.Weapon;
 import model.util.ObjectNotFoundException;
 import model.xml_parsers.equipment.ArmorLoader;
-import model.xml_parsers.equipment.EquipmentLoader;
+import model.xml_parsers.equipment.ItemLoader;
 import model.xml_parsers.equipment.WeaponsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -277,7 +277,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
         }
         try {
             return findFromDependencies("Equipment",
-                    EquipmentLoader.class,
+                    ItemLoader.class,
                     name);
         } catch (ObjectNotFoundException e) {
             try {

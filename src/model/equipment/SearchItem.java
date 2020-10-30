@@ -111,6 +111,11 @@ public class SearchItem implements Item {
     }
 
     @Override
+    public String getRawName() {
+        return name;
+    }
+
+    @Override
     public String getDescription() {
         throw new UnsupportedOperationException();
     }

@@ -37,7 +37,7 @@ public class Shield extends ItemExtension {
     }
 
     public Shield copy() {
-        return new Shield.Builder(this).build(getBaseItem());
+        return new Shield.Builder(this).build(getItem());
     }
 
     public static class Builder extends ItemExtension.Builder {

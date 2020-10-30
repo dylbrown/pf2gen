@@ -21,6 +21,8 @@ public abstract class ABC extends NamedObject {
     public static abstract class Builder extends NamedObject.Builder {
         private List<AbilityMod> abilityMods = Collections.emptyList();
 
+        protected Builder(){}
+
         public void setAbilityMods(List<AbilityMod> abilityMods) {
             this.abilityMods = abilityMods;
         }

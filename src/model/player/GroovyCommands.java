@@ -7,6 +7,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import model.enums.WeaponProficiency;
 import model.equipment.weapons.WeaponGroupMod;
 import model.equipment.weapons.WeaponMod;
 import model.abilities.Ability;
@@ -25,8 +26,8 @@ import model.spells.Spell;
 import model.util.ObjectNotFoundException;
 import model.util.StringUtils;
 import model.xml_parsers.AbilityLoader;
-import setting.Deity;
-import setting.Domain;
+import model.setting.Deity;
+import model.setting.Domain;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -302,6 +303,13 @@ class GroovyCommands {
                     weaponName,
                     Proficiency.valueOf(StringUtils.camelCaseWord(prof.trim()))
             ));
+        }
+    }
+    public void weaponProficiencyTranslator(Closure<WeaponProficiency> translator) {
+        if(applying.get()) {
+            attributes.apply(translator::call);
+        } else {
+            attributes.remove(translator::call);
         }
     }
     public void damageModifier(String name, Closure<Damage> modifier) {

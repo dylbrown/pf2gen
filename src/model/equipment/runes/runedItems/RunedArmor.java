@@ -18,10 +18,10 @@ public class RunedArmor extends ItemExtension {
         runes = new Runes<>(item.getName(), ArmorRune.class);
         runes.addListener(c->{
             if(c.wasAdded()) {
-                bonuses.addAll(c.getValueAdded().getBaseItem().getBonuses());
+                bonuses.addAll(c.getValueAdded().getItem().getBonuses());
             }
             if(c.wasRemoved()) {
-                bonuses.removeAll(c.getValueRemoved().getBaseItem().getBonuses());
+                bonuses.removeAll(c.getValueRemoved().getItem().getBonuses());
             }
         });
         if(!item.hasExtension(Armor.class))

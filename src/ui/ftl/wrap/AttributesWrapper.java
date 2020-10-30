@@ -43,7 +43,7 @@ public class AttributesWrapper implements TemplateHashModel {
             if (method.getName().toLowerCase().equals("get" + s.toLowerCase())
                     && method.getParameterCount() == 0) {
                 try {
-                    return wrapper.wrap(method.invoke(character));
+                    return wrapper.wrap(method.invoke(attributes));
                 } catch (IllegalAccessException | InvocationTargetException e) {
                     e.printStackTrace();
                 }

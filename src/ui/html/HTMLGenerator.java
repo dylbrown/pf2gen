@@ -7,8 +7,8 @@ import model.abilities.Ability;
 import model.creatures.Creature;
 import model.equipment.Item;
 import model.spells.Spell;
-import setting.Deity;
-import setting.Domain;
+import model.setting.Deity;
+import model.setting.Domain;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +41,7 @@ public class HTMLGenerator {
         add(Domain.class, SettingHTMLGenerator::parse);
         add(Item.class, EquipmentHTMLGenerator::parse);
         add(Ability.class, AbilityHTMLGenerator::parse);
-        add(Spell.class, s -> SpellHTMLGenerator.getDescription(s, s.getLevelOrCantrip()));
+        add(Spell.class, s -> SpellHTMLGenerator.parse(s, s.getLevelOrCantrip()));
         add(Creature.class, CreatureHTMLGenerator::parse);
     }
     private <T> void add(Class<T> tClass, Function<T, String> generator) {

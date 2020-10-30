@@ -51,14 +51,15 @@ public class ArbitraryChoice<T> implements ChoiceList<T> {
         if(this.selections.size() < maxSelections.get() && this.choices.contains(choice) &&
                 (this.multipleSelect || !this.selections.contains(choice))) {
             this.selections.add(choice);
-            fillFunction.accept(choice);
+            if(fillFunction != null)
+                fillFunction.accept(choice);
         }
     }
 
     @Override
     public void remove(T choice) {
         boolean remove = this.selections.remove(choice);
-        if(remove) emptyFunction.accept(choice);
+        if(remove && emptyFunction != null) emptyFunction.accept(choice);
     }
 
     @Override
@@ -85,6 +86,11 @@ public class ArbitraryChoice<T> implements ChoiceList<T> {
     @Override
     public int getLevel() {
         return 0;
+    }
+
+    @Override
+    public ArbitraryChoice<T> copy() {
+        return new Builder<>(this).build();
     }
 
     @Override
@@ -160,6 +166,18 @@ public class ArbitraryChoice<T> implements ChoiceList<T> {
         private int maxSelections;
         private boolean multipleSelect = false;
         private Class<T> optionsClass;
+
+        public Builder(){}
+
+        public Builder(ArbitraryChoice<T> choice) {
+            choices = choice.choices;
+            fillFunction = choice.fillFunction;
+            emptyFunction = choice.emptyFunction;
+            name = choice.name;
+            maxSelections = choice.maxSelections.get();
+            multipleSelect = choice.multipleSelect;
+            optionsClass = choice.optionsClass;
+        }
 
         public void setChoices(ObservableList<T> choices) {
             this.choices = choices;

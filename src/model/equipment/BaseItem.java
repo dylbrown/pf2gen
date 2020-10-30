@@ -111,6 +111,16 @@ public class BaseItem extends NamedObject implements Item {
     }
 
     @Override
+    public String getName() {
+        return resolveDecoration(super.getName(), "getName");
+    }
+
+    @Override
+    public String getDescription() {
+        return resolveDecoration(super.getDescription(), "getDescription");
+    }
+
+    @Override
     public String toString() {
         return getName();
     }

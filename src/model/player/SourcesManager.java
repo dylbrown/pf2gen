@@ -17,12 +17,12 @@ import model.xml_parsers.abc.AncestriesLoader;
 import model.xml_parsers.abc.BackgroundsLoader;
 import model.xml_parsers.abc.PClassesLoader;
 import model.xml_parsers.equipment.ArmorLoader;
-import model.xml_parsers.equipment.EquipmentLoader;
+import model.xml_parsers.equipment.ItemLoader;
 import model.xml_parsers.equipment.WeaponsLoader;
 import model.xml_parsers.setting.DeitiesLoader;
 import model.xml_parsers.setting.DomainsLoader;
-import setting.Deity;
-import setting.Domain;
+import model.setting.Deity;
+import model.setting.Domain;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,7 +60,7 @@ public class SourcesManager {
         addIfNotNull(ancestries, source.getLoader(AncestriesLoader.class));
         addIfNotNull(backgrounds, source.getLoader(BackgroundsLoader.class));
         addIfNotNull(classes, source.getLoader(PClassesLoader.class));
-        addIfNotNull(equipment, source.getLoader(EquipmentLoader.class));
+        addIfNotNull(equipment, source.getLoader(ItemLoader.class));
         addIfNotNull(armor, source.getLoader(ArmorLoader.class));
         addIfNotNull(weapons, source.getLoader(WeaponsLoader.class));
         addIfNotNull(feats, source.getLoader(FeatsLoader.class));

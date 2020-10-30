@@ -24,7 +24,7 @@ import java.util.Objects;
 
 import static model.util.StringUtils.camelCase;
 
-public class ArmorLoader extends EquipmentLoader {
+public class ArmorLoader extends ItemLoader {
 
     private final Map<String, ArmorGroup> armorGroups = new HashMap<>();
 

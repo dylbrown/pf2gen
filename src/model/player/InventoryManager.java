@@ -11,10 +11,12 @@ import model.enums.BuySellMode;
 import model.enums.Slot;
 import model.equipment.*;
 import model.equipment.armor.Armor;
+import model.equipment.armor.Shield;
 import model.equipment.runes.Rune;
 import model.equipment.runes.runedItems.RunedArmor;
 import model.equipment.runes.runedItems.RunedWeapon;
 import model.equipment.runes.runedItems.Runes;
+import model.equipment.weapons.RangedWeapon;
 import model.equipment.weapons.Weapon;
 import model.util.Eyeball;
 import model.util.Pair;
@@ -251,12 +253,18 @@ public class InventoryManager implements PlayerState {
     }
 
     private Item convertToRuned(Item item) {
-        if(!getItems().containsKey(item) || !(item instanceof BaseItem)) return null;
-        if(!(item.hasExtension(Armor.class) || item.hasExtension(Weapon.class))) return null;
+        if(!getItems().containsKey(item)) return null;
+        if(!(item.hasExtension(Armor.class) || item.hasExtension(Weapon.class)
+        || item.hasExtension(Shield.class) || item.hasExtension(RangedWeapon.class))) return null;
         boolean equip = (getEquipped(item.getSlot()) != null) && item.equals(getEquipped(item.getSlot()).stats());
         remove(item, 1);
-        ItemInstance runedItem = new ItemInstance((BaseItem) item);
-        if(item.hasExtension(Armor.class))
+        ItemInstance runedItem;
+        if(item instanceof BaseItem)
+            runedItem = new ItemInstance(item);
+        else if(item instanceof ItemInstance)
+            runedItem = (ItemInstance) item;
+        else return null;
+        if(item.hasExtension(Armor.class) || item.hasExtension(Shield.class))
             runedItem.addExtension(RunedArmor.class);
         else
             runedItem.addExtension(RunedWeapon.class);
@@ -284,7 +292,7 @@ public class InventoryManager implements PlayerState {
             Runes<?> runes = Runes.getRunes(item);
             if(runes != null) {
                 if (runes.tryToAddRune(rune)) {
-                    remove(rune.getBaseItem(), 1);
+                    remove(rune.getItem(), 1);
                     return new Pair<>(true, item);
                 } else return new Pair<>(false, item);
             }
@@ -300,13 +308,13 @@ public class InventoryManager implements PlayerState {
 
     public Pair<Boolean, Item> tryToRemoveRune(Item runedItem, Rune rune) {
         // Can we afford the rune
-        if(rune.getBaseItem().getValue() * .1 * buyMultiplier > money.get()) return new Pair<>(false, runedItem);
+        if(rune.getItem().getValue() * .1 * buyMultiplier > money.get()) return new Pair<>(false, runedItem);
 
         Runes<?> runes = Runes.getRunes(runedItem);
         if(runes != null) {
             if(runes.tryToRemoveRune(rune)){
-                add(rune.getBaseItem(), 1);
-                money.set(money.get() - rune.getBaseItem().getValue() * .1 * buyMultiplier);
+                add(rune.getItem(), 1);
+                money.set(money.get() - rune.getItem().getValue() * .1 * buyMultiplier);
             }
             if(runes.getAll().size() == 0) {
                 return new Pair<>(true, revertFromRuned(runedItem));
@@ -315,12 +323,12 @@ public class InventoryManager implements PlayerState {
     }
 
     public boolean tryToUpgradeRune(Item runedItem, Rune rune, Rune upgradedRune) {
-        if((upgradedRune.getBaseItem().getValue() - rune.getBaseItem().getValue()) * buyMultiplier > money.get()) return false;
+        if((upgradedRune.getItem().getValue() - rune.getItem().getValue()) * buyMultiplier > money.get()) return false;
 
         Runes<?> runes = Runes.getRunes(runedItem);
         if(runes != null) {
             if(runes.tryToUpgradeRune(rune, upgradedRune)){
-                money.set(money.get() - (upgradedRune.getBaseItem().getValue() - rune.getBaseItem().getValue()) * buyMultiplier);
+                money.set(money.get() - (upgradedRune.getItem().getValue() - rune.getItem().getValue()) * buyMultiplier);
                 return true;
             }
         }

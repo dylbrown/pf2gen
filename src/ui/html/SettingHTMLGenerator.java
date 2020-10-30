@@ -3,8 +3,8 @@ package ui.html;
 import model.attributes.Attribute;
 import model.enums.Alignment;
 import model.spells.Spell;
-import setting.Deity;
-import setting.Domain;
+import model.setting.Deity;
+import model.setting.Domain;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +47,7 @@ public class SettingHTMLGenerator {
                 deity.getFollowerAlignments().stream().map(Alignment::name).collect(Collectors.joining(", ")),
                 font,
                 deity.getDivineSkillChoices().stream().map(Attribute::name).collect(Collectors.joining(" or ")),
-                (deity.getFavoredWeapon() != null) ? deity.getFavoredWeapon().getBaseItem().getName() : "None",
+                (deity.getFavoredWeapon() != null) ? deity.getFavoredWeapon().getItem().getName() : "None",
                 deity.getDomains().stream().map(Domain::getName).collect(Collectors.joining(", ")),
                 String.join(", ", spells));
     }

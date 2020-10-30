@@ -9,7 +9,7 @@ import model.enums.Slot;
 import model.player.PC;
 import model.spells.CasterType;
 import ui.ftl.wrap.CharacterWrapper;
-import ui.ftl.wrap.PF2GenObjectWrapper;
+import ui.ftl.wrap.ObjectWrapperCharacter;
 
 import java.io.File;
 import java.io.IOException;
@@ -80,7 +80,7 @@ public class TemplateFiller {
 
 
 
-        cfg.setObjectWrapper(new PF2GenObjectWrapper(Configuration.VERSION_2_3_29, character));
+        cfg.setObjectWrapper(new ObjectWrapperCharacter(Configuration.VERSION_2_3_29, character));
         Map<String, TemplateNumberFormatFactory> customNumberFormats = new HashMap<>();
         customNumberFormats.put("s", SignedTemplateNumberFormatFactory.INSTANCE);
         cfg.setCustomNumberFormats(customNumberFormats);

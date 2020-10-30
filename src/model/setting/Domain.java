@@ -1,4 +1,4 @@
-package setting;
+package model.setting;
 
 import model.NamedObject;
 import model.spells.Spell;

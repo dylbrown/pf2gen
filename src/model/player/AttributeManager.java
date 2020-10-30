@@ -12,10 +12,7 @@ import model.enums.Proficiency;
 import model.enums.Type;
 import model.enums.WeaponProficiency;
 import model.equipment.Item;
-import model.equipment.weapons.Weapon;
-import model.equipment.weapons.WeaponGroup;
-import model.equipment.weapons.WeaponGroupMod;
-import model.equipment.weapons.WeaponMod;
+import model.equipment.weapons.*;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -43,6 +40,7 @@ public class AttributeManager implements PlayerState {
     private final DecisionManager decisions;
     private final Map<String, Proficiency> weaponProficiencies = new HashMap<>();
     private final List<String> customWeaponStrings = new ArrayList<>();
+    private final List<WeaponProficiencyTranslator> weaponProficiencyTranslators = new ArrayList<>();
     private final Map<WeaponGroup, Proficiency> groupProficiencies = new HashMap<>();
     private final PropertyChangeSupport proficiencyChange = new PropertyChangeSupport(this);
     private final List<AttributeModSingleChoice> choices = new ArrayList<>();
@@ -457,6 +455,14 @@ outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
         }
     }
 
+    void apply(WeaponProficiencyTranslator translator) {
+        weaponProficiencyTranslators.add(translator);
+    }
+
+    void remove(WeaponProficiencyTranslator translator) {
+        weaponProficiencyTranslators.remove(translator);
+    }
+
     void apply(WeaponGroupMod weaponGroupMod) {
         groupProficiencies.merge(weaponGroupMod.getGroup(), weaponGroupMod.getProficiency(), Proficiency::max);
     }
@@ -465,6 +471,10 @@ outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
     }
 
     Proficiency getProficiency(WeaponProficiency attr, Item weapon) {
+        for (WeaponProficiencyTranslator translator : weaponProficiencyTranslators) {
+            attr = translator.apply(weapon, attr);
+        }
+
         return getProficiency(Attribute.valueOf(attr), weapon);
     }
 
@@ -477,14 +487,14 @@ outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
     private Proficiency getSpecificWeaponProficiency(Item weapon) {
         for (String customWeaponString : customWeaponStrings) {
             Object o = customGetter.get(customWeaponString);
-            if(o instanceof Item && weapon.getName().equals(((Item) o).getName())) {
+            if(o instanceof Item && weapon.getRawName().equalsIgnoreCase(((Item) o).getRawName())) {
                 return Proficiency.max(
                         weaponProficiencies.getOrDefault(customWeaponString.toLowerCase(), Proficiency.Untrained),
-                        weaponProficiencies.getOrDefault(weapon.getName().toLowerCase(), Proficiency.Untrained)
+                        weaponProficiencies.getOrDefault(weapon.getRawName().toLowerCase(), Proficiency.Untrained)
                 );
             }
         }
-        return weaponProficiencies.getOrDefault(weapon.getName().toLowerCase(), Proficiency.Untrained);
+        return weaponProficiencies.getOrDefault(weapon.getRawName().toLowerCase(), Proficiency.Untrained);
     }
 
     public SortedMap<Integer, Set<SkillIncrease>> getSkillChoices() {

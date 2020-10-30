@@ -79,4 +79,9 @@ public class SingleChoiceSlot extends AbilitySlot implements AbilityChoiceList, 
     public ObservableList<Ability> getSelections() {
         return unmodifiable;
     }
+
+    @Override
+    public SingleChoiceSlot copy() {
+        return new SingleChoiceSlot(getName(), getLevel(), getOptions());
+    }
 }

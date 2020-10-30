@@ -6,8 +6,10 @@ import model.enums.Slot;
 import model.equipment.Item;
 import model.equipment.armor.Armor;
 import model.equipment.armor.Shield;
+import model.equipment.runes.runedItems.RunedWeapon;
 import model.equipment.weapons.Damage;
 import model.equipment.weapons.DamageModifier;
+import model.equipment.weapons.RangedWeapon;
 import model.equipment.weapons.Weapon;
 
 import java.util.*;
@@ -58,7 +60,7 @@ public class CombatManager implements PlayerState {
         if(inventory.getEquipped(Slot.Armor) != null) {
             return inventory.getEquipped(Slot.Armor).stats();
         }
-        return Armor.NO_ARMOR.getBaseItem();
+        return Armor.NO_ARMOR.getItem();
     }
 
     public Item getShield() {
@@ -70,15 +72,20 @@ public class CombatManager implements PlayerState {
             Item stats = inventory.getEquipped(Slot.OffHand).stats();
             if(stats.hasExtension(Shield.class)) return stats;
         }
-        return Shield.NO_SHIELD.getBaseItem();
+        return Shield.NO_SHIELD.getItem();
     }
 
     public int getAttackMod(Item weapon) {
         int mod = attributes.getProficiency(weapon.getExtension(Weapon.class).getProficiency(), weapon).getMod(level.get());
 
+        RunedWeapon extension = weapon.getExtension(RunedWeapon.class);
+        if(extension != null) {
+            mod += extension.getAttackBonus();
+        }
+
         if(weapon.getTraits().stream().anyMatch(t->t.getName().equals("Finesse")))
             return mod + weapon.getExtension(Weapon.class).getAttackBonus() + Math.max(scores.getMod(Str), scores.getMod(Dex));
-        else if(weapon.getExtension(Weapon.class).isRanged())
+        else if(weapon.hasExtension(RangedWeapon.class))
             return mod + weapon.getExtension(Weapon.class).getAttackBonus() + scores.getMod(Dex);
         else
             return mod + weapon.getExtension(Weapon.class).getAttackBonus() + scores.getMod(Str);
@@ -97,8 +104,14 @@ public class CombatManager implements PlayerState {
     }
 
     public Damage getDamage(Item weapon) {
+        RunedWeapon runedWeapon = weapon.getExtension(RunedWeapon.class);
         Weapon extension = weapon.getExtension(Weapon.class);
-        Damage damage = extension.getDamage().add(getDamageMod(weapon), extension.getDamageType());
+        Damage damage;
+        if(runedWeapon != null) {
+            damage = runedWeapon.getDamage().add(getDamageMod(weapon), extension.getDamageType());
+        }else{
+            damage = extension.getDamage().add(getDamageMod(weapon), extension.getDamageType());
+        }
         for (DamageModifier damageModifier : damageModifiers.values()) {
             damage = damageModifier.apply(extension, damage);
         }

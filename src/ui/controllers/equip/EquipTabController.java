@@ -14,14 +14,18 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.web.WebView;
+import javafx.stage.Modality;
 import javafx.util.StringConverter;
 import model.CharacterManager;
 import model.enums.BuySellMode;
 import model.enums.Slot;
+import model.equipment.BaseItem;
+import model.equipment.BaseItemChoices;
 import model.equipment.Item;
 import model.equipment.ItemCount;
 import model.player.PC;
 import model.util.StringUtils;
+import ui.controls.Popup;
 import ui.controls.equipment.CategoryAllItemsList;
 import ui.controls.equipment.EquippedEntry;
 import ui.controls.equipment.LevelAllItemsList;
@@ -195,7 +199,7 @@ public class EquipTabController {
             addHandler(itemCount);
         }
         for (Map.Entry<Slot, ItemCount> entry : character.inventory().getEquipped().entrySet()) {
-            updateFromEquip(entry.getValue(), entry.getKey());
+            updateFromEquip(unequipMap.get(entry.getValue().stats()), entry.getKey());
         }
 
 
@@ -371,14 +375,21 @@ public class EquipTabController {
         return null;
     }
 
-    private void tryToBuy(Item item, int count) {
-        if(count != 2) return;
+    private boolean tryToBuy(Item item, int count) {
+        if(count != 2) return false;
+        if(item instanceof BaseItem && item.hasExtension(BaseItemChoices.class)) {
+            CustomItemController controller = new CustomItemController((BaseItem) item, i->tryToBuy(i, 2));
+            Popup.popup("/fxml/equip/customItem.fxml", controller, Modality.NONE);
+            return false;
+        }
         if (!character.inventory().buy(item, 1)) {
             new Alert(Alert.AlertType.INFORMATION, "Not Enough Money!").showAndWait();
+            return false;
         }else{
             inventory.refresh();
             unequipped.refresh();
             equipped.refresh();
+            return true;
         }
     }
 }

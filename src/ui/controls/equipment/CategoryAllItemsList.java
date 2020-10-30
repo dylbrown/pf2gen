@@ -7,7 +7,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import model.equipment.Item;
 import model.player.PC;
-import model.xml_parsers.equipment.EquipmentLoader;
+import model.xml_parsers.equipment.ItemLoader;
 import ui.controls.lists.ObservableCategoryEntryList;
 import ui.controls.lists.entries.ItemEntry;
 import ui.controls.lists.factories.TreeCellFactory;
@@ -71,7 +71,7 @@ public class CategoryAllItemsList extends ObservableCategoryEntryList<Item, Item
         cost.setStyle( "-fx-alignment: CENTER;");
         level.setCellValueFactory(new TreeCellFactory<>("level"));
         level.setStyle( "-fx-alignment: CENTER;");
-        cost.setComparator(Comparator.comparingDouble(EquipmentLoader::getPrice));
+        cost.setComparator(Comparator.comparingDouble(ItemLoader::getPrice));
         level.setComparator((s1,s2)->{
             double d1 = (!s1.equals(""))? Double.parseDouble(s1) : 0;
             double d2 = (!s2.equals(""))? Double.parseDouble(s2) : 0;

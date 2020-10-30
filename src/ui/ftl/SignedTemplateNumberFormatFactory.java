@@ -6,8 +6,8 @@ import freemarker.template.TemplateNumberModel;
 
 import java.util.Locale;
 
-class SignedTemplateNumberFormatFactory extends TemplateNumberFormatFactory {
-    static final SignedTemplateNumberFormatFactory INSTANCE = new SignedTemplateNumberFormatFactory();
+public class SignedTemplateNumberFormatFactory extends TemplateNumberFormatFactory {
+    public static final SignedTemplateNumberFormatFactory INSTANCE = new SignedTemplateNumberFormatFactory();
     private SignedTemplateNumberFormatFactory(){}
     @Override
     public TemplateNumberFormat get(String s, Locale locale, Environment environment) {

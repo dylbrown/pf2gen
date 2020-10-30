@@ -14,5 +14,5 @@ public interface Choice<T> {
     ReadOnlyIntegerProperty maxSelectionsProperty();
     ObservableList<T> getSelections();
     int getLevel();
-
+    Choice<T> copy();
 }

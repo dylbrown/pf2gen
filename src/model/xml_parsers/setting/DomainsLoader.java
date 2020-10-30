@@ -8,7 +8,7 @@ import model.xml_parsers.SpellsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import setting.Domain;
+import model.setting.Domain;
 
 import java.io.File;
 

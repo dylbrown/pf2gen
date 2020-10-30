@@ -22,7 +22,7 @@ import java.util.*;
 
 import static model.util.StringUtils.camelCase;
 
-public class WeaponsLoader extends EquipmentLoader {
+public class WeaponsLoader extends ItemLoader {
 
     private static final Map<String, WeaponGroup> weaponGroups = new HashMap<>();
 

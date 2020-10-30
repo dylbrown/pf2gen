@@ -50,7 +50,7 @@ public class CharacterWrapper implements TemplateHashModel {
 
         map.put("attributes", character.attributes());
         map.put("attacks", character.combat().getAttacks().stream()
-                .map((o)->new ItemCountWrapper(new ItemCount(o.getBaseItem(), 1), wrapper)).collect(Collectors.toList()));
+                .map((o)->new ItemCountWrapper(new ItemCount(o.getItem(), 1), wrapper)).collect(Collectors.toList()));
 
         map.put("getSlot", new FIHash((s)->{
             ItemCount count = character.inventory().getEquipped(Slot.valueOf(s));

@@ -84,4 +84,9 @@ public class FeatSlot extends AbilitySlot implements AbilitySingleChoice {
         return unmodifiable;
     }
 
+    @Override
+    public FeatSlot copy() {
+        return new FeatSlot(getName(), getLevel(), getAllowedTypes());
+    }
+
 }

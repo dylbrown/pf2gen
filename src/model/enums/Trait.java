@@ -16,7 +16,7 @@ public class Trait extends NamedObject implements Comparable<Trait> {
 
     @Override
     public int compareTo(Trait o) {
-        return getName().compareTo(o.getName());
+        return getName().compareToIgnoreCase(o.getName());
     }
 
     public static class Builder extends NamedObject.Builder {

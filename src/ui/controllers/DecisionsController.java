@@ -1,5 +1,6 @@
 package ui.controllers;
 
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.ToggleGroup;
@@ -35,9 +36,13 @@ public class DecisionsController {
 
     @FXML
     private void initialize() {
+        initialize(CharacterManager.getActive().decisions().getDecisions());
+    }
+
+    protected void initialize(ObservableList<Choice> decisions) {
         display.getEngine().setUserStyleSheetLocation(getClass().getResource("/webview_style.css").toString());
         DecisionsList decisionsList = new DecisionsList((treeItem, i) -> setChoices(treeItem),
-                CharacterManager.getActive().decisions().getDecisions());
+                decisions);
         decisionsList.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal)->setChoices(newVal));
         decisionsPaneContainer.setCenter(decisionsList);
     }

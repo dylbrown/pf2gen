@@ -6,7 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import model.CharacterManager;
 import model.player.PC;
-import setting.Deity;
+import model.setting.Deity;
 import ui.html.ABCHTMLGenerator;
 import ui.html.SettingHTMLGenerator;
 

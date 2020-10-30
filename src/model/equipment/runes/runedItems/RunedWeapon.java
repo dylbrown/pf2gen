@@ -28,7 +28,7 @@ public class RunedWeapon extends ItemExtension {
 
     @ItemDecorator
     public double getValue(double baseValue) {
-        return getBaseItem().getValue() + runes.getValue();
+        return getItem().getValue() + runes.getValue();
     }
 
     public Runes<WeaponRune> getRunes() {
@@ -42,7 +42,7 @@ public class RunedWeapon extends ItemExtension {
     }
 
     public Damage getDamage() {
-        return getDamageStatic(runes, getBaseItem().getExtension(Weapon.class));
+        return getDamageStatic(runes, getItem().getExtension(Weapon.class));
     }
 
     static Damage getDamageStatic(Runes<WeaponRune> runes, Weapon baseWeapon) {

@@ -18,6 +18,8 @@ import model.enums.Slot;
 import model.enums.Type;
 import model.equipment.Item;
 import model.equipment.ItemCount;
+import model.equipment.ItemInstance;
+import model.equipment.ItemInstanceChoices;
 import model.equipment.runes.ArmorRune;
 import model.equipment.runes.Rune;
 import model.equipment.runes.WeaponRune;
@@ -41,7 +43,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class SaveLoadManager {
     private static final String HEADER = "PF2Gen Save - v";
-    private static final int VERSION = 1;
+    private static final int VERSION = 2;
 
     private SaveLoadManager() {}
     public static void save(File file){
@@ -106,28 +108,42 @@ public class SaveLoadManager {
             writeOutLine(out, "money = " + character.inventory().getMoney());
             writeOutLine(out, "Inventory");
             for (ItemCount item : character.inventory().getItems().values()) {
-                Runes<?> runes = Runes.getRunes(item.stats());
-                if(runes != null) {
-                    Item stats = item.stats();
-                    writeOutLine(out, " @ "+item.getCount()+" "+stats.getName());
-                    List<Rune> fundamentalRunes = new ArrayList<>();
-                    List<Rune> propertyRunes = new ArrayList<>();
+                if(item.stats() instanceof ItemInstance) {
+                    ItemInstance stats = (ItemInstance) item.stats();
+                    writeOutLine(out, " @ " + item.getCount() + " " + stats.getRawName());
+                    Runes<?> runes = Runes.getRunes(item.stats());
+                    if(runes != null) {
+                        List<Rune> fundamentalRunes = new ArrayList<>();
+                        List<Rune> propertyRunes = new ArrayList<>();
 
-                    for (Item o : runes.list()) {
-                        Rune rune = item.stats().getExtension(ArmorRune.class);
-                        if(rune == null)
-                            rune = item.stats().getExtension(WeaponRune.class);
-                        if(rune != null) {
-                            if(rune.isFundamental())
-                                fundamentalRunes.add(rune);
-                            else
-                                propertyRunes.add(rune);
+                        for (Item o : runes.list()) {
+                            Rune rune = o.getExtension(ArmorRune.class);
+                            if (rune == null)
+                                rune = o.getExtension(WeaponRune.class);
+                            if (rune != null) {
+                                if (rune.isFundamental())
+                                    fundamentalRunes.add(rune);
+                                else
+                                    propertyRunes.add(rune);
+                            }
                         }
+                        writeOutLine(out, "    Runes");
+                        for (Rune rune : fundamentalRunes)
+                            writeOutLine(out, "     - " + rune.getItem().getName());
+                        for (Rune rune : propertyRunes)
+                            writeOutLine(out, "     - " + rune.getItem().getName());
                     }
-                    for (Rune rune : fundamentalRunes)
-                        writeOutLine(out, "   - " + rune.getBaseItem().getName());
-                    for (Rune rune : propertyRunes)
-                        writeOutLine(out, "   - " + rune.getBaseItem().getName());
+                    ItemInstanceChoices choices = stats.getExtension(ItemInstanceChoices.class);
+                    if(choices != null) {
+                        for (Map.Entry<String, Choice<?>> entry : choices.getChoices().entrySet()) {
+                            writeOutLine(out, "    " + entry.getKey());
+                            for (Object selection : entry.getValue().getSelections()) {
+                                writeOutLine(out, "     - " + selection.toString());
+                            }
+
+                        }
+
+                    }
                 }else writeOutLine(out, " - "+item.getCount()+" "+item.stats().getName());
             }
             writeOutLine(out, "Equipped");
@@ -371,8 +387,9 @@ public class SaveLoadManager {
                         }
                     }
                     if (item != null) {
-                        character.inventory().buy(item, 1);
-                        upgradeItem(character, item, lines);
+                        ItemInstance instance = new ItemInstance(item);
+                        character.inventory().buy(instance, 1);
+                        modifyItem(character, instance, lines);
                     }
                 } else {
                     lines.second--;
@@ -477,25 +494,60 @@ public class SaveLoadManager {
         return decisions.isEmpty();
     }
 
-    private static void upgradeItem(PC character, Item item, Pair<List<String>, Integer> lines) {
-        String s;
-        while (true) {
-            try { s = nextLine(lines); }
-            catch(RuntimeException e) { return; }
-            if(!s.startsWith("   - ")) {
-                lines.second--;
-                return;
-            }
-            String itemName = s.substring(5);
-            try {
-                Item rune = character.sources().equipment()
-                        .find(itemName);
-                if(Rune.isRune(rune)) {
-                    character.inventory().buy(rune, 1);
-                    item = character.inventory().tryToAddRune(item, Rune.getRune(rune)).second;
+    private static Item modifyItem(PC character, ItemInstance instance, Pair<List<String>, Integer> lines) {
+        while(true) {
+            String s = nextLine(lines);
+            if (s.startsWith("    ")) {
+                if (s.equalsIgnoreCase("    Runes")) {
+                    while (true) {
+                        try {
+                            s = nextLine(lines);
+                        } catch (RuntimeException e) {
+                            return instance;
+                        }
+                        if (!s.startsWith("     - ")) {
+                            lines.second--;
+                            break;
+                        }
+                        String itemName = s.substring("     - ".length());
+                        try {
+                            Item rune = character.sources().equipment()
+                                    .find(itemName);
+                            if (Rune.isRune(rune)) {
+                                character.inventory().buy(rune, 1);
+                                character.inventory().tryToAddRune(instance, Rune.getRune(rune));
+                            }
+                        } catch (ObjectNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } else {
+                    String choiceName = s.substring(4);
+                    ItemInstanceChoices choices = instance.getExtension(ItemInstanceChoices.class);
+                    Choice<?> choice = choices.getChoices().get(choiceName);
+                    while (true) {
+                        try {
+                            s = nextLine(lines);
+                        } catch (RuntimeException e) {
+                            return instance;
+                        }
+                        if (!s.startsWith("     - ")) {
+                            lines.second--;
+                            break;
+                        }
+                        String decision = s.substring("     - ".length());
+                        if(choice.getOptionsClass() == Spell.class) {
+                            try {
+                                ((Choice<Spell>) choice).add(character.sources().spells().find(decision));
+                            } catch (ObjectNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                 }
-            } catch (ObjectNotFoundException e) {
-                e.printStackTrace();
+            } else{
+                lines.second--;
+                return instance;
             }
         }
     }

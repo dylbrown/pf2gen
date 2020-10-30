@@ -72,7 +72,7 @@ public class Runes<T extends Rune> {
         numProperties.set(numProperties.get() + ((rune.isFundamental()) ? 0 : 1));
 
         runes.put(rune.getBaseRune(), rune);
-        runesList.add(rune.getBaseItem());
+        runesList.add(rune.getItem());
         return true;
     }
 
@@ -83,7 +83,7 @@ public class Runes<T extends Rune> {
         maxProperties.subtract(rune.getGrantsProperty());
         numProperties.set(numProperties.get() - ((rune.isFundamental()) ? 0 : 1));
 
-        runesList.remove(rune.getBaseItem());
+        runesList.remove(rune.getItem());
         runes.remove(rune.getBaseRune());
         return true;
     }
@@ -96,8 +96,8 @@ public class Runes<T extends Rune> {
         maxProperties.set(maxProperties.get() - rune.getGrantsProperty() + upgradedRune.getGrantsProperty());
 
         runes.put(rune.getBaseRune(), upgradedRune);
-        runesList.remove(rune.getBaseItem());
-        runesList.add(upgradedRune.getBaseItem());
+        runesList.remove(rune.getItem());
+        runesList.add(upgradedRune.getItem());
         return true;
     }
 
@@ -135,7 +135,7 @@ public class Runes<T extends Rune> {
                 .sorted(Comparator.comparingInt(Rune::getGrantsProperty).reversed()
                         .thenComparing((o1, o2) -> Boolean.compare(o1.isFundamental(), o2.isFundamental())))
                 .map(r -> {
-            String name = r.getBaseItem().getName();
+            String name = r.getItem().getName();
             if (name.contains("(")) {
                 Pair<String, String> namePair = StringUtils.getInAndOutBrackets(name);
                 if (namePair.first.matches(".*Potency.*")) return namePair.second;

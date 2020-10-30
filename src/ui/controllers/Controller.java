@@ -10,14 +10,13 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import model.CharacterManager;
 import model.data_managers.sources.Source;
 import model.player.PC;
 import model.player.SourcesManager;
 import ui.Main;
+import ui.controls.Popup;
 import ui.controls.SaveLoadController;
 
 import java.io.IOException;
@@ -68,23 +67,12 @@ public class Controller {
         });
 
         new_menu.setOnAction(e -> {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/sourceSelect.fxml"));
-            Stage popup = new Stage();
-            popup.initModality(Modality.APPLICATION_MODAL);
-            SourceSelectController controller = new SourceSelectController(popup);
-            loader.setController(controller);
-            try {
-                popup.setScene(new Scene(loader.load()));
-                popup.getScene().getRoot().setStyle("-fx-base: rgba(45, 49, 50, 255);");
-                popup.getScene().getStylesheets().add("/style.css");
-                popup.showAndWait();
-                if(controller.isSuccess()) {
-                    PC pc = new PC(new SourcesManager(controller.getSources()));
-                    CharacterManager.add(pc);
-                    characterSelect.getSelectionModel().select(pc);
-                }
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
+            SourceSelectController controller = new SourceSelectController();
+            Popup.popup("/fxml/sourceSelect.fxml", controller);
+            if(controller.isSuccess()) {
+                PC pc = new PC(new SourcesManager(controller.getSources()));
+                CharacterManager.add(pc);
+                characterSelect.getSelectionModel().select(pc);
             }
         });
         open_menu.setOnAction(e -> {
@@ -106,23 +94,12 @@ public class Controller {
         save_menu.setOnAction(e -> SaveLoadController.getInstance().save(CharacterManager.getActive(), main.getScene()));
         saveAs_menu.setOnAction(e -> SaveLoadController.getInstance().saveAs(CharacterManager.getActive(), main.getScene()));
         addSources_menu.setOnAction(e -> {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/sourceSelect.fxml"));
-            Stage popup = new Stage();
-            popup.initModality(Modality.APPLICATION_MODAL);
-            SourceSelectController controller = new SourceSelectController(popup, CharacterManager.getActive().sources().getSources());
-            loader.setController(controller);
-            try {
-                popup.setScene(new Scene(loader.load()));
-                popup.getScene().getRoot().setStyle("-fx-base: rgba(45, 49, 50, 255);");
-                popup.getScene().getStylesheets().add("/style.css");
-                popup.showAndWait();
-                if(controller.isSuccess()) {
-                    for (Source source : controller.getSources()) {
-                        CharacterManager.getActive().sources().add(source);
-                    }
+            SourceSelectController controller = new SourceSelectController(CharacterManager.getActive().sources().getSources());
+            Popup.popup("/fxml/sourceSelect.fxml", controller);
+            if(controller.isSuccess()) {
+                for (Source source : controller.getSources()) {
+                    CharacterManager.getActive().sources().add(source);
                 }
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
             }
         });
         statblock_menu.setOnAction(e ->

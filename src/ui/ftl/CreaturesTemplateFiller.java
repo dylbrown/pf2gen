@@ -4,7 +4,7 @@ import freemarker.cache.*;
 import freemarker.core.TemplateNumberFormatFactory;
 import freemarker.template.*;
 import model.creatures.Creature;
-import ui.ftl.wrap.PF2GenObjectWrapper;
+import ui.ftl.wrap.ObjectWrapperCreatures;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +21,7 @@ public class CreaturesTemplateFiller {
     public ObjectWrapper getWrapper(){
         return cfg.getObjectWrapper();
     }
-    private final Map<String, Object> root;
+    private final Map<String, Object> root = new HashMap<>();
     public CreaturesTemplateFiller(List<Creature> creatures) {
         cfg = new Configuration(Configuration.VERSION_2_3_29);
         if(new File("/sheets").isDirectory()) {
@@ -76,12 +76,10 @@ public class CreaturesTemplateFiller {
 
 
 
-        cfg.setObjectWrapper(new PF2GenObjectWrapper(Configuration.VERSION_2_3_29));
+        cfg.setObjectWrapper(new ObjectWrapperCreatures(Configuration.VERSION_2_3_29, creatures, root));
         Map<String, TemplateNumberFormatFactory> customNumberFormats = new HashMap<>();
         customNumberFormats.put("s", SignedTemplateNumberFormatFactory.INSTANCE);
         cfg.setCustomNumberFormats(customNumberFormats);
-
-        root = new HashMap<>();
         root.put("creatures", creatures);
     }
 

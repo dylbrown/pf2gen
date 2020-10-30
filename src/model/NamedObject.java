@@ -19,12 +19,28 @@ public abstract class NamedObject {
         return name;
     }
 
+    /**
+    * Allows for getName to be overridden, while still maintaining access to the original value
+    * @return the stored name string
+    * */
+    public String getRawName() {
+        return name;
+    }
+
     @Override
     public String toString() {
         return getName();
     }
 
     public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Allows for getDescription to be overridden, while still maintaining access to the original value
+     * @return the stored description string
+     * */
+    public String getRawDescription() {
         return description;
     }
 

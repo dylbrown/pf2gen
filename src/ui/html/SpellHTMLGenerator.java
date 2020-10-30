@@ -168,7 +168,10 @@ public class SpellHTMLGenerator {
                     // Follows format "deal damage equal to ..."
                     startIndex = equalTo + 9;
                     while(desc.substring(i + searchString.length() + 9, endIndex).contains("damage")) {
-                        endIndex = desc.lastIndexOf("plus", endIndex);
+                        int newIndex = desc.lastIndexOf("plus", endIndex);
+                        if (newIndex == -1)
+                            break;
+                        endIndex = newIndex;
                     }
                 } else {
                     // Follows format "deal ... damage"

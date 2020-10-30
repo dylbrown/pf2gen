@@ -7,6 +7,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import model.data_managers.sources.Source;
+import ui.controls.Popup;
 import ui.controls.lists.SourceList;
 import ui.controls.lists.ThreeState;
 import ui.controls.lists.entries.SourceEntry;
@@ -15,8 +16,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class SourceSelectController {
-    private final Stage stage;
+public class SourceSelectController implements Popup.Controller {
+    private Stage stage = null;
     private final List<Source> preSelectedSources;
     @FXML
     private BorderPane sources;
@@ -31,12 +32,11 @@ public class SourceSelectController {
         return success;
     }
 
-    public SourceSelectController(Stage stage) {
-        this(stage, Collections.emptyList());
+    public SourceSelectController() {
+        this(Collections.emptyList());
     }
 
-    public SourceSelectController(Stage stage, List<Source> preSelectedSources) {
-        this.stage = stage;
+    public SourceSelectController(List<Source> preSelectedSources) {
         this.preSelectedSources = preSelectedSources;
     }
 
@@ -71,5 +71,10 @@ public class SourceSelectController {
             }
             getSources(sources, treeItem);
         }
+    }
+
+    @Override
+    public void setStage(Stage stage) {
+        this.stage = stage;
     }
 }

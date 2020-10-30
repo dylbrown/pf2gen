@@ -37,6 +37,10 @@ public abstract class FileLoader<T> {
     private boolean loadedFromRepository = false;
     private Source source = null;
 
+    protected String getName(T t) {
+        return t.toString();
+    }
+
     public FileLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
         this.sourceConstructor = sourceConstructor;
         this.loadTracker = new SourceLoadTracker(sourceConstructor, sourceBuilder);
@@ -195,9 +199,9 @@ public abstract class FileLoader<T> {
 
     protected void addItem(String category, T t) {
         synchronized (this) {
-            allItems.put(clean(t.toString()), t);
+            allItems.put(clean(getName(t)), t);
             if(category != null && category.length() > 0)
-                getCategoryInternal(category).put(clean(t.toString()), t);
+                getCategoryInternal(category).put(clean(getName(t)), t);
         }
     }
 

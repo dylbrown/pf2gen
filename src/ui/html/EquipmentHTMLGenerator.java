@@ -46,18 +46,18 @@ public class EquipmentHTMLGenerator {
 
     private static String generateArmorText(Armor armor) {
         StringBuilder text = new StringBuilder();
-        text.append("<p><h3 style='display:inline;'>").append(armor.getBaseItem().getName()).append("<div style=\"padding-right:5px; float:right\">");
+        text.append("<p><h3 style='display:inline;'>").append(armor.getItem().getName()).append("<div style=\"padding-right:5px; float:right\">");
         if(armor.getProficiency() != ArmorProficiency.Shield)
             text.append(armor.getProficiency()).append(" Armor</div></h3><br><b>Cost</b> ");
         else
             text.append("Shield</div></h3><br><b>Cost</b> ");
-        text.append(generateCostString(armor.getBaseItem().getValue())).append("; <b>Bulk</b> ");
-        text.append(armor.getBaseItem().getPrettyWeight()).append("<br><b>AC Bonus</b> ");
+        text.append(generateCostString(armor.getItem().getValue())).append("; <b>Bulk</b> ");
+        text.append(armor.getItem().getPrettyWeight()).append("<br><b>AC Bonus</b> ");
         if(armor.getAC() >= 0)
             text.append("+");
         text.append(armor.getAC());
-        if(armor.getBaseItem().hasExtension(Shield.class)) {
-            Shield shield = armor.getBaseItem().getExtension(Shield.class);
+        if(armor.getItem().hasExtension(Shield.class)) {
+            Shield shield = armor.getItem().getExtension(Shield.class);
             text.append("; <b>Speed Penalty</b> ");
             if (armor.getSpeedPenalty() < 0)
                 text.append(Math.abs(armor.getSpeedPenalty())).append(" ft.");
@@ -84,25 +84,25 @@ public class EquipmentHTMLGenerator {
                 text.append("—");
             text.append("; <b>Group</b> ").append(armor.getGroup().getName());
         }
-        if(armor.getBaseItem().getTraits().size() > 0)
-            text.append("<br><b>Traits</b> ").append(armor.getBaseItem().getTraits().stream().map(Trait::getName).collect(Collectors.joining(", ")));
+        if(armor.getItem().getTraits().size() > 0)
+            text.append("<br><b>Traits</b> ").append(armor.getItem().getTraits().stream().map(Trait::getName).collect(Collectors.joining(", ")));
         return text.toString();
     }
 
     private static String generateWeaponText(Weapon weapon) {
         StringBuilder text = new StringBuilder();
-        text.append("<p><h3 style='display:inline;'>").append(weapon.getBaseItem().getName()).append("<div style=\"padding-right:5px; float:right\">");
+        text.append("<p><h3 style='display:inline;'>").append(weapon.getItem().getName()).append("<div style=\"padding-right:5px; float:right\">");
         text.append(weapon.getProficiency().toString()).append(" Weapon</div></h3><br><b>Cost</b> ");
-        text.append(generateCostString(weapon.getBaseItem().getValue())).append("; <b>Bulk</b> ");
-        text.append(weapon.getBaseItem().getPrettyWeight()).append("; <b>Hands</b> ").append(weapon.getBaseItem().getHands());
+        text.append(generateCostString(weapon.getItem().getValue())).append("; <b>Bulk</b> ");
+        text.append(weapon.getItem().getPrettyWeight()).append("; <b>Hands</b> ").append(weapon.getItem().getHands());
         text.append("<br><b>Damage</b> ").append(weapon.getDamage()).append("; <b>Group</b> ").append(weapon.getGroup().getName());
-        if(weapon.getBaseItem().hasExtension(RangedWeapon.class)){
-            RangedWeapon ranged = weapon.getBaseItem().getExtension(RangedWeapon.class);
+        if(weapon.getItem().hasExtension(RangedWeapon.class)){
+            RangedWeapon ranged = weapon.getItem().getExtension(RangedWeapon.class);
             text.append("<br><b>Range</b> ").append(ranged.getRange());
             text.append("; <b>Reload</b> ").append(ranged.getReload());
         }
-        if(weapon.getBaseItem().getTraits().size() > 0)
-            text.append("<br><b>Traits</b> ").append(weapon.getBaseItem().getTraits().stream().map(Trait::getName).collect(Collectors.joining(", ")));
+        if(weapon.getItem().getTraits().size() > 0)
+            text.append("<br><b>Traits</b> ").append(weapon.getItem().getTraits().stream().map(Trait::getName).collect(Collectors.joining(", ")));
         return text.toString();
     }
 }

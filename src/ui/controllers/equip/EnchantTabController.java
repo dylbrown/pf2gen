@@ -159,8 +159,8 @@ public class EnchantTabController {
                     upgradeLabel.setText("-Not Upgradeable-");
                     upgradePrice.setText("-Not Upgradeable-");
                 }else{
-                    upgradeLabel.setText(upgradedRune.getBaseItem().getName());
-                    upgradePrice.setText("Price: "+ generateCostString(upgradedRune.getBaseItem().getValue() - item.getValue()));
+                    upgradeLabel.setText(upgradedRune.getItem().getName());
+                    upgradePrice.setText("Price: "+ generateCostString(upgradedRune.getItem().getValue() - item.getValue()));
                 }
             }
         });

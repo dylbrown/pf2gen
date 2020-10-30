@@ -1,14 +1,11 @@
 package ui.ftl.wrap;
 
-import freemarker.template.ObjectWrapper;
-import freemarker.template.TemplateHashModel;
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
+import freemarker.template.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public abstract class GenericWrapper<T> implements TemplateHashModel {
+public abstract class GenericWrapper<T> implements TemplateHashModel, TemplateScalarModel {
     private final T t;
     protected final ObjectWrapper wrapper;
 
@@ -18,6 +15,11 @@ public abstract class GenericWrapper<T> implements TemplateHashModel {
     }
 
     abstract Object getSpecialCase(String s, T t);
+
+    @Override
+    public String getAsString() {
+        return t.toString();
+    }
 
     @Override
     public TemplateModel get(String s) throws TemplateModelException {
