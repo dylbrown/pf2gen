@@ -1,8 +1,9 @@
 package ui.html;
 
-import model.abilities.Ability;
-import model.abilities.ActivityExtension;
+import model.abilities.*;
+import model.attributes.CustomAttribute;
 
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -14,12 +15,23 @@ public class AbilityHTMLGenerator {
         if(activityExt != null)
             text.append(" ").append(activityExt.getCost().getIcon());
         text.append("<span style='float:right'>Level ").append(ability.getLevel()).append("</span></h4><br>");
-        if(!ability.getPrereqStrings().isEmpty() || !ability.getPrerequisites().isEmpty()) {
+        Requirement<CustomAttribute> requiredAttrs = ability.getRequiredAttrs();
+        Requirement<String> requiredWeapons = ability.getRequiredWeapons();
+        boolean strings = !ability.getPrereqStrings().isEmpty() || !ability.getPrerequisites().isEmpty();
+        boolean attrs = requiredAttrs instanceof SingleRequirement || requiredAttrs instanceof RequirementList;
+        boolean weapons = requiredWeapons instanceof SingleRequirement || requiredWeapons instanceof RequirementList;
+        if(strings || attrs || weapons) {
             text.append("<b>Prerequisites</b> ")
                 .append(Stream.concat(ability.getPrereqStrings().stream(),
                         ability.getPrerequisites().stream())
-                        .collect(Collectors.joining(", ")))
-                .append("<br>");
+                        .collect(Collectors.joining(", ")));
+            if(strings && attrs)
+                text.append(", ");
+            print(text, requiredAttrs, " in ");
+            if((strings || attrs) && weapons)
+                text.append(", ");
+            print(text, requiredWeapons, " with a ");
+            text.append("<br>");
         }
         if(activityExt != null) {
             if(!activityExt.getTrigger().isBlank())
@@ -30,6 +42,23 @@ public class AbilityHTMLGenerator {
         }
         text.append("<hr>").append(ability.getDescription());
         return text.toString();
+    }
+
+    private static <T> void print(StringBuilder text, Requirement<T> req, String infix) {
+        if(req instanceof RequirementList) {
+            String separator = (((RequirementList<T>) req).isAll()) ?
+                    " and " : " or ";
+            List<Requirement<T>> list = ((RequirementList<T>) req).getRequirements();
+            for(int i = 0; i < list.size(); i++) {
+                print(text, list.get(i), infix);
+                if(i != list.size() - 1)
+                    text.append(separator);
+            }
+        }
+        if(req instanceof SingleRequirement) {
+            SingleRequirement<T> r = (SingleRequirement<T>) req;
+            text.append(r.getProficiency().name()).append(infix).append(r.get().toString());
+        }
     }
 
     public static String parseSingleLine(Ability ability) {

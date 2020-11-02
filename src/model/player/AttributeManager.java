@@ -11,8 +11,8 @@ import model.attributes.*;
 import model.enums.Proficiency;
 import model.enums.Type;
 import model.enums.WeaponProficiency;
-import model.equipment.Item;
-import model.equipment.weapons.*;
+import model.items.Item;
+import model.items.weapons.*;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;

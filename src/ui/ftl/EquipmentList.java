@@ -7,8 +7,8 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.collections.transformation.SortedList;
 import model.enums.Slot;
-import model.equipment.Item;
-import model.equipment.ItemCount;
+import model.items.Item;
+import model.items.ItemCount;
 import model.util.Pair;
 import ui.ftl.wrap.ItemCountWrapper;
 

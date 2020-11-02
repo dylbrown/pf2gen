@@ -1,7 +1,7 @@
 package model.data_managers.sources;
 
-import model.equipment.Item;
-import model.equipment.weapons.WeaponGroup;
+import model.items.Item;
+import model.items.weapons.WeaponGroup;
 import model.xml_parsers.FileLoader;
 import model.xml_parsers.equipment.WeaponsLoader;
 

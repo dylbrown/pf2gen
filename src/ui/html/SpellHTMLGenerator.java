@@ -1,8 +1,8 @@
 package ui.html;
 
 import model.enums.Trait;
-import model.equipment.weapons.Damage;
-import model.equipment.weapons.Dice;
+import model.items.weapons.Damage;
+import model.items.weapons.Dice;
 import model.spells.HeightenedEvery;
 import model.spells.Spell;
 import model.util.Pair;

@@ -5,7 +5,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
-import model.equipment.Item;
+import model.items.Item;
 import model.player.PC;
 import model.xml_parsers.equipment.ItemLoader;
 import ui.controls.lists.ObservableCategoryEntryList;

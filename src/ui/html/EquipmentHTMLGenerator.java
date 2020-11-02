@@ -3,11 +3,11 @@ package ui.html;
 import model.abilities.Ability;
 import model.enums.ArmorProficiency;
 import model.enums.Trait;
-import model.equipment.Item;
-import model.equipment.armor.Armor;
-import model.equipment.armor.Shield;
-import model.equipment.weapons.RangedWeapon;
-import model.equipment.weapons.Weapon;
+import model.items.Item;
+import model.items.armor.Armor;
+import model.items.armor.Shield;
+import model.items.weapons.RangedWeapon;
+import model.items.weapons.Weapon;
 
 import java.util.stream.Collectors;
 

@@ -3,7 +3,7 @@ package model.setting;
 import model.NamedObject;
 import model.attributes.Attribute;
 import model.enums.Alignment;
-import model.equipment.weapons.Weapon;
+import model.items.weapons.Weapon;
 import model.spells.Spell;
 
 import java.util.*;

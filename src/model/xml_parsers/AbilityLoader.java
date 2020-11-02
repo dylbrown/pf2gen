@@ -11,7 +11,7 @@ import model.attributes.*;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.*;
-import model.equipment.weapons.Weapon;
+import model.items.weapons.Weapon;
 import model.spells.CasterType;
 import model.spells.SpellType;
 import model.spells.Tradition;
@@ -154,25 +154,46 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     break;
                 case "Requires":
                 case "Prerequisites":
+                    List<Requirement<CustomAttribute>> attrRequirements = new ArrayList<>();
+                    List<Requirement<String>> weaponRequirements = new ArrayList<>();
                     for (String s : trim.split(", ?")) {
                         if(s.matches(".*\\d.*")) {
                             String[] split = s.trim().split(" ", 2);
                             builder.addRequiredScore(new Pair<>(AbilityScore.robustValueOf(split[0]), Integer.parseInt(split[1])));
-                        } else if(s.matches("(Trained|Expert|Master|Legendary) in .*")) {
+                        } else if(s.matches("(Trained|Expert|Master|Legendary) [Ii]n .*")) {
                             if(s.contains("or")) {
                                 String[] orStrings = s.split(" or ");
-                                List<AttributeRequirement> orRequirements = new ArrayList<>();
+                                List<Requirement<CustomAttribute>> orRequirements = new ArrayList<>();
                                 for (String option : orStrings) {
-                                    orRequirements.add(getRequirement(option));
+                                    orRequirements.add(getAttrReq(option));
                                 }
-                                builder.addRequiredAttr(new AttributeRequirementList(orRequirements));
+                                attrRequirements.add(new RequirementList<>(orRequirements, false));
                             } else {
-                                builder.addRequiredAttr(getRequirement(s));
+                                attrRequirements.add(getAttrReq(s));
+                            }
+                        } else if(s.matches("(Trained|Expert|Master|Legendary) [Ww]ith [Aa] .*")) {
+                            if(s.contains("or")) {
+                                String[] orStrings = s.split(" or ");
+                                List<Requirement<String>> orRequirements = new ArrayList<>();
+                                for (String option : orStrings) {
+                                    orRequirements.add(getReq(option));
+                                }
+                                weaponRequirements.add(new RequirementList<>(orRequirements, false));
+                            } else {
+                                weaponRequirements.add(getReq(s));
                             }
                         } else {
                             builder.addPrerequisite(s.trim());
                         }
                     }
+                    if(attrRequirements.size() > 1)
+                        builder.addRequiredAttr(new RequirementList<>(attrRequirements, true));
+                    else if(attrRequirements.size() == 1)
+                        builder.addRequiredAttr(attrRequirements.get(0));
+                    if(weaponRequirements.size() > 1)
+                        builder.addRequiredWeapon(new RequirementList<>(weaponRequirements, true));
+                    else if(weaponRequirements.size() == 1)
+                        builder.addRequiredWeapon(weaponRequirements.get(0));
                     break;
                 case "Weapon":
                     builder.getExtension(AttackExtension.Builder.class)
@@ -298,16 +319,24 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         return builder;
     }
 
-    private AttributeRequirement getRequirement(String option) {
+    private Requirement<CustomAttribute> getAttrReq(String option) {
         String[] split = option.split(" [iI]n ");
         Proficiency reqProf = Proficiency.valueOf(camelCaseWord(split[0].trim()));
         int bracketIndex = option.indexOf("(");
+        CustomAttribute attr;
         if(bracketIndex != -1) {
             String data = camelCase(option.substring(bracketIndex+1).trim().trim().replaceAll("[()]", ""));
-            return new AttributeRequirement(Attribute.robustValueOf(option.substring(0, bracketIndex)), reqProf, data);
+            attr = new CustomAttribute(Attribute.robustValueOf(option.substring(0, bracketIndex)), data);
         }else{
-            return new AttributeRequirement(Attribute.robustValueOf(camelCase(split[1].trim())), reqProf, null);
+            attr = CustomAttribute.get(Attribute.robustValueOf(camelCase(split[1].trim())));
         }
+        return new SingleRequirement<>(attr, reqProf);
+    }
+
+    private Requirement<String> getReq(String option) {
+        String[] split = option.split(" [Ww]ith [Aa] ");
+        Proficiency reqProf = Proficiency.valueOf(camelCaseWord(split[0].trim()));
+        return new SingleRequirement<>(split[1].trim(), reqProf);
     }
 
     AbilitySlot makeAbilitySlot(Element propElem, int level) {

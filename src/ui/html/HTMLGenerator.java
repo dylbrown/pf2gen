@@ -5,7 +5,7 @@ import model.abc.Background;
 import model.abc.PClass;
 import model.abilities.Ability;
 import model.creatures.Creature;
-import model.equipment.Item;
+import model.items.Item;
 import model.spells.Spell;
 import model.setting.Deity;
 import model.setting.Domain;

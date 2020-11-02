@@ -4,7 +4,7 @@ import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
 import freemarker.template.Version;
 import model.creatures.Creature;
-import model.equipment.Item;
+import model.items.Item;
 
 import java.util.List;
 import java.util.Map;

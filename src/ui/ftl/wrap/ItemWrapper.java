@@ -4,9 +4,9 @@ import freemarker.template.ObjectWrapper;
 import freemarker.template.TemplateMethodModelEx;
 import model.creatures.Attack;
 import model.creatures.Creature;
-import model.equipment.Item;
-import model.equipment.ItemExtension;
-import model.equipment.weapons.Weapon;
+import model.items.Item;
+import model.items.ItemExtension;
+import model.items.weapons.Weapon;
 import model.player.PC;
 
 import java.lang.reflect.InvocationTargetException;

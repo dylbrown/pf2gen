@@ -5,7 +5,7 @@ import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityScore;
 import model.ability_slots.AbilitySlot;
 import model.attributes.AttributeMod;
-import model.attributes.AttributeRequirement;
+import model.attributes.CustomAttribute;
 import model.enums.Recalculate;
 import model.enums.Trait;
 import model.enums.Type;
@@ -19,7 +19,8 @@ import static model.util.Copy.copy;
 public class Ability extends NamedObject implements Comparable<Ability> {
     //TODO: Support Repeated Choice
     private final List<String> prerequisites, prereqStrings, givenPrerequisites;
-    private final List<AttributeRequirement> requiredAttrs;
+    private final Requirement<CustomAttribute> requiredAttrs;
+    private final Requirement<String> requiredWeapons;
     private final List<Pair<AbilityScore, Integer>> requiredScores;
     private final String customMod;
     private final List<AbilitySlot> abilitySlots;
@@ -43,6 +44,7 @@ public class Ability extends NamedObject implements Comparable<Ability> {
         this.givenPrerequisites = builder.givenPrerequisites;
         this.requirements = builder.requirements;
         this.requiredAttrs = builder.requiredAttrs;
+        this.requiredWeapons = builder.requiredWeapons;
         this.requiredScores = builder.requiredScores;
         this.traits = builder.traits;
         this.customMod = builder.customMod;
@@ -104,8 +106,12 @@ public class Ability extends NamedObject implements Comparable<Ability> {
         return skillIncreases;
     }
 
-    public List<AttributeRequirement> getRequiredAttrs() {
-        return Collections.unmodifiableList(requiredAttrs);
+    public Requirement<CustomAttribute> getRequiredAttrs() {
+        return (requiredAttrs != null) ? requiredAttrs : Requirement.none();
+    }
+
+    public Requirement<String> getRequiredWeapons() {
+        return (requiredWeapons != null) ? requiredWeapons : Requirement.none();
     }
 
     public List<Pair<AbilityScore, Integer>> getRequiredScores() {
@@ -182,7 +188,8 @@ public class Ability extends NamedObject implements Comparable<Ability> {
         private List<String> prerequisites = Collections.emptyList();
         private List<String> prereqStrings = Collections.emptyList();
         private List<String> givenPrerequisites = Collections.emptyList();
-        private List<AttributeRequirement> requiredAttrs = Collections.emptyList();
+        private Requirement<CustomAttribute> requiredAttrs = null;
+        private Requirement<String> requiredWeapons = null;
         private List<Pair<AbilityScore, Integer>> requiredScores = Collections.emptyList();
         private List<Trait> traits = Collections.emptyList();
         private String customMod = "";
@@ -204,7 +211,8 @@ public class Ability extends NamedObject implements Comparable<Ability> {
             this.prerequisites = copy(other.prerequisites);
             this.prereqStrings = copy(other.prereqStrings);
             this.givenPrerequisites = copy(other.givenPrerequisites);
-            this.requiredAttrs = copy(other.requiredAttrs);
+            this.requiredAttrs = other.requiredAttrs;
+            this.requiredWeapons = other.requiredWeapons;
             this.requiredScores = copy(other.requiredScores);
             this.traits = copy(other.traits);
             this.customMod = other.customMod;
@@ -259,10 +267,18 @@ public class Ability extends NamedObject implements Comparable<Ability> {
 
         public void setGivesPrerequisites(List<String> given) {this.givenPrerequisites = given;}
 
-        public void addRequiredAttr(AttributeRequirement requiredAttr) {
-            if(requiredAttrs.isEmpty())
-                this.requiredAttrs = new ArrayList<>();
-            requiredAttrs.add(requiredAttr);
+        public void addRequiredAttr(Requirement<CustomAttribute> requiredAttrs) {
+            if(this.requiredAttrs == null)
+                this.requiredAttrs = requiredAttrs;
+            else
+                this.requiredAttrs = new RequirementList<>(Arrays.asList(this.requiredAttrs, requiredAttrs), true);
+        }
+
+        public void addRequiredWeapon(Requirement<String> requiredWeapon) {
+            if(this.requiredWeapons == null)
+                this.requiredWeapons = requiredWeapon;
+            else
+                this.requiredWeapons = new RequirementList<>(Arrays.asList(this.requiredWeapons, requiredWeapon), true);
         }
 
         public void addRequiredScore(Pair<AbilityScore, Integer> requiredScore) {

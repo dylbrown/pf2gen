@@ -3,8 +3,8 @@ package ui.controls.lists.entries;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
-import model.equipment.Item;
-import model.equipment.runes.runedItems.Runes;
+import model.items.Item;
+import model.items.runes.runedItems.Runes;
 
 import static model.util.StringUtils.generateCostString;
 

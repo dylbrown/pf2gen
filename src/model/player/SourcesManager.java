@@ -11,7 +11,7 @@ import model.data_managers.sources.Source;
 import model.data_managers.sources.SpellsMultiSourceLoader;
 import model.data_managers.sources.WeaponsMultiSourceLoader;
 import model.enums.Trait;
-import model.equipment.Item;
+import model.items.Item;
 import model.xml_parsers.*;
 import model.xml_parsers.abc.AncestriesLoader;
 import model.xml_parsers.abc.BackgroundsLoader;

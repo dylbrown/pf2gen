@@ -10,7 +10,7 @@ import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
 import model.enums.Slot;
 import model.enums.Type;
-import model.equipment.ItemCount;
+import model.items.ItemCount;
 import model.player.InventoryManager;
 import model.player.PC;
 import ui.ftl.EquipmentList;

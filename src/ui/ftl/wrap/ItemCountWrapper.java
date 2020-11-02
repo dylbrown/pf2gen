@@ -5,8 +5,8 @@ import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
 import model.enums.Slot;
-import model.equipment.Item;
-import model.equipment.ItemCount;
+import model.items.Item;
+import model.items.ItemCount;
 import model.util.Pair;
 
 import java.lang.reflect.InvocationTargetException;

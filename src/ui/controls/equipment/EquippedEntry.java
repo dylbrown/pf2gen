@@ -3,7 +3,7 @@ package ui.controls.equipment;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import model.enums.Slot;
-import model.equipment.ItemCount;
+import model.items.ItemCount;
 
 public class EquippedEntry {
     private final ReadOnlyStringWrapper name, weight;

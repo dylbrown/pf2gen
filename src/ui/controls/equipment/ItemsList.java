@@ -1,7 +1,7 @@
 package ui.controls.equipment;
 
 import javafx.collections.ObservableList;
-import model.equipment.Item;
+import model.items.Item;
 import ui.controls.lists.ObservableCategoryEntryList;
 import ui.controls.lists.entries.ItemEntry;
 

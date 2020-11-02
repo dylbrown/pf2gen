@@ -3,11 +3,11 @@ package model.player;
 import javafx.collections.ObservableMap;
 import model.data_managers.sources.SourcesLoader;
 import model.enums.Slot;
-import model.equipment.BaseItem;
-import model.equipment.Item;
-import model.equipment.ItemCount;
-import model.equipment.armor.Armor;
-import model.equipment.weapons.Weapon;
+import model.items.BaseItem;
+import model.items.Item;
+import model.items.ItemCount;
+import model.items.armor.Armor;
+import model.items.weapons.Weapon;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

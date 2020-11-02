@@ -1,6 +1,6 @@
 package model.creatures;
 
-import model.equipment.Item;
+import model.items.Item;
 
 public class CreatureItem {
     private final String itemName;

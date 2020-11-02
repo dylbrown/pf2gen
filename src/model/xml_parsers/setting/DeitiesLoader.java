@@ -4,7 +4,7 @@ import model.attributes.Attribute;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.Alignment;
-import model.equipment.weapons.Weapon;
+import model.items.weapons.Weapon;
 import model.util.ObjectNotFoundException;
 import model.xml_parsers.FileLoader;
 import model.xml_parsers.SpellsLoader;

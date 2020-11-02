@@ -3,14 +3,14 @@ package model.player;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import model.attributes.Attribute;
 import model.enums.Slot;
-import model.equipment.Item;
-import model.equipment.armor.Armor;
-import model.equipment.armor.Shield;
-import model.equipment.runes.runedItems.RunedWeapon;
-import model.equipment.weapons.Damage;
-import model.equipment.weapons.DamageModifier;
-import model.equipment.weapons.RangedWeapon;
-import model.equipment.weapons.Weapon;
+import model.items.Item;
+import model.items.armor.Armor;
+import model.items.armor.Shield;
+import model.items.runes.runedItems.RunedWeapon;
+import model.items.weapons.Damage;
+import model.items.weapons.DamageModifier;
+import model.items.weapons.RangedWeapon;
+import model.items.weapons.Weapon;
 
 import java.util.*;
 

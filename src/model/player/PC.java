@@ -13,15 +13,17 @@ import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
 import model.ability_slots.AbilitySlot;
 import model.attributes.Attribute;
-import model.attributes.AttributeRequirement;
 import model.enums.Alignment;
+import model.enums.Proficiency;
 import model.enums.Type;
-import model.equipment.armor.Armor;
+import model.items.Item;
+import model.items.armor.Armor;
+import model.items.weapons.Weapon;
+import model.setting.Deity;
 import model.spells.Spell;
 import model.spells.SpellList;
 import model.util.ObjectNotFoundException;
 import model.util.Pair;
-import model.setting.Deity;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -224,14 +226,21 @@ public class PC {
 
     public boolean meetsPrerequisites(Ability ability) {
         if(ability.getLevel() > getLevel()) return false;
-and:    for (AttributeRequirement requiredAttr : ability.getRequiredAttrs()) {
-            for (AttributeRequirement requirement : requiredAttr.requirements()) {
-                if(attributes.getProficiency(requirement.getAttr(), requirement.getData()).getValue().getMod()
-                        >= requirement.getMod().getMod())
-                    continue and;
-            }
+        if(!ability.getRequiredAttrs().test(ca->
+                attributes.getProficiency(ca.getAttribute(), ca.getData()).getValue()))
             return false;
-        }
+        if(!ability.getRequiredWeapons().test(s->{
+            try {
+                Item item = sources.weapons().find(s);
+                Weapon weapon = item.getExtension(Weapon.class);
+                if(weapon != null)
+                    return attributes.getProficiency(weapon.getProficiency(), item);
+            } catch (ObjectNotFoundException e) {
+                e.printStackTrace();
+            }
+            return Proficiency.Untrained;
+        }))
+            return false;
         for (Pair<AbilityScore, Integer> requiredScore : ability.getRequiredScores()) {
             if(scores.getScore(requiredScore.first) < requiredScore.second)
                 return false;
