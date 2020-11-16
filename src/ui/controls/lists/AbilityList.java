@@ -32,6 +32,7 @@ public class AbilityList extends ObservableCategoryEntryList<Ability, AbilityEnt
                        Function<Ability, String> getSubCategory) {
         super(items, handler, getCategory, getSubCategory,
                 AbilityEntry::new, AbilityEntry::new, AbilityList::makeColumns);
+        getSortOrder().add(getColumns().get(0));
     }
 
     private static List<TreeTableColumn<AbilityEntry, ?>> makeColumns(ReadOnlyDoubleProperty width) {
@@ -42,6 +43,14 @@ public class AbilityList extends ObservableCategoryEntryList<Ability, AbilityEnt
         name.minWidthProperty().bind(width.multiply(.6));
         level.setCellValueFactory(new TreeCellFactory<>("level"));
         level.setStyle( "-fx-alignment: CENTER;");
+        name.setComparator((s1,s2)->{
+            if(s1.matches("Level \\d+") && s2.matches("Level \\d+")) {
+                double d1 = Double.parseDouble(s1.substring(6));
+                double d2 = Double.parseDouble(s2.substring(6));
+                return Double.compare(d1, d2);
+            }
+            return s1.compareTo(s2);
+        });
         level.setComparator((s1,s2)->{
             double d1 = (s1.length() >= 6)? Double.parseDouble(s1.substring(6)) : 0;
             double d2 = (s1.length() >= 6)? Double.parseDouble(s2.substring(6)) : 0;

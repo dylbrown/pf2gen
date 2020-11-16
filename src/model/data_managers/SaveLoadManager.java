@@ -483,8 +483,8 @@ public class SaveLoadManager {
                         if(decision.getSelections().size() == selections.size()) {
                             index--;
                             decisionStringMap.remove(decision.toString());
+                            break;
                         }
-                        break;
                     }
                 }
                 index++;

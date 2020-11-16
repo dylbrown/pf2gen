@@ -122,6 +122,7 @@ public class InventoryManager implements PlayerState {
 
     public boolean equip(Item item, Slot slot, int count) {
         if(unequipped.get(item) == null) return false;
+        if(count == 0) return false;
         if(slot == Slot.None) return false;
         //If trying to equip to OneHand, check it
         if(slot == Slot.OneHand){
@@ -178,6 +179,7 @@ public class InventoryManager implements PlayerState {
     }
 
     public boolean unequip(Item item, Slot slot, int count) {
+        if(count == 0) return false;
         if(slot != Slot.Carried) {
             ItemCount slotContents = equipped.get(slot);
             if (slotContents != null && slotContents.stats().equals(item) && slotContents.getCount() >= count) {
