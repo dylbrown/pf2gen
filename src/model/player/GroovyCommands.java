@@ -85,6 +85,9 @@ class GroovyCommands {
         }
         return null;
     }
+    public List<Object> getChoices(String choiceName) {
+        return choices.getOrDefault(choiceName, Collections.emptyList());
+    }
     public String archetypeName(Ability ability) {
         return ability.getExtension(ArchetypeExtension.class).getArchetype();
     }

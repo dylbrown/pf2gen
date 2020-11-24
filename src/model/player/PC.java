@@ -346,7 +346,7 @@ outerLoop:  for (String orClause : split) {
 
     public SpellListManager spells() {return spells;}
 
-    GroovyModManager mods() {
+    public GroovyModManager mods() {
         return modManager;
     }
 

@@ -69,7 +69,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         String[] split = string.trim().split(" ");
         for(String term: split) {
             if(!term.trim().equals(""))
-                results.add(camelCaseWord(term.trim()));
+                results.add(StringUtils.clean(term.trim()));
         }
         return results;
     }
@@ -202,7 +202,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     break;
                 case "CustomMod":
                     builder.setCustomMod(trim);
-                    switch (element.getAttribute("alwaysRecalculate")) {
+                    switch (propElem.getAttribute("recalculate")) {
                         case "Always":
                             builder.setRecalculateMod(Recalculate.Always);
                             break;

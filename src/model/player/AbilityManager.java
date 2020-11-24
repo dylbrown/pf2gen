@@ -11,6 +11,7 @@ import model.abilities.AbilitySetExtension;
 import model.abilities.ArchetypeExtension;
 import model.abilities.ScalingExtension;
 import model.ability_slots.*;
+import model.enums.Trait;
 import model.enums.Type;
 import model.util.ObjectNotFoundException;
 import model.util.StringUtils;
@@ -90,7 +91,7 @@ public class AbilityManager implements PlayerState {
 				if(end == -1) end = allowedType.length();
 				int maxLevel = ((FeatSlot) choice).getLevel();
 				switch (allowedType.substring(0, end)) {
-					case "Class":
+					case "class":
 						int bracket = allowedType.indexOf("(");
 						if (bracket != -1) {
 							int close = allowedType.indexOf(")");
@@ -111,18 +112,52 @@ public class AbilityManager implements PlayerState {
 							}
 						}
 						break;
-					case "ClassFeature":
-					case "Choice":
+					case "multiclassdedication":
+						for (Ability a : sources.feats().getCategory("Archetype").values()) {
+							Trait dedication = null;
+							Trait multiclass = null;
+							try {
+								dedication = sources.traits().find("dedication");
+								multiclass = sources.traits().find("multiclass");
+							} catch (ObjectNotFoundException e) {
+								e.printStackTrace();
+							}
+							if(a.getLevel() <= maxLevel
+									&& a.getTraits().contains(dedication)
+									&& a.getTraits().contains(multiclass)) {
+								if(a.getExtension(ScalingExtension.class) != null) {
+									results.add(a.getExtension(ScalingExtension.class).getAbility(maxLevel));
+								}else results.add(a);
+							}
+						}
+							break;
+					case "dedication":
+						for (Ability a : sources.feats().getCategory("Archetype").values()) {
+							Trait dedication = null;
+							try {
+								dedication = sources.traits().find("dedication");
+							} catch (ObjectNotFoundException e) {
+								e.printStackTrace();
+							}
+							if(a.getLevel() <= maxLevel && a.getTraits().contains(dedication)) {
+								if(a.getExtension(ScalingExtension.class) != null) {
+									results.add(a.getExtension(ScalingExtension.class).getAbility(maxLevel));
+								}else results.add(a);
+							}
+						}
+						break;
+					case "classfeature":
+					case "choice":
 						throw new RuntimeException("Feats of type "+allowedType+" should not be selectable!");
-					case "Ancestry":
+					case "ancestry":
 						if (ancestry.get() != null)
 							results.addAll(ancestry.get().getFeats(maxLevel));
 						break;
-					case "Heritage":
+					case "heritage":
 						if (ancestry.get() != null)
 							results.addAll(ancestry.get().getHeritages());
 						break;
-					case "General":
+					case "general":
 						for (Ability ability : sources.feats().getCategory("Skill").values()) {
 							if(ability.getLevel() <= maxLevel)
 								results.add(ability);

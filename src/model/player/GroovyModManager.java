@@ -103,6 +103,17 @@ public class GroovyModManager implements PlayerState {
         return commands.getMod(variable);
     }
 
+    public void refreshAlways() {
+        for (Ability ability : activeAlwaysRecalculateMods) {
+            bindings.setProperty("ability", ability);
+            remove(ability.getCustomMod());
+        }
+        for (Ability ability : activeAlwaysRecalculateMods) {
+            bindings.setProperty("ability", ability);
+            apply(ability.getCustomMod());
+        }
+    }
+
     @Override
     public void reset(PC.ResetEvent resetEvent) {
         commands.reset();

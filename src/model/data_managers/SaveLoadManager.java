@@ -451,6 +451,7 @@ public class SaveLoadManager {
                     break;
                 spellListName = nextLine(lines);
             }
+            character.mods().refreshAlways();
             System.out.println(System.currentTimeMillis()-start+" ms");
         }
     }

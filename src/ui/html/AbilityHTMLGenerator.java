@@ -1,7 +1,9 @@
 package ui.html;
 
 import model.abilities.*;
+import model.ability_scores.AbilityScore;
 import model.attributes.CustomAttribute;
+import model.util.Pair;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,11 +18,13 @@ public class AbilityHTMLGenerator {
             text.append(" ").append(activityExt.getCost().getIcon());
         text.append("<span style='float:right'>Level ").append(ability.getLevel()).append("</span></h4><br>");
         Requirement<CustomAttribute> requiredAttrs = ability.getRequiredAttrs();
+        List<Pair<AbilityScore, Integer>> requiredScores = ability.getRequiredScores();
         Requirement<String> requiredWeapons = ability.getRequiredWeapons();
         boolean strings = !ability.getPrereqStrings().isEmpty() || !ability.getPrerequisites().isEmpty();
         boolean attrs = requiredAttrs instanceof SingleRequirement || requiredAttrs instanceof RequirementList;
+        boolean scores = requiredScores.size() > 0;
         boolean weapons = requiredWeapons instanceof SingleRequirement || requiredWeapons instanceof RequirementList;
-        if(strings || attrs || weapons) {
+        if(strings || attrs || scores || weapons) {
             text.append("<b>Prerequisites</b> ")
                 .append(Stream.concat(ability.getPrereqStrings().stream(),
                         ability.getPrerequisites().stream())
@@ -28,7 +32,12 @@ public class AbilityHTMLGenerator {
             if(strings && attrs)
                 text.append(", ");
             print(text, requiredAttrs, " in ");
-            if((strings || attrs) && weapons)
+            if((strings || attrs) && scores)
+                text.append(", ");
+            text.append(requiredScores.stream()
+                    .map(p->p.first.toString() + " " + p.second.toString())
+                    .collect(Collectors.joining(", ")));
+            if((strings || attrs || scores) && weapons)
                 text.append(", ");
             print(text, requiredWeapons, " with a ");
             text.append("<br>");

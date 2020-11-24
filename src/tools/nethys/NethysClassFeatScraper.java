@@ -22,7 +22,7 @@ class NethysClassFeatScraper extends NethysScraper {
 	private final Map<String, StringBuilder> sources = new HashMap<>();
 
 	public static void main(String[] args) {
-		new NethysClassFeatScraper("http://2e.aonprd.com/Feats.aspx?Traits=321", "generated/classFeats.txt");
+		new NethysClassFeatScraper("http://2e.aonprd.com/Feats.aspx?Traits=318", "generated/classFeats.txt");
 	}
 
 	private NethysClassFeatScraper(String inputURL, String outputPath) {

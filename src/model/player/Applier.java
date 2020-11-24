@@ -19,15 +19,13 @@ class Applier {
 	private final BooleanProperty isLooping = new SimpleBooleanProperty(false);
 	private Ability mostRecentAbility = null;
 
-	void preApply(Ability ability) {
-		process(ability, preApplyFns);
-	}
-
 	void apply(Ability ability) {
+		process(ability, preApplyFns);
 		process(ability, applyFns);
 	}
 
 	void remove(Ability ability) {
+		process(ability, preRemoveFns);
 		process(ability, removeFns);
 	}
 
