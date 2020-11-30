@@ -166,7 +166,7 @@ public class ItemInstance implements Item {
 
     @Override
     public List<AttributeBonus> getBonuses() {
-        return item.getBonuses();
+        return resolveDecoration(new ArrayList<>(item.getBonuses()), "getBonuses", AttributeBonus.class);
     }
 
     @Override
@@ -198,6 +198,16 @@ public class ItemInstance implements Item {
         return value;
     }
 
+    <T> List<T> resolveDecoration(List<T> list, String functionName, Class<T> valueClass) {
+        for (ItemExtension extension : item.getExtensions()) {
+            resolveDecoration(list, extension, functionName, valueClass);
+        }
+        for (ItemExtension extension : extensions.values()) {
+            resolveDecoration(list, extension, functionName, valueClass);
+        }
+        return list;
+    }
+
     private <T> T resolveDecoration(T value, ItemExtension extension, String functionName, Class<T> valueClass) {
         try {
             Method method = extension.getClass().getMethod(functionName, valueClass);
@@ -208,5 +218,21 @@ public class ItemInstance implements Item {
             e.printStackTrace();
         }
         return value;
+    }
+
+    private <T> void resolveDecoration(List<T> list, ItemExtension extension, String functionName, Class<T> valueClass) {
+        try {
+            Method method = extension.getClass().getMethod(functionName);
+            if(!method.isAnnotationPresent(ItemExtension.BaseItemOnly.class)) {
+                List<?> append = (List<?>) method.invoke(extension);
+                for (Object o : append) {
+                    if(valueClass.isInstance(o))
+                        list.add(valueClass.cast(o));
+                }
+            }
+        } catch (NoSuchMethodException ignored) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
 }

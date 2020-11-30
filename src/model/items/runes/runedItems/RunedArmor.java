@@ -49,6 +49,7 @@ public class RunedArmor extends ItemExtension {
                 .reduce(ac, Integer::sum);
     }
 
+    @ItemListDecorator
     public ObservableList<AttributeBonus> getBonuses() {
         return bonuses;
     }

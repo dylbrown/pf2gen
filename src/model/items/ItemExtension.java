@@ -29,6 +29,12 @@ public class ItemExtension {
 
     }
 
+    @Retention(RetentionPolicy.CLASS)
+    @Target(ElementType.METHOD)
+    public @interface ItemListDecorator {
+
+    }
+
     /**
     * Denotes a decorator which should not run if this is an ItemInstance.
     * Only works for name and description

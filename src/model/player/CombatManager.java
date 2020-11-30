@@ -38,8 +38,7 @@ public class CombatManager implements PlayerState {
             Armor armor = inventory.getEquipped(Slot.Armor).stats().getExtension(Armor.class);
             if(armor != null) {
                 int dexMod = scores.getMod(Dex);
-                if(scores.getScore(Str) < armor.getStrength())
-                    dexMod = Math.min(dexMod, armor.getMaxDex());
+                dexMod = Math.min(dexMod, armor.getMaxDex());
                 return 10 + attributes.getProficiency(Attribute.valueOf(armor.getProficiency()), "")
                         .getValue().getMod(level.get()) + armor.getAC() + dexMod;
             }
@@ -126,10 +125,7 @@ public class CombatManager implements PlayerState {
             if(weapon.getTraits().stream().anyMatch(t->t.getName().equals("Propulsive"))) {
                 return (mod > 0) ? mod / 2 : mod;
             } else return 0;
-        } else if(weapon.getHands() == 2)
-            return (int) (mod * 1.5);
-        else
-            return mod;
+        } else return mod;
     }
 
     void addDamageModifier(String name, DamageModifier d) {
