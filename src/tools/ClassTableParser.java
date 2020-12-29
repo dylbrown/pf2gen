@@ -1,33 +1,9 @@
 package tools;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static model.util.StringUtils.camelCase;
 import static model.util.StringUtils.camelCaseWord;
 
-public class ClassTableParser extends SourceParser {
-    //private BufferedWriter outputFile;
-    public static void main(String[] args) {
-        new ClassTableParser();
-    }
-    protected ClassTableParser() {
-//        try {
-//            outputFile = new BufferedWriter(new FileWriter(new File("generated/classTable.txt")));
-//            BufferedReader br = new BufferedReader(new FileReader(new File("generated/inputTable.txt")));
-//            String line;
-//            while ((line = br.readLine()) != null) {
-//                parseTableLine(line);
-//            }
-//            outputFile.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-    }
-
-    private Map<String, StringBuilder> features = new HashMap<>();
-
-
+public abstract class ClassTableParser extends SourceParser {
     protected String className = null;
     private boolean isCaster = false;
     protected String parseTableLine(int level, String abilities) {
@@ -35,7 +11,6 @@ public class ClassTableParser extends SourceParser {
             return "";
         }
         if(abilities.toLowerCase().contains("spellcasting")) isCaster = true;
-        int spellCount = (className.equals("sorcerer")) ? 3 : 2;
         StringBuilder listBuilder = new StringBuilder();
         listBuilder.append("<FeatureList level=\"").append(level).append("\">\n");
         for (String feature : abilities.split(", ?")) {
@@ -68,15 +43,11 @@ public class ClassTableParser extends SourceParser {
                             "\t</AbilitySlot>\n");
                     break;
                 case "initial proficiencies":
-                    listBuilder.append("\t<AbilitySlot state=\"filled\" name=\"Initial Proficiencies\">\n" +
-                            "\t\t<Ability>\n" +
-                            "\t\t\t<AttributeMods Proficiency=\"Trained\"> </AttributeMods>\n" +
-                            "\t\t\t<AttributeMods Proficiency=\"Expert\"> </AttributeMods>\n" +
-                            "\t\t</Ability>\n" +
-                            "\t</AbilitySlot>\n");
+                    applyProficiencies(listBuilder);
                     break;
                 default:
-                    if(feature.trim().matches("\\d(nd|st|rd|th)-level spells")) {
+                    int spellCount = (className.equals("sorcerer")) ? 3 : 2;
+                    if(feature.trim().matches("\\d{1,2}(nd|st|rd|th)-level spells")) {
                         String spellLevel = feature.replaceAll("[^\\d]*", "");
                         listBuilder.append("\t<AbilitySlot state=\"filled\" name=\"").append(feature.trim()).append("\">\n")
                                 .append("\t\t<Ability>\n")
@@ -84,10 +55,7 @@ public class ClassTableParser extends SourceParser {
                                 .append("\t\t</Ability>\n")
                                 .append("\t</AbilitySlot>\n");
                     }else{
-                        listBuilder.append("\t<AbilitySlot state=\"filled\" name=\"")
-                                .append(camelCase(feature.trim())).append("\">\n")
-                                .append("\t\t<Ability>\n").append("\t\t\t<Description>").append(getDescription(feature)).append("</Description>\n")
-                                .append("\t\t</Ability>\n").append("\t\t</AbilitySlot>\n");
+                        handleDefaultCase(listBuilder, feature);
                     }
                     break;
             }
@@ -103,7 +71,23 @@ public class ClassTableParser extends SourceParser {
         return listBuilder.toString();
     }
 
-    private String getDescription(String feature) {
+    protected void applyProficiencies(StringBuilder listBuilder) {
+        listBuilder.append("\t<AbilitySlot state=\"filled\" name=\"Initial Proficiencies\">\n" +
+                "\t\t<Ability>\n" +
+                "\t\t\t<AttributeMods Proficiency=\"Trained\"> </AttributeMods>\n" +
+                "\t\t\t<AttributeMods Proficiency=\"Expert\"> </AttributeMods>\n" +
+                "\t\t</Ability>\n" +
+                "\t</AbilitySlot>\n");
+    }
+
+    protected void handleDefaultCase(StringBuilder listBuilder, String feature) {
+        listBuilder.append("\t<AbilitySlot state=\"filled\" name=\"")
+                .append(camelCase(feature.trim())).append("\">\n")
+                .append("\t\t<Ability>\n").append("\t\t\t<Description>").append(getDescription(feature)).append("</Description>\n")
+                .append("\t\t</Ability>\n").append("\t</AbilitySlot>\n");
+    }
+
+    protected String getDescription(String feature) {
         return "";
     }
 }

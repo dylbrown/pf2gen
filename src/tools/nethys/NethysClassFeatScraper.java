@@ -9,14 +9,15 @@ import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 class NethysClassFeatScraper extends NethysScraper {
 	private final Map<String, StringBuilder> sources = new HashMap<>();
@@ -25,12 +26,43 @@ class NethysClassFeatScraper extends NethysScraper {
 		new NethysClassFeatScraper("http://2e.aonprd.com/Feats.aspx?Traits=318", "generated/classFeats.txt");
 	}
 
+	NethysClassFeatScraper(String inputURL, Writer output, int indent) {
+		scrape(inputURL, s->{
+			if(!s.isBlank()) {
+				String tabs = "\t".repeat(indent);
+				try {
+					output.write(tabs);
+					output.write(s.replaceAll("\n(?!$)", "\n" + tabs));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
 	private NethysClassFeatScraper(String inputURL, String outputPath) {
-		Document doc;
 		BufferedWriter out;
 		try  {
+			out = new BufferedWriter(new FileWriter(outputPath));
+
+			scrape(inputURL, s-> {
+				try {
+					out.write(s);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void scrape(String inputURL, Consumer<String> write) {
+		Document doc;
+		try {
 			doc = Jsoup.connect(inputURL).get();
-			out = new BufferedWriter(new FileWriter(new File(outputPath)));
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
@@ -52,16 +84,7 @@ class NethysClassFeatScraper extends NethysScraper {
 			} else firstRow.set(false);
 		});
 		for (StringBuilder value : sources.values()) {
-			try {
-				out.write(value.toString());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		try {
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+			write.accept(value.toString());
 		}
 	}
 	public static class FeatEntry {
@@ -92,6 +115,8 @@ class NethysClassFeatScraper extends NethysScraper {
 				descBuilder.append(((TextNode) afterHr).getWholeText());
 			else if(afterHr instanceof Element) {
 				String tagName = ((Element) afterHr).tagName();
+				if(tagName.equals("h2") && ((Element) afterHr).text().equals("Traits"))
+					break;
 				if(tagName.equals("b") || tagName.equals("i") || tagName.equals("br"))
 					descBuilder.append("&lt;").append(tagName).append("&gt;");
 				descBuilder.append(((Element) afterHr).text());
@@ -100,7 +125,7 @@ class NethysClassFeatScraper extends NethysScraper {
 			}
 			afterHr = afterHr.nextSibling();
 		}
-		String description = descBuilder.toString();
+		String description = descBuilder.toString().replaceAll("(&lt;br&gt;)+\\z", "");
 
 		List<String> traits = new ArrayList<>();
 		for (Element trait : output.getElementsByClass("trait")) {
@@ -147,31 +172,31 @@ class NethysClassFeatScraper extends NethysScraper {
 
 		// Template Detection
 		if(description.startsWith("You gain the basic spellcasting benefits.")) {
-			feat.append("\t\t<Template>Basic Spellcasting Benefits</Template>\n");
+			feat.append("\t<Template>Basic Spellcasting Benefits</Template>\n");
 		}else if(description.startsWith("You gain the expert spellcasting benefits.")){
-			feat.append("\t\t<Template>Expert Spellcasting Benefits</Template>\n");
+			feat.append("\t<Template>Expert Spellcasting Benefits</Template>\n");
 		}else if(description.startsWith("You gain the master spellcasting benefits.")){
-			feat.append("\t\t<Template>Master Spellcasting Benefits</Template>\n");
+			feat.append("\t<Template>Master Spellcasting Benefits</Template>\n");
 		}else if(description.startsWith("You gain one "+archetype.toLowerCase()+" feat. For the purpose of ")) {
-			feat.append("\t\t<Template>Advanced Multiclass Feat</Template>\n");
+			feat.append("\t<Template>Advanced Multiclass Feat</Template>\n");
 		}else if(archetype.length() > 0 && featName.endsWith("Breadth")) {
-			feat.append("\t\t<Template>Spellcasting Breadth</Template>\n");
+			feat.append("\t<Template>Spellcasting Breadth</Template>\n");
 		}
 
-		feat.append("\t\t<Traits>").append(String.join(", ", traits)).append("</Traits>\n");
+		feat.append("\t<Traits>").append(String.join(", ", traits)).append("</Traits>\n");
 		if(!archetype.equals(""))
-			feat.append("\t\t<Archetype>").append(archetype).append("</Archetype>\n");
+			feat.append("\t<Archetype>").append(archetype).append("</Archetype>\n");
 		if(!prereqs.equals(""))
-			feat.append("\t\t<Prerequisites>").append(prereqs).append("</Prerequisites>\n");
+			feat.append("\t<Prerequisites>").append(prereqs).append("</Prerequisites>\n");
 		if(!trigger.equals(""))
-			feat.append("\t\t<Trigger>").append(trigger).append("</Trigger>\n");
+			feat.append("\t<Trigger>").append(trigger).append("</Trigger>\n");
 		if(!frequency.equals(""))
-			feat.append("\t\t<Frequency>").append(frequency).append("</Frequency>\n");
+			feat.append("\t<Frequency>").append(frequency).append("</Frequency>\n");
 		if(!requirements.equals(""))
-			feat.append("\t\t<Requirements>").append(requirements).append("</Requirements>\n");
-		feat.append("\t\t<Description>").append(description).append("</Description>\n");
+			feat.append("\t<Requirements>").append(requirements).append("</Requirements>\n");
+		feat.append("\t<Description>").append(description).append("</Description>\n");
 		if(description.equals("You gain a 1st- or 2nd-level "+archetype.toLowerCase()+" feat.")) {
-			feat.append("\t\t<AbilitySlot state=\"feat\" name=\"").append(archetype)
+			feat.append("\t<AbilitySlot state=\"feat\" name=\"").append(archetype)
 					.append(" Feat\" type=\"Class(").append(archetype)
 					.append(") Feat\" level=\"2\"/>\n");
 		}
