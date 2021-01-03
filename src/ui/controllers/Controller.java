@@ -50,6 +50,8 @@ public class Controller {
                 return null;
             }
         });
+        CharacterManager.activeProperty().addListener((o, oldVal, newVal)->
+                characterSelect.getSelectionModel().select(newVal));
         characterSelect.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal)->{
             if(newVal != null) {
                 CharacterManager.setActive(newVal);
@@ -99,6 +101,7 @@ public class Controller {
             if(controller.isSuccess()) {
                 for (Source source : controller.getSources()) {
                     CharacterManager.getActive().sources().add(source);
+                    CharacterManager.reload(CharacterManager.getActive());
                 }
             }
         });

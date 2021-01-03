@@ -2,7 +2,6 @@ package model.data_managers;
 
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
-import model.CharacterManager;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
 import model.ability_slots.Choice;
@@ -33,11 +32,8 @@ import model.util.Pair;
 import model.util.StringUtils;
 import model.util.Triple;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.Files;
+import java.io.Writer;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,15 +43,7 @@ public class SaveLoadManager {
     private static final int VERSION = 2;
 
     private SaveLoadManager() {}
-    public static void save(File file){
-        PC character = CharacterManager.getActive();
-        PrintWriter out = null;
-        if (file != null) {
-        try {
-            out = new PrintWriter(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+    public static void save(PC character, Writer out) throws IOException {
         if (out != null) {
             writeOutLine(out, HEADER+SaveLoadManager.VERSION);
             writeOutLine(out, "Sources");
@@ -175,23 +163,14 @@ public class SaveLoadManager {
 
             out.close();
         }
-        }
     }
 
-    private static void writeOutLine(PrintWriter out, String s) {
+    private static void writeOutLine(Writer out, String s) throws IOException {
         out.write(s);
-        out.println();
+        out.write(System.lineSeparator());
     }
 
-    public static void load(PC character, File file) {
-        if (file != null) {
-            List<String> lineList;
-            try {
-                lineList = Files.readAllLines(file.toPath());
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
+    public static void load(PC character, List<String> lineList) {
             Pair<List<String>, Integer> lines= new Pair<>(lineList, 0);
             character.reset();
             long start = System.currentTimeMillis();
@@ -457,7 +436,6 @@ public class SaveLoadManager {
             }
             character.mods().refreshAlways();
             System.out.println(System.currentTimeMillis()-start+" ms");
-        }
     }
 
     private static boolean makeDecisions(PC character, Map<String, String> decisionStringMap) {

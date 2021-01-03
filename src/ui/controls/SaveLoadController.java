@@ -7,10 +7,10 @@ import model.data_managers.SaveLoadManager;
 import model.player.PC;
 import ui.controllers.CharacterController;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class SaveLoadController {
     private File saveLocation = null;
@@ -44,7 +44,7 @@ public class SaveLoadController {
         if(file == null) return;
         saveLocation = file;
         loadLocation = saveLocation.getParentFile();
-        SaveLoadManager.load(pc, saveLocation);
+        load(pc, saveLocation);
 
     }
 
@@ -65,12 +65,31 @@ public class SaveLoadController {
         if(file == null) return;
         saveLocation = file;
         saveContainer = saveLocation.getParentFile();
-        SaveLoadManager.save(saveLocation);
+        save(pc, saveLocation);
+    }
+
+    private void save(PC pc, File file) {
+        try {
+            SaveLoadManager.save(pc, new BufferedWriter(new PrintWriter(file)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void load(PC pc, File file) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            List<String> lineList;
+            lineList = reader.lines().collect(Collectors.toList());
+            SaveLoadManager.load(pc, lineList);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void save(PC pc, Scene scene) {
         if(saveLocation != null) {
-            SaveLoadManager.save(saveLocation);
+            save(pc, saveLocation);
         }else{
             saveAs(pc, scene);
         }
