@@ -5,13 +5,13 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.web.WebView?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="400" minWidth="600" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="400" minWidth="600" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
     <TabPane fx:id="rootTabs" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <Tab closable="false" text="Home">
+        <Tab fx:id="tab_home" closable="false" text="Home">
             <fx:include source="infoTab.fxml" />
         </Tab>
-        <Tab closable="false" text="Starting Choices">
-            <fx:include source="starting.fxml" />
+        <Tab fx:id="tab_startingChoices" closable="false" text="Starting Choices">
+            <fx:include source="starting.fxml" fx:id="window_startingChoices" />
         </Tab>
         <Tab fx:id="tab_abilityScores" closable="false" text="Ability Scores">
             <fx:include source="abilityScoreTab.fxml" />
@@ -20,15 +20,15 @@
             <fx:include source="skillTab.fxml" />
         </Tab>
         <Tab fx:id="tab_decisions" closable="false" text="Decisions">
-            <fx:include source="decisionsTab.fxml" />
+            <fx:include source="decisionsTab.fxml" fx:id="window_decisions" />
         </Tab>
         <Tab fx:id="tab_equipment" closable="false" text="Equipment">
             <fx:include source="equip/equipTab.fxml" />
         </Tab>
         <Tab fx:id="tab_spells" closable="false" text="Spells">
-            <fx:include source="spellsTab.fxml" />
+            <fx:include source="spellsTab.fxml" fx:id="window_spells" />
         </Tab>
-        <Tab fx:id="displayTab" closable="false" text="Preview">
+        <Tab fx:id="tab_preview" closable="false" text="Preview">
             <AnchorPane prefHeight="200.0" prefWidth="200.0">
                 <WebView fx:id="display" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
             </AnchorPane>

@@ -42,7 +42,7 @@ public class SkillTabController {
 
         character.attributes().getSkillIncreases().addListener((MapChangeListener<Integer,Integer>) change -> updateLabel());
         character.levelProperty().addListener(change -> updateLabel());
-        character.getPClassProperty().addListener(change -> updateLabel());
+        character.pClassProperty().addListener(change -> updateLabel());
         character.scores().addAbilityListener((o)->updateLabel());
         character.attributes().addListener((o)->updateLabel());
         updateLabel();

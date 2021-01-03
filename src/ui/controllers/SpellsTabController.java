@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import model.CharacterManager;
 import model.spells.SpellList;
 
+import java.util.List;
 import java.util.Map;
 
 public class SpellsTabController extends SubTabController {
@@ -30,5 +31,9 @@ public class SpellsTabController extends SubTabController {
 	@Override
 	String getTabPath() {
 		return "/fxml/spellListPage.fxml";
+	}
+
+	public void navigate(List<String> path) {
+		navigateToTab(path.get(0));
 	}
 }

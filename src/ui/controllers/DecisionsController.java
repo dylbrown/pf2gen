@@ -20,6 +20,7 @@ import ui.controls.lists.entries.DecisionEntry;
 import ui.html.HTMLGenerator;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -33,6 +34,7 @@ public class DecisionsController {
     @FXML
     private BorderPane decisionsPaneContainer, choicesContainer;
     private final Map<Choice, Node> nodes = new HashMap<>();
+    private DecisionsList decisionsList;
 
     @FXML
     private void initialize() {
@@ -41,7 +43,7 @@ public class DecisionsController {
 
     protected void initialize(ObservableList<Choice> decisions) {
         display.getEngine().setUserStyleSheetLocation(getClass().getResource("/webview_style.css").toString());
-        DecisionsList decisionsList = new DecisionsList((treeItem, i) -> setChoices(treeItem),
+        decisionsList = new DecisionsList((treeItem, i) -> setChoices(treeItem),
                 decisions);
         decisionsList.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal)->setChoices(newVal));
         decisionsPaneContainer.setCenter(decisionsList);
@@ -80,6 +82,15 @@ public class DecisionsController {
             display.getEngine().loadContent(
                     generator.apply(choice.getOptionsClass().cast(chosenValue))
             );
+        }
+    }
+
+    public void navigate(List<String> path) {
+        for (TreeItem<DecisionEntry> choice : decisionsList.getRoot().getChildren()) {
+            if(path.get(0).equalsIgnoreCase(choice.getValue().toString())) {
+                decisionsList.getSelectionModel().select(choice);
+                break;
+            }
         }
     }
 }

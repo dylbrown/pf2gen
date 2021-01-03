@@ -71,8 +71,8 @@ public class PC {
 
     public PC(SourcesManager sources) {
         this.sources = sources;
-        abilities = new AbilityManager(sources, decisions, getAncestryProperty(),
-                getPClassProperty(), applier, this::meetsPrerequisites);
+        abilities = new AbilityManager(sources, decisions, ancestryProperty(),
+                pClassProperty(), applier, this::meetsPrerequisites);
         stateManagers.add(abilities);
         GroovyCommands groovyCommands = new GroovyCommands(
                 customGetter, sources, abilities, attributes, decisions, combat,
@@ -122,7 +122,7 @@ public class PC {
     }
 
     public void levelDown(){
-        if(level.get() == 1)
+        if(level.get() <= 1)
             return;
         removeLevel(getPClass().getLevel(level.get()));
         level.set(level.get()-1);
@@ -324,19 +324,19 @@ outerLoop:  for (String orClause : split) {
         return (background.get() != null) ? background.get() : Background.NO_BACKGROUND;
     }
 
-    public ReadOnlyObjectProperty<Ancestry> getAncestryProperty() {
+    public ReadOnlyObjectProperty<Ancestry> ancestryProperty() {
         return ancestry.getReadOnlyProperty();
     }
 
-    public ReadOnlyObjectProperty<Background> getBackgroundProperty() {
+    public ReadOnlyObjectProperty<Background> backgroundProperty() {
         return background.getReadOnlyProperty();
     }
 
-    public ReadOnlyObjectProperty<PClass> getPClassProperty() {
+    public ReadOnlyObjectProperty<PClass> pClassProperty() {
         return pClass.getReadOnlyProperty();
     }
 
-    public ReadOnlyObjectProperty<Deity> getDeityProperty() {
+    public ReadOnlyObjectProperty<Deity> deityProperty() {
         return deity.getReadOnlyProperty();
     }
 

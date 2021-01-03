@@ -11,6 +11,7 @@ import ui.html.ABCHTMLGenerator;
 import ui.html.SettingHTMLGenerator;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -25,21 +26,21 @@ public class StartingTabController extends SubTabController {
                     FXCollections.observableList(new ArrayList<>(character.sources()
                             .ancestries().getAll().values()))
                 ),
-                character.getAncestryProperty(),
+                character.ancestryProperty(),
                 character::setAncestry,
                 ABCHTMLGenerator::parse);
         addTab("Background", FXCollections.unmodifiableObservableList(
                 FXCollections.observableList(new ArrayList<>(character.sources()
                         .backgrounds().getAll().values()))
                 ),
-                character.getBackgroundProperty(),
+                character.backgroundProperty(),
                 character::setBackground,
                 ABCHTMLGenerator::parse);
         addTab("Class", FXCollections.unmodifiableObservableList(
                 FXCollections.observableList(new ArrayList<>(character.sources()
                         .classes().getAll().values()))
                 ),
-                character.getPClassProperty(),
+                character.pClassProperty(),
                 character::setPClass,
                 ABCHTMLGenerator::parse);
         ObservableList<Deity> deities = FXCollections.observableArrayList();
@@ -48,7 +49,7 @@ public class StartingTabController extends SubTabController {
         addTab("Deity", FXCollections.unmodifiableObservableList(
                 deities
                 ),
-                character.getDeityProperty(),
+                character.deityProperty(),
                 character::setDeity,
                 SettingHTMLGenerator::parse);
     }
@@ -61,5 +62,9 @@ public class StartingTabController extends SubTabController {
     @Override
     String getTabPath() {
         return "/fxml/singleChoicePage.fxml";
+    }
+
+    public void navigate(List<String> path) {
+        navigateToTab(path.get(0));
     }
 }

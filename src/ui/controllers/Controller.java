@@ -21,6 +21,7 @@ import ui.controls.SaveLoadController;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -33,6 +34,7 @@ public class Controller {
     @FXML
     private MenuItem new_menu, open_menu, close_menu, save_menu, saveAs_menu, addSources_menu,
             statblock_menu, printableSheet_menu, indexCard_menu, jquerySheet_menu, about_menu, gm_menu;
+    private final Map<PC, CharacterController> controllers = new HashMap<>();
 
     @FXML
     private void initialize(){
@@ -57,7 +59,9 @@ public class Controller {
                 CharacterManager.setActive(newVal);
                 main.setCenter(characterPanes.computeIfAbsent(newVal, pc->{
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/character.fxml"));
-                    loader.setController(new CharacterController(pc));
+                    CharacterController controller = new CharacterController(pc);
+                    controllers.put(pc, controller);
+                    loader.setController(controller);
                     try {
                         return loader.load();
                     } catch (IOException e) {
@@ -144,5 +148,9 @@ public class Controller {
                 ioException.printStackTrace();
             }
         });
+    }
+
+    public void navigate(List<String> path) {
+        controllers.get(CharacterManager.getActive()).navigate(path);
     }
 }
