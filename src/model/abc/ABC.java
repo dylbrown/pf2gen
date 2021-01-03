@@ -1,12 +1,12 @@
 package model.abc;
 
-import model.NamedObject;
+import model.AbstractNamedObject;
 import model.ability_scores.AbilityMod;
 
 import java.util.Collections;
 import java.util.List;
 
-public abstract class ABC extends NamedObject {
+public abstract class ABC extends AbstractNamedObject {
     private final List<AbilityMod> abilityMods;
 
     ABC(ABC.Builder builder) {
@@ -18,7 +18,7 @@ public abstract class ABC extends NamedObject {
         return Collections.unmodifiableList(abilityMods);
     }
 
-    public static abstract class Builder extends NamedObject.Builder {
+    public static abstract class Builder extends AbstractNamedObject.Builder {
         private List<AbilityMod> abilityMods = Collections.emptyList();
 
         protected Builder(){}

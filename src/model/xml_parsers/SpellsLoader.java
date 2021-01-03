@@ -2,6 +2,9 @@ package model.xml_parsers;
 
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
+import model.enums.Trait;
+import model.spells.BaseSpell;
+import model.spells.MagicalSchool;
 import model.spells.Spell;
 import model.spells.Tradition;
 import model.util.ObjectNotFoundException;
@@ -40,7 +43,7 @@ public class SpellsLoader extends FileLoader<Spell> {
 	@Override
 	protected Spell parseItem(File file, Element spell) {
 		NodeList nodeList = spell.getChildNodes();
-		Spell.Builder builder = new Spell.Builder();
+		BaseSpell.Builder builder = new BaseSpell.Builder();
 		builder.setPage(Integer.parseInt(spell.getAttribute("page")));
 		for(int i=0; i<nodeList.getLength(); i++) {
 			if(nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)
@@ -75,6 +78,14 @@ public class SpellsLoader extends FileLoader<Spell> {
 			}
 		}
 		if(spell.getAttribute("type").equals("Cantrip")) builder.setCantrip(true);
+		for (Trait trait : builder.getTraits()) {
+			MagicalSchool school = MagicalSchool.tryGet(trait.getName());
+			if(school != null) {
+				builder.setSchool(school);
+				break;
+			}
+		}
+
 		return builder.build();
 	}
 }

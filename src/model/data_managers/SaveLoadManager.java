@@ -27,6 +27,7 @@ import model.items.runes.runedItems.Runes;
 import model.player.PC;
 import model.spells.Spell;
 import model.spells.SpellList;
+import model.spells.heightened.HeightenedSpell;
 import model.util.ObjectNotFoundException;
 import model.util.Pair;
 import model.util.StringUtils;
@@ -165,7 +166,7 @@ public class SaveLoadManager {
                 for (ObservableList<Spell> spells : entry.getValue().getSpellsKnown()) {
                     writeOutLine(out, "   - Level "+i);
                     for (Spell spell : spells) {
-                        writeOutLine(out, "     - "+ spell.getName());
+                        writeOutLine(out, "     - "+ spell.getRawName());
                     }
                     i++;
                 }
@@ -440,8 +441,11 @@ public class SaveLoadManager {
                             break;
                         }
                         try {
-                            spellList.addSpell(character.sources().spells()
-                                    .find(s.substring(spellString.length())));
+                            Spell spell = character.sources().spells()
+                                    .find(s.substring(spellString.length()));
+                            if(spell.getLevelOrCantrip() < i)
+                                spell = new HeightenedSpell(spell, i);
+                            spellList.addSpell(spell);
                         } catch (ObjectNotFoundException e) {
                             e.printStackTrace();
                         }

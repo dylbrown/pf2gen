@@ -1,4 +1,6 @@
-package model.spells;
+package model.spells.heightened;
+
+import model.spells.Spell;
 
 public class HeightenedEvery implements HeightenedData {
     private final int every;

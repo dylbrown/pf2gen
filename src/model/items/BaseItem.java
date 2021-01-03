@@ -1,6 +1,6 @@
 package model.items;
 
-import model.NamedObject;
+import model.AbstractNamedObject;
 import model.abilities.Ability;
 import model.abilities.AbilityExtension;
 import model.attributes.AttributeBonus;
@@ -13,7 +13,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-public class BaseItem extends NamedObject implements Item {
+public class BaseItem extends AbstractNamedObject implements Item {
     private final double weight, value;
     private final String category, subCategory;
     private final Rarity rarity;
@@ -192,7 +192,7 @@ public class BaseItem extends NamedObject implements Item {
         return value;
     }
 
-    public static class Builder extends NamedObject.Builder {
+    public static class Builder extends AbstractNamedObject.Builder {
         double weight = 0;
         double value = 0;
         String category = "";

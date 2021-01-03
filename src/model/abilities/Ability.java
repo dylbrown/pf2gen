@@ -1,6 +1,6 @@
 package model.abilities;
 
-import model.NamedObject;
+import model.AbstractNamedObject;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityScore;
 import model.ability_slots.AbilitySlot;
@@ -16,7 +16,7 @@ import java.util.*;
 
 import static model.util.Copy.copy;
 
-public class Ability extends NamedObject implements Comparable<Ability> {
+public class Ability extends AbstractNamedObject implements Comparable<Ability> {
     //TODO: Support Repeated Choice
     private final List<String> prerequisites, prereqStrings, givenPrerequisites;
     private final Requirement<CustomAttribute> requiredAttrs;
@@ -184,7 +184,7 @@ public class Ability extends NamedObject implements Comparable<Ability> {
         return new Ability(builder, this.extensions);
     }
 
-    public static class Builder extends NamedObject.Builder {
+    public static class Builder extends AbstractNamedObject.Builder {
         private List<String> prerequisites = Collections.emptyList();
         private List<String> prereqStrings = Collections.emptyList();
         private List<String> givenPrerequisites = Collections.emptyList();

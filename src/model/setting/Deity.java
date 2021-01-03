@@ -1,6 +1,6 @@
 package model.setting;
 
-import model.NamedObject;
+import model.AbstractNamedObject;
 import model.attributes.Attribute;
 import model.enums.Alignment;
 import model.items.weapons.Weapon;
@@ -8,7 +8,7 @@ import model.spells.Spell;
 
 import java.util.*;
 
-public class Deity extends NamedObject {
+public class Deity extends AbstractNamedObject {
     private final String title, edicts, anathema, areasOfConcern;
     private final Alignment deityAlignment;
     private final List<Alignment> followerAlignments;
@@ -85,7 +85,7 @@ public class Deity extends NamedObject {
         return Collections.unmodifiableMap(spells);
     }
 
-    public static class Builder extends NamedObject.Builder {
+    public static class Builder extends AbstractNamedObject.Builder {
         private String title = "", edicts = "", anathema = "", areasOfConcern = "";
         private Alignment deityAlignment = Alignment.N;
         private List<Alignment> followerAlignments = Collections.emptyList();

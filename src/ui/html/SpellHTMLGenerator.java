@@ -3,7 +3,7 @@ package ui.html;
 import model.enums.Trait;
 import model.items.weapons.Damage;
 import model.items.weapons.Dice;
-import model.spells.HeightenedEvery;
+import model.spells.heightened.HeightenedEvery;
 import model.spells.Spell;
 import model.util.Pair;
 import model.util.StringUtils;

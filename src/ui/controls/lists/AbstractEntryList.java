@@ -5,15 +5,14 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableView;
-import model.data_managers.sources.Source;
 import ui.controls.lists.entries.ListEntry;
 import ui.controls.lists.factories.SelectRowFactory;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public abstract class AbstractEntryList<U, T extends ListEntry<U>> extends TreeTableView<T> {
     private final TreeItem<T> originalRoot = new TreeItem<>(null);
@@ -34,9 +33,26 @@ public abstract class AbstractEntryList<U, T extends ListEntry<U>> extends TreeT
                 setRoot(filteredRoot);
                 filteredRoot.getChildren().clear();
                 updateVisible(originalRoot, ()->filteredRoot, newVal);
+                checkSingleCategory(filteredRoot);
             }
             lastPredicate = newVal;
         });
+    }
+
+    private void checkSingleCategory(TreeItem<T> root) {
+        TreeItem<T> curr = root;
+        while(curr.getChildren().size() == 1) {
+            TreeItem<T> temp = curr.getChildren().get(0);
+            if(temp.getChildren().size() > 0) {
+                curr = temp;
+            } else break;
+        }
+        if(curr != root) {
+            root.getChildren().setAll(
+                    curr.getChildren().stream()
+                            .map(AbstractEntryList::deepCopy)
+                            .collect(Collectors.toList()));
+        }
     }
 
     private void updateVisible(TreeItem<T> source,
@@ -57,7 +73,6 @@ public abstract class AbstractEntryList<U, T extends ListEntry<U>> extends TreeT
                 }, predicate);
             }
         }
-
     }
 
     private void addToFilter(TreeItem<T> child, TreeItem<T> dest) {
@@ -90,7 +105,7 @@ public abstract class AbstractEntryList<U, T extends ListEntry<U>> extends TreeT
     }
 
     public void removeColumn(String name) {
-        getColumns().removeIf(c->c.getText().toLowerCase().equals(name.toLowerCase()));
+        getColumns().removeIf(c-> c.getText().equalsIgnoreCase(name));
     }
 
     public void expandAll() {
@@ -102,6 +117,13 @@ public abstract class AbstractEntryList<U, T extends ListEntry<U>> extends TreeT
         for (TreeItem<T> child : root.getChildren()) {
             expand(child);
         }
+    }
 
+    public static <U> TreeItem<U> deepCopy(TreeItem<U> original) {
+        TreeItem<U> item = new TreeItem<>(original.getValue());
+        for (TreeItem<U> child : original.getChildren()) {
+            item.getChildren().add(deepCopy(child));
+        }
+        return item;
     }
 }

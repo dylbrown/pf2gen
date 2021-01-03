@@ -1,4 +1,6 @@
-package model.spells;
+package model.spells.heightened;
+
+import model.spells.Spell;
 
 import java.util.HashMap;
 import java.util.Map;

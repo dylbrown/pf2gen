@@ -1,8 +1,8 @@
 package model.enums;
 
-import model.NamedObject;
+import model.AbstractNamedObject;
 
-public class Trait extends NamedObject implements Comparable<Trait> {
+public class Trait extends AbstractNamedObject implements Comparable<Trait> {
     private final String category;
 
     protected Trait(Builder builder) {
@@ -19,7 +19,7 @@ public class Trait extends NamedObject implements Comparable<Trait> {
         return getName().compareToIgnoreCase(o.getName());
     }
 
-    public static class Builder extends NamedObject.Builder {
+    public static class Builder extends AbstractNamedObject.Builder {
         private String category = "";
 
         public void setCategory(String category) {

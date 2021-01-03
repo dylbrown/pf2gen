@@ -1,6 +1,6 @@
 package model.creatures;
 
-import model.NamedObject;
+import model.AbstractNamedObject;
 import model.abilities.Ability;
 import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
@@ -9,7 +9,7 @@ import model.enums.Trait;
 
 import java.util.*;
 
-public class Creature extends NamedObject {
+public class Creature extends AbstractNamedObject {
     private final CreatureFamily family;
     private final List<Trait> traits;
     private final Map<Attribute, Integer> modifiers;
@@ -153,7 +153,7 @@ public class Creature extends NamedObject {
         return getName();
     }
 
-    public static class Builder extends NamedObject.Builder {
+    public static class Builder extends AbstractNamedObject.Builder {
         private CreatureFamily family = null;
         private List<Trait> traits = Collections.emptyList();
         private Map<Attribute, Integer> modifiers = Collections.emptyMap();

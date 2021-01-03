@@ -1,9 +1,9 @@
 package model.setting;
 
-import model.NamedObject;
+import model.AbstractNamedObject;
 import model.spells.Spell;
 
-public class Domain extends NamedObject {
+public class Domain extends AbstractNamedObject {
     private final Spell domainSpell, advancedDomainSpell;
 
     private Domain(Builder builder) {
@@ -20,7 +20,7 @@ public class Domain extends NamedObject {
         return advancedDomainSpell;
     }
 
-    public static class Builder extends NamedObject.Builder {
+    public static class Builder extends AbstractNamedObject.Builder {
         private Spell domainSpell = null;
         private Spell advancedDomainSpell = null;
 
