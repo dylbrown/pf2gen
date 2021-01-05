@@ -12,7 +12,7 @@ public class NotHeightenable implements HeightenedData {
 
     @Override
     public boolean hasAtLevel(int level) {
-        return level == spell.getLevel();
+        return false;
     }
 
     @Override
