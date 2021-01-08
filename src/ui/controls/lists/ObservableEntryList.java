@@ -1,8 +1,7 @@
 package ui.controls.lists;
 
 import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
+import javafx.collections.*;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import ui.controls.lists.entries.ListEntry;
@@ -12,11 +11,31 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class ObservableEntryList<T, U extends ListEntry<T>> extends AbstractEntryList<T, U> {
-    protected final ObservableList<T> items;
+    protected final Collection<T> items;
     protected final Function<T, String> getCategory;
     protected final Function<T, U> makeEntry;
     protected final Function<String, U> makeLabelEntry;
     protected final Function<ReadOnlyDoubleProperty, List<TreeTableColumn<U, ?>>> makeColumns;
+
+    public static <T, U extends ListEntry<T>, X> ObservableEntryList<T, U> makeList(ObservableMap<X, T> items,
+                                                                                 BiConsumer<T, Integer> handler,
+                                                                                 Function<T, String> getCategory,
+                                                                                 Function<T, U> makeEntry,
+                                                                                 Function<String, U> makeLabelEntry,
+                                                                                 Function<ReadOnlyDoubleProperty, List<TreeTableColumn<U, ?>>> makeColumns) {
+        ObservableEntryList<T, U> list = new ObservableEntryList<>(items, getCategory, makeEntry, makeLabelEntry, makeColumns);
+        return makeList(list, handler);
+    }
+
+    public static <T, U extends ListEntry<T>> ObservableEntryList<T, U> makeList(ObservableSet<T> items,
+                                                                                 BiConsumer<T, Integer> handler,
+                                                                                 Function<T, String> getCategory,
+                                                                                 Function<T, U> makeEntry,
+                                                                                 Function<String, U> makeLabelEntry,
+                                                                                 Function<ReadOnlyDoubleProperty, List<TreeTableColumn<U, ?>>> makeColumns) {
+        ObservableEntryList<T, U> list = new ObservableEntryList<>(items, getCategory, makeEntry, makeLabelEntry, makeColumns);
+        return makeList(list, handler);
+    }
 
     public static <T, U extends ListEntry<T>> ObservableEntryList<T, U> makeList(ObservableList<T> items,
                            BiConsumer<T, Integer> handler,
@@ -24,7 +43,12 @@ public class ObservableEntryList<T, U extends ListEntry<T>> extends AbstractEntr
                            Function<T, U> makeEntry,
                            Function<String, U> makeLabelEntry,
                            Function<ReadOnlyDoubleProperty, List<TreeTableColumn<U, ?>>> makeColumns) {
-        ObservableEntryList<T, U> list = new ObservableEntryList<>(items, handler, getCategory, makeEntry, makeLabelEntry, makeColumns);
+        ObservableEntryList<T, U> list = new ObservableEntryList<>(items, getCategory, makeEntry, makeLabelEntry, makeColumns);
+        return makeList(list, handler);
+    }
+
+    private static <T, U extends ListEntry<T>> ObservableEntryList<T, U> makeList(ObservableEntryList<T, U> list,
+                                                                                  BiConsumer<T, Integer> handler) {
         list.construct(handler);
         list.getRoot().getChildren().sort(Comparator.comparing(o -> {
             try {
@@ -36,19 +60,41 @@ public class ObservableEntryList<T, U extends ListEntry<T>> extends AbstractEntr
         return list;
     }
 
+    private <X> ObservableEntryList(ObservableMap<X, T> items,
+                                      Function<T, String> getCategory,
+                                      Function<T, U> makeEntry,
+                                      Function<String, U> makeLabelEntry,
+                                      Function<ReadOnlyDoubleProperty, List<TreeTableColumn<U, ?>>> makeColumns) {
+        this(getCategory, makeEntry, makeLabelEntry, makeColumns, items.values());
+        items.addListener((MapChangeListener<X, T>)  c-> {
+            if(c.wasAdded())
+                insert(c.getValueAdded());
+            if(c.wasRemoved())
+                retract(c.getValueRemoved());
+        });
+    }
+
+    private ObservableEntryList(ObservableSet<T> items,
+                                  Function<T, String> getCategory,
+                                  Function<T, U> makeEntry,
+                                  Function<String, U> makeLabelEntry,
+                                  Function<ReadOnlyDoubleProperty, List<TreeTableColumn<U, ?>>> makeColumns) {
+        this(getCategory, makeEntry, makeLabelEntry, makeColumns, items);
+        items.addListener((SetChangeListener<T>)  c-> {
+            if(c.wasAdded())
+                insert(c.getElementAdded());
+            if(c.wasRemoved())
+                retract(c.getElementRemoved());
+        });
+    }
+
     protected ObservableEntryList(ObservableList<T> items,
-                                       BiConsumer<T, Integer> handler,
                                        Function<T, String> getCategory,
                                        Function<T, U> makeEntry,
                                        Function<String, U> makeLabelEntry,
                                        Function<ReadOnlyDoubleProperty, List<TreeTableColumn<U, ?>>> makeColumns) {
-        super();
-        this.items = items;
-        this.getCategory = getCategory;
-        this.makeEntry = makeEntry;
-        this.makeLabelEntry = makeLabelEntry;
-        this.makeColumns = makeColumns;
-        this.items.addListener((ListChangeListener<T>) c -> {
+        this(getCategory, makeEntry, makeLabelEntry, makeColumns, items);
+        items.addListener((ListChangeListener<T>) c -> {
             while(c.next()) {
                 if(!c.wasPermutated() && !c.wasUpdated()) {
                     for (T item : c.getRemoved()) {
@@ -60,6 +106,18 @@ public class ObservableEntryList<T, U extends ListEntry<T>> extends AbstractEntr
                 }
             }
         });
+    }
+
+    private ObservableEntryList(Function<T, String> getCategory,
+                                Function<T, U> makeEntry,
+                                Function<String, U> makeLabelEntry,
+                                Function<ReadOnlyDoubleProperty, List<TreeTableColumn<U, ?>>> makeColumns,
+                                Collection<T> items) {
+        this.getCategory = getCategory;
+        this.makeEntry = makeEntry;
+        this.makeLabelEntry = makeLabelEntry;
+        this.makeColumns = makeColumns;
+        this.items = items;
     }
 
     protected boolean multiCategory = false;
@@ -85,6 +143,7 @@ public class ObservableEntryList<T, U extends ListEntry<T>> extends AbstractEntr
                 value.getChildren().sort(Comparator.comparing(TreeItem::getValue));
             }
         }
+        root.getChildren().sort(Comparator.comparing(TreeItem::getValue));
     }
 
     private void insert(T item) {

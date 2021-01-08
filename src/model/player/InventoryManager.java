@@ -2,10 +2,7 @@ package model.player;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.MapChangeListener;
-import javafx.collections.ObservableMap;
+import javafx.collections.*;
 import model.attributes.AttributeBonus;
 import model.enums.BuySellMode;
 import model.enums.Slot;
@@ -22,6 +19,8 @@ import model.util.Eyeball;
 import model.util.Pair;
 import model.util.Watcher;
 
+import java.util.HashSet;
+
 public class InventoryManager implements PlayerState {
     static final Double INITIAL_AMOUNT = 150.0;
     private final ReadOnlyObjectWrapper<Double> money= new ReadOnlyObjectWrapper<>(INITIAL_AMOUNT);
@@ -30,6 +29,7 @@ public class InventoryManager implements PlayerState {
     private final ObservableMap<Slot, ItemCount> equipped = FXCollections.observableHashMap();
     private final ObservableMap<Item, ItemCount> carried = FXCollections.observableHashMap();
     private final ObservableMap<Item, ItemCount> unequipped = FXCollections.observableHashMap();
+    private final ObservableSet<Item> formulas = FXCollections.observableSet(new HashSet<>());
     private final AttributeManager attributes;
     private double totalWeight = 0;
     private double sellMultiplier = 1;
@@ -335,6 +335,31 @@ public class InventoryManager implements PlayerState {
             }
         }
         return false;
+    }
+
+    public ObservableSet<Item> getFormulas() {
+        return FXCollections.unmodifiableObservableSet(formulas);
+    }
+
+    public boolean addFormula(Item formula) {
+        if(!(formula instanceof ItemFormula))
+            formula = new ItemFormula(formula);
+        if(!(formulas.contains(formula)) &&
+                money.get() >= formula.getValue() * buyMultiplier) {
+            money.set(money.get() - (formula.getValue() * buyMultiplier));
+            formulas.add(formula);
+            return true;
+        }
+        return false;
+    }
+
+    public void removeFormula(Item formula) {
+        if(!(formula instanceof ItemFormula))
+            formula = new ItemFormula(formula);
+        if(formulas.contains(formula)) {
+            money.set(money.get() + (formula.getValue() * buyMultiplier));
+            formulas.remove(formula);
+        }
     }
 
     @Override

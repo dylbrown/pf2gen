@@ -20,7 +20,7 @@ public class ObservableCategoryEntryList<T, U extends ListEntry<T>> extends Obse
                                        Function<T, U> makeEntry,
                                         Function<String, U> makeLabelEntry,
                                        Function<ReadOnlyDoubleProperty, List<TreeTableColumn<U, ?>>> makeColumns) {
-        super(items, handler, getCategory, makeEntry, makeLabelEntry, makeColumns);
+        super(items, getCategory, makeEntry, makeLabelEntry, makeColumns);
         this.getSubCategory = getSubCategory;
         super.construct(handler);
         getRoot().getChildren().sort(Comparator.comparing(o -> {

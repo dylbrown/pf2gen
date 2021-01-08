@@ -15,10 +15,7 @@ import model.enums.Alignment;
 import model.enums.BuySellMode;
 import model.enums.Slot;
 import model.enums.Type;
-import model.items.Item;
-import model.items.ItemCount;
-import model.items.ItemInstance;
-import model.items.ItemInstanceChoices;
+import model.items.*;
 import model.items.runes.ArmorRune;
 import model.items.runes.Rune;
 import model.items.runes.WeaponRune;
@@ -40,7 +37,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class SaveLoadManager {
     private static final String HEADER = "PF2Gen Save - v";
-    private static final int VERSION = 2;
+    private static final int VERSION = 3;
 
     private SaveLoadManager() {}
     public static void save(PC character, Writer out) throws IOException {
@@ -145,6 +142,12 @@ public class SaveLoadManager {
                 writeOutLine(out, " - Carried: "+itemCount.getCount()+" "+itemCount.stats().getName());
             }
 
+            //Formulas
+            writeOutLine(out, "Formulas");
+            for (Item formula : character.inventory().getFormulas()) {
+                writeOutLine(out, " - "+formula.getRawName());
+            }
+
 
             //Spells
             writeOutLine(out, "Spells Known");
@@ -179,6 +182,8 @@ public class SaveLoadManager {
             if(curr.startsWith(HEADER)) {
                 version = Integer.parseInt(curr.substring(HEADER.length()));
             }
+            if(version > VERSION)
+                throw new RuntimeException("Save is from newer version of software!!!");
             while (version < VERSION) {
                 version++;
                 SaveCompatibilityConverter.updateTo(lines, version);
@@ -376,7 +381,6 @@ public class SaveLoadManager {
                     break;
                 }
             }
-            character.inventory().setMode(BuySellMode.FullPrice);
 
             //Equipping
             lines.second++; // Skip Section Header
@@ -397,6 +401,25 @@ public class SaveLoadManager {
                     }
                 }
             }
+
+            //Formulas
+            lines.second++; //Skip Section Header
+            while(true) {
+                String s;
+                try { s = nextLine(lines); }
+                catch(RuntimeException e) { break; }
+                if(!s.startsWith(" - ")) {
+                    lines.second--;
+                    break;
+                }
+                try {
+                    Item item = character.sources().equipment().find(s.substring(3));
+                    character.inventory().addFormula(new ItemFormula(item));
+                } catch (ObjectNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+            character.inventory().setMode(BuySellMode.FullPrice);
 
             //Spells
             lines.second++; // Skip Section Header

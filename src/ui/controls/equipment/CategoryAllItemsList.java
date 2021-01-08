@@ -1,64 +1,27 @@
 package ui.controls.equipment;
 
 import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import model.items.Item;
 import model.player.PC;
 import model.xml_parsers.equipment.ItemLoader;
-import ui.controls.lists.ObservableCategoryEntryList;
 import ui.controls.lists.entries.ItemEntry;
 import ui.controls.lists.factories.TreeCellFactory;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
-public class CategoryAllItemsList extends ObservableCategoryEntryList<Item, ItemEntry> {
-    private final PC character;
-    private final ObservableList<Item> list;
+public class CategoryAllItemsList extends AllItemsList<String, String> {
 
     public CategoryAllItemsList(PC character, BiConsumer<Item, Integer> handler) {
-        this(character, handler, FXCollections.observableArrayList());
+        super(character, handler, Item::getCategory, Item::getSubCategory);
     }
 
-    private CategoryAllItemsList(PC character, BiConsumer<Item, Integer> handler, ObservableList<Item> items) {
-        super(items, handler,
-                Item::getCategory,
-                Item::getSubCategory,
-                ItemEntry::new, ItemEntry::new,
-                CategoryAllItemsList::makeColumns);
-        list = items;
-        this.character = character;
-        addItems(getRoot());
-    }
-
-    @Override
-    protected void addItems(TreeItem<ItemEntry> root) {
-        if(list == null)
-            return;
-        list.addAll(character.sources().equipment().getAll().values());
-        list.addAll(character.sources().armor().getAll().values());
-        list.addAll(character.sources().weapons().getAll().values());
-        root.getChildren().sort(Comparator.comparing(o -> o.getValue().toString()));
-    }
-
-    private void addCategory(TreeItem<ItemEntry> root, String category, Iterable<? extends Item> iterable) {
-        TreeItem<ItemEntry> cat = new TreeItem<>(new ItemEntry(category));
-        root.getChildren().add(cat);
-        Map<String, TreeItem<ItemEntry>> subCats = new TreeMap<>();
-        for (Item item : iterable) {
-            String subCategory = item.getSubCategory();
-            if(subCategory.isBlank())
-                cat.getChildren().add(new TreeItem<>(new ItemEntry(item)));
-            else {
-                subCats.computeIfAbsent(subCategory, (s -> new TreeItem<>(new ItemEntry(s))))
-                        .getChildren()
-                        .add(new TreeItem<>(new ItemEntry(item)));
-            }
-        }
-        cat.getChildren().addAll(subCats.values());
+    public CategoryAllItemsList(PC character, BiConsumer<Item, Integer> handler, Function<Item, Item> transformer) {
+        super(character, handler, Item::getCategory, Item::getSubCategory, transformer);
     }
 
     public static List<TreeTableColumn<ItemEntry, ?>> makeColumns(ReadOnlyDoubleProperty width) {

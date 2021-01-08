@@ -37,6 +37,9 @@ public class SaveCompatibilityConverter {
                 }
 
                 break;
+            case 3:
+                int spellsKnown = lines.first.indexOf("Spells Known");
+                lines.first.add(spellsKnown, "Formulas");
         }
     }
 }

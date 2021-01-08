@@ -57,4 +57,18 @@ public class ItemEntry extends ListEntry<Item> {
     private ReadOnlyStringProperty subCategoryProperty() {
         return subCategory;
     }
+
+    @Override
+    public int compareTo(ListEntry<Item> o) {
+        if(this.getContents() == null && o.getContents() == null) {
+            String s1 = this.toString();
+            String s2 = o.toString();
+            if(s1.matches("\\ALevel \\d{1,2}\\z") && s2.matches("\\ALevel \\d{1,2}\\z")) {
+                int i1 = Integer.parseInt(s1.substring("Level ".length()));
+                int i2 = Integer.parseInt(s2.substring("Level ".length()));
+                return Integer.compare(i1, i2);
+            }
+        }
+        return super.compareTo(o);
+    }
 }
