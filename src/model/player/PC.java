@@ -61,7 +61,7 @@ public class PC {
     private final CustomGetter customGetter = new CustomGetter(this);
     private final AttributeManager attributes =
             new AttributeManager(customGetter, level.getReadOnlyProperty(), decisions, applier);
-    private final InventoryManager inventory = new InventoryManager(attributes);
+    private final InventoryManager inventory = new InventoryManager(attributes, applier);
     private final QualityManager qualities = new QualityManager(decisions::add, decisions::remove);
     private final CombatManager combat = new CombatManager(scores, attributes, inventory, levelProperty());
     private final GroovyModManager modManager;

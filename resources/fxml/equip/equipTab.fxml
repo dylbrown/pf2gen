@@ -1,41 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<TabPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.equip.EquipTabController">
-    <Tab closable="false" text="Purchase">
-        <fx:include source="purchaseTab.fxml" fx:id="purchaseTab" />
-    </Tab>
-    <Tab closable="false" text="Enchant">
-        <fx:include source="enchantTab.fxml" />
-    </Tab>
-    <Tab closable="false" text="Equip">
-        <AnchorPane minHeight="0.0" minWidth="0.0">
-            <SplitPane dividerPositions="0.5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                <AnchorPane minHeight="0.0" minWidth="0.0">
-                    <ListView fx:id="unequipped" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                </AnchorPane>
-                <AnchorPane minHeight="0.0" minWidth="0.0">
-                    <TableView fx:id="equipped" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                        <columns>
-                            <TableColumn fx:id="nameCol" editable="false" text="Item">
-                            </TableColumn>
-                            <TableColumn fx:id="slotCol" editable="false" text="Slot">
-                            </TableColumn>
-                            <TableColumn fx:id="weightCol" editable="false" text="Weight">
-                            </TableColumn>
-                            <TableColumn fx:id="quantityCol" editable="false" text="Quantity">
-                            </TableColumn>
-                        </columns>
-                  <columnResizePolicy>
-                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                  </columnResizePolicy>
-                    </TableView>
-                </AnchorPane>
-            </SplitPane>
-        </AnchorPane>
-    </Tab>
-    <Tab closable="false" text="Formulas">
-        <fx:include source="formulaTab.fxml"/>
-    </Tab>
-</TabPane>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ui.controllers.equip.EquipTabController">
+    <TabPane fx:id="tabs" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+             AnchorPane.topAnchor="0.0">
+        <Tab fx:id="tab_purchase" closable="false" text="Purchase">
+            <fx:include fx:id="purchaseTab" source="purchaseTab.fxml"/>
+        </Tab>
+        <Tab fx:id="tab_enchant" closable="false" text="Enchant">
+            <fx:include source="enchantTab.fxml"/>
+        </Tab>
+        <Tab fx:id="tab_equip" closable="false" text="Equip">
+            <AnchorPane minHeight="0.0" minWidth="0.0">
+                <SplitPane dividerPositions="0.5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                           AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <AnchorPane minHeight="0.0" minWidth="0.0">
+                        <ListView fx:id="unequipped" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                  AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+                    </AnchorPane>
+                    <AnchorPane minHeight="0.0" minWidth="0.0">
+                        <TableView fx:id="equipped" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                   AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <columns>
+                                <TableColumn fx:id="nameCol" editable="false" text="Item">
+                                </TableColumn>
+                                <TableColumn fx:id="slotCol" editable="false" text="Slot">
+                                </TableColumn>
+                                <TableColumn fx:id="weightCol" editable="false" text="Weight">
+                                </TableColumn>
+                                <TableColumn fx:id="quantityCol" editable="false" text="Quantity">
+                                </TableColumn>
+                            </columns>
+                            <columnResizePolicy>
+                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                            </columnResizePolicy>
+                        </TableView>
+                    </AnchorPane>
+                </SplitPane>
+            </AnchorPane>
+        </Tab>
+        <Tab fx:id="tab_formulas" closable="false" text="Formulas">
+            <fx:include source="formulaTab.fxml"/>
+        </Tab>
+    </TabPane>
+</AnchorPane>

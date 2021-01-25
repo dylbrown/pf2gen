@@ -3,6 +3,7 @@ package model.player;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.*;
+import model.abilities.FormulaExtension;
 import model.attributes.AttributeBonus;
 import model.enums.BuySellMode;
 import model.enums.Slot;
@@ -20,6 +21,8 @@ import model.util.Pair;
 import model.util.Watcher;
 
 import java.util.HashSet;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class InventoryManager implements PlayerState {
     static final Double INITIAL_AMOUNT = 150.0;
@@ -29,14 +32,32 @@ public class InventoryManager implements PlayerState {
     private final ObservableMap<Slot, ItemCount> equipped = FXCollections.observableHashMap();
     private final ObservableMap<Item, ItemCount> carried = FXCollections.observableHashMap();
     private final ObservableMap<Item, ItemCount> unequipped = FXCollections.observableHashMap();
-    private final ObservableSet<Item> formulas = FXCollections.observableSet(new HashSet<>());
+    private final ObservableSet<Item> formulasBought = FXCollections.observableSet(new HashSet<>());
+    private final ObservableSet<Item> formulasGranted = FXCollections.observableSet(new HashSet<>());
+    private final ObservableMap<Integer, Integer> grantedFormulasCount = FXCollections.observableMap(new TreeMap<>());
     private final AttributeManager attributes;
     private double totalWeight = 0;
     private double sellMultiplier = 1;
     private double buyMultiplier = 1;
 
-    InventoryManager(AttributeManager attributes) {
+    InventoryManager(AttributeManager attributes, Applier applier) {
         this.attributes = attributes;
+        applier.onApply(a->{
+            FormulaExtension formulas = a.getExtension(FormulaExtension.class);
+            if(formulas != null) {
+                for (Map.Entry<Integer, Integer> entry : formulas.getFormulasKnown().entrySet()) {
+                    grantedFormulasCount.merge(entry.getKey(), entry.getValue(), Integer::sum);
+                }
+            }
+        });
+        applier.onRemove(a->{
+            FormulaExtension formulas = a.getExtension(FormulaExtension.class);
+            if(formulas != null) {
+                for (Map.Entry<Integer, Integer> entry : formulas.getFormulasKnown().entrySet()) {
+                    grantedFormulasCount.merge(entry.getKey(), -entry.getValue(), Integer::sum);
+                }
+            }
+        });
     }
 
     public ItemCount getEquipped(Slot slot) {
@@ -337,17 +358,29 @@ public class InventoryManager implements PlayerState {
         return false;
     }
 
-    public ObservableSet<Item> getFormulas() {
-        return FXCollections.unmodifiableObservableSet(formulas);
+    private final ObservableSet<Item> unmodifiableBought = FXCollections.unmodifiableObservableSet(formulasBought);
+    public ObservableSet<Item> getFormulasBought() {
+        return unmodifiableBought;
     }
 
-    public boolean addFormula(Item formula) {
+    private final ObservableSet<Item> unmodifiableGranted = FXCollections.unmodifiableObservableSet(formulasGranted);
+    public ObservableSet<Item> getFormulasGranted() {
+        return unmodifiableGranted;
+    }
+
+    public boolean addFormula(Item formula, boolean buy) {
         if(!(formula instanceof ItemFormula))
             formula = new ItemFormula(formula);
-        if(!(formulas.contains(formula)) &&
-                money.get() >= formula.getValue() * buyMultiplier) {
-            money.set(money.get() - (formula.getValue() * buyMultiplier));
-            formulas.add(formula);
+        if(formulasBought.contains(formula) || formulasGranted.contains(formula))
+            return false;
+        if(buy) {
+            if (money.get() >= formula.getValue() * buyMultiplier) {
+                money.set(money.get() - (formula.getValue() * buyMultiplier));
+                formulasBought.add(formula);
+                return true;
+            }
+        } else {
+            formulasGranted.add(formula);
             return true;
         }
         return false;
@@ -356,10 +389,16 @@ public class InventoryManager implements PlayerState {
     public void removeFormula(Item formula) {
         if(!(formula instanceof ItemFormula))
             formula = new ItemFormula(formula);
-        if(formulas.contains(formula)) {
+        if(formulasBought.contains(formula)) {
             money.set(money.get() + (formula.getValue() * buyMultiplier));
-            formulas.remove(formula);
+            formulasBought.remove(formula);
+            return;
         }
+        formulasGranted.remove(formula);
+    }
+    private final ObservableMap<Integer, Integer> knownHolder = FXCollections.unmodifiableObservableMap(grantedFormulasCount);
+    public ObservableMap<Integer, Integer> getGrantedFormulasCount() {
+        return knownHolder;
     }
 
     @Override

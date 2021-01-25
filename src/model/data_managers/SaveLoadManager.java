@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class SaveLoadManager {
     private static final String HEADER = "PF2Gen Save - v";
-    private static final int VERSION = 3;
+    private static final int VERSION = 4;
 
     private SaveLoadManager() {}
     public static void save(PC character, Writer out) throws IOException {
@@ -143,8 +143,12 @@ public class SaveLoadManager {
             }
 
             //Formulas
-            writeOutLine(out, "Formulas");
-            for (Item formula : character.inventory().getFormulas()) {
+            writeOutLine(out, "Formulas Bought");
+            for (Item formula : character.inventory().getFormulasBought()) {
+                writeOutLine(out, " - "+formula.getRawName());
+            }
+            writeOutLine(out, "Formulas Granted");
+            for (Item formula : character.inventory().getFormulasGranted()) {
                 writeOutLine(out, " - "+formula.getRawName());
             }
 
@@ -402,7 +406,7 @@ public class SaveLoadManager {
                 }
             }
 
-            //Formulas
+            //Formulas Bought
             lines.second++; //Skip Section Header
             while(true) {
                 String s;
@@ -414,7 +418,24 @@ public class SaveLoadManager {
                 }
                 try {
                     Item item = character.sources().equipment().find(s.substring(3));
-                    character.inventory().addFormula(new ItemFormula(item));
+                    character.inventory().addFormula(new ItemFormula(item), true);
+                } catch (ObjectNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+            //Formulas Granted
+            lines.second++; //Skip Section Header
+            while(true) {
+                String s;
+                try { s = nextLine(lines); }
+                catch(RuntimeException e) { break; }
+                if(!s.startsWith(" - ")) {
+                    lines.second--;
+                    break;
+                }
+                try {
+                    Item item = character.sources().equipment().find(s.substring(3));
+                    character.inventory().addFormula(new ItemFormula(item), false);
                 } catch (ObjectNotFoundException e) {
                     e.printStackTrace();
                 }

@@ -40,6 +40,13 @@ public class SaveCompatibilityConverter {
             case 3:
                 int spellsKnown = lines.first.indexOf("Spells Known");
                 lines.first.add(spellsKnown, "Formulas");
+                break;
+            case 4:
+                int formulas = lines.first.indexOf("Formulas");
+                lines.first.set(formulas, "Formulas Bought");
+                spellsKnown = lines.first.indexOf("Spells Known");
+                lines.first.add(spellsKnown, "Formulas Granted");
+                break;
         }
     }
 }

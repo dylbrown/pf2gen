@@ -211,6 +211,11 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                             break;
                     }
                     break;
+                case "FormulasKnown":
+                    builder.getExtension(FormulaExtension.Builder.class)
+                            .addFormulasKnown(Integer.parseInt(propElem.getAttribute("level")),
+                            Integer.parseInt(propElem.getAttribute("count")));
+                    break;
                 case "Spellcasting":
                     SpellExtension.Builder spellExt = builder.getExtension(SpellExtension.Builder.class);
                     String spellListName = propElem.getAttribute("listName");
@@ -220,7 +225,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     if(spellListName != null)
                         spellExt.setSpellListName(spellListName);
                     else System.out.println("Warning: missing spellListName");
-                    if(type != null && !type.toLowerCase().equals("") && !type.toLowerCase().equals("focusonly"))
+                    if(type != null && !type.equalsIgnoreCase("") && !type.equalsIgnoreCase("focusonly"))
                         spellExt.setCasterType(CasterType.valueOf(propElem.getAttribute("type")));
                     if(tradition != null && !tradition.equals(""))
                         spellExt.setTradition(Tradition.valueOf(tradition));

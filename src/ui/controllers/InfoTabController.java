@@ -83,7 +83,10 @@ public class InfoTabController {
 				new PropertyTodoItem<>("Deity",
 						character.deityProperty(),
 						new Priority(1, 4),
-						()->navigate("tab_startingChoices", "Deity"))
+						()->navigate("tab_startingChoices", "Deity")),
+				new FormulasKnownTodoItem(character,
+						new Priority(4),
+						()->navigate("tab_equipment", "tab_formulas"))
 		);
 
 		for (Choice decision : character.decisions().getDecisions()) {
@@ -99,6 +102,7 @@ public class InfoTabController {
 				}
 			}
 		});
+
 
 		for (Map.Entry<String, SpellList> entry : character.spells().getSpellLists().entrySet()) {
 			addSpellList(entry.getValue());

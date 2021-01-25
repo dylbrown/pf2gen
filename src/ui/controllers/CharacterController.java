@@ -10,6 +10,7 @@ import javafx.scene.web.WebView;
 import model.CharacterManager;
 import model.player.PC;
 import ui.Main;
+import ui.controllers.equip.EquipTabController;
 import ui.ftl.TemplateFiller;
 
 import java.io.File;
@@ -25,11 +26,13 @@ public class CharacterController {
     @FXML
     private WebView display;
     @FXML
-    private AnchorPane window_startingChoices, window_decisions, window_spells;
+    private AnchorPane window_startingChoices, window_decisions, window_equipment, window_spells;
     @FXML
     private StartingTabController window_startingChoicesController;
     @FXML
     private DecisionsController window_decisionsController;
+    @FXML
+    private EquipTabController window_equipmentController;
     @FXML
     private SpellsTabController window_spellsController;
     private String htmlContent;
@@ -79,6 +82,8 @@ public class CharacterController {
                         case "window_decisions":
                             window_decisionsController.navigate(path);
                             break;
+                        case "window_equipment":
+                            window_equipmentController.navigate(path);
                         case "window_spells":
                             window_spellsController.navigate(path);
                             break;

@@ -23,7 +23,7 @@
             <fx:include source="decisionsTab.fxml" fx:id="window_decisions" />
         </Tab>
         <Tab fx:id="tab_equipment" closable="false" text="Equipment">
-            <fx:include source="equip/equipTab.fxml" />
+            <fx:include source="equip/equipTab.fxml" fx:id="window_equipment"/>
         </Tab>
         <Tab fx:id="tab_spells" closable="false" text="Spells">
             <fx:include source="spellsTab.fxml" fx:id="window_spells" />

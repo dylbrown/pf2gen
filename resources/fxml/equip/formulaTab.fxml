@@ -1,74 +1,108 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.RadioMenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.TreeTableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.web.WebView?>
-<AnchorPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.equip.FormulaTabController" minWidth="600.0">
+
+<AnchorPane minWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.equip.FormulaTabController">
     <SplitPane dividerPositions="0.5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <BorderPane fx:id="allItemsContainer">
-            <center>
-                <TreeTableView />
-            </center>
-            <bottom>
-                <GridPane fx:id="itemGrid" alignment="CENTER" BorderPane.alignment="CENTER">
-                    <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                    </rowConstraints>
-                    <VBox alignment="CENTER_LEFT" GridPane.hgrow="SOMETIMES">
-                        <padding>
-                            <Insets left="5.0" />
-                        </padding>
-                        <ComboBox fx:id="multiplier" promptText="Buy/Sell Mode" />
-                        <Button fx:id="addMoney" alignment="CENTER" mnemonicParsing="false" text="Add Money" />
-                    </VBox>
-                    <VBox alignment="CENTER" GridPane.columnIndex="1">
-                        <Label alignment="CENTER" contentDisplay="CENTER" text="Money" VBox.vgrow="SOMETIMES" />
-                        <Label fx:id="money" alignment="CENTER" contentDisplay="CENTER" VBox.vgrow="SOMETIMES" />
-                    </VBox>
-                    <VBox alignment="CENTER" layoutX="201.0" layoutY="190.0" GridPane.columnIndex="2">
-                        <Label alignment="CENTER" contentDisplay="CENTER" text="Total Value" wrapText="true" VBox.vgrow="SOMETIMES" />
-                        <Label fx:id="totalValue" alignment="CENTER" contentDisplay="CENTER" VBox.vgrow="SOMETIMES" />
-                    </VBox>
-                </GridPane>
-            </bottom>
-            <top>
-                <HBox BorderPane.alignment="CENTER">
-                    <TextField fx:id="search" promptText="Search" HBox.hgrow="SOMETIMES" />
-                    <MenuBar HBox.hgrow="SOMETIMES">
-                        <Menu mnemonicParsing="false" text="Group">
-                            <RadioMenuItem fx:id="groupByCategory" mnemonicParsing="false" selected="true" text="Category/Subcategory">
-                                <toggleGroup>
-                                    <ToggleGroup fx:id="groupBy" />
-                                </toggleGroup>
-                            </RadioMenuItem>
-                            <RadioMenuItem fx:id="groupByLevel" mnemonicParsing="false" text="Level/Category" toggleGroup="$groupBy" />
-                        </Menu>
-                        <Menu mnemonicParsing="false" text="Filter">
-                            <Menu mnemonicParsing="false" text="Level">
-                                <RadioMenuItem mnemonicParsing="false" selected="true" text="Any Level"
-                                               fx:id="anyLevel">
+        <SplitPane dividerPositions="0.7" orientation="VERTICAL">
+            <BorderPane fx:id="allItemsContainer">
+                <center>
+                    <TreeTableView/>
+                </center>
+                <bottom>
+                    <GridPane fx:id="itemGrid" alignment="CENTER" BorderPane.alignment="CENTER">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints minHeight="10.0" vgrow="NEVER"/>
+                        </rowConstraints>
+                        <VBox alignment="CENTER_LEFT" GridPane.hgrow="SOMETIMES">
+                            <padding>
+                                <Insets left="5.0"/>
+                            </padding>
+                            <ComboBox fx:id="multiplier" promptText="Buy/Sell Mode"/>
+                            <Button fx:id="addMoney" alignment="CENTER" mnemonicParsing="false" text="Add Money"/>
+                        </VBox>
+                        <VBox alignment="CENTER" GridPane.columnIndex="1">
+                            <Label alignment="CENTER" contentDisplay="CENTER" text="Money" VBox.vgrow="SOMETIMES"/>
+                            <Label fx:id="money" alignment="CENTER" contentDisplay="CENTER" VBox.vgrow="SOMETIMES"/>
+                        </VBox>
+                        <VBox alignment="CENTER" layoutX="201.0" layoutY="190.0" GridPane.columnIndex="2">
+                            <Label alignment="CENTER" contentDisplay="CENTER" text="Total Value" wrapText="true"
+                                   VBox.vgrow="SOMETIMES"/>
+                            <Label fx:id="totalValue" alignment="CENTER" contentDisplay="CENTER"
+                                   VBox.vgrow="SOMETIMES"/>
+                        </VBox>
+                    </GridPane>
+                </bottom>
+                <top>
+                    <HBox BorderPane.alignment="CENTER">
+                        <TextField fx:id="search" promptText="Search" HBox.hgrow="SOMETIMES"/>
+                        <MenuBar HBox.hgrow="SOMETIMES">
+                            <Menu mnemonicParsing="false" text="Group">
+                                <RadioMenuItem fx:id="groupByCategory" mnemonicParsing="false" selected="true"
+                                               text="Category/Subcategory">
                                     <toggleGroup>
-                                        <ToggleGroup fx:id="levelFilter" />
+                                        <ToggleGroup fx:id="groupBy"/>
                                     </toggleGroup>
                                 </RadioMenuItem>
-                                <RadioMenuItem mnemonicParsing="false" text="Your Level or Lower" toggleGroup="$levelFilter" fx:id="yourLevelLower" />
+                                <RadioMenuItem fx:id="groupByLevel" mnemonicParsing="false" text="Level/Category"
+                                               toggleGroup="$groupBy"/>
                             </Menu>
-                        </Menu>
-                    </MenuBar>
-                </HBox>
-            </top>
-        </BorderPane>
+                            <Menu mnemonicParsing="false" text="Filter">
+                                <Menu mnemonicParsing="false" text="Level">
+                                    <RadioMenuItem fx:id="anyLevel" mnemonicParsing="false" selected="true"
+                                                   text="Any Level">
+                                        <toggleGroup>
+                                            <ToggleGroup fx:id="levelFilter"/>
+                                        </toggleGroup>
+                                    </RadioMenuItem>
+                                    <RadioMenuItem fx:id="yourLevelLower" mnemonicParsing="false"
+                                                   text="Your Level or Lower" toggleGroup="$levelFilter"/>
+                                </Menu>
+                            </Menu>
+                        </MenuBar>
+                    </HBox>
+                </top>
+            </BorderPane>
+            <WebView fx:id="itemDisplay" minHeight="-1.0" minWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0"/>
+        </SplitPane>
         <SplitPane dividerPositions="0.5" orientation="VERTICAL">
-            <AnchorPane minHeight="0.0" minWidth="0.0" fx:id="inventoryContainer">
-                <ListView AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-            </AnchorPane>
-            <WebView fx:id="itemDisplay" minHeight="-1.0" minWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" />
+            <BorderPane fx:id="boughtFormulasContainer" prefHeight="200.0" prefWidth="200.0">
+                <top>
+                    <Label text="Bought Formulas" BorderPane.alignment="CENTER_LEFT"/>
+                </top>
+            </BorderPane>
+            <BorderPane fx:id="grantedFormulasContainer" prefHeight="200.0" prefWidth="200.0">
+                <top>
+                    <Label text="Granted Formulas" BorderPane.alignment="CENTER_LEFT"/>
+                </top>
+                <bottom>
+                    <Label fx:id="grantedFormulasRemaining" text="Granted Formulas Remaining: None"
+                           BorderPane.alignment="CENTER_LEFT"/>
+                </bottom>
+            </BorderPane>
         </SplitPane>
     </SplitPane>
 </AnchorPane>

@@ -22,6 +22,10 @@ import java.util.function.Function;
 
 public class EquipTabController {
     @FXML
+    private TabPane tabs;
+    @FXML
+    private Tab tab_purchase, tab_enchant, tab_equip, tab_formulas;
+    @FXML
     private AnchorPane purchaseTab;
     @FXML
     PurchaseTabController purchaseTabController;
@@ -225,5 +229,22 @@ public class EquipTabController {
                 first = (first + last) / 2 + 1;
         }
         return null;
+    }
+
+    public void navigate(List<String> path) {
+        switch (path.get(0)) {
+            case "tab_purchase":
+                tabs.getSelectionModel().select(tab_purchase);
+                break;
+            case "tab_equip":
+                tabs.getSelectionModel().select(tab_equip);
+                break;
+            case "tab_enchant":
+                tabs.getSelectionModel().select(tab_enchant);
+                break;
+            case "tab_formulas":
+                tabs.getSelectionModel().select(tab_formulas);
+                break;
+        }
     }
 }
