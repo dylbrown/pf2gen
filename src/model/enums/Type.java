@@ -21,4 +21,19 @@ public enum Type {
             default: return Initial;
         }
     }
+
+    public String fancyName() {
+        switch (this) {
+            case Five:
+                return "Level 5";
+            case Ten:
+                return "Level 10";
+            case Fifteen:
+                return "Level 15";
+            case Twenty:
+                return "Level 20";
+            default:
+                return name();
+        }
+    }
 }

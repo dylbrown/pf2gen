@@ -10,6 +10,7 @@ import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import model.CharacterManager;
+import model.ability_scores.AbilityModChoice;
 import model.ability_slots.Choice;
 import model.enums.Alignment;
 import model.player.PC;
@@ -34,6 +35,7 @@ public class InfoTabController {
 	private final ObservableList<TodoItem> todos = FXCollections.observableArrayList(todo->
 			new Observable[]{todo.finishedProperty()});
 	private final Map<Choice<?>, TodoItem> choiceTodos = new HashMap<>();
+	private final Map<AbilityModChoice, TodoItem> scoreTodos = new HashMap<>();
 	private final Map<SpellList, List<TodoItem>> spellListTodos = new HashMap<>();
 
 	@SuppressWarnings("rawtypes")
@@ -70,25 +72,45 @@ public class InfoTabController {
 		todos.addAll(
 				new PropertyTodoItem<>("Ancestry",
 						character.ancestryProperty(),
-						new Priority(1, 1),
+						new Priority(1.0, 1.0),
 						()->navigate("tab_startingChoices", "Ancestry")),
 				new PropertyTodoItem<>("Background",
 						character.backgroundProperty(),
-						new Priority(1, 2),
+						new Priority(1.0, 2.0),
 						()->navigate("tab_startingChoices", "Background")),
 				new PropertyTodoItem<>("Class",
 						character.pClassProperty(),
-						new Priority(1, 3),
+						new Priority(1.0, 3.0),
 						()->navigate("tab_startingChoices", "Class")),
 				new PropertyTodoItem<>("Deity",
 						character.deityProperty(),
-						new Priority(1, 4),
+						new Priority(1.0, 4.0),
 						()->navigate("tab_startingChoices", "Deity")),
 				new FormulasKnownTodoItem(character,
-						new Priority(4),
+						new Priority(4.0),
 						()->navigate("tab_equipment", "tab_formulas"))
 		);
 
+		//Ability Scores
+		for (AbilityModChoice score : character.scores().getAbilityScoreChoices()) {
+			addScoreChoice(score);
+		}
+		character.scores().getAbilityScoreChoices().addListener((ListChangeListener<AbilityModChoice>) change -> {
+			while(change.next()) {
+				if(change.wasAdded()) {
+					for (AbilityModChoice choice : change.getAddedSubList()) {
+						addScoreChoice(choice);
+					}
+				}
+				if(change.wasRemoved()) {
+					for (AbilityModChoice choice : change.getRemoved()) {
+						removeScoreChoice(choice);
+					}
+				}
+			}
+		});
+
+		//Decisions
 		for (Choice decision : character.decisions().getDecisions()) {
 			addDecision(decision);
 		}
@@ -104,6 +126,7 @@ public class InfoTabController {
 		});
 
 
+		//Spells
 		for (Map.Entry<String, SpellList> entry : character.spells().getSpellLists().entrySet()) {
 			addSpellList(entry.getValue());
 		}
@@ -117,8 +140,20 @@ public class InfoTabController {
 		});
 	}
 
+	private void addScoreChoice(AbilityModChoice score) {
+		AbilityScoreChoiceTodoItem todoItem = new AbilityScoreChoiceTodoItem(score, new Priority(1.5), () ->
+				navigate("tab_abilityScores"));
+		scoreTodos.put(score, todoItem);
+		todos.add(todoItem);
+	}
+
+	private void removeScoreChoice(AbilityModChoice score) {
+		TodoItem todoItem = scoreTodos.remove(score);
+		todos.remove(todoItem);
+	}
+
 	private void addDecision(Choice<?> choice) {
-		ChoiceTodoItem<?> todoItem = new ChoiceTodoItem<>(choice, new Priority(2), () ->
+		ChoiceTodoItem<?> todoItem = new ChoiceTodoItem<>(choice, new Priority(2.0), () ->
 				navigate("tab_decisions", choice.getName()));
 		choiceTodos.put(choice, todoItem);
 		todos.add(todoItem);
@@ -132,7 +167,7 @@ public class InfoTabController {
 	private void addSpellList(SpellList list) {
 		List<TodoItem> spellsKnownTodos = new ArrayList<>();
 		for(int i = 0; i <= 10; i++) {
-			SpellsKnownTodoItem todo = new SpellsKnownTodoItem(list, i, new Priority(3), () ->
+			SpellsKnownTodoItem todo = new SpellsKnownTodoItem(list, i, new Priority(3.0), () ->
 					navigate("tab_spells", list.getIndex()));
 			spellsKnownTodos.add(todo);
 			todos.add(todo);

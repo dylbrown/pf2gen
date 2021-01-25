@@ -89,6 +89,7 @@ public class CharacterController {
                             break;
                     }
                 }
+                return;
             }
         }
     }

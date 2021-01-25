@@ -32,4 +32,9 @@ public class FormulasKnownTodoItem extends AbstractTodoItem {
     public ObservableBooleanValue finishedProperty() {
         return readOnly;
     }
+
+    @Override
+    public String toString() {
+        return "Select your formulas known.";
+    }
 }
