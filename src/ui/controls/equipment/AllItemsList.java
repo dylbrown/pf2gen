@@ -46,7 +46,11 @@ public abstract class AllItemsList<T extends Comparable<T>, U extends Comparable
         for (Map.Entry<T, Map<U, TreeItem<ItemEntry>>> entry : cats.entrySet()) {
             TreeItem<ItemEntry> firstDivider = new TreeItem<>(new ItemEntry(String.valueOf(entry.getKey())));
             root.getChildren().add(firstDivider);
-            firstDivider.getChildren().addAll(entry.getValue().values());
+            if(entry.getValue().size() > 1)
+                firstDivider.getChildren().addAll(entry.getValue().values());
+            else {
+                firstDivider.getChildren().addAll(entry.getValue().values().iterator().next().getChildren());
+            }
         }
     }
 

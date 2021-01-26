@@ -31,7 +31,7 @@ public class SaveLoadController {
     }
 
     private File loadLocation = new File("./");
-    public void load(PC pc, Scene scene) {
+    public boolean load(PC pc, Scene scene) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(loadLocation);
         //Set extension filter for text files
@@ -41,11 +41,11 @@ public class SaveLoadController {
 
         //Show save file dialog
         File file = fileChooser.showOpenDialog(scene.getWindow());
-        if(file == null) return;
+        if(file == null) return false;
         saveLocation = file;
         loadLocation = saveLocation.getParentFile();
         load(pc, saveLocation);
-
+        return true;
     }
 
     private File saveContainer = new File("./");

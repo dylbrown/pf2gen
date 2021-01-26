@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -44,7 +45,7 @@
                   <Menu mnemonicParsing="false" text="Edit">
                       <MenuItem fx:id="addSources_menu" mnemonicParsing="false" text="Add Sources">
                           <accelerator>
-                              <KeyCodeCombination alt="UP" code="P" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                              <KeyCodeCombination alt="UP" code="P" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                           </accelerator>
                       </MenuItem>
                   </Menu>
@@ -59,12 +60,12 @@
                               <KeyCodeCombination alt="DOWN" code="DIGIT2" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                           </accelerator>
                       </MenuItem>
-                      <MenuItem fx:id="indexCard_menu" mnemonicParsing="false" text="4x6 Index Card">
+                      <MenuItem fx:id="indexCard_menu" disable="true" mnemonicParsing="false" text="4x6 Index Card">
                           <accelerator>
                               <KeyCodeCombination alt="DOWN" code="DIGIT3" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                           </accelerator>
                       </MenuItem>
-                      <MenuItem fx:id="jquerySheet_menu" mnemonicParsing="false" text="JQuery Sheet">
+                      <MenuItem fx:id="jquerySheet_menu" disable="true" mnemonicParsing="false" text="JQuery Sheet">
                           <accelerator>
                               <KeyCodeCombination alt="DOWN" code="DIGIT4" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                           </accelerator>
@@ -81,5 +82,8 @@
               <ComboBox fx:id="characterSelect" prefWidth="150.0" />
           </HBox>
       </top>
+      <center>
+         <Label text="No Characters Loaded" BorderPane.alignment="CENTER" />
+      </center>
    </BorderPane>
 </AnchorPane>

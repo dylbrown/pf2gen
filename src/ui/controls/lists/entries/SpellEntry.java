@@ -3,7 +3,9 @@ package ui.controls.lists.entries;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
+import model.enums.Trait;
 import model.spells.Spell;
+import model.spells.heightened.HeightenedSpell;
 
 public class SpellEntry extends ListEntry<Spell> {
     private final ReadOnlyStringProperty school;
@@ -15,7 +17,24 @@ public class SpellEntry extends ListEntry<Spell> {
     }
 
     private static ReadOnlyStringProperty getName(Spell spell) {
-        return new ReadOnlyStringWrapper(spell.getName()).getReadOnlyProperty();
+        StringBuilder name = new StringBuilder(spell.getName());
+        if(spell instanceof HeightenedSpell)
+            name.append("ᴴ");
+        for (Trait trait : spell.getTraits()) {
+            switch (trait.getName().toLowerCase()) {
+                case "uncommon":
+                    name.append("ᵁ");
+                    break;
+                case "rare":
+                    name.append("ᴿ");
+                    break;
+                case "unique":
+                    name.append("*");
+                    break;
+            }
+        }
+
+        return new ReadOnlyStringWrapper(name.toString()).getReadOnlyProperty();
     }
 
     public SpellEntry(String label) {

@@ -22,7 +22,7 @@ public class HeightenedSpell implements Spell {
 
     @Override
     public String getName() {
-        return baseSpell.getName() + " (H)";
+        return baseSpell.getName();
     }
 
     @Override

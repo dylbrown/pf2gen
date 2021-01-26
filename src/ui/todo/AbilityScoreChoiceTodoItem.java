@@ -1,18 +1,18 @@
 package ui.todo;
 
-import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableValue;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
-import model.util.PropertyPredicate;
+import model.util.TransformationProperty;
 
 public class AbilityScoreChoiceTodoItem extends AbstractTodoItem{
     private final AbilityModChoice mod;
-    private final PropertyPredicate<AbilityScore> property;
+    private final ObservableValue<Boolean> property;
 
     public AbilityScoreChoiceTodoItem(AbilityModChoice mod, Priority priority, Runnable navigateTo) {
         super(mod.getType().fancyName() + " Ability Boost", priority, navigateTo);
         this.mod = mod;
-        this.property = new PropertyPredicate<>(mod.getTargetProperty(), t -> t != AbilityScore.Free);
+        this.property = new TransformationProperty<>(mod.getTargetProperty(), t -> t != AbilityScore.Free);
         priority.append(mod.getType().ordinal());
     }
 
@@ -22,7 +22,7 @@ public class AbilityScoreChoiceTodoItem extends AbstractTodoItem{
     }
 
     @Override
-    public ObservableBooleanValue finishedProperty() {
+    public ObservableValue<Boolean> finishedProperty() {
         return property;
     }
 }

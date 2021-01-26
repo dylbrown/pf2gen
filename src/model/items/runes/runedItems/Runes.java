@@ -1,8 +1,6 @@
 package model.items.runes.runedItems;
 
-import javafx.beans.property.ReadOnlyIntegerWrapper;
-import javafx.beans.property.ReadOnlyStringProperty;
-import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
@@ -37,7 +35,7 @@ public class Runes<T extends Rune> {
     }
 
     private final String itemName;
-    private final ReadOnlyStringWrapper fullName;
+    private final ReadOnlyObjectWrapper<String> fullName;
     private final Class<T> clazz;
     private final ObservableMap<String, T> runes = FXCollections.observableHashMap();
     private final ObservableList<Item> runesList = FXCollections.observableArrayList();
@@ -46,7 +44,7 @@ public class Runes<T extends Rune> {
 
     public Runes(String name, Class<T> clazz) {
         itemName = name;
-        fullName = new ReadOnlyStringWrapper(name);
+        fullName = new ReadOnlyObjectWrapper<>(name);
         addListener(c->fullName.set(makeRuneName(itemName)));
         this.clazz = clazz;
     }
@@ -146,7 +144,7 @@ public class Runes<T extends Rune> {
         return Stream.concat(stringStream, Stream.of(weapon)).collect(Collectors.joining(" "));
     }
 
-    public ReadOnlyStringProperty getFullName() {
+    public ReadOnlyObjectProperty<String> getFullName() {
         return fullName.getReadOnlyProperty();
     }
 

@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 class NethysSpellScraper extends NethysListScraper {
 
 	public static void main(String[] args) {
-		new NethysSpellScraper("http://2e.aonprd.com/Spells.aspx?Tradition=0", "generated/spells.txt", source->source.equals("core_rulebook"));
+		new NethysSpellScraper("http://2e.aonprd.com/Spells.aspx?Tradition=0", "generated/spells.txt", source->source.equals("advanced_player's_guide"));
 	}
 
 	private NethysSpellScraper(String inputURL, String outputPath, Predicate<String> sourceValidator) {

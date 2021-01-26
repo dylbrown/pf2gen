@@ -67,7 +67,7 @@ public class InfoTabController {
 		});
 
 		SortedList<TodoItem> sorted = new SortedList<>(todos, Comparator.comparing(TodoItem::getPriority));
-		FilteredList<TodoItem> filtered = new FilteredList<>(sorted, todo->!todo.finishedProperty().get());
+		FilteredList<TodoItem> filtered = new FilteredList<>(sorted, todo->!todo.finishedProperty().getValue());
 		todoList.setItems(filtered);
 		todos.addAll(
 				new PropertyTodoItem<>("Ancestry",

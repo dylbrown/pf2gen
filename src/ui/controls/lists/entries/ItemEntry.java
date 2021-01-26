@@ -1,10 +1,14 @@
 package ui.controls.lists.entries;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
+import model.enums.Trait;
 import model.items.Item;
 import model.items.runes.runedItems.Runes;
+import model.util.TransformationProperty;
 
 import static model.util.StringUtils.generateCostString;
 
@@ -21,12 +25,29 @@ public class ItemEntry extends ListEntry<Item> {
         this.subCategory = new ReadOnlyStringWrapper(item.getSubCategory()).getReadOnlyProperty();
     }
 
-    private static ReadOnlyStringProperty getName(Item item) {
+    private static ObservableValue<String> getName(Item item) {
+        StringBuilder suffix = new StringBuilder();
+        for (Trait trait : item.getTraits()) {
+            switch (trait.getName().toLowerCase()) {
+                case "uncommon":
+                    suffix.append("ᵁ");
+                    break;
+                case "rare":
+                    suffix.append("ᴿ");
+                    break;
+                case "unique":
+                    suffix.append("*");
+                    break;
+            }
+        }
         Runes<?> runes = Runes.getRunes(item);
+        ReadOnlyObjectProperty<String> name;
         if(runes != null)
-            return runes.getFullName();
+            name = runes.getFullName();
         else
-            return new ReadOnlyStringWrapper(item.getName()).getReadOnlyProperty();
+            name = new ReadOnlyObjectWrapper<>(item.getName()).getReadOnlyProperty();
+        String suffixString = suffix.toString();
+        return new TransformationProperty<>(name, s -> s + suffixString);
     }
 
     public ItemEntry(String label) {

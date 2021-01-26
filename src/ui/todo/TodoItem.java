@@ -1,10 +1,10 @@
 package ui.todo;
 
-import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableValue;
 
 public interface TodoItem extends Comparable<TodoItem> {
     boolean isFinished();
-    ObservableBooleanValue finishedProperty();
+    ObservableValue<Boolean> finishedProperty();
     Priority getPriority();
     void navigateTo();
     default int compareTo(TodoItem i) {

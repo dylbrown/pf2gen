@@ -3,6 +3,7 @@ package ui.html;
 import model.abilities.*;
 import model.ability_scores.AbilityScore;
 import model.attributes.CustomAttribute;
+import model.enums.Trait;
 import model.util.Pair;
 
 import java.util.List;
@@ -17,6 +18,10 @@ public class AbilityHTMLGenerator {
         if(activityExt != null)
             text.append(" ").append(activityExt.getCost().getIcon());
         text.append("<span style='float:right'>Level ").append(ability.getLevel()).append("</span></h4><br>");
+        text.append("<b>Traits</b> ")
+                .append(ability.getTraits().stream().map(Trait::toString).collect(Collectors.joining(", ")))
+                .append("<br>");
+
         Requirement<CustomAttribute> requiredAttrs = ability.getRequiredAttrs();
         List<Pair<AbilityScore, Integer>> requiredScores = ability.getRequiredScores();
         Requirement<String> requiredWeapons = ability.getRequiredWeapons();

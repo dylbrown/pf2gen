@@ -7,6 +7,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
@@ -54,23 +55,9 @@ public class Controller {
         });
         CharacterManager.activeProperty().addListener((o, oldVal, newVal)->
                 characterSelect.getSelectionModel().select(newVal));
-        characterSelect.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal)->{
-            if(newVal != null) {
-                CharacterManager.setActive(newVal);
-                main.setCenter(characterPanes.computeIfAbsent(newVal, pc->{
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/character.fxml"));
-                    CharacterController controller = new CharacterController(pc);
-                    controllers.put(pc, controller);
-                    loader.setController(controller);
-                    try {
-                        return loader.load();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                }));
-            } else main.setCenter(new BorderPane());
-        });
+        characterSelect.getSelectionModel().selectedItemProperty().addListener(
+                (o, oldVal, newVal)->setCharacter(newVal));
+        setCharacter(null);
 
         new_menu.setOnAction(e -> {
             SourceSelectController controller = new SourceSelectController();
@@ -83,7 +70,8 @@ public class Controller {
         });
         open_menu.setOnAction(e -> {
             PC pc = new PC(new SourcesManager());
-            SaveLoadController.getInstance().load(pc, main.getScene());
+            boolean success = SaveLoadController.getInstance().load(pc, main.getScene());
+            if(!success) return;
             CharacterManager.add(pc);
             characterSelect.getSelectionModel().select(pc);
         });
@@ -148,6 +136,38 @@ public class Controller {
                 ioException.printStackTrace();
             }
         });
+    }
+
+    private void setCharacter(PC character) {
+        if(character != null) {
+            CharacterManager.setActive(character);
+            main.setCenter(characterPanes.computeIfAbsent(character, pc->{
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/character.fxml"));
+                CharacterController controller = new CharacterController(pc);
+                controllers.put(pc, controller);
+                loader.setController(controller);
+                try {
+                    return loader.load();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }));
+        } else {
+            BorderPane borderPane = new BorderPane();
+            Label loaded = new Label("No Characters Loaded");
+            borderPane.setCenter(loaded);
+            main.setCenter(borderPane);
+        }
+        save_menu.setDisable(character == null);
+        saveAs_menu.setDisable(character == null);
+        close_menu.setDisable(character == null);
+        addSources_menu.setDisable(character == null);
+        statblock_menu.setDisable(character == null);
+        printableSheet_menu.setDisable(character == null);
+        //indexCard_menu.setDisable(character == null);
+        //jquerySheet_menu.setDisable(character == null);
+        gm_menu.setDisable(character == null);
     }
 
     public void navigate(List<String> path) {
