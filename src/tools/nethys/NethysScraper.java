@@ -31,7 +31,9 @@ abstract class NethysScraper {
 					builder.append(((TextNode) node).getWholeText().replaceAll(";$", ""));
 				if (node instanceof Element) {
 					String s = ((Element) node).wholeText().replaceAll(";$", "");
-					if(s.trim().length() == 0 || ((Element) node).tagName().equals("b")) break;
+					if(((Element) node).tagName().equals("b") ||
+							((Element) node).tagName().equals("hr") ||
+							((Element) node).tagName().equals("br")) break;
 					builder.append(s);
 				}
 				node = node.nextSibling();
