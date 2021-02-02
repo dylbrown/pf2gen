@@ -124,26 +124,9 @@ public class ObservableEntryList<T, U extends ListEntry<T>> extends AbstractEntr
     protected final Set<String> categoryStrings = new HashSet<>();
     @Override
     protected void addItems(TreeItem<U> root) {
-        Map<String, TreeItem<U>> categories = new TreeMap<>();
         for (T item : items) {
-            String category = getCategory.apply(item);
-            categoryStrings.add(category);
-            TreeItem<U> node = categories.computeIfAbsent(category, (cat) -> new TreeItem<>(makeLabelEntry.apply(cat)));
-            node.getChildren().add(
-                    new TreeItem<>(makeEntry.apply(item))
-            );
+            insert(item);
         }
-        if(categories.size() == 1) {
-            Map.Entry<String, TreeItem<U>> cat = categories.entrySet().iterator().next();
-            root.getChildren().addAll(cat.getValue().getChildren());
-        } else if(categories.size() > 1) {
-            multiCategory = true;
-            root.getChildren().addAll(categories.values());
-            for (TreeItem<U> value : root.getChildren()) {
-                value.getChildren().sort(Comparator.comparing(TreeItem::getValue));
-            }
-        }
-        root.getChildren().sort(Comparator.comparing(TreeItem::getValue));
     }
 
     private void insert(T item) {
@@ -166,13 +149,7 @@ public class ObservableEntryList<T, U extends ListEntry<T>> extends AbstractEntr
                 insertCategoryChild(getRoot(), item);
             }else{
                 multiCategory = true;
-                TreeItem<U> catNode = new TreeItem<>(makeLabelEntry.apply(categoryStrings.iterator().next()));
-                for (TreeItem<U> child : getRoot().getChildren()) {
-                    catNode.getChildren().add(deepCopy(child));
-                }
-                getRoot().getChildren().clear();
-                getRoot().getChildren().add(catNode);
-                catNode.getChildren().sort(Comparator.comparing(TreeItem::getValue));
+                expand(getRoot(), categoryStrings.iterator().next());
                 insert(item);
             }
         }
@@ -183,34 +160,49 @@ public class ObservableEntryList<T, U extends ListEntry<T>> extends AbstractEntr
         root.getChildren().sort(Comparator.comparing(TreeItem::getValue));
     }
 
+    protected void expand(TreeItem<U> root, String label) {
+        TreeItem<U> group = new TreeItem<>(makeLabelEntry.apply(label));
+        for (TreeItem<U> child : root.getChildren()) {
+            group.getChildren().add(deepCopy(child));
+        }
+        root.getChildren().clear();
+        root.getChildren().add(group);
+        group.getChildren().sort(Comparator.comparing(TreeItem::getValue));
+    }
+
     private void retract(T item) {
         if(multiCategory) {
             for (TreeItem<U> cat : getRoot().getChildren()) {
                 if(cat.getValue().toString().equals(getCategory.apply(item))) {
                     retractCategoryChild(cat, item);
-                    if(cat.getChildren().size() == 0) {
-                        getRoot().getChildren().remove(cat);
-                        categoryStrings.remove(getCategory.apply(item));
-                        if(getRoot().getChildren().size() == 1) {
-                            multiCategory = false;
-                            ObservableList<TreeItem<U>> children = getRoot().getChildren().get(0).getChildren();
-                            getRoot().getChildren().clear();
-                            for (TreeItem<U> child : children) {
-                                getRoot().getChildren().add(deepCopy(child));
-                            }
-                        }
-                    }
                     break;
                 }
             }
-
         }else{
             retractCategoryChild(getRoot(), item);
         }
     }
 
-    protected void retractCategoryChild(TreeItem<U> root, T item) {
-        root.getChildren().removeIf(ti->item.equals(ti.getValue().getContents()));
+    protected void retractCategoryChild(TreeItem<U> categoryRoot, T item) {
+        categoryRoot.getChildren().removeIf(ti->item.equals(ti.getValue().getContents()));
+        if(categoryRoot.getChildren().size() == 0) {
+            getRoot().getChildren().remove(categoryRoot);
+            categoryStrings.remove(getCategory.apply(item));
+            if(checkForCollapse(getRoot()))
+                multiCategory = false;
+        }
+    }
+
+    protected boolean checkForCollapse(TreeItem<U> root) {
+        if(root.getChildren().size() == 1) {
+            ObservableList<TreeItem<U>> children = root.getChildren().get(0).getChildren();
+            root.getChildren().clear();
+            for (TreeItem<U> child : children) {
+                root.getChildren().add(deepCopy(child));
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override

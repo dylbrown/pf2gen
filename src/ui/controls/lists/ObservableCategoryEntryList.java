@@ -12,6 +12,7 @@ import java.util.function.Function;
 
 public class ObservableCategoryEntryList<T, U extends ListEntry<T>> extends ObservableEntryList<T, U> {
     private final Function<T, String> getSubCategory;
+    private final Map<String, Boolean> isMultiSubCategory = new HashMap<>();
 
     public ObservableCategoryEntryList(ObservableList<T> items,
                                        BiConsumer<T, Integer> handler,
@@ -31,84 +32,56 @@ public class ObservableCategoryEntryList<T, U extends ListEntry<T>> extends Obse
             }
         }));
     }
-    @Override
-    protected void addItems(TreeItem<U> root) {
-        Map<String, TreeItem<U>> categories = new TreeMap<>();
-        Map<String, Map<String, TreeItem<U>>> subcats = new TreeMap<>();
-        for (T item : items) {
-            String category = getCategory.apply(item);
-            categoryStrings.add(category);
-            String subCategory = getSubCategory.apply(item);
-            TreeItem<U> node = categories.computeIfAbsent(category, (cat) -> new TreeItem<>(makeLabelEntry.apply(cat)));
-            if(subCategory == null || subCategory.trim().length() == 0){
-                node.getChildren().add(
-                        new TreeItem<>(makeEntry.apply(item))
-                );
-            } else {
-                Map<String, TreeItem<U>> subcatMap = subcats.computeIfAbsent(category, (cat) -> new TreeMap<>());
-                subcatMap.computeIfAbsent(subCategory, subcat -> new TreeItem<>(
-                        makeLabelEntry.apply(subcat))).getChildren().add(
-                    new TreeItem<>(makeEntry.apply(item))
-                );
-            }
-        }
-        if(categories.size() == 1) {
-            Map.Entry<String, TreeItem<U>> cat = categories.entrySet().iterator().next();
-            if(subcats.get(cat.getKey()) != null)
-                root.getChildren().addAll(subcats.get(cat.getKey()).values());
-            root.getChildren().addAll(cat.getValue().getChildren());
-        } else if(categories.size() > 1) {
-            multiCategory = true;
-            for (Map.Entry<String, TreeItem<U>> cat : categories.entrySet()) {
-                if(subcats.get(cat.getKey()) != null)
-                    cat.getValue().getChildren().addAll(0, subcats.get(cat.getKey()).values());
-            }
-            root.getChildren().addAll(categories.values());
-            for (TreeItem<U> value : categories.values()) {
-                value.getChildren().sort(Comparator.comparing(TreeItem::getValue));
-            }
 
+    @Override
+    protected void insertCategoryChild(TreeItem<U> categoryRoot, T item) {
+        String category = getCategory.apply(item);
+        String subCategory = getSubCategory.apply(item);
+        if(subCategory == null || subCategory.isBlank()) {
+            super.insertCategoryChild(categoryRoot, item);
+            return;
         }
+        if(isMultiSubCategory.getOrDefault(category, false)) {
+            for (TreeItem<U> subcat : categoryRoot.getChildren()) {
+                if (subcat.getValue().toString().equals(subCategory)) {
+                    subcat.getChildren().add(new TreeItem<>(makeEntry.apply(item)));
+                    subcat.getChildren().sort(Comparator.comparing(TreeItem::getValue));
+                    return;
+                }
+            }
+            TreeItem<U> subcat = new TreeItem<>(makeLabelEntry.apply(subCategory));
+            categoryRoot.getChildren().add(subcat);
+            subcat.getChildren().add(new TreeItem<>(makeEntry.apply(item)));
+        }else{
+            if(categoryRoot.getChildren().size() > 0) {
+                T aChild = categoryRoot.getChildren().get(0).getValue().getContents();
+                if(!getSubCategory.apply(aChild).equals(subCategory)) {
+                    isMultiSubCategory.put(category, true);
+                    expand(categoryRoot, getSubCategory.apply(aChild));
+                    insertCategoryChild(categoryRoot, item);
+                    return;
+                }
+            }
+            categoryRoot.getChildren().add(new TreeItem<>(makeEntry.apply(item)));
+        }
+        categoryRoot.getChildren().sort(Comparator.comparing(TreeItem::getValue));
     }
 
     @Override
-    protected void insertCategoryChild(TreeItem<U> root, T item) {
-        if(getSubCategory.apply(item) == null || getSubCategory.apply(item).trim().length() == 0) {
-            super.insertCategoryChild(root, item);
+    protected void retractCategoryChild(TreeItem<U> categoryRoot, T item) {
+        if(getSubCategory.apply(item) == null ||
+                getSubCategory.apply(item).isBlank() ||
+                !isMultiSubCategory.getOrDefault(getCategory.apply(item), false)) {
+            super.retractCategoryChild(categoryRoot, item);
             return;
         }
-        for (TreeItem<U> subcat : root.getChildren()) {
+        for (TreeItem<U> subcat : categoryRoot.getChildren()) {
             if(subcat.getValue().toString().equals(getSubCategory.apply(item))) {
-                subcat.getChildren().add(new TreeItem<>(makeEntry.apply(item)));
-                subcat.getChildren().sort(Comparator.comparing(TreeItem::getValue));
-                return;
-            }
-        }
-        TreeItem<U> subcat = new TreeItem<>(makeLabelEntry.apply(getSubCategory.apply(item)));
-        root.getChildren().add(subcat);
-        subcat.getChildren().add(new TreeItem<>(makeEntry.apply(item)));
-        root.getChildren().sort(Comparator.comparing(TreeItem::getValue));
-    }
-
-    @Override
-    protected void retractCategoryChild(TreeItem<U> root, T item) {
-        if(getSubCategory.apply(item) == null || getSubCategory.apply(item).trim().length() == 0) {
-            super.retractCategoryChild(root, item);
-            return;
-        }
-        for (TreeItem<U> subcat : root.getChildren()) {
-            if(subcat.getValue().toString().equals(getSubCategory.apply(item))) {
-                Iterator<TreeItem<U>> iterator = subcat.getChildren().iterator();
-                while(iterator.hasNext()) {
-                    TreeItem<U> child = iterator.next();
-                    if(item.equals(child.getValue().getContents())) {
-                        iterator.remove();
-                        break;
-                    }
-                }
-                if(subcat.getChildren().size() == 0) {
-                    root.getChildren().remove(subcat);
-                }
+                subcat.getChildren().removeIf(child->item.equals(child.getValue().getContents()));
+                if(checkForCollapse(categoryRoot))
+                    isMultiSubCategory.put(getCategory.apply(item), false);
+                if(checkForCollapse(getRoot()))
+                    multiCategory = false;
                 return;
             }
         }

@@ -17,6 +17,7 @@ import model.util.ObjectNotFoundException;
 import model.util.StringUtils;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class AbilityManager implements PlayerState {
@@ -176,6 +177,8 @@ public class AbilityManager implements PlayerState {
 	}
 
 	void apply(AbilitySlot slot) {
+		if(!slot.isPreSet())
+			slot = slot.copy();
 		apply(slot, false);
 	}
 
@@ -396,5 +399,9 @@ public class AbilityManager implements PlayerState {
 
 	public Collection<Ability> getArchetypeAbilities(String archetype) {
 		return Collections.unmodifiableSet(archetypeAbilities.get(archetype));
+	}
+
+	public void addOnApplyListener(Consumer<Ability> c) {
+		 applier.onApply(c);
 	}
 }

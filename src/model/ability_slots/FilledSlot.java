@@ -8,4 +8,9 @@ public class FilledSlot extends AbilitySlot {
         this.currentAbility.set(currentAbility);
         preSet = true;
     }
+
+    @Override
+    public AbilitySlot copy() {
+        return this;
+    }
 }

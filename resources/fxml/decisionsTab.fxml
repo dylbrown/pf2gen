@@ -6,11 +6,13 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.RadioMenuItem?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.control.TreeTableColumn?>
 <?import javafx.scene.control.TreeTableView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.web.WebView?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.DecisionsController">
@@ -61,16 +63,38 @@
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
             <BorderPane fx:id="choicesContainer" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <top>
-                <MenuBar BorderPane.alignment="CENTER">
-                    <Menu mnemonicParsing="false" text="Filter">
-                        <RadioMenuItem mnemonicParsing="false" text="All">
-                            <toggleGroup>
-                                <ToggleGroup fx:id="filterChoices" />
-                            </toggleGroup>
-                        </RadioMenuItem>
-                        <RadioMenuItem mnemonicParsing="false" selected="true" text="Qualified" toggleGroup="$filterChoices" />
-                    </Menu>
-                </MenuBar>
+                <HBox BorderPane.alignment="CENTER">
+                    <TextField fx:id="search" promptText="Search" HBox.hgrow="SOMETIMES" />
+                    <MenuBar HBox.hgrow="SOMETIMES">
+                        <Menu mnemonicParsing="false" text="Group By">
+                            <Menu mnemonicParsing="false" text="First">
+                                <RadioMenuItem fx:id="firstCategory" mnemonicParsing="false" selected="true" text="Category">
+                                    <toggleGroup>
+                                        <ToggleGroup fx:id="groupBy" />
+                                    </toggleGroup>
+                                </RadioMenuItem>
+                                <RadioMenuItem fx:id="firstLevel" mnemonicParsing="false" text="Level" toggleGroup="$groupBy" />
+                            </Menu>
+                            <Menu mnemonicParsing="false" text="Second">
+                                <RadioMenuItem fx:id="secondNone" mnemonicParsing="false" text="None">
+                              <toggleGroup>
+                                 <ToggleGroup fx:id="groupBySecond" />
+                              </toggleGroup>
+                                </RadioMenuItem>
+                                <RadioMenuItem fx:id="secondCategory" mnemonicParsing="false" text="Category" toggleGroup="$groupBySecond" />
+                                <RadioMenuItem fx:id="secondLevel" mnemonicParsing="false" selected="true" text="Level" toggleGroup="$groupBySecond" />
+                            </Menu>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Filter">
+                            <RadioMenuItem mnemonicParsing="false" text="All">
+                                <toggleGroup>
+                                    <ToggleGroup fx:id="filterChoices" />
+                                </toggleGroup>
+                            </RadioMenuItem>
+                            <RadioMenuItem mnemonicParsing="false" selected="true" text="Qualified" toggleGroup="$filterChoices" fx:id="filterQualified" />
+                        </Menu>
+                    </MenuBar>
+                </HBox>
             </top>
             <center>
                <TreeTableView prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">

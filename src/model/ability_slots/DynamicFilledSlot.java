@@ -55,4 +55,9 @@ public class DynamicFilledSlot extends AbilitySlot {
                     return null;
             }
     }
+
+    @Override
+    public AbilitySlot copy() {
+        return this;
+    }
 }
