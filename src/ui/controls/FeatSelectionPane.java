@@ -7,15 +7,18 @@ import model.CharacterManager;
 import model.abilities.Ability;
 import model.ability_slots.FeatSlot;
 import model.player.PC;
+import ui.controls.lists.entries.AbilityEntry;
 
 import java.util.function.Predicate;
 
-public class FeatSelectionPane extends SelectionPane<Ability> {
+public class FeatSelectionPane extends SelectionPane<Ability, AbilityEntry> {
 
     private FeatSelectionPane(Builder builder) {
         super(builder);
         PC pc = CharacterManager.getActive();
         pc.abilities().addOnApplyListener(a->
+                builder.filteredOptions.setPredicate(filterPrerequisites(pc, builder.filterByPrerequisites)));
+        pc.abilities().addOnRemoveListener(a->
                 builder.filteredOptions.setPredicate(filterPrerequisites(pc, builder.filterByPrerequisites)));
         builder.filterByPrerequisites.addListener((o, oldVal, newVal)->
                 builder.filteredOptions.setPredicate(filterPrerequisites(pc, builder.filterByPrerequisites)));
@@ -29,9 +32,13 @@ public class FeatSelectionPane extends SelectionPane<Ability> {
             return null;
     }
 
-    public static class Builder extends SelectionPane.Builder<Ability> {
+    public static class Builder extends SelectionPane.Builder<Ability, AbilityEntry> {
         private FilteredList<Ability> filteredOptions;
         private ObservableValue<Boolean> filterByPrerequisites;
+
+        public Builder() {
+            super(AbilityEntry::new, AbilityEntry::new);
+        }
 
         public void setFilterByPrerequisites(ObservableValue<Boolean> filterByPrerequisites) {
             this.filterByPrerequisites = filterByPrerequisites;
@@ -44,7 +51,6 @@ public class FeatSelectionPane extends SelectionPane<Ability> {
 
         @Override
         public void setOptions(ObservableList<Ability> options) {
-            PC pc = CharacterManager.getActive();
             FilteredList<Ability> filteredOptions = new FilteredList<>(options, null);
             this.filteredOptions = filteredOptions;
             super.setOptions(filteredOptions);

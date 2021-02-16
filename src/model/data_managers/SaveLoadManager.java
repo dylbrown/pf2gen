@@ -34,7 +34,6 @@ import java.io.Writer;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class SaveLoadManager {
     private static final String HEADER = "PF2Gen Save - v";
     private static final int VERSION = 4;
@@ -79,7 +78,7 @@ public class SaveLoadManager {
 
             //Decisions
             writeOutLine(out, "Decisions");
-            for (Choice decision : character.decisions().getDecisions()) {
+            for (Choice<?> decision : character.decisions().getDecisions()) {
                 if(decision.getSelections().size() == 0) continue;
                 StringBuilder builder = new StringBuilder();
                 builder.append(decision.toString()).append(" : ");
@@ -483,28 +482,29 @@ public class SaveLoadManager {
     }
 
     private static boolean makeDecisions(PC character, Map<String, String> decisionStringMap) {
-        ObservableList<Choice> decisions = character.decisions().getUnmadeDecisions();
+        ObservableList<Choice<?>> decisions = character.decisions().getUnmadeDecisions();
         while(decisions.size() > 0){
             int successes = 0;
             int index = 0;
             while(index < decisions.size()) {
-                Choice decision = decisions.get(index);
+                Choice<?> decision = decisions.get(index);
                 if(decisionStringMap.get(decision.toString()) == null) {
                     index++;
                     continue;
                 }
                 List<String> selections = Arrays.asList(
                         decisionStringMap.get(decision.toString()).split(" ?\\^ ?"));
-                List options;
+                List<?> options;
                 if(decision instanceof ChoiceList)
-                    options = ((ChoiceList) decision).getOptions();
+                    options = ((ChoiceList<?>) decision).getOptions();
                 else if(decision instanceof FeatSlot)
                     options = character.abilities().getOptions((FeatSlot)decision);
                 else options = Collections.emptyList();
                 for (Object option : options) {
                     if(selections.contains(option.toString())) {
                         int oldSize = decision.getSelections().size();
-                        decision.add(option);
+                        if(!decision.tryAdd(option))
+                            throw new ClassCastException("Could not cast "+option+" to "+decision.getOptionsClass());
                         if(decision.getSelections().size() > oldSize)
                             successes++;
                         if(decision.getSelections().size() == selections.size()) {
@@ -521,7 +521,7 @@ public class SaveLoadManager {
         return decisions.isEmpty();
     }
 
-    private static Item modifyItem(PC character, ItemInstance instance, Pair<List<String>, Integer> lines) {
+    private static void modifyItem(PC character, ItemInstance instance, Pair<List<String>, Integer> lines) {
         while(true) {
             String s = nextLine(lines);
             if (s.startsWith("    ")) {
@@ -530,7 +530,7 @@ public class SaveLoadManager {
                         try {
                             s = nextLine(lines);
                         } catch (RuntimeException e) {
-                            return instance;
+                            return;
                         }
                         if (!s.startsWith("     - ")) {
                             lines.second--;
@@ -556,7 +556,7 @@ public class SaveLoadManager {
                         try {
                             s = nextLine(lines);
                         } catch (RuntimeException e) {
-                            return instance;
+                            return;
                         }
                         if (!s.startsWith("     - ")) {
                             lines.second--;
@@ -565,7 +565,7 @@ public class SaveLoadManager {
                         String decision = s.substring("     - ".length());
                         if(choice.getOptionsClass() == Spell.class) {
                             try {
-                                ((Choice<Spell>) choice).add(character.sources().spells().find(decision));
+                                choice.tryAdd(character.sources().spells().find(decision));
                             } catch (ObjectNotFoundException e) {
                                 e.printStackTrace();
                             }
@@ -574,7 +574,7 @@ public class SaveLoadManager {
                 }
             } else{
                 lines.second--;
-                return instance;
+                return;
             }
         }
     }

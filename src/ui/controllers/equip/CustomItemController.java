@@ -36,10 +36,9 @@ public class CustomItemController extends DecisionsController implements Popup.C
         this.tryToBuy = tryToBuy;
     }
 
-    @SuppressWarnings("rawtypes")
     @FXML
     private void initialize() {
-        ObservableList<Choice> choices = FXCollections.observableArrayList(
+        ObservableList<Choice<?>> choices = FXCollections.observableArrayList(
                 c->new Observable[]{c.numSelectionsProperty()}
         );
         choices.addAll(item.getExtension(ItemInstanceChoices.class).getChoices().values());
@@ -47,7 +46,7 @@ public class CustomItemController extends DecisionsController implements Popup.C
                 choices
         );
         instancePreview.getEngine().loadContent(EquipmentHTMLGenerator.parse(item));
-        choices.addListener((ListChangeListener<? super Choice>) c->
+        choices.addListener((ListChangeListener<? super Choice<?>>) c->
                 instancePreview.getEngine().loadContent(EquipmentHTMLGenerator.parse(item)));
         buy.setOnAction(e->{
             if(tryToBuy.apply(this.item))

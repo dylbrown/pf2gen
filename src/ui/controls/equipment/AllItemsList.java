@@ -27,7 +27,7 @@ public abstract class AllItemsList<T extends Comparable<T>, U extends Comparable
         this.getFirstSeparator = getFirstSeparator;
         this.getSecondSeparator = getSecondSeparator;
         this.transformer = transformer;
-        construct(handler);
+        construct((item, node, count)->handler.accept(item, count));
 
     }
 

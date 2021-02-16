@@ -1,121 +1,138 @@
 package ui.controls.lists;
 
+import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
-import javafx.scene.control.TreeTableView;
+import model.CharacterManager;
 import model.ability_slots.Choice;
+import model.player.PC;
+import ui.controls.SelectionPane;
 import ui.controls.lists.entries.DecisionEntry;
-import ui.controls.lists.factories.SelectRowFactory;
 import ui.controls.lists.factories.TreeCellFactory;
 
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.function.BiConsumer;
-//TODO: Make parent class for DecisionsList and AbstractItemList
-@SuppressWarnings({"rawtypes", "unchecked"})
-public class DecisionsList extends TreeTableView<DecisionEntry> {
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
-    public DecisionsList(BiConsumer<TreeItem<DecisionEntry>, Integer> handler, ObservableList<Choice> choices) {
-        this.setShowRoot(false);
-        TreeItem<DecisionEntry> root = new TreeItem<>(new DecisionEntry(null, "root", -1));
-        this.setRoot(root);
-        this.setRowFactory(new SelectRowFactory<>(Arrays.asList(handler, DecisionsList::attemptRemove)));
-        this.setColumnResizePolicy(TreeTableView.CONSTRAINED_RESIZE_POLICY);
-        createColumns();
-        addItems(root, choices);
+public class DecisionsList extends SelectionPane<Choice<?>, DecisionEntry> {
+    private final Consumer<Choice<?>> selectHandler;
+
+    protected DecisionsList(Builder builder) {
+        super(builder);
+        selectHandler = builder.selectHandler;
+        PC pc = CharacterManager.getActive();
+        pc.abilities().addOnApplyListener(a->
+                builder.filteredOptions.setPredicate(filterRemaining(pc, builder.filterByRemaining)));
+        pc.abilities().addOnRemoveListener(a->
+                builder.filteredOptions.setPredicate(filterRemaining(pc, builder.filterByRemaining)));
+        builder.filterByRemaining.addListener((o, oldVal, newVal)->
+                builder.filteredOptions.setPredicate(filterRemaining(pc, builder.filterByRemaining)));
+        builder.filteredOptions.setPredicate(filterRemaining(pc, builder.filterByRemaining));
     }
 
-    private void createColumns() {
+    private Predicate<Choice<?>> filterRemaining(PC pc, ObservableValue<Boolean> filterByRemaining) {
+       if(filterByRemaining.getValue()) {
+           return c -> c.getMaxSelections() > c.numSelectionsProperty().getValue();
+       }else return null;
+    }
+
+    @Override
+    protected List<TreeTableColumn<DecisionEntry, ?>> makeColumns(ReadOnlyDoubleProperty width) {
         TreeTableColumn<DecisionEntry, String> name = new TreeTableColumn<>("Name");
-        TreeTableColumn<DecisionEntry, String> level = new TreeTableColumn<>("Level");
+        //TreeTableColumn<DecisionEntry, String> level = new TreeTableColumn<>("Level");
         TreeTableColumn<DecisionEntry, String> remaining = new TreeTableColumn<>("Remaining");
         name.setCellValueFactory(new TreeCellFactory<>("name"));
         // name.minWidthProperty().bind(this.widthProperty().multiply(.6));
-        level.setCellValueFactory(new TreeCellFactory<>("level"));
-        level.setStyle( "-fx-alignment: CENTER;");
+        //level.setCellValueFactory(new TreeCellFactory<>("level"));
+        //level.setStyle( "-fx-alignment: CENTER;");
         remaining.setCellValueFactory(new TreeCellFactory<>("remaining"));
         remaining.setStyle( "-fx-alignment: CENTER;");
-        //noinspection unchecked
-        this.getColumns().addAll(name, level, remaining);
+        return Arrays.asList(name, remaining);
     }
 
-    private void addItems(TreeItem<DecisionEntry> root, ObservableList<Choice> choices) {
-        for (Choice choice : choices) {
-            TreeItem<DecisionEntry> node = new TreeItem<>(new DecisionEntry(choice));
-            root.getChildren().add(node);
-            for (Object o : choice.getSelections()) {
-                node.getChildren().add(new TreeItem<>(new DecisionEntry(o, o.toString(), -1)));
-            }
-
-            choice.getSelections().addListener(getListener(node));
-        }
-        choices.addListener((ListChangeListener<Choice>) c->{
-            while(c.next()) {
-                for (Choice choice : c.getAddedSubList()) {
-                    TreeItem<DecisionEntry> node = new TreeItem<>(new DecisionEntry(choice));
-                    root.getChildren().add(node);
-                    choice.getSelections().addListener(getListener(node));
-                }
-                for (Choice choice : c.getRemoved()) {
-                    Iterator<TreeItem<DecisionEntry>> iterator = root.getChildren().iterator();
-                    while(iterator.hasNext()) {
-                        TreeItem<DecisionEntry> item = iterator.next();
-                        if(choice.equals(item.getValue().getChoice())){
-                            iterator.remove();
-                            break;
-                        }
+    @Override
+    protected ObservableCategoryEntryList<Choice<?>, DecisionEntry> makeList() {
+        ObservableCategoryEntryList<Choice<?>, DecisionEntry> subList = new ObservableCategoryEntryList<>(
+                this.list,
+                (item, treeItem, clickCount) -> {
+                    selectHandler.accept(item);
+                    if(clickCount == 2) {
+                        item.tryRemove(treeItem.getValue().getChosenValue());
                     }
-                }
-
-            }
-        });
+                },
+                categoryFunctionProperty.getValue().first,
+                subCategoryFunctionProperty.getValue().first,
+                makeEntry, makeLabelEntry,
+                this::makeColumns);
+        setupDecisionNode(subList.getRoot(), subList);
+        subList.onInsert(node->setupDecisionNode(node, subList));
+        return subList;
     }
 
-    private ListChangeListener<Object> getListener(TreeItem<DecisionEntry> node) {
+    private static <T> ListChangeListener<T> getListener(Choice<T> choice, ObservableCategoryEntryList<Choice<?>, DecisionEntry> subList) {
         return c->{
+            TreeItem<DecisionEntry> node = subList.findNode(choice);
             while(c.next()) {
-                for (Object o : c.getAddedSubList()) {
-                    node.getChildren().add(new TreeItem<>(new DecisionEntry(o, o.toString(), -1)));
+                for (T t : c.getAddedSubList()) {
+                    node.getChildren().add(new TreeItem<>(new DecisionEntry(choice, t)));
                 }
-                for (Object o : c.getRemoved()) {
-                    Iterator<TreeItem<DecisionEntry>> iterator = node.getChildren().iterator();
-                    while(iterator.hasNext()) {
-                        TreeItem<DecisionEntry> item = iterator.next();
-                        if(item.getValue().getChosenValue().equals(o)){
-                            iterator.remove();
-                            break;
-                        }
-                    }
+                for (T t : c.getRemoved()) {
+                    node.getChildren().removeIf(i->i.getValue().getChosenValue().equals(t));
                 }
 
             }
         };
     }
 
-    private static void attemptRemove(TreeItem<DecisionEntry> treeItem, int count) {
-        if(treeItem.getValue() == null || count % 2 != 0) return;
-        Object value = treeItem.getValue().getChosenValue();
-        if(value == null) return; // Haven't selected a chosen value
-        Choice choice = treeItem.getParent().getValue().getChoice();
-        if(choice == null) return;
-        try{
-            choice.remove(value);
-        }catch(Exception e) {
-            e.printStackTrace();
+    private void setupDecisionNode(TreeItem<DecisionEntry> node, ObservableCategoryEntryList<Choice<?>, DecisionEntry> subList) {
+        if(node.getValue() == null || node.getValue().getChoice() == null) {
+            for (TreeItem<DecisionEntry> child : node.getChildren()) {
+                setupDecisionNode(child, subList);
+            }
+            return;
         }
+        setupDecisionNode(node, node.getValue().getChoice(), subList);
     }
 
-    public void expandAll() {
-        expand(getRoot());
+    private <T> void setupDecisionNode(TreeItem<DecisionEntry> node, Choice<T> choice, ObservableCategoryEntryList<Choice<?>, DecisionEntry> subList) {
+        for (T selection : choice.getSelections()) {
+            node.getChildren().add(new TreeItem<>(new DecisionEntry(choice, selection)));
+        }
+        choice.getSelections().addListener(getListener(choice, subList));
     }
 
-    private void expand(TreeItem<DecisionEntry> root) {
-        root.setExpanded(true);
-        for (TreeItem<DecisionEntry> child : root.getChildren()) {
-            expand(child);
+    public static class Builder extends SelectionPane.Builder<Choice<?>, DecisionEntry> {
+        private FilteredList<Choice<?>> filteredOptions;
+        private Consumer<Choice<?>> selectHandler;
+        private ObservableValue<Boolean> filterByRemaining;
+
+        public Builder() {
+            super(DecisionEntry::new, DecisionEntry::new);
         }
 
+        public void setFilterByRemaining(ObservableValue<Boolean> filterByRemaining) {
+            this.filterByRemaining = filterByRemaining;
+        }
+
+        public void setSelectHandler(Consumer<Choice<?>> selectHandler) {
+            this.selectHandler = selectHandler;
+        }
+
+        @Override
+        public void setOptions(ObservableList<Choice<?>> options) {
+            FilteredList<Choice<?>> filteredOptions = new FilteredList<>(options, null);
+            this.filteredOptions = filteredOptions;
+            super.setOptions(filteredOptions);
+        }
+
+        @Override
+        public DecisionsList build() {
+            return new DecisionsList(this);
+        }
     }
 }

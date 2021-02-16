@@ -208,7 +208,7 @@ public class AbilityManager implements PlayerState {
 
 	private void apply(Ability ability, boolean isNestedCall) {
 		if (ability != null) {
-			applier.apply(ability);
+			applier.preApply(ability);
 			for (String s : ability.getGivenPrerequisites()) {
 				prereqGivers.computeIfAbsent(s.toLowerCase(), s1 -> new HashSet<>()).add(ability);
 				checkAPrereq(s, needsPrereqStrings);
@@ -248,6 +248,7 @@ public class AbilityManager implements PlayerState {
 			abilities.add(ability);
 			if(!isNestedCall)
 				checkAbilitySets();
+			applier.apply(ability);
 		}
 	}
 
@@ -288,16 +289,14 @@ public class AbilityManager implements PlayerState {
 		} else remove(ability, isNestedCall);
 
 		if (slot instanceof SingleChoice) {
-			//noinspection rawtypes
-			decisions.remove((SingleChoice) slot);
-			//noinspection rawtypes
-			((SingleChoice) slot).empty();
+			decisions.remove((SingleChoice<?>) slot);
+			((SingleChoice<?>) slot).empty();
 		}
 	}
 
 	private void remove(Ability ability, boolean isNestedCall) {
 		if (ability != null) {
-			applier.remove(ability);
+			applier.preRemove(ability);
 			for (String s : ability.getGivenPrerequisites()) {
 				prereqGivers.computeIfAbsent(s.toLowerCase(), s1 -> new HashSet<>()).remove(ability);
 				checkAPrereq(s, needsPrereqStrings);
@@ -336,6 +335,7 @@ public class AbilityManager implements PlayerState {
 			}
 			if(!isNestedCall)
 				checkAbilitySets();
+			applier.remove(ability);
 		}
 	}
 	private final ObservableList<Ability> abilitiesUnmod = FXCollections.unmodifiableObservableList(abilities);
@@ -403,5 +403,9 @@ public class AbilityManager implements PlayerState {
 
 	public void addOnApplyListener(Consumer<Ability> c) {
 		 applier.onApply(c);
+	}
+
+	public void addOnRemoveListener(Consumer<Ability> c) {
+		applier.onRemove(c);
 	}
 }

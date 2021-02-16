@@ -15,4 +15,19 @@ public interface Choice<T> {
     ObservableList<T> getSelections();
     int getLevel();
     Choice<T> copy();
+    default boolean tryAdd(Object choice) {
+        if(getOptionsClass().isInstance(choice)) {
+            add(getOptionsClass().cast(choice));
+            return true;
+        }
+        return false;
+    }
+
+    default boolean tryRemove(Object choice) {
+        if(getOptionsClass().isInstance(choice)) {
+            remove(getOptionsClass().cast(choice));
+            return true;
+        }
+        return false;
+    }
 }
