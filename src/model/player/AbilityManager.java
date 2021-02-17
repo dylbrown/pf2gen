@@ -153,10 +153,14 @@ public class AbilityManager implements PlayerState {
 					case "ancestry":
 						if (ancestry.get() != null)
 							results.addAll(ancestry.get().getFeats(maxLevel));
+						results.addAll(sources.feats().getCategory("Ancestry").values());
 						break;
 					case "heritage":
 						if (ancestry.get() != null)
 							results.addAll(ancestry.get().getHeritages());
+						for (Ability value : sources.feats().getCategory("Ancestry").values())
+							if(value.getType() == Type.Heritage)
+								results.add(value);
 						break;
 					case "general":
 						for (Ability ability : sources.feats().getCategory("Skill").values()) {
