@@ -5,20 +5,15 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.io.*;
+import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 public abstract class NethysListScraper extends NethysScraper {
-    final Map<String, Map<String, String>> sources = new ConcurrentHashMap<>();
+    final Map<String, Map<String, List<Entry>>> sources = new ConcurrentHashMap<>();
     final Set<Integer> ids = new HashSet<>();
     final ExecutorService executorService = Executors.newCachedThreadPool();
     final CompletionService<Boolean> completionService= new ExecutorCompletionService<>(executorService);
@@ -38,20 +33,34 @@ public abstract class NethysListScraper extends NethysScraper {
         this(inputURL, outputPath, container, hrefValidator, sourceValidator, false);
     }
 
+    public NethysListScraper(String inputURL, Writer out, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator) {
+        this(inputURL, out, container, hrefValidator, sourceValidator, false);
+    }
+
     public NethysListScraper(String inputURL, String outputPath, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator, boolean multithreaded) {
         this.multithreaded = multithreaded;
         parseList(inputURL, container, hrefValidator, e -> true);
         printOutput(outputPath, sourceValidator);
     }
 
+    public NethysListScraper(String inputURL, Writer out, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator, boolean multithreaded) {
+        this.multithreaded = multithreaded;
+        parseList(inputURL, container, hrefValidator, e -> true);
+        printOutput(out, sourceValidator);
+    }
+
     protected final void printOutput(String outputPath, Predicate<String> sourceValidator) {
         BufferedWriter out;
         try {
-            out = new BufferedWriter(new FileWriter(new File(outputPath)), 32768);
+            out = new BufferedWriter(new FileWriter(outputPath), 32768);
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
+        printOutput(out, sourceValidator);
+    }
+
+    protected final void printOutput(Writer out, Predicate<String> sourceValidator) {
         System.out.println("Checking Completion now");
         try {
             for(int i = 0; i < counter.get(); i++) {
@@ -62,22 +71,28 @@ public abstract class NethysListScraper extends NethysScraper {
         }
         afterThreadsCompleted();
         System.out.println("Writing to disk");
-        for (Map.Entry<String, Map<String, String>> entry : sources.entrySet()) {
+        for (Map.Entry<String, Map<String, List<Entry>>> entry : sources.entrySet()) {
             if(!sourceValidator.test(entry.getKey()))
                 continue;
-            try {
-                for (String value : new TreeMap<>(entry.getValue()).values()) {
-                    out.append(value);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            printList(entry.getValue(), out);
         }
         try {
             out.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    protected void printList(Map<String, List<Entry>> map, Writer out) {
+        map.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry->
+                entry.getValue().stream().sorted(Comparator.comparing(e->e.entryName)).forEach(e->{
+                            try {
+                                out.append(e.entry);
+                            } catch (IOException exception) {
+                                exception.printStackTrace();
+                            }
+                        })
+        );
     }
 
     protected void afterThreadsCompleted() {}
@@ -92,25 +107,29 @@ public abstract class NethysListScraper extends NethysScraper {
             System.out.println(inputURL);
             return;
         }
-        rootDocument.getElementById(container).getElementsByTag("a").forEach(element -> {
-            String href = "";
-            try {
-                href = element.attr("href");
-                int id = -1;
-                try{
-                    id = Integer.parseInt(href.replaceAll(".*ID=", ""));
-                }catch (NumberFormatException ignored) {}
-                if(elementValidator.test(element) && hrefValidator.test(href) && !ids.contains(id)) {
-                    ids.add(id);
-                    if(multithreaded)
-                        setupItemMultithreaded(href);
-                    else
-                        setupItem(href);
+        AtomicBoolean firstRow = new AtomicBoolean(true);
+        rootDocument.getElementById("ctl00_MainContent_TableElement").getElementsByTag("tbody").first()
+                .getElementsByTag("tr").forEach(element -> {
+            if(!firstRow.get()) {
+                String href = "";
+                try {
+                    href = element.select("a[href*=\"?ID=\"]").first().attr("href");
+                    int id = -1;
+                    try{
+                        id = Integer.parseInt(href.replaceAll(".*ID=", ""));
+                    }catch (NumberFormatException ignored) {}
+                    if(elementValidator.test(element) && hrefValidator.test(href) && !ids.contains(id)) {
+                        ids.add(id);
+                        if(multithreaded)
+                            setupItemMultithreaded(href);
+                        else
+                            setupItem(href);
+                    }
+                } catch (Exception e) {
+                    System.out.println(href);
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                System.out.println(href);
-                e.printStackTrace();
-            }
+            } else firstRow.set(false);
         });
     }
 
@@ -118,8 +137,10 @@ public abstract class NethysListScraper extends NethysScraper {
         System.out.println(href);
         Entry entry = addItem(Jsoup.connect("http://2e.aonprd.com/"+href).get());
         if (!entry.entry.isBlank())
-            sources.computeIfAbsent(StringUtils.clean(entry.source), key -> new ConcurrentHashMap<>())
-                    .put(entry.entryName, entry.entry);
+            sources.computeIfAbsent(StringUtils.clean(entry.source), key ->
+                    new ConcurrentHashMap<>())
+                    .computeIfAbsent(entry.entryName, s->Collections.synchronizedList(new ArrayList<>()))
+                    .add(entry);
     }
 
     protected void setupItemMultithreaded(String href) {
@@ -149,6 +170,10 @@ public abstract class NethysListScraper extends NethysScraper {
             this.entryName = entryName;
             this.entry = entry;
             this.source = source;
+        }
+
+        public String getEntryName() {
+            return entryName;
         }
     }
 

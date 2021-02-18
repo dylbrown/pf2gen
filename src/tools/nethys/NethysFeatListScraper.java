@@ -8,105 +8,51 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
-class NethysFeatListScraper extends NethysScraper {
-	private final Map<String, StringBuilder> sources = new HashMap<>();
+class NethysFeatListScraper extends NethysListScraper {
 
 	public static void main(String[] args) {
-		new NethysFeatListScraper("http://2e.aonprd.com/Feats.aspx?Traits=258", "generated/ancestryFeats.txt");
+		new NethysFeatListScraper(
+				"http://2e.aonprd.com/Feats.aspx?Traits=148",
+				"generated/feats.pfdyl",
+				source->source.equals("advanced_player's_guide"), true);
 	}
 
-	NethysFeatListScraper(String inputURL, Writer output, int indent) {
-		scrape(inputURL, s->{
-			if(!s.isBlank()) {
-				String tabs = "\t".repeat(indent);
-				try {
-					output.write(tabs);
-					output.write(s.replaceAll("\n(?!$)", "\n" + tabs));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		});
+	NethysFeatListScraper(String inputURL, String outputPath, Predicate<String> sourceValidator, boolean multithreaded) {
+		super(inputURL, outputPath, "ctl00_MainContent_TableElement",
+				href -> href.contains("Feats.aspx?ID"), sourceValidator, multithreaded);
 	}
 
-	private NethysFeatListScraper(String inputURL, String outputPath) {
-		BufferedWriter out;
-		try  {
-			out = new BufferedWriter(new FileWriter(outputPath));
-
-			scrape(inputURL, s-> {
-				try {
-					out.write(s);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			});
-
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	NethysFeatListScraper(String inputURL, Writer output, Predicate<String> sourceValidator) {
+		super(inputURL, output, "ctl00_MainContent_TableElement",
+				href -> href.contains("Feats.aspx?ID"), sourceValidator);
 	}
 
-	private void scrape(String inputURL, Consumer<String> write) {
-		Document doc;
-		try {
-			doc = Jsoup.connect(inputURL).get();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		}
-		AtomicBoolean firstRow = new AtomicBoolean(true);
-		doc.getElementById("ctl00_MainContent_TableElement").getElementsByTag("tbody").first().getElementsByTag("tr").forEach(element -> {
-			if(!firstRow.get()) {
-				String href = "";
-				try {
-					href = element.child(0).child(1).child(0).attr("href");
-					FeatEntry entry = addFeat(href);
-					if(!entry.contents.equals(""))
-						sources.computeIfAbsent(entry.source.toLowerCase(), key->new StringBuilder())
-								.append(entry.contents);
-				} catch (Exception e) {
-					System.out.println(href);
-					e.printStackTrace();
-				}
-			} else firstRow.set(false);
-		});
-		for (StringBuilder value : sources.values()) {
-			write.accept(value.toString());
-		}
+	@Override
+	protected void setupItem(String href) throws IOException {
+		System.out.println(href);
+		FeatEntry entry = addItemStatic(Jsoup.connect("http://2e.aonprd.com/"+href).get());
+		if (!entry.entry.isBlank())
+			sources.computeIfAbsent(StringUtils.clean(entry.source), key ->
+					new ConcurrentHashMap<>())
+					.computeIfAbsent("", s-> Collections.synchronizedList(new ArrayList<>()))
+					.add(entry);
 	}
-	public static class FeatEntry {
-		public final String archetype, source, contents;
 
-		public FeatEntry(String archetype, String source, String contents) {
-			this.archetype = archetype;
-			this.source = source;
-			this.contents = contents;
-		}
+	@Override
+	FeatEntry addItem(Document doc) {
+		return addItemStatic(doc);
 	}
-	public static FeatEntry addFeat(String href) {
-		Document doc;
-		try  {
-			doc = Jsoup.connect("http://2e.aonprd.com/"+href).get();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return new FeatEntry("", "", "");
-		}
+
+	static FeatEntry addItemStatic(Document doc) {
 		Element output = doc.getElementById("ctl00_MainContent_DetailedOutput");
 
-		String featName = output.getElementsByAttributeValue("href", href).first().text();
+		String featName = output.getElementsByTag("h1").first().text().replaceAll(" Feat.*", "").trim();
 		String level = output.getElementsByClass("title").first().getElementsByTag("span").text().replaceAll("[^\\d]*", "");
 		StringBuilder descBuilder = new StringBuilder();
 		Node afterHr = output.getElementsByTag("hr").first().nextSibling();
@@ -201,9 +147,38 @@ class NethysFeatListScraper extends NethysScraper {
 					.append(") Feat\" level=\"2\"/>\n");
 		}
 		feat.append("</Ability>\n");
+		return new FeatEntry(featName, feat.toString(), source, archetype, level);
+	}
+
+	@Override
+	protected void printList(Map<String, List<Entry>> map, Writer out) {
+		map.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry->
+				{
+					Comparator<Entry> comparing = Comparator.comparing(e -> {
+						if (e instanceof NethysFeatListScraper.FeatEntry)
+							return Integer.parseInt(((NethysFeatListScraper.FeatEntry) e).level);
+						return 0;
+					});
+					entry.getValue().stream().sorted(comparing.thenComparing(Entry::getEntryName)).forEach(e->{
+						try {
+							out.append(e.entry);
+						} catch (IOException exception) {
+							exception.printStackTrace();
+						}
+					});
+				}
+		);
+	}
 
 
+	public static class FeatEntry extends Entry {
+		public final String archetype;
+		public final String level;
 
-		return new FeatEntry(archetype, source, feat.toString());
+		public FeatEntry(String entryName, String entry, String source, String archetype, String level) {
+			super(entryName, entry, source);
+			this.archetype = archetype;
+			this.level = level;
+		}
 	}
 }

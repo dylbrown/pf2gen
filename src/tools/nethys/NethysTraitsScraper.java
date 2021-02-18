@@ -7,12 +7,12 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.Writer;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 public class NethysTraitsScraper extends NethysListScraper {
-    private final Map<String, Map<String, StringBuilder>> builders = new HashMap<>();
 
     public static void main(String[] args) {
         new NethysTraitsScraper("https://2e.aonprd.com/Traits.aspx", "generated/traits.pfdyl");
@@ -67,9 +67,10 @@ public class NethysTraitsScraper extends NethysListScraper {
         System.out.println(href);
         Entry entry = addItem(Jsoup.connect("http://2e.aonprd.com/"+href).get());
         if (!entry.entry.isBlank())
-            builders.computeIfAbsent(StringUtils.clean(entry.source), s->new HashMap<>())
-                    .computeIfAbsent(currentSection, key -> new StringBuilder())
-                    .append(entry.entry);
+            sources.computeIfAbsent(StringUtils.clean(entry.source), key ->
+                    new ConcurrentHashMap<>())
+                    .computeIfAbsent(currentSection, s-> Collections.synchronizedList(new ArrayList<>()))
+                    .add(entry);
     }
 
     private void setupItemMultithreaded(String href, String currentSection) {
@@ -83,7 +84,7 @@ public class NethysTraitsScraper extends NethysListScraper {
             }
             try {
                 setupItem(href, currentSection);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             semaphore.release();
@@ -91,16 +92,28 @@ public class NethysTraitsScraper extends NethysListScraper {
     }
 
     @Override
-    protected void afterThreadsCompleted() {
-        for (Map.Entry<String, Map<String, StringBuilder>> entry : builders.entrySet()) {
-            for (Map.Entry<String, StringBuilder> subEntry : entry.getValue().entrySet()) {
-                String category = "<Category name=\"" + subEntry.getKey() + "\">\n" +
-                        subEntry.getValue() +
-                        "</Category>\n";
-                sources.computeIfAbsent(StringUtils.clean(entry.getKey()), s->new HashMap<>())
-                        .put(subEntry.getKey(), category);
-            }
-        }
+    protected void printList(Map<String, List<Entry>> map, Writer out) {
+        map.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry->
+                {
+                    try {
+                        out.append("<Category name=\"").append(entry.getKey()).append("\">\n");
+                    } catch (IOException exception) {
+                        exception.printStackTrace();
+                    }
+                    entry.getValue().stream().sorted(Comparator.comparing(e->e.entryName)).forEach(e->{
+                        try {
+                            out.append(e.entry);
+                        } catch (IOException exception) {
+                            exception.printStackTrace();
+                        }
+                    });
+                    try {
+                        out.append("</Category>\n");
+                    } catch (IOException exception) {
+                        exception.printStackTrace();
+                    }
+                }
+        );
     }
 
     @Override
