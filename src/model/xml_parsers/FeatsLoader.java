@@ -41,8 +41,9 @@ public class FeatsLoader extends AbilityLoader<Ability> {
         if(file.getName().toLowerCase().contains("bloodline") || category.equalsIgnoreCase("bloodline"))
             return makeBloodline(item);
         Ability.Builder builder = makeAbility(item, item.getAttribute("name"));
-        if(builder.getName().equalsIgnoreCase("aasimar"))
-            System.out.println("WOO");
+        //TODO: move these setters into makeAbility
+        if(category.equals("ancestry") && builder.getType() != Type.Heritage)
+            builder.setType(Type.Ancestry);
         if(category.equals("skill"))
             builder.setType(Type.Skill);
         if(builder.hasExtension(ArchetypeExtension.Builder.class)) {

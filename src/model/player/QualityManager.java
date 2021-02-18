@@ -4,8 +4,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
 import model.abc.Ancestry;
+import model.abilities.AncestryExtension;
 import model.enums.Language;
+import model.enums.Trait;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -13,12 +16,13 @@ import java.util.stream.Collectors;
 
 public class QualityManager implements PlayerState {
     private final Map<String, StringProperty> qualities = new HashMap<>();
+    private final ObservableSet<Trait> traits = FXCollections.observableSet(new TreeSet<>());
     private final Set<Language> languages = new TreeSet<>();
     private final Set<String> senses = new TreeSet<>();
     private final ObservableList<String> bonusLanguages = FXCollections.observableArrayList();
     private final ArbitraryChoice<String> bonusLanguageChoice;
 
-    QualityManager(Consumer<ArbitraryChoice<String>> addDecision, Consumer<ArbitraryChoice<String>> removeDecision) {
+    QualityManager(Consumer<ArbitraryChoice<String>> addDecision, Consumer<ArbitraryChoice<String>> removeDecision, Applier applier) {
         ArbitraryChoice.Builder<String> builder = new ArbitraryChoice.Builder<>();
         builder.setName("Bonus Languages");
         builder.setChoices(bonusLanguages);
@@ -30,6 +34,22 @@ public class QualityManager implements PlayerState {
         bonusLanguageChoice.maxSelectionsProperty().addListener((o, oldVal, newVal) -> {
             if(oldVal.intValue() > 0 && newVal.intValue() <= 0) removeDecision.accept(bonusLanguageChoice);
             if(oldVal.intValue() <= 0 && newVal.intValue() > 0) addDecision.accept(bonusLanguageChoice);
+        });
+        applier.onPreApply(ability->{
+            AncestryExtension ancestry = ability.getExtension(AncestryExtension.class);
+            if(ancestry != null) {
+                for (Trait trait : ancestry.getGrantsTraits()) {
+                    addTrait(trait);
+                }
+            }
+        });
+        applier.onPreRemove(ability->{
+            AncestryExtension ancestry = ability.getExtension(AncestryExtension.class);
+            if(ancestry != null) {
+                for (Trait trait : ancestry.getGrantsTraits()) {
+                    removeTrait(trait);
+                }
+            }
         });
     }
 
@@ -43,6 +63,14 @@ public class QualityManager implements PlayerState {
 
     private void removeBonusLanguage(String language) {
         languages.remove(Language.valueOf(language));
+    }
+
+    protected void addTrait(Trait trait) {
+        traits.add(trait);
+    }
+
+    protected void removeTrait(Trait trait) {
+        traits.remove(trait);
     }
 
     public String get(String quality) {
@@ -63,8 +91,7 @@ public class QualityManager implements PlayerState {
     }
 
     public void update(Ancestry ancestry, Ancestry oldAncestry) {
-        bonusLanguageChoice.getSelections()
-                .removeIf(l->!ancestry.getBonusLanguages().contains(Language.valueOf(l)));
+        bonusLanguages.removeIf(language -> ancestry.getBonusLanguages().contains(Language.valueOf(language)));
         bonusLanguages.removeIf(l->!ancestry.getBonusLanguages().contains(Language.valueOf(l)));
         for (Language bonusLanguage : ancestry.getBonusLanguages()) {
             if(!bonusLanguages.contains(bonusLanguage.toString()))
@@ -104,6 +131,10 @@ public class QualityManager implements PlayerState {
 
     public Set<String> getSenses() {
         return Collections.unmodifiableSet(senses);
+    }
+
+    public ObservableSet<Trait> getTraits() {
+        return FXCollections.unmodifiableObservableSet(traits);
     }
 
     @Override

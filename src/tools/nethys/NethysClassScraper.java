@@ -67,7 +67,7 @@ public class NethysClassScraper extends NethysScraper {
 
             out.write("\t<Feats>\n");
             String href = doc.getElementById("ctl00_MainContent_SubNavigation").getElementsByAttributeValueStarting("href", "Feats").attr("href");
-            new NethysClassFeatScraper("https://2e.aonprd.com/" + href, out, 2);
+            new NethysFeatListScraper("https://2e.aonprd.com/" + href, out, 2);
             out.write("\t</Feats>\n</pf2:class>");
             out.close();
         } catch (IOException e) {

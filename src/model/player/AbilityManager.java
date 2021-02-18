@@ -3,6 +3,8 @@ package model.player;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
+import javafx.collections.SetChangeListener;
 import javafx.collections.transformation.SortedList;
 import model.abc.Ancestry;
 import model.abc.PClass;
@@ -36,18 +38,64 @@ public class AbilityManager implements PlayerState {
 	private final Function<Ability, Boolean> meetsPrereqs;
 	private final Map<String, Set<Ability>> archetypeAbilities = new HashMap<>();
 	private final Map<String, Ability> archetypeDedications = new HashMap<>();
+	private final ObservableSet<Trait> traits;
+	private Map<FeatSlot, ObservableList<Ability>> featSlotOptions = new HashMap<>();
 	private final SourcesManager sources;
 
 	AbilityManager(SourcesManager sources, DecisionManager decisions, ReadOnlyObjectProperty<Ancestry> ancestry,
 	               ReadOnlyObjectProperty<PClass> pClass, Applier applier,
-	               Function<Ability, Boolean> meetsPrereqs) {
+	               Function<Ability, Boolean> meetsPrereqs, ObservableSet<Trait> traits) {
 		this.sources = sources;
 		this.applier = applier;
 		this.decisions = decisions;
 		this.ancestry = ancestry;
 		this.pClass = pClass;
 		this.meetsPrereqs = meetsPrereqs;
+		this.traits = traits;
 		sortedAbilities = new SortedList<>(abilities);
+
+		ancestry.addListener((o, oldVal, newVal)->{
+			for (Map.Entry<FeatSlot, ObservableList<Ability>> entry : featSlotOptions.entrySet()) {
+				FeatSlot slot = entry.getKey();
+				ObservableList<Ability> list = entry.getValue();
+				if(slot.getAllowedTypes().contains("ancestry")) {
+					if(oldVal != null)
+						list.removeAll(oldVal.getFeats(slot.getLevel()));
+					if(newVal != null)
+						list.addAll(newVal.getFeats(slot.getLevel()));
+					slot.checkSelections(list);
+				}
+				if(slot.getAllowedTypes().contains("heritage")) {
+					if(oldVal != null)
+						list.removeAll(oldVal.getHeritages());
+					if(newVal != null)
+						list.addAll(newVal.getHeritages());
+					slot.checkSelections(list);
+				}
+			}
+		});
+
+		traits.addListener((SetChangeListener<Trait>) change -> {
+			for (Map.Entry<FeatSlot, ObservableList<Ability>> entry : featSlotOptions.entrySet()) {
+				if(entry.getKey().getAllowedTypes().contains("ancestry")) {
+					if(change.wasRemoved()) {
+						try {
+							Ancestry a = sources.ancestries().find(change.getElementRemoved().getName());
+							entry.getValue().removeAll(a.getFeats(entry.getKey().getLevel()));
+						} catch (ObjectNotFoundException ignored) {
+						}
+					}
+					if(change.wasAdded()) {
+						try {
+							Ancestry a = sources.ancestries().find(change.getElementAdded().getName());
+							entry.getValue().addAll(a.getFeats(entry.getKey().getLevel()));
+						} catch (ObjectNotFoundException ignored) {
+						}
+					}
+				}
+			}
+
+		});
 
 		pClass.addListener((o, oldVal, newVal)->{
 			Ability ability = archetypeDedications.get(StringUtils.clean(newVal.getName()));
@@ -85,7 +133,11 @@ public class AbilityManager implements PlayerState {
 		if (choice instanceof AbilityChoiceList)
 			return getOptions((AbilityChoiceList) choice);
 		if (choice instanceof FeatSlot) {
-			List<Ability> results = new ArrayList<>();
+			ObservableList<Ability> results = featSlotOptions.get(choice);
+			if(results != null)
+				return FXCollections.unmodifiableObservableList(results);
+			results = featSlotOptions.computeIfAbsent((FeatSlot) choice,
+					c->FXCollections.observableArrayList());
 			for (String allowedType : ((FeatSlot) choice).getAllowedTypes()) {
 				int end = allowedType.indexOf(" Feat");
 				if(end == -1) end = allowedType.indexOf('(');
@@ -151,9 +203,16 @@ public class AbilityManager implements PlayerState {
 					case "choice":
 						throw new RuntimeException("Feats of type "+allowedType+" should not be selectable!");
 					case "ancestry":
-						if (ancestry.get() != null)
-							results.addAll(ancestry.get().getFeats(maxLevel));
-						results.addAll(sources.feats().getCategory("Ancestry").values());
+						for (Trait trait : traits) {
+							try {
+								Ancestry ancestry = sources.ancestries().find(trait.getName());
+								results.addAll(ancestry.getFeats(maxLevel));
+							} catch (ObjectNotFoundException ignored) {
+							}
+						}
+						for (Ability value : sources.feats().getCategory("Ancestry").values())
+							if(value.getType() == Type.Ancestry)
+								results.add(value);
 						break;
 					case "heritage":
 						if (ancestry.get() != null)
@@ -295,6 +354,9 @@ public class AbilityManager implements PlayerState {
 		if (slot instanceof SingleChoice) {
 			decisions.remove((SingleChoice<?>) slot);
 			((SingleChoice<?>) slot).empty();
+		}
+		if (slot instanceof FeatSlot) {
+			featSlotOptions.remove(slot);
 		}
 	}
 

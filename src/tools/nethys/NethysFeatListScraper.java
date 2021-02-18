@@ -19,14 +19,14 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-class NethysClassFeatScraper extends NethysScraper {
+class NethysFeatListScraper extends NethysScraper {
 	private final Map<String, StringBuilder> sources = new HashMap<>();
 
 	public static void main(String[] args) {
-		new NethysClassFeatScraper("http://2e.aonprd.com/Feats.aspx?Traits=258", "generated/ancestryFeats.txt");
+		new NethysFeatListScraper("http://2e.aonprd.com/Feats.aspx?Traits=258", "generated/ancestryFeats.txt");
 	}
 
-	NethysClassFeatScraper(String inputURL, Writer output, int indent) {
+	NethysFeatListScraper(String inputURL, Writer output, int indent) {
 		scrape(inputURL, s->{
 			if(!s.isBlank()) {
 				String tabs = "\t".repeat(indent);
@@ -40,7 +40,7 @@ class NethysClassFeatScraper extends NethysScraper {
 		});
 	}
 
-	private NethysClassFeatScraper(String inputURL, String outputPath) {
+	private NethysFeatListScraper(String inputURL, String outputPath) {
 		BufferedWriter out;
 		try  {
 			out = new BufferedWriter(new FileWriter(outputPath));

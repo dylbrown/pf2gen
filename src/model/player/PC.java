@@ -6,6 +6,7 @@ import model.abc.Ancestry;
 import model.abc.Background;
 import model.abc.PClass;
 import model.abilities.Ability;
+import model.abilities.AncestryExtension;
 import model.abilities.ArchetypeExtension;
 import model.abilities.AttackExtension;
 import model.ability_scores.AbilityMod;
@@ -15,6 +16,7 @@ import model.ability_slots.AbilitySlot;
 import model.attributes.Attribute;
 import model.enums.Alignment;
 import model.enums.Proficiency;
+import model.enums.Trait;
 import model.enums.Type;
 import model.items.Item;
 import model.items.armor.Armor;
@@ -62,7 +64,7 @@ public class PC {
     private final AttributeManager attributes =
             new AttributeManager(customGetter, level.getReadOnlyProperty(), decisions, applier);
     private final InventoryManager inventory = new InventoryManager(attributes, applier);
-    private final QualityManager qualities = new QualityManager(decisions::add, decisions::remove);
+    private final QualityManager qualities = new QualityManager(decisions::add, decisions::remove, applier);
     private final CombatManager combat = new CombatManager(scores, attributes, inventory, levelProperty());
     private final GroovyModManager modManager;
     private final List<PlayerState> stateManagers = new ArrayList<>(Arrays.asList(
@@ -72,7 +74,7 @@ public class PC {
     public PC(SourcesManager sources) {
         this.sources = sources;
         abilities = new AbilityManager(sources, decisions, ancestryProperty(),
-                pClassProperty(), applier, this::meetsPrerequisites);
+                pClassProperty(), applier, this::meetsPrerequisites, qualities.getTraits());
         stateManagers.add(abilities);
         GroovyCommands groovyCommands = new GroovyCommands(
                 customGetter, sources, abilities, attributes, decisions, combat,
@@ -134,11 +136,21 @@ public class PC {
         if(oldAncestry != Ancestry.NO_ANCESTRY) {
             scores.remove(oldAncestry.getAbilityMods());
             abilities.removeAll(Type.Ancestry);
+            try {
+                qualities.removeTrait(sources.traits().find(oldAncestry.getName()));
+            } catch (ObjectNotFoundException e) {
+                e.printStackTrace();
+            }
         }
         this.ancestry.set(ancestry);
         if(ancestry != Ancestry.NO_ANCESTRY) {
             scores.apply(ancestry.getAbilityMods());
             qualities.update(ancestry, oldAncestry);
+            try {
+                qualities.addTrait(sources.traits().find(ancestry.getName()));
+            } catch (ObjectNotFoundException e) {
+                e.printStackTrace();
+            }
         }
         ancestryWatcher.firePropertyChange("ancestryChange", null, ancestry);
     }
@@ -249,6 +261,20 @@ public class PC {
         if(archetypeExt != null) {
             if(!abilities.meetsPrerequisites(archetypeExt))
                 return false;
+        }
+        AncestryExtension ancestryExt = ability.getExtension(AncestryExtension.class);
+        if(ancestryExt != null) {
+            if(ancestryExt.getRequiredAncestries().size() > 0) {
+                boolean found = false;
+                for (Trait requiredAncestry : ancestryExt.getRequiredAncestries()) {
+                    if (qualities.getTraits().contains(requiredAncestry)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found)
+                    return false;
+            }
         }
 
         for (String prereq : ability.getPrerequisites()) {

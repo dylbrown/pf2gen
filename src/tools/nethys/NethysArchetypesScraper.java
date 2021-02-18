@@ -32,7 +32,7 @@ public class NethysArchetypesScraper extends NethysListScraper {
             parseList("http://2e.aonprd.com/" + href, "ctl00_MainContent_DetailedOutput",
                     s -> s.contains("Feats") && s.contains("ID"), e -> e.parent().hasClass("title"));
         } else {
-            NethysClassFeatScraper.FeatEntry entry = NethysClassFeatScraper.addFeat(href);
+            NethysFeatListScraper.FeatEntry entry = NethysFeatListScraper.addFeat(href);
             if (!entry.contents.equals("")) {
                 sourceMap.putIfAbsent(entry.archetype, entry.source);
                 archetypes.computeIfAbsent(entry.archetype, key -> new StringBuilder())

@@ -84,9 +84,12 @@ public class FeatSlot extends AbilitySlot implements AbilitySingleChoice {
         return unmodifiable;
     }
 
+    public void checkSelections(ObservableList<Ability> list) {
+        this.list.removeIf(a->!list.contains(a));
+    }
+
     @Override
     public FeatSlot copy() {
         return new FeatSlot(getName(), getLevel(), getAllowedTypes());
     }
-
 }

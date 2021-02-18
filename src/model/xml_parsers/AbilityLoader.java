@@ -278,10 +278,30 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                             if(trait.getName().equals("Dedication"))
                                 builder.getExtension(ArchetypeExtension.Builder.class)
                                         .setDedication(true);
+                            if(trait.getCategory().equals("Ancestry"))
+                                builder.getExtension(AncestryExtension.Builder.class).addRequiredAncestry(trait);
+                            if(trait.getCategory().equals("Lineage"))
+                                builder.getExtension(AncestryExtension.Builder.class).setFirstLevelOnly(true);
                         } catch (ObjectNotFoundException e) {
                             e.printStackTrace();
                         }
                     }
+                    break;
+                case "GivesTraits":
+                    for (String s : trim.split(" ?, ?")) {
+                        try {
+                            Trait trait = findFromDependencies(
+                                    "Trait",
+                                    TraitsLoader.class,
+                                    s.trim()
+                            );
+                            if(trait.getCategory().equals("Ancestry"))
+                                builder.getExtension(AncestryExtension.Builder.class).addGrantedTrait(trait);
+                        } catch (ObjectNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
             }
         }
         Function<Element, Type> function = sources.get(this.getClass());
@@ -465,7 +485,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
     protected AbilityMod getAbilityBonus(String abilityString, Type type) {
         String[] eachScore = abilityString.split("or|,");
         if(eachScore.length == 1) {
-            AbilityScore abilityScore = AbilityScore.valueOf(camelCaseWord(abilityString));
+            AbilityScore abilityScore = AbilityScore.robustValueOf(camelCaseWord(abilityString));
             if(abilityScore == AbilityScore.Free)
                 return new AbilityModChoice(type);
             else

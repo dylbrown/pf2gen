@@ -368,5 +368,9 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
         public List<Trait> getTraits() {
             return Collections.unmodifiableList(traits);
         }
+
+        public Type getType() {
+            return type;
+        }
     }
 }
