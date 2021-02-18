@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 import static model.util.StringUtils.clean;
 
 public abstract class FileLoader<T> {
-    private final SourceConstructor sourceConstructor;
+    protected final SourceConstructor sourceConstructor;
     protected final SourceLoadTracker loadTracker;
     private final File root;
     private static final DocumentBuilderFactory factory;

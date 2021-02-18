@@ -156,6 +156,7 @@ public class AbilityManager implements PlayerState {
 							}
 						}else if (pClass.get() != null) {
 							results.addAll(pClass.get().getFeats(maxLevel));
+							results.addAll(sources.feats().getCategory("Monk").values());
 							for (Ability a : sources.feats().getCategory("Archetype").values()) {
 								if(a.getLevel() <= maxLevel) {
 									if(a.getExtension(ScalingExtension.class) != null) {

@@ -307,7 +307,8 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
         }
 
         public void setType(Type type) {
-            this.type = type;
+            if(type != null)
+                this.type = type;
         }
 
         public void setMultiple(boolean multiple) {

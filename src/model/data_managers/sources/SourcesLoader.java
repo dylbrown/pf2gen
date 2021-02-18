@@ -166,10 +166,18 @@ public class SourcesLoader extends FileLoader<Source> {
         NodeList children = curr.getElementsByTagName("*");
         if(children.getLength() > 0) {
             HashMap<String, String> map = new HashMap<>();
+            HashMap<String, String> typeMap = new HashMap<>();
             for(int i = 0; i < children.getLength(); i++) {
                 Element item = (Element) children.item(i);
-                map.put(item.getAttribute("name").toLowerCase(), item.getAttribute("path"));
+                String name = item.getAttribute("name").toLowerCase();
+                map.put(name, item.getAttribute("path"));
+                String type = item.getAttribute("type");
+                if(!type.isBlank()) {
+                    typeMap.put(name, type);
+                }
             }
+            if(typeMap.size() > 0)
+                return new TypeSourceConstructor(map ,typeMap, isMultiMulti);
             return new SourceConstructor(map, isMultiMulti);
         }
         return new SourceConstructor(curr.getAttribute("path"), true);
