@@ -9,6 +9,8 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <AnchorPane minHeight="600.0" minWidth="900.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <BorderPane fx:id="main" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -83,7 +85,14 @@
           </HBox>
       </top>
       <center>
-         <Label text="No Characters Loaded" BorderPane.alignment="CENTER" />
+          <VBox alignment="CENTER" BorderPane.alignment="CENTER">
+              <Label text="PF2Gen">
+                 <font>
+                     <Font name="Gill Sans MT Bold" size="44.0"/>
+                 </font>
+              </Label>
+              <Label text="Load or Create a Character"/>
+          </VBox>
       </center>
    </BorderPane>
 </AnchorPane>

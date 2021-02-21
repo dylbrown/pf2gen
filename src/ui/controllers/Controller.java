@@ -7,7 +7,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
@@ -36,6 +35,7 @@ public class Controller {
     private MenuItem new_menu, open_menu, close_menu, save_menu, saveAs_menu, addSources_menu,
             statblock_menu, printableSheet_menu, indexCard_menu, jquerySheet_menu, about_menu, gm_menu;
     private final Map<PC, CharacterController> controllers = new HashMap<>();
+    private Node storedCenter;
 
     @FXML
     private void initialize(){
@@ -57,7 +57,6 @@ public class Controller {
                 characterSelect.getSelectionModel().select(newVal));
         characterSelect.getSelectionModel().selectedItemProperty().addListener(
                 (o, oldVal, newVal)->setCharacter(newVal));
-        setCharacter(null);
 
         new_menu.setOnAction(e -> {
             SourceSelectController controller = new SourceSelectController();
@@ -141,6 +140,8 @@ public class Controller {
     private void setCharacter(PC character) {
         if(character != null) {
             CharacterManager.setActive(character);
+            if(storedCenter == null)
+                storedCenter = main.getCenter();
             main.setCenter(characterPanes.computeIfAbsent(character, pc->{
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/character.fxml"));
                 CharacterController controller = new CharacterController(pc);
@@ -154,10 +155,7 @@ public class Controller {
                 }
             }));
         } else {
-            BorderPane borderPane = new BorderPane();
-            Label loaded = new Label("No Characters Loaded");
-            borderPane.setCenter(loaded);
-            main.setCenter(borderPane);
+            main.setCenter(storedCenter);
         }
         save_menu.setDisable(character == null);
         saveAs_menu.setDisable(character == null);
