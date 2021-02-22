@@ -154,15 +154,17 @@ public class AbilityManager implements PlayerState {
 							} catch (ObjectNotFoundException e) {
 								e.printStackTrace();
 							}
+							break;
 						}else if (pClass.get() != null) {
 							results.addAll(pClass.get().getFeats(maxLevel));
-							results.addAll(sources.feats().getCategory("Monk").values());
-							for (Ability a : sources.feats().getCategory("Archetype").values()) {
-								if(a.getLevel() <= maxLevel) {
-									if(a.getExtension(ScalingExtension.class) != null) {
-										results.add(a.getExtension(ScalingExtension.class).getAbility(maxLevel));
-									}else results.add(a);
-								}
+							results.addAll(sources.feats().getCategory(pClass.getName()).values());
+						}
+					case "archetype":
+						for (Ability a : sources.feats().getCategory("Archetype").values()) {
+							if(a.getLevel() <= maxLevel) {
+								if(a.getExtension(ScalingExtension.class) != null) {
+									results.add(a.getExtension(ScalingExtension.class).getAbility(maxLevel));
+								}else results.add(a);
 							}
 						}
 						break;

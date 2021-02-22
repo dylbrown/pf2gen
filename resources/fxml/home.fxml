@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
@@ -50,6 +51,9 @@
                               <KeyCodeCombination alt="UP" code="P" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                           </accelerator>
                       </MenuItem>
+                      <Menu mnemonicParsing="false" text="Variant Rules">
+                     <CheckMenuItem fx:id="freeArchetype_menu" mnemonicParsing="false" text="Free Archetype" />
+                      </Menu>
                   </Menu>
                   <Menu mnemonicParsing="false" text="Export">
                       <MenuItem fx:id="statblock_menu" mnemonicParsing="false" text="Statblock">
@@ -88,10 +92,10 @@
           <VBox alignment="CENTER" BorderPane.alignment="CENTER">
               <Label text="PF2Gen">
                  <font>
-                     <Font name="Gill Sans MT Bold" size="44.0"/>
+                     <Font name="Gill Sans MT Bold" size="44.0" />
                  </font>
               </Label>
-              <Label text="Load or Create a Character"/>
+              <Label text="Load or Create a Character" />
           </VBox>
       </center>
    </BorderPane>

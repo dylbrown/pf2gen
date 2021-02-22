@@ -21,6 +21,7 @@ import model.items.runes.Rune;
 import model.items.runes.WeaponRune;
 import model.items.runes.runedItems.Runes;
 import model.player.PC;
+import model.player.VariantManager;
 import model.spells.Spell;
 import model.spells.SpellList;
 import model.spells.heightened.HeightenedSpell;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
 
 public class SaveLoadManager {
     private static final String HEADER = "PF2Gen Save - v";
-    private static final int VERSION = 4;
+    private static final int VERSION = 5;
 
     private SaveLoadManager() {}
     public static void save(PC character, Writer out) throws IOException {
@@ -45,6 +46,11 @@ public class SaveLoadManager {
             writeOutLine(out, "Sources");
             for (Source source : character.sources().getSources()) {
                 writeOutLine(out, " - "+source.getName());
+            }
+            writeOutLine(out, "Variant Rules");
+            for (Map.Entry<VariantManager.Variant, Boolean> entry : character.variants().getMap().entrySet()) {
+                if(entry.getValue())
+                    writeOutLine(out, " - "+entry.getKey());
             }
             writeOutLine(out, "name = "+character.qualities().get("name"));
             writeOutLine(out, "player = "+character.qualities().get("player"));
@@ -191,12 +197,29 @@ public class SaveLoadManager {
                 version++;
                 SaveCompatibilityConverter.updateTo(lines, version);
             }
+
+            //Load Sources
             lines.second++; // Skip Section Header
             curr = nextLine(lines);
             while(curr.startsWith(" - ")) {
                 character.sources().add(SourcesLoader.instance().find(curr.substring(3)));
                 curr = nextLine(lines);
             }
+
+            //Load Variant Rules
+            curr = nextLine(lines);
+            while(curr.startsWith(" - ")) {
+                switch(VariantManager.Variant.valueOf(curr.substring(3).trim())) {
+                    case FreeArchetype:
+                        character.variants().setFreeArchetype(true);
+                        break;
+                    default:
+                        throw new RuntimeException("Variant rule not supported in save/load!");
+                }
+                curr = nextLine(lines);
+            }
+
+            // Load simple details
             while(curr.contains("=")) {
                 String[] split = curr.split(" ?= ?", 2);
                 String afterEq = split[1];

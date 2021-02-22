@@ -66,6 +66,7 @@ public class PC {
     private final InventoryManager inventory = new InventoryManager(attributes, applier);
     private final QualityManager qualities = new QualityManager(decisions::add, decisions::remove, applier);
     private final CombatManager combat = new CombatManager(scores, attributes, inventory, levelProperty());
+    private final VariantManager variants = new VariantManager();
     private final GroovyModManager modManager;
     private final List<PlayerState> stateManagers = new ArrayList<>(Arrays.asList(
             decisions, spells, scores, attributes, inventory, qualities, combat
@@ -120,13 +121,13 @@ public class PC {
         if(level.get() == 20)
             return;
         level.set(level.get()+1);
-        applyLevel(getPClass().getLevel(level.get()));
+        applyLevel(variants.getLevel(getPClass(), level.get()));
     }
 
     public void levelDown(){
         if(level.get() <= 1)
             return;
-        removeLevel(getPClass().getLevel(level.get()));
+        removeLevel(variants.getLevel(getPClass(), level.get()));
         level.set(level.get()-1);
     }
 
@@ -344,6 +345,10 @@ outerLoop:  for (String orClause : split) {
 
     public CombatManager combat() {
         return combat;
+    }
+
+    public VariantManager variants() {
+        return variants;
     }
 
     public Background getBackground() {

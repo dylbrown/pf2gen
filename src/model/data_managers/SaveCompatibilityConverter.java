@@ -47,6 +47,15 @@ public class SaveCompatibilityConverter {
                 spellsKnown = lines.first.indexOf("Spells Known");
                 lines.first.add(spellsKnown, "Formulas Granted");
                 break;
+            case 5:
+                for (int i = 0; i < lines.first.size(); i++) {
+                    String line = lines.first.get(i);
+                    if(line.contains("=")) {
+                        lines.first.set(i, "Variant Rules");
+                        break;
+                    }
+                }
+                break;
         }
     }
 }

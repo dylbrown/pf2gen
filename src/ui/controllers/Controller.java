@@ -6,6 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
@@ -34,6 +35,8 @@ public class Controller {
     @FXML
     private MenuItem new_menu, open_menu, close_menu, save_menu, saveAs_menu, addSources_menu,
             statblock_menu, printableSheet_menu, indexCard_menu, jquerySheet_menu, about_menu, gm_menu;
+    @FXML
+    private CheckMenuItem freeArchetype_menu;
     private final Map<PC, CharacterController> controllers = new HashMap<>();
     private Node storedCenter;
 
@@ -133,6 +136,13 @@ public class Controller {
                 System.out.println(System.currentTimeMillis() - startTime + " ms");
             } catch (IOException ioException) {
                 ioException.printStackTrace();
+            }
+        });
+        freeArchetype_menu.setOnAction(e->{
+            PC active = CharacterManager.getActive();
+            if(active != null) {
+                active.variants().setFreeArchetype(freeArchetype_menu.isSelected());
+                CharacterManager.reload(active);
             }
         });
     }
