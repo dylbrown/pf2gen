@@ -79,6 +79,8 @@ public class DecisionsList extends SelectionPane<Choice<?>, DecisionEntry> {
     private static <T> ListChangeListener<T> getListener(Choice<T> choice, ObservableCategoryEntryList<Choice<?>, DecisionEntry> subList) {
         return c->{
             TreeItem<DecisionEntry> node = subList.findNode(choice);
+            if(node == null)
+                return;
             while(c.next()) {
                 for (T t : c.getAddedSubList()) {
                     node.getChildren().add(new TreeItem<>(new DecisionEntry(choice, t)));
