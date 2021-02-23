@@ -8,6 +8,7 @@ import model.player.PC;
 import ui.controllers.CharacterController;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -70,7 +71,7 @@ public class SaveLoadController {
 
     private void save(PC pc, File file) {
         try {
-            SaveLoadManager.save(pc, new BufferedWriter(new PrintWriter(file)));
+            SaveLoadManager.save(pc, new BufferedWriter(new PrintWriter(file, StandardCharsets.UTF_8)));
         } catch (IOException e) {
             e.printStackTrace();
         }
