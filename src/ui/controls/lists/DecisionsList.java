@@ -15,7 +15,9 @@ import ui.controls.lists.entries.DecisionEntry;
 import ui.controls.lists.factories.TreeCellFactory;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -99,11 +101,17 @@ public class DecisionsList extends SelectionPane<Choice<?>, DecisionEntry> {
         setupDecisionNode(node, node.getValue().getChoice(), subList);
     }
 
+    private Set<Choice<?>> observed;
     private <T> void setupDecisionNode(TreeItem<DecisionEntry> node, Choice<T> choice, ObservableCategoryEntryList<Choice<?>, DecisionEntry> subList) {
         for (T selection : choice.getSelections()) {
             node.getChildren().add(new TreeItem<>(new DecisionEntry(choice, selection)));
         }
-        choice.getSelections().addListener(getListener(choice, subList));
+        if(observed == null)
+            observed = new HashSet<>();
+        if(!observed.contains(choice)) {
+            choice.getSelections().addListener(getListener(choice, subList));
+            observed.add(choice);
+        }
     }
 
     public static class Builder extends SelectionPane.Builder<Choice<?>, DecisionEntry> {
