@@ -5,10 +5,9 @@ import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
 import model.enums.Slot;
-import model.equipment.Equipment;
-import model.equipment.ItemCount;
+import model.items.Item;
+import model.items.ItemCount;
 import model.util.Pair;
-import ui.ftl.TemplateFiller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -36,7 +35,7 @@ public class ItemCountWrapper implements TemplateHashModel {
         }
     }
 
-    public Equipment stats(){return itemCount.stats();}
+    public Item stats(){return itemCount.stats();}
 
     public int count() {
         return itemCount.getCount();
@@ -48,7 +47,7 @@ public class ItemCountWrapper implements TemplateHashModel {
             if(method.getParameterCount() == 0
                     && method.getName().toLowerCase().equals(s.toLowerCase())){
                 try {
-                    return TemplateFiller.getWrapper().wrap(method.invoke(this));
+                    return wrapper.wrap(method.invoke(this));
                 } catch (IllegalAccessException | InvocationTargetException e) {
                     e.printStackTrace();
                 }

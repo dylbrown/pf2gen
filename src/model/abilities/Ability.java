@@ -1,11 +1,11 @@
 package model.abilities;
 
-import model.NamedObject;
+import model.AbstractNamedObject;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityScore;
 import model.ability_slots.AbilitySlot;
 import model.attributes.AttributeMod;
-import model.attributes.AttributeRequirement;
+import model.attributes.CustomAttribute;
 import model.enums.Recalculate;
 import model.enums.Trait;
 import model.enums.Type;
@@ -16,10 +16,11 @@ import java.util.*;
 
 import static model.util.Copy.copy;
 
-public class Ability extends NamedObject implements Comparable<Ability> {
+public class Ability extends AbstractNamedObject implements Comparable<Ability> {
     //TODO: Support Repeated Choice
     private final List<String> prerequisites, prereqStrings, givenPrerequisites;
-    private final List<AttributeRequirement> requiredAttrs;
+    private final Requirement<CustomAttribute> requiredAttrs;
+    private final Requirement<String> requiredWeapons;
     private final List<Pair<AbilityScore, Integer>> requiredScores;
     private final String customMod;
     private final List<AbilitySlot> abilitySlots;
@@ -34,7 +35,7 @@ public class Ability extends NamedObject implements Comparable<Ability> {
     private final int skillIncreases;
     private final Map<Class<? extends AbilityExtension>, AbilityExtension> extensions;
 
-    public Ability(Builder builder, Map<Class<? extends AbilityExtension>, AbilityExtension> extensions) {
+    private Ability(Builder builder, Map<Class<? extends AbilityExtension>, AbilityExtension> extensions) {
         super(builder);
         this.level = builder.level;
         this.modifiers = builder.modifiers;
@@ -43,6 +44,7 @@ public class Ability extends NamedObject implements Comparable<Ability> {
         this.givenPrerequisites = builder.givenPrerequisites;
         this.requirements = builder.requirements;
         this.requiredAttrs = builder.requiredAttrs;
+        this.requiredWeapons = builder.requiredWeapons;
         this.requiredScores = builder.requiredScores;
         this.traits = builder.traits;
         this.customMod = builder.customMod;
@@ -55,7 +57,7 @@ public class Ability extends NamedObject implements Comparable<Ability> {
         this.extensions = extensions;
     }
 
-    protected Ability(Ability.Builder builder) {
+    private Ability(Ability.Builder builder) {
         this(builder, new HashMap<>());
         for (AbilityExtension.Builder extensionBuilder : builder.extensions.values()) {
             AbilityExtension extension = extensionBuilder.build(this);
@@ -82,7 +84,7 @@ public class Ability extends NamedObject implements Comparable<Ability> {
     public boolean hasExtension(String extensionName) {
         extensionName = extensionName.toLowerCase();
         for (Class<? extends AbilityExtension> aClass : extensions.keySet()) {
-            if(aClass.getName().toLowerCase().contains(extensionName))
+            if(aClass.getSimpleName().toLowerCase().matches(extensionName+"(extension)?"))
                 return true;
         }
         return false;
@@ -104,8 +106,12 @@ public class Ability extends NamedObject implements Comparable<Ability> {
         return skillIncreases;
     }
 
-    public List<AttributeRequirement> getRequiredAttrs() {
-        return Collections.unmodifiableList(requiredAttrs);
+    public Requirement<CustomAttribute> getRequiredAttrs() {
+        return (requiredAttrs != null) ? requiredAttrs : Requirement.none();
+    }
+
+    public Requirement<String> getRequiredWeapons() {
+        return (requiredWeapons != null) ? requiredWeapons : Requirement.none();
     }
 
     public List<Pair<AbilityScore, Integer>> getRequiredScores() {
@@ -178,11 +184,12 @@ public class Ability extends NamedObject implements Comparable<Ability> {
         return new Ability(builder, this.extensions);
     }
 
-    public static class Builder extends NamedObject.Builder {
+    public static class Builder extends AbstractNamedObject.Builder {
         private List<String> prerequisites = Collections.emptyList();
         private List<String> prereqStrings = Collections.emptyList();
         private List<String> givenPrerequisites = Collections.emptyList();
-        private List<AttributeRequirement> requiredAttrs = Collections.emptyList();
+        private Requirement<CustomAttribute> requiredAttrs = null;
+        private Requirement<String> requiredWeapons = null;
         private List<Pair<AbilityScore, Integer>> requiredScores = Collections.emptyList();
         private List<Trait> traits = Collections.emptyList();
         private String customMod = "";
@@ -204,7 +211,8 @@ public class Ability extends NamedObject implements Comparable<Ability> {
             this.prerequisites = copy(other.prerequisites);
             this.prereqStrings = copy(other.prereqStrings);
             this.givenPrerequisites = copy(other.givenPrerequisites);
-            this.requiredAttrs = copy(other.requiredAttrs);
+            this.requiredAttrs = other.requiredAttrs;
+            this.requiredWeapons = other.requiredWeapons;
             this.requiredScores = copy(other.requiredScores);
             this.traits = copy(other.traits);
             this.customMod = other.customMod;
@@ -243,8 +251,10 @@ public class Ability extends NamedObject implements Comparable<Ability> {
             this.recalculate = ability.recalculate;
         }
 
-        public void setPrerequisites(List<String> prerequisites) {
-            this.prerequisites = prerequisites;
+        public void addPrerequisite(String prerequisite) {
+            if(prerequisites.isEmpty())
+                prerequisites = new ArrayList<>();
+            prerequisites.add(prerequisite);
         }
 
         public void setRequirements(String requirements) {
@@ -257,18 +267,24 @@ public class Ability extends NamedObject implements Comparable<Ability> {
 
         public void setGivesPrerequisites(List<String> given) {this.givenPrerequisites = given;}
 
-        public void setRequiredAttrs(List<AttributeRequirement> requiredAttrs) {
-            if(requiredAttrs.isEmpty())
-                this.requiredAttrs = Collections.emptyList();
-            else
+        public void addRequiredAttr(Requirement<CustomAttribute> requiredAttrs) {
+            if(this.requiredAttrs == null)
                 this.requiredAttrs = requiredAttrs;
+            else
+                this.requiredAttrs = new RequirementList<>(Arrays.asList(this.requiredAttrs, requiredAttrs), true);
         }
 
-        public void setRequiredScores(List<Pair<AbilityScore, Integer>> requiredScores) {
-            if(requiredScores.isEmpty())
-                this.requiredScores = Collections.emptyList();
+        public void addRequiredWeapon(Requirement<String> requiredWeapon) {
+            if(this.requiredWeapons == null)
+                this.requiredWeapons = requiredWeapon;
             else
-                this.requiredScores = requiredScores;
+                this.requiredWeapons = new RequirementList<>(Arrays.asList(this.requiredWeapons, requiredWeapon), true);
+        }
+
+        public void addRequiredScore(Pair<AbilityScore, Integer> requiredScore) {
+            if(requiredScores.isEmpty())
+                this.requiredScores = new ArrayList<>();
+            requiredScores.add(requiredScore);
         }
 
         public void setCustomMod(String customMod) {
@@ -291,7 +307,8 @@ public class Ability extends NamedObject implements Comparable<Ability> {
         }
 
         public void setType(Type type) {
-            this.type = type;
+            if(type != null)
+                this.type = type;
         }
 
         public void setMultiple(boolean multiple) {
@@ -351,6 +368,10 @@ public class Ability extends NamedObject implements Comparable<Ability> {
 
         public List<Trait> getTraits() {
             return Collections.unmodifiableList(traits);
+        }
+
+        public Type getType() {
+            return type;
         }
     }
 }

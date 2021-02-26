@@ -11,7 +11,6 @@ import model.ability_slots.ChoiceList;
 import java.util.Comparator;
 import java.util.List;
 
-@SuppressWarnings("rawtypes")
 public class DecisionManager implements PlayerState {
     private final ObservableList<Choice<?>> decisions = FXCollections.observableArrayList(
             choice -> new Observable[]{choice.numSelectionsProperty()});
@@ -24,7 +23,7 @@ public class DecisionManager implements PlayerState {
         unmadeByLevel = new SortedList<>(unmade, Comparator.comparingInt(Choice::getLevel));
     }
 
-    public void remove(Choice choice) {
+    public <T> void remove(Choice<T> choice) {
         decisions.remove(choice);
 
     }

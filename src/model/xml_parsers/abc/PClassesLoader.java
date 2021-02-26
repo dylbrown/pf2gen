@@ -1,10 +1,15 @@
 package model.xml_parsers.abc;
 
 import model.abc.PClass;
+import model.abilities.Ability;
 import model.ability_slots.*;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.Type;
+import model.util.ObjectNotFoundException;
+import model.util.Pair;
+import model.util.StringUtils;
+import model.xml_parsers.FeatsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -54,9 +59,18 @@ public class PClassesLoader extends ACLoader<PClass, PClass.Builder> {
                                 if(type.equals("")) type = "General";
                                 DynamicFilledSlot dynamicFilledSlot = new DynamicFilledSlot(abilityName, level,
                                         slotNode.getAttribute("contents"),
-                                        getDynamicType(type), true);
+                                        getDynamicType(type),
+                                        (featType, name)->{
+                                            Ability a = null;
+                                            try {
+                                                a = findFromDependencies("Ability", FeatsLoader.class, name, featType.toString());
+                                            } catch (ObjectNotFoundException e) {
+                                                e.printStackTrace();
+                                            }
+                                            return a;
+                                        });
                                 abilitySlots.add(dynamicFilledSlot);
-                                dynSlots.add(dynamicFilledSlot);
+                                dynSlots.add(new Pair<>(StringUtils.getInBrackets(type), dynamicFilledSlot));
                             }
                             break;
                         case "feat":
@@ -79,7 +93,6 @@ public class PClassesLoader extends ACLoader<PClass, PClass.Builder> {
         NodeList classProperties = item.getChildNodes();
 
         PClass.Builder builder = new PClass.Builder();
-        dynSlots = new ArrayList<>();
 
         for(int i=0; i<classProperties.getLength(); i++) {
             if(classProperties.item(i).getNodeType() != Node.ELEMENT_NODE)
@@ -88,8 +101,10 @@ public class PClassesLoader extends ACLoader<PClass, PClass.Builder> {
             parseElement(curr, curr.getTextContent().trim(), builder);
         }
         PClass pClass = builder.build();
-        for (DynamicFilledSlot dynSlot : dynSlots) {
-            dynSlot.setpClass(pClass);
+        while (!dynSlots.isEmpty()) {
+            Pair<String, DynamicFilledSlot> pair = dynSlots.pop();
+            if(pair.first.equalsIgnoreCase(pClass.getName()) || pair.first.isBlank())
+                pair.second.setPClass(pClass);
         }
         return pClass;
     }

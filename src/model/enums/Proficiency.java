@@ -51,4 +51,8 @@ public enum Proficiency {
             case Legendary: return 15;
         }
     }
+
+    public int getMinLevel() {
+        return getMinLevel(this);
+    }
 }

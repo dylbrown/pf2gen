@@ -2,15 +2,16 @@ package ui.controls;
 
 import javafx.scene.Scene;
 import javafx.stage.FileChooser;
+import model.CharacterManager;
 import model.data_managers.SaveLoadManager;
-import ui.ftl.TemplateFiller;
+import model.player.PC;
+import ui.controllers.CharacterController;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Objects;
-
-import static ui.Main.character;
+import java.util.stream.Collectors;
 
 public class SaveLoadController {
     private File saveLocation = null;
@@ -31,7 +32,7 @@ public class SaveLoadController {
     }
 
     private File loadLocation = new File("./");
-    public void load(Scene scene) {
+    public boolean load(PC pc, Scene scene) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(loadLocation);
         //Set extension filter for text files
@@ -41,15 +42,16 @@ public class SaveLoadController {
 
         //Show save file dialog
         File file = fileChooser.showOpenDialog(scene.getWindow());
-        if(file == null) return;
+        if(file == null) return false;
         saveLocation = file;
         loadLocation = saveLocation.getParentFile();
-        SaveLoadManager.load(saveLocation);
-
+        load(pc, saveLocation);
+        return true;
     }
 
     private File saveContainer = new File("./");
-    public void saveAs(String characterName, Scene scene) {
+    public void saveAs(PC pc, Scene scene) {
+        String characterName = pc.qualities().get("name");
         FileChooser fileChooser = new FileChooser();
         if(!Objects.equals(characterName, ""))
             fileChooser.setInitialFileName(characterName.replaceAll(" ","_"));
@@ -64,14 +66,33 @@ public class SaveLoadController {
         if(file == null) return;
         saveLocation = file;
         saveContainer = saveLocation.getParentFile();
-        SaveLoadManager.save(saveLocation);
+        save(pc, saveLocation);
     }
 
-    public void save(String characterName, Scene scene) {
+    private void save(PC pc, File file) {
+        try {
+            SaveLoadManager.save(pc, new BufferedWriter(new PrintWriter(file, StandardCharsets.UTF_8)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void load(PC pc, File file) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            List<String> lineList;
+            lineList = reader.lines().collect(Collectors.toList());
+            SaveLoadManager.load(pc, lineList);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void save(PC pc, Scene scene) {
         if(saveLocation != null) {
-            SaveLoadManager.save(saveLocation);
+            save(pc, saveLocation);
         }else{
-            saveAs(characterName, scene);
+            saveAs(pc, scene);
         }
     }
 
@@ -80,8 +101,8 @@ public class SaveLoadController {
         if(exportLocation != null) {
             fileChooser.setInitialDirectory(exportLocation.getParentFile());
             fileChooser.setInitialFileName(exportLocation.getName());
-        } else if(!Objects.equals(character.qualities().get("name"), "")) {
-            fileChooser.setInitialFileName(character.qualities().get("name").replaceAll("[ ?!]",""));
+        } else if(!Objects.equals(CharacterManager.getActive().qualities().get("name"), "")) {
+            fileChooser.setInitialFileName(CharacterManager.getActive().qualities().get("name").replaceAll("[ ?!]",""));
             fileChooser.setInitialDirectory(new File("./"));
         }
         //Set extension filter for text files
@@ -95,15 +116,12 @@ public class SaveLoadController {
         if (file != null) {
             try {
                 PrintWriter out = new PrintWriter(file);
-                out.println(TemplateFiller.getInstance().getSheet(template));
+                out.println(CharacterController.getFiller(CharacterManager.getActive()).getSheet(template));
                 out.close();
+                exportLocation = file;
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    public void reset() {
-        SaveLoadManager.reset();
     }
 }

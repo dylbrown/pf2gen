@@ -11,7 +11,6 @@ import model.ability_slots.SingleChoiceList;
 import model.enums.Proficiency;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,9 +28,9 @@ public class AttributeModSingleChoice extends AttributeMod implements SingleChoi
         list.addListener((ListChangeListener<Attribute>) c-> numSelections.set(list.size()));
     }
 
-    public AttributeModSingleChoice(Attribute[] options, Proficiency prof) {
+    public AttributeModSingleChoice(List<Attribute> options, Proficiency prof) {
         super(Attribute.None,prof);
-        this.choices.addAll(Arrays.asList(options));
+        this.choices.addAll(options);
     }
 
     public List<Attribute> getOptions() {
@@ -62,6 +61,11 @@ public class AttributeModSingleChoice extends AttributeMod implements SingleChoi
     }
 
     @Override
+    public AttributeModSingleChoice copy() {
+        return new AttributeModSingleChoice(choices, getMod());
+    }
+
+    @Override
     public String toNiceAttributeString() {
         return choices.stream().map(Attribute::name).collect(Collectors.joining(" or "));
     }
@@ -73,7 +77,7 @@ public class AttributeModSingleChoice extends AttributeMod implements SingleChoi
 
     @Override
     public String getName() {
-        return "Attribute Mod Choice";
+        return toString();
     }
 
     @Override

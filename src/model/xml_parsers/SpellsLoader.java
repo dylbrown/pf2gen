@@ -2,8 +2,12 @@ package model.xml_parsers;
 
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
+import model.enums.Trait;
+import model.spells.BaseSpell;
+import model.spells.MagicalSchool;
 import model.spells.Spell;
 import model.spells.Tradition;
+import model.util.ObjectNotFoundException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -31,13 +35,15 @@ public class SpellsLoader extends FileLoader<Spell> {
 				}
 			}
 		}
+		if(spellsByLevel.get(tradition) == null || spellsByLevel.get(tradition).get(level) == null)
+			return Collections.emptyList();
 		return Collections.unmodifiableList(spellsByLevel.get(tradition).get(level));
 	}
 
 	@Override
 	protected Spell parseItem(File file, Element spell) {
 		NodeList nodeList = spell.getChildNodes();
-		Spell.Builder builder = new Spell.Builder();
+		BaseSpell.Builder builder = new BaseSpell.Builder();
 		builder.setPage(Integer.parseInt(spell.getAttribute("page")));
 		for(int i=0; i<nodeList.getLength(); i++) {
 			if(nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)
@@ -52,7 +58,17 @@ public class SpellsLoader extends FileLoader<Spell> {
 				}else if(level.length() > 0){
 					builder.addHeightenedLevel(Integer.parseInt(level), trim);
 				}
-			}else {
+			}else if(curr.getTagName().equals("Traits")){
+				for (String traitName : trim.split(", ?")) {
+					try {
+						builder.addTrait(findFromDependencies("Trait",
+								TraitsLoader.class,
+								traitName));
+					} catch (ObjectNotFoundException e) {
+						e.printStackTrace();
+					}
+				}
+			} else {
 				try {
 					Method setter = builder.getClass().getMethod("set" + curr.getTagName(), String.class);
 					setter.invoke(builder, trim);
@@ -62,6 +78,14 @@ public class SpellsLoader extends FileLoader<Spell> {
 			}
 		}
 		if(spell.getAttribute("type").equals("Cantrip")) builder.setCantrip(true);
+		for (Trait trait : builder.getTraits()) {
+			MagicalSchool school = MagicalSchool.tryGet(trait.getName());
+			if(school != null) {
+				builder.setSchool(school);
+				break;
+			}
+		}
+
 		return builder.build();
 	}
 }

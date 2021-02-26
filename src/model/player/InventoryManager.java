@@ -2,40 +2,62 @@ package model.player;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.MapChangeListener;
-import javafx.collections.ObservableMap;
+import javafx.collections.*;
+import model.abilities.FormulaExtension;
 import model.attributes.AttributeBonus;
 import model.enums.BuySellMode;
 import model.enums.Slot;
-import model.equipment.Equipment;
-import model.equipment.ItemCount;
-import model.equipment.UnmodifiableItemCount;
-import model.equipment.runes.Rune;
-import model.equipment.runes.runedItems.Enchantable;
-import model.equipment.runes.runedItems.RunedArmor;
-import model.equipment.runes.runedItems.RunedEquipment;
+import model.items.*;
+import model.items.armor.Armor;
+import model.items.armor.Shield;
+import model.items.runes.Rune;
+import model.items.runes.runedItems.RunedArmor;
+import model.items.runes.runedItems.RunedWeapon;
+import model.items.runes.runedItems.Runes;
+import model.items.weapons.RangedWeapon;
+import model.items.weapons.Weapon;
 import model.util.Eyeball;
 import model.util.Pair;
 import model.util.Watcher;
 
-@SuppressWarnings("rawtypes")
+import java.util.HashSet;
+import java.util.Map;
+import java.util.TreeMap;
+
 public class InventoryManager implements PlayerState {
     static final Double INITIAL_AMOUNT = 150.0;
     private final ReadOnlyObjectWrapper<Double> money= new ReadOnlyObjectWrapper<>(INITIAL_AMOUNT);
-    private final ObservableMap<Equipment, ItemCount> inventory = FXCollections.observableHashMap();
+    private final ObservableMap<Item, ItemCount> inventory = FXCollections.observableHashMap();
     private final Eyeball<ItemCount, InventoryManager> buySellEye = new Eyeball<>(this);
     private final ObservableMap<Slot, ItemCount> equipped = FXCollections.observableHashMap();
-    private final ObservableMap<Equipment, ItemCount> carried = FXCollections.observableHashMap();
-    private final ObservableMap<Equipment, ItemCount> unequipped = FXCollections.observableHashMap();
+    private final ObservableMap<Item, ItemCount> carried = FXCollections.observableHashMap();
+    private final ObservableMap<Item, ItemCount> unequipped = FXCollections.observableHashMap();
+    private final ObservableSet<Item> formulasBought = FXCollections.observableSet(new HashSet<>());
+    private final ObservableSet<Item> formulasGranted = FXCollections.observableSet(new HashSet<>());
+    private final ObservableMap<Integer, Integer> grantedFormulasCount = FXCollections.observableMap(new TreeMap<>());
     private final AttributeManager attributes;
     private double totalWeight = 0;
     private double sellMultiplier = 1;
     private double buyMultiplier = 1;
 
-    InventoryManager(AttributeManager attributes) {
+    InventoryManager(AttributeManager attributes, Applier applier) {
         this.attributes = attributes;
+        applier.onApply(a->{
+            FormulaExtension formulas = a.getExtension(FormulaExtension.class);
+            if(formulas != null) {
+                for (Map.Entry<Integer, Integer> entry : formulas.getFormulasKnown().entrySet()) {
+                    grantedFormulasCount.merge(entry.getKey(), entry.getValue(), Integer::sum);
+                }
+            }
+        });
+        applier.onRemove(a->{
+            FormulaExtension formulas = a.getExtension(FormulaExtension.class);
+            if(formulas != null) {
+                for (Map.Entry<Integer, Integer> entry : formulas.getFormulasKnown().entrySet()) {
+                    grantedFormulasCount.merge(entry.getKey(), -entry.getValue(), Integer::sum);
+                }
+            }
+        });
     }
 
     public ItemCount getEquipped(Slot slot) {
@@ -46,7 +68,7 @@ public class InventoryManager implements PlayerState {
         return money.getReadOnlyProperty();
     }
 
-    public boolean buy(Equipment item, int count) {
+    public boolean buy(Item item, int count) {
         if(count == 0) return false;
         if(item.getValue() * count * buyMultiplier > money.get()) return false;
         money.set(money.get() - item.getValue() * count * buyMultiplier);
@@ -55,7 +77,7 @@ public class InventoryManager implements PlayerState {
         return true;
     }
 
-    private boolean add(Equipment item, int count) {
+    private boolean add(Item item, int count) {
         if(count == 0) return false;
         //Add To Inventory
         ItemCount ic = inventory.computeIfAbsent(item, (key) -> new ItemCount(item, 0));
@@ -70,7 +92,7 @@ public class InventoryManager implements PlayerState {
         return true;
     }
 
-    public boolean sell(Equipment item, int count) {
+    public boolean sell(Item item, int count) {
         ItemCount ic = inventory.get(item);
         if(ic == null) return false;
         int remaining = ic.getCount();
@@ -79,7 +101,7 @@ public class InventoryManager implements PlayerState {
         return remove(item, count);
     }
 
-    private boolean remove(Equipment item, int count) {
+    private boolean remove(Item item, int count) {
         ItemCount ic = inventory.get(item);
         if(ic == null) return false;
         int remaining = ic.getCount();
@@ -111,7 +133,7 @@ public class InventoryManager implements PlayerState {
         return inventory.values().stream().mapToDouble(item -> item.stats().getValue() * item.getCount()).sum();
     }
 
-    public void addInventoryListener(MapChangeListener<Equipment, ItemCount> listener) {
+    public void addInventoryListener(MapChangeListener<Item, ItemCount> listener) {
         inventory.addListener(listener);
     }
 
@@ -119,8 +141,9 @@ public class InventoryManager implements PlayerState {
         buySellEye.addWatcher(watcher);
     }
 
-    public boolean equip(Equipment item, Slot slot, int count) {
+    public boolean equip(Item item, Slot slot, int count) {
         if(unequipped.get(item) == null) return false;
+        if(count == 0) return false;
         if(slot == Slot.None) return false;
         //If trying to equip to OneHand, check it
         if(slot == Slot.OneHand){
@@ -152,8 +175,9 @@ public class InventoryManager implements PlayerState {
             unequipped.remove(item);
         }
         attributes.apply(item.getBonuses());
-        if(item instanceof RunedArmor) {
-            ((RunedArmor) item).getBonuses().addListener((ListChangeListener<AttributeBonus>) c->{
+        if(item.hasExtension(RunedArmor.class)) {
+            item.getExtension(RunedArmor.class).getBonuses().addListener(
+                    (ListChangeListener<AttributeBonus>) c->{
                 while(c.next()) {
                     if(c.wasAdded())
                         attributes.apply(c.getAddedSubList());
@@ -165,7 +189,7 @@ public class InventoryManager implements PlayerState {
         return true;
     }
 
-    private boolean unequip(Equipment item, int count) {
+    private boolean unequip(Item item, int count) {
         Slot slot = item.getSlot();
 
         if(slot == Slot.OneHand){
@@ -175,7 +199,8 @@ public class InventoryManager implements PlayerState {
         }
     }
 
-    public boolean unequip(Equipment item, Slot slot, int count) {
+    public boolean unequip(Item item, Slot slot, int count) {
+        if(count == 0) return false;
         if(slot != Slot.Carried) {
             ItemCount slotContents = equipped.get(slot);
             if (slotContents != null && slotContents.stats().equals(item) && slotContents.getCount() >= count) {
@@ -196,7 +221,7 @@ public class InventoryManager implements PlayerState {
         return true;
     }
 
-    public ObservableMap<Equipment, ItemCount> getItems() {
+    public ObservableMap<Item, ItemCount> getItems() {
         return FXCollections.unmodifiableObservableMap(inventory);
     }
 
@@ -204,13 +229,13 @@ public class InventoryManager implements PlayerState {
         return FXCollections.unmodifiableObservableMap(equipped);
     }
 
-    public ObservableMap<Equipment, ItemCount> getUnequipped() {
+    public ObservableMap<Item, ItemCount> getUnequipped() {
         return FXCollections.unmodifiableObservableMap(unequipped);
     }
 
-    private final ObservableMap<Equipment, ItemCount> carriedUnmod =
+    private final ObservableMap<Item, ItemCount> carriedUnmod =
             FXCollections.unmodifiableObservableMap(carried);
-    public ObservableMap<Equipment, ItemCount> getCarried() {
+    public ObservableMap<Item, ItemCount> getCarried() {
         return carriedUnmod;
     }
 
@@ -250,68 +275,130 @@ public class InventoryManager implements PlayerState {
         money.set(money.get() + amount);
     }
 
-    private Equipment convertToRuned(Equipment item) {
+    private Item convertToRuned(Item item) {
         if(!getItems().containsKey(item)) return null;
-        if(!(item instanceof Enchantable)) return null;
+        if(!(item.hasExtension(Armor.class) || item.hasExtension(Weapon.class)
+        || item.hasExtension(Shield.class) || item.hasExtension(RangedWeapon.class))) return null;
         boolean equip = (getEquipped(item.getSlot()) != null) && item.equals(getEquipped(item.getSlot()).stats());
         remove(item, 1);
-        Equipment runedItem = ((Enchantable) item).makeRuned();
+        ItemInstance runedItem;
+        if(item instanceof BaseItem)
+            runedItem = new ItemInstance(item);
+        else if(item instanceof ItemInstance)
+            runedItem = (ItemInstance) item;
+        else return null;
+        if(item.hasExtension(Armor.class) || item.hasExtension(Shield.class))
+            runedItem.addExtension(RunedArmor.class);
+        else
+            runedItem.addExtension(RunedWeapon.class);
         add(runedItem, 1);
         if(equip) equip(runedItem, runedItem.getSlot(), 1);
         return runedItem;
     }
 
-    private Equipment revertFromRuned(Equipment runedItem) {
-        if(!getItems().containsKey(runedItem) || !(runedItem instanceof RunedEquipment)) return null;
+    private Item revertFromRuned(Item runedItem) {
+        if(!getItems().containsKey(runedItem) ||
+                (!runedItem.hasExtension(RunedArmor.class) &&
+                        runedItem.hasExtension(RunedWeapon.class))
+                || !(runedItem instanceof ItemInstance))
+            return null;
         boolean equip = (getEquipped(runedItem.getSlot()) != null) && runedItem.equals(getEquipped(runedItem.getSlot()).stats());
         remove(runedItem, 1);
-        Equipment item = ((RunedEquipment) runedItem).getBaseItem();
+        Item item = ((ItemInstance) runedItem).getSourceItem();
         add(item, 1);
         if(equip) equip(item, item.getSlot(), 1);
         return item;
     }
 
-    public Pair<Boolean, Equipment> tryToAddRune(Equipment item, Rune rune) {
-        if(item instanceof RunedEquipment) {
-            if(((RunedEquipment) item).getRunes().tryToAddRune(rune)){
-                remove(rune, 1);
-                return new Pair<>(true, item);
-            }else return new Pair<>(false, item);
+    public Pair<Boolean, Item> tryToAddRune(Item item, Rune rune) {
+        if(item instanceof ItemInstance) {
+            Runes<?> runes = Runes.getRunes(item);
+            if(runes != null) {
+                if (runes.tryToAddRune(rune)) {
+                    remove(rune.getItem(), 1);
+                    return new Pair<>(true, item);
+                } else return new Pair<>(false, item);
+            }
         }
         if(!rune.isFundamental()) return new Pair<>(false, item);
-        Equipment runedItem = convertToRuned(item);
+        Item runedItem = convertToRuned(item);
         if(runedItem == null) return new Pair<>(false, item);
-        Pair<Boolean, Equipment> result = tryToAddRune(runedItem, rune);
+        Pair<Boolean, Item> result = tryToAddRune(runedItem, rune);
         if(result.first)
             return result;
         else return new Pair<>(false, revertFromRuned(runedItem));
     }
 
-    public Pair<Boolean, Equipment> tryToRemoveRune(Equipment runedItem, Rune rune) {
+    public Pair<Boolean, Item> tryToRemoveRune(Item runedItem, Rune rune) {
         // Can we afford the rune
-        if(rune.getValue() * .1 * buyMultiplier > money.get()) return new Pair<>(false, runedItem);
+        if(rune.getItem().getValue() * .1 * buyMultiplier > money.get()) return new Pair<>(false, runedItem);
 
-        if(runedItem instanceof RunedEquipment) {
-            if(((RunedEquipment) runedItem).getRunes().tryToRemoveRune(rune)){
-                add(rune, 1);
-                money.set(money.get() - rune.getValue() * .1 * buyMultiplier);
+        Runes<?> runes = Runes.getRunes(runedItem);
+        if(runes != null) {
+            if(runes.tryToRemoveRune(rune)){
+                add(rune.getItem(), 1);
+                money.set(money.get() - rune.getItem().getValue() * .1 * buyMultiplier);
             }
-            if(((RunedEquipment) runedItem).getRunes().getAll().size() == 0) {
+            if(runes.getAll().size() == 0) {
                 return new Pair<>(true, revertFromRuned(runedItem));
             } else return new Pair<>(true, runedItem);
         } else return new Pair<>(false, runedItem);
     }
 
-    public boolean tryToUpgradeRune(Equipment runedItem, Rune rune, Rune upgradedRune) {
-        if((upgradedRune.getValue() - rune.getValue()) * buyMultiplier > money.get()) return false;
+    public boolean tryToUpgradeRune(Item runedItem, Rune rune, Rune upgradedRune) {
+        if((upgradedRune.getItem().getValue() - rune.getItem().getValue()) * buyMultiplier > money.get()) return false;
 
-        if(runedItem instanceof RunedEquipment) {
-            if(((RunedEquipment) runedItem).getRunes().tryToUpgradeRune(rune, upgradedRune)){
-                money.set(money.get() - (upgradedRune.getValue() - rune.getValue()) * buyMultiplier);
+        Runes<?> runes = Runes.getRunes(runedItem);
+        if(runes != null) {
+            if(runes.tryToUpgradeRune(rune, upgradedRune)){
+                money.set(money.get() - (upgradedRune.getItem().getValue() - rune.getItem().getValue()) * buyMultiplier);
                 return true;
             }
         }
         return false;
+    }
+
+    private final ObservableSet<Item> unmodifiableBought = FXCollections.unmodifiableObservableSet(formulasBought);
+    public ObservableSet<Item> getFormulasBought() {
+        return unmodifiableBought;
+    }
+
+    private final ObservableSet<Item> unmodifiableGranted = FXCollections.unmodifiableObservableSet(formulasGranted);
+    public ObservableSet<Item> getFormulasGranted() {
+        return unmodifiableGranted;
+    }
+
+    public boolean addFormula(Item formula, boolean buy) {
+        if(!(formula instanceof ItemFormula))
+            formula = new ItemFormula(formula);
+        if(formulasBought.contains(formula) || formulasGranted.contains(formula))
+            return false;
+        if(buy) {
+            if (money.get() >= formula.getValue() * buyMultiplier) {
+                money.set(money.get() - (formula.getValue() * buyMultiplier));
+                formulasBought.add(formula);
+                return true;
+            }
+        } else {
+            formulasGranted.add(formula);
+            return true;
+        }
+        return false;
+    }
+
+    public void removeFormula(Item formula) {
+        if(!(formula instanceof ItemFormula))
+            formula = new ItemFormula(formula);
+        if(formulasBought.contains(formula)) {
+            money.set(money.get() + (formula.getValue() * buyMultiplier));
+            formulasBought.remove(formula);
+            return;
+        }
+        formulasGranted.remove(formula);
+    }
+    private final ObservableMap<Integer, Integer> knownHolder = FXCollections.unmodifiableObservableMap(grantedFormulasCount);
+    public ObservableMap<Integer, Integer> getGrantedFormulasCount() {
+        return knownHolder;
     }
 
     @Override

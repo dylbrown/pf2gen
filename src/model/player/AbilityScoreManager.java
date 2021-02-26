@@ -21,7 +21,7 @@ public class AbilityScoreManager implements PlayerState {
     private final Map<AbilityScore, ObservableList<AbilityMod>> abilityScores = new HashMap<>();
     private final Map<Type, List<AbilityMod>> abilityScoresByType = new HashMap<>();
     private final PropertyChangeSupport abilityScoreChange = new PropertyChangeSupport(this);
-    private final List<AbilityModChoice> abilityScoreChoices = new ArrayList<>();
+    private final ObservableList<AbilityModChoice> abilityScoreChoices = FXCollections.observableArrayList();
     private final Supplier<AbilityScore> keyAbility;
     private final Function<String, AbilityScore> castingAbility;
 
@@ -125,8 +125,10 @@ public class AbilityScoreManager implements PlayerState {
         return Collections.unmodifiableList(abilityScoresByType.computeIfAbsent(type, (key)->new ArrayList<>()));
     }
 
-    public List<AbilityModChoice> getAbilityScoreChoices() {
-        return Collections.unmodifiableList(abilityScoreChoices);
+    private final ObservableList<AbilityModChoice> unmodifiableScoreChoices =
+            FXCollections.unmodifiableObservableList(abilityScoreChoices);
+    public ObservableList<AbilityModChoice> getAbilityScoreChoices() {
+        return unmodifiableScoreChoices;
     }
 
     @Override

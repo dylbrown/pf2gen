@@ -2,72 +2,111 @@ package ui.controllers;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
-import javafx.scene.web.WebView;
+import javafx.util.StringConverter;
+import model.CharacterManager;
+import model.data_managers.sources.Source;
+import model.player.PC;
+import model.player.SourcesManager;
 import ui.Main;
+import ui.controls.Popup;
 import ui.controls.SaveLoadController;
-import ui.ftl.TemplateFiller;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
-
-import static ui.Main.character;
 
 public class Controller {
     @FXML
-    private Tab tab_abilityScores, tab_skills, tab_decisions, tab_equipment, tab_spells;
+    private BorderPane main;
     @FXML
-    private MenuItem new_menu, open_menu, save_menu, saveAs_menu,
+    private ComboBox<PC> characterSelect;
+    private final Map<PC, Node> characterPanes = new HashMap<>();
+    @FXML
+    private MenuItem new_menu, open_menu, close_menu, save_menu, saveAs_menu, addSources_menu,
             statblock_menu, printableSheet_menu, indexCard_menu, jquerySheet_menu, about_menu, gm_menu;
     @FXML
-    private Tab displayTab;
-    @FXML
-    private WebView display;
-    private String htmlContent;
-
-    @FXML
-    private TabPane rootTabs;
-
+    private CheckMenuItem freeArchetype_menu;
+    private final Map<PC, CharacterController> controllers = new HashMap<>();
+    private Node storedCenter;
 
     @FXML
     private void initialize(){
+        characterSelect.setItems(CharacterManager.getCharacters());
+        characterSelect.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(PC pc) {
+                if (pc == null) return "";
+                return pc.qualities().get("name");
+            }
 
-        Main.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-            if (event.getCode() == KeyCode.TAB && event.isControlDown()) {
-                rootTabs.fireEvent(event);
+            @Override
+            public PC fromString(String s) {
+                System.out.println("Unexpected From String Call");
+                return null;
             }
         });
-        displayTab.setOnSelectionChanged((event) -> {
-            if(displayTab.isSelected()) {
-                htmlContent = TemplateFiller.getStatBlock();
-                htmlContent = htmlContent.replace("</title>", "</title>\n<base href=\"file:///"
-                        + new File("jquery/").getAbsolutePath().replaceAll("\\\\", "/")
-                        + "/\"/>");
-                display.getEngine().loadContent(htmlContent);
+        CharacterManager.activeProperty().addListener((o, oldVal, newVal)->
+                characterSelect.getSelectionModel().select(newVal));
+        characterSelect.getSelectionModel().selectedItemProperty().addListener(
+                (o, oldVal, newVal)->setCharacter(newVal));
+
+        new_menu.setOnAction(e -> {
+            SourceSelectController controller = new SourceSelectController();
+            Popup.popup("/fxml/sourceSelect.fxml", controller);
+            if(controller.isSuccess()) {
+                PC pc = new PC(new SourcesManager(controller.getSources()));
+                CharacterManager.add(pc);
+                characterSelect.getSelectionModel().select(pc);
             }
         });
-
-        new_menu.setOnAction(e -> SaveLoadController.getInstance().reset());
-        open_menu.setOnAction(e -> SaveLoadController.getInstance().load(display.getScene()));
-        save_menu.setOnAction(e -> SaveLoadController.getInstance().save(character.qualities().get("name"), display.getScene()));
-        saveAs_menu.setOnAction(e -> SaveLoadController.getInstance().saveAs(character.qualities().get("name"), display.getScene()));
-          statblock_menu.setOnAction(e ->
-                SaveLoadController.getInstance().export("sheets/statblock.ftl", display.getScene()));
+        open_menu.setOnAction(e -> {
+            PC pc = new PC(new SourcesManager());
+            boolean success = SaveLoadController.getInstance().load(pc, main.getScene());
+            if(!success) return;
+            CharacterManager.add(pc);
+            characterSelect.getSelectionModel().select(pc);
+        });
+        close_menu.setOnAction(e -> {
+            PC active = CharacterManager.getActive();
+            if (characterSelect.getItems().size() > 1) {
+                int selectedIndex = characterSelect.getSelectionModel().getSelectedIndex();
+                PC newActive = characterSelect.getItems().get((selectedIndex + 1) % characterSelect.getItems().size());
+                CharacterManager.setActive(newActive);
+                characterSelect.getSelectionModel().select(newActive);
+            }
+            CharacterManager.remove(active);
+        });
+        save_menu.setOnAction(e -> SaveLoadController.getInstance().save(CharacterManager.getActive(), main.getScene()));
+        saveAs_menu.setOnAction(e -> SaveLoadController.getInstance().saveAs(CharacterManager.getActive(), main.getScene()));
+        addSources_menu.setOnAction(e -> {
+            SourceSelectController controller = new SourceSelectController(CharacterManager.getActive().sources().getSources());
+            Popup.popup("/fxml/sourceSelect.fxml", controller);
+            if(controller.isSuccess()) {
+                for (Source source : controller.getSources()) {
+                    CharacterManager.getActive().sources().add(source);
+                    CharacterManager.reload(CharacterManager.getActive());
+                }
+            }
+        });
+        statblock_menu.setOnAction(e ->
+                SaveLoadController.getInstance().export("statblock.ftl", main.getScene()));
         printableSheet_menu.setOnAction(e ->
-                SaveLoadController.getInstance().export("sheets/printableSheet.html.ftl", display.getScene()));
+                SaveLoadController.getInstance().export("printableSheet.html.ftl", main.getScene()));
         indexCard_menu.setOnAction(e ->
-                SaveLoadController.getInstance().export("sheets/index_card.html.ftl", display.getScene()));
+                SaveLoadController.getInstance().export("index_card.html.ftl", main.getScene()));
         jquerySheet_menu.setOnAction(e ->
-                SaveLoadController.getInstance().export("sheets/csheet_jquery.html.ftl", display.getScene()));
+                SaveLoadController.getInstance().export("csheet_jquery.html.ftl", main.getScene()));
         about_menu.setOnAction(e -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("About");
@@ -99,5 +138,47 @@ public class Controller {
                 ioException.printStackTrace();
             }
         });
+        freeArchetype_menu.setOnAction(e->{
+            PC active = CharacterManager.getActive();
+            if(active != null) {
+                active.variants().setFreeArchetype(freeArchetype_menu.isSelected());
+                CharacterManager.reload(active);
+            }
+        });
+    }
+
+    private void setCharacter(PC character) {
+        if(character != null) {
+            CharacterManager.setActive(character);
+            if(storedCenter == null)
+                storedCenter = main.getCenter();
+            main.setCenter(characterPanes.computeIfAbsent(character, pc->{
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/character.fxml"));
+                CharacterController controller = new CharacterController(pc);
+                controllers.put(pc, controller);
+                loader.setController(controller);
+                try {
+                    return loader.load();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }));
+        } else {
+            main.setCenter(storedCenter);
+        }
+        save_menu.setDisable(character == null);
+        saveAs_menu.setDisable(character == null);
+        close_menu.setDisable(character == null);
+        addSources_menu.setDisable(character == null);
+        statblock_menu.setDisable(character == null);
+        printableSheet_menu.setDisable(character == null);
+        //indexCard_menu.setDisable(character == null);
+        //jquerySheet_menu.setDisable(character == null);
+        gm_menu.setDisable(character == null);
+    }
+
+    public void navigate(List<String> path) {
+        controllers.get(CharacterManager.getActive()).navigate(path);
     }
 }

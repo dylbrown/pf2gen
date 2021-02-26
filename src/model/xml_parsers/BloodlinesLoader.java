@@ -8,13 +8,12 @@ import model.ability_slots.FilledSlot;
 import model.attributes.Attribute;
 import model.attributes.AttributeMod;
 import model.data_managers.sources.Source;
-import model.data_managers.sources.SourceConstructor;
-import model.data_managers.sources.SourcesLoader;
 import model.enums.Proficiency;
 import model.enums.Type;
 import model.spells.CasterType;
 import model.spells.SpellType;
 import model.spells.Tradition;
+import model.util.ObjectNotFoundException;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -25,23 +24,13 @@ import java.util.Collections;
 import java.util.List;
 
 public class BloodlinesLoader extends AbilityLoader<Ability> {
-	private static BloodlinesLoader bloodlinesLoader;
 
 	static {
 		sources.put(BloodlinesLoader.class, (element -> Type.Choice));
 	}
 
-	public BloodlinesLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
-		super(sourceConstructor, root, sourceBuilder);
-	}
-
-	private BloodlinesLoader() {
-		super(null, null, null);
-	}
-
-	public static Ability makeBloodlineStatic(Element item) {
-		if(bloodlinesLoader == null) bloodlinesLoader = new BloodlinesLoader();
-		return bloodlinesLoader.makeBloodline(item);
+	public BloodlinesLoader(Source.Builder sourceBuilder) {
+		super(null, null, sourceBuilder);
 	}
 
 	@Override
@@ -49,7 +38,7 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 		return makeBloodline(item);
 	}
 
-	private Ability makeBloodline(Element item) {
+	public Ability makeBloodline(Element item) {
 		Ability.Builder bloodline = new Ability.Builder();
 		bloodline.setType(Type.Choice);
 		SpellExtension.Builder spellExt = bloodline.getExtension(SpellExtension.Builder.class);
@@ -73,9 +62,16 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 			if(split[0].equals("")) split[0] = "0th";
 			Ability.Builder builder = new Ability.Builder(); builder.setName(split[0]+"-level granted spells");
 			if(!split[0].trim().equals("") && !split[0].equals("1st"))
-				builder.setPrerequisites(Collections.singletonList(split[0]+"-level spells"));
-			builder.getExtension(SpellExtension.Builder.class)
-					.addBonusSpell(SpellType.Spell, SourcesLoader.instance().spells().find(split[1]));
+				builder.addPrerequisite(split[0]+"-level spells");
+			try {
+				builder.getExtension(SpellExtension.Builder.class)
+						.addBonusSpell(SpellType.Spell, findFromDependencies(
+								"Spell",
+								SpellsLoader.class,
+								split[1]));
+			} catch (ObjectNotFoundException e) {
+				e.printStackTrace();
+			}
 			builder.getExtension(SpellExtension.Builder.class).setSpellListName("Sorcerer");
 			grantedAbilities.add(builder.build());
 		}
@@ -86,17 +82,35 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 
 		//Bloodline Spells
 		String[] bSpells = item.getElementsByTagName("BloodlineSpells").item(0).getTextContent().split(", ?");
-		spellExt.addBonusSpell(SpellType.Focus, SourcesLoader.instance().spells().find(bSpells[0].split(": ")[1]));
+		try {
+			spellExt.addBonusSpell(SpellType.Focus, findFromDependencies("Spell",
+					SpellsLoader.class,
+					bSpells[0].split(": ")[1]));
+		} catch (ObjectNotFoundException e) {
+			e.printStackTrace();
+		}
 		Ability.Builder advanced = new Ability.Builder(); advanced.setName("Advanced Bloodline Spell");
 		Ability.Builder greater = new Ability.Builder();  greater.setName("Greater Bloodline Spell");
-		advanced.getExtension(SpellExtension.Builder.class)
-				.addBonusSpell(SpellType.Focus, SourcesLoader.instance().spells().find(bSpells[1].split(": ")[1]));
+		try {
+			advanced.getExtension(SpellExtension.Builder.class)
+					.addBonusSpell(SpellType.Focus, findFromDependencies("Spell",
+							SpellsLoader.class,
+							bSpells[1].split(": ")[1]));
+		} catch (ObjectNotFoundException e) {
+			e.printStackTrace();
+		}
 		advanced.getExtension(SpellExtension.Builder.class).setSpellListName("Sorcerer");
-		greater.getExtension(SpellExtension.Builder.class)
-				.addBonusSpell(SpellType.Focus, SourcesLoader.instance().spells().find(bSpells[2].split(": ")[1]));
+		try {
+			greater.getExtension(SpellExtension.Builder.class)
+					.addBonusSpell(SpellType.Focus, findFromDependencies("Spells",
+							SpellsLoader.class,
+							bSpells[2].split(": ")[1]));
+		} catch (ObjectNotFoundException e) {
+			e.printStackTrace();
+		}
 		greater.getExtension(SpellExtension.Builder.class).setSpellListName("Sorcerer");
-		advanced.setPrerequisites(Collections.singletonList("Advanced Bloodline"));
-		advanced.setPrerequisites(Collections.singletonList("Greater Bloodline"));
+		advanced.addPrerequisite("Advanced Bloodline");
+		greater.addPrerequisite("Greater Bloodline");
 		bloodline.addAbilitySlot(new FilledSlot("Advanced Bloodline Spell", 1, advanced.build()));
 		bloodline.addAbilitySlot(new FilledSlot("Greater Bloodline Spell", 1, greater.build()));
 

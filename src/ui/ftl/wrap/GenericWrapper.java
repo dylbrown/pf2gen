@@ -1,14 +1,11 @@
 package ui.ftl.wrap;
 
-import freemarker.template.ObjectWrapper;
-import freemarker.template.TemplateHashModel;
-import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
+import freemarker.template.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public abstract class GenericWrapper<T> implements TemplateHashModel {
+public abstract class GenericWrapper<T> implements TemplateHashModel, TemplateScalarModel {
     private final T t;
     protected final ObjectWrapper wrapper;
 
@@ -17,12 +14,17 @@ public abstract class GenericWrapper<T> implements TemplateHashModel {
         this.wrapper = wrapper;
     }
 
-    abstract boolean hasSpecialCase(String s);
     abstract Object getSpecialCase(String s, T t);
 
     @Override
+    public String getAsString() {
+        return t.toString();
+    }
+
+    @Override
     public TemplateModel get(String s) throws TemplateModelException {
-        if(!hasSpecialCase(s.toLowerCase())) {
+        Object specialCase = getSpecialCase(s.toLowerCase(), t);
+        if(specialCase == null) {
             for (Method method : t.getClass().getMethods()) {
                 if (method.getName().toLowerCase().equals("get" + s.toLowerCase())
                         && method.getParameterCount() == 0) {
@@ -35,7 +37,7 @@ public abstract class GenericWrapper<T> implements TemplateHashModel {
             }
             throw new TemplateModelException("Could not find member "+s+" of "+this.getClass().getSimpleName());
         }
-        return wrapper.wrap(getSpecialCase(s.toLowerCase(), t));
+        return wrapper.wrap(specialCase);
     }
 
     @Override

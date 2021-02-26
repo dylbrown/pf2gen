@@ -7,14 +7,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.collections.transformation.FilteredList;
-import model.equipment.weapons.WeaponGroupMod;
-import model.equipment.weapons.WeaponMod;
 import model.attributes.*;
 import model.enums.Proficiency;
 import model.enums.Type;
 import model.enums.WeaponProficiency;
-import model.equipment.weapons.Weapon;
-import model.equipment.weapons.WeaponGroup;
+import model.items.Item;
+import model.items.weapons.*;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -42,6 +40,7 @@ public class AttributeManager implements PlayerState {
     private final DecisionManager decisions;
     private final Map<String, Proficiency> weaponProficiencies = new HashMap<>();
     private final List<String> customWeaponStrings = new ArrayList<>();
+    private final List<WeaponProficiencyTranslator> weaponProficiencyTranslators = new ArrayList<>();
     private final Map<WeaponGroup, Proficiency> groupProficiencies = new HashMap<>();
     private final PropertyChangeSupport proficiencyChange = new PropertyChangeSupport(this);
     private final List<AttributeModSingleChoice> choices = new ArrayList<>();
@@ -219,6 +218,39 @@ public class AttributeManager implements PlayerState {
         proficiencyChange.firePropertyChange("removeAttributeMod", null, null);
     }
 
+    private void downScale() {
+        boolean canSpend = false;
+        int minSpendLevel = 0;
+        for (Map.Entry<Integer, Integer> entry : skillIncreases.entrySet()) {
+            if(getSkillIncreasesRemaining(entry.getKey()) > 0 & !canSpend) {
+                canSpend = true;
+                minSpendLevel = entry.getKey();
+                continue;
+            }
+            if(canSpend) {
+                SkillIncrease increase = null;
+outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
+                    for (SkillIncrease skillIncrease : skillChoices.get(entry.getKey())) {
+                        if(skillIncrease.getMod().getMinLevel() <= minSpendLevel) {
+                            increase = skillIncrease;
+                            minSpendLevel = i;
+                            break outer;
+                        }
+                    }
+                }
+                if(increase != null) {
+                    skillChoices.get(increase.getLevel()).remove(increase);
+                    remove(increase);
+                    SkillIncrease skillIncrease = new SkillIncrease(increase.getAttr(), increase.getMod(), minSpendLevel, increase.getData());
+                    skillChoices.get(minSpendLevel).add(skillIncrease);
+                    apply(skillIncrease);
+                    downScale();
+                    return;
+                }
+            }
+        }
+    }
+
     /**
      * Reduces the proficiency until we have an applied mod for the proficiency level in the tracker
      * @param tracker Map from proficiency to currently applied mods of that proficiency
@@ -363,6 +395,7 @@ public class AttributeManager implements PlayerState {
                 continue;
             choices.remove(increase);
             remove(increase);
+            downScale();
             return true;
         }
 
@@ -422,6 +455,14 @@ public class AttributeManager implements PlayerState {
         }
     }
 
+    void apply(WeaponProficiencyTranslator translator) {
+        weaponProficiencyTranslators.add(translator);
+    }
+
+    void remove(WeaponProficiencyTranslator translator) {
+        weaponProficiencyTranslators.remove(translator);
+    }
+
     void apply(WeaponGroupMod weaponGroupMod) {
         groupProficiencies.merge(weaponGroupMod.getGroup(), weaponGroupMod.getProficiency(), Proficiency::max);
     }
@@ -429,27 +470,31 @@ public class AttributeManager implements PlayerState {
         groupProficiencies.put(weaponGroupMod.getGroup(), null);
     }
 
-    Proficiency getProficiency(WeaponProficiency attr, Weapon weapon) {
+    Proficiency getProficiency(WeaponProficiency attr, Item weapon) {
+        for (WeaponProficiencyTranslator translator : weaponProficiencyTranslators) {
+            attr = translator.apply(weapon, attr);
+        }
+
         return getProficiency(Attribute.valueOf(attr), weapon);
     }
 
-    Proficiency getProficiency(Attribute attr, Weapon weapon) {
+    Proficiency getProficiency(Attribute attr, Item weapon) {
         return Proficiency.max(getProficiency(attr, "").getValue(),
-                groupProficiencies.getOrDefault(weapon.getGroup(), Proficiency.Untrained),
+                groupProficiencies.getOrDefault(weapon.getExtension(Weapon.class).getGroup(), Proficiency.Untrained),
                 getSpecificWeaponProficiency(weapon));
     }
 
-    private Proficiency getSpecificWeaponProficiency(Weapon weapon) {
+    private Proficiency getSpecificWeaponProficiency(Item weapon) {
         for (String customWeaponString : customWeaponStrings) {
             Object o = customGetter.get(customWeaponString);
-            if(o instanceof Weapon && weapon.getName().equals(((Weapon) o).getName())) {
+            if(o instanceof Item && weapon.getRawName().equalsIgnoreCase(((Item) o).getRawName())) {
                 return Proficiency.max(
                         weaponProficiencies.getOrDefault(customWeaponString.toLowerCase(), Proficiency.Untrained),
-                        weaponProficiencies.getOrDefault(weapon.getName().toLowerCase(), Proficiency.Untrained)
+                        weaponProficiencies.getOrDefault(weapon.getRawName().toLowerCase(), Proficiency.Untrained)
                 );
             }
         }
-        return weaponProficiencies.getOrDefault(weapon.getName().toLowerCase(), Proficiency.Untrained);
+        return weaponProficiencies.getOrDefault(weapon.getRawName().toLowerCase(), Proficiency.Untrained);
     }
 
     public SortedMap<Integer, Set<SkillIncrease>> getSkillChoices() {

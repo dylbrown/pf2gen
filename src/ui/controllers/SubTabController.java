@@ -8,12 +8,15 @@ import javafx.scene.control.TabPane;
 
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 public abstract class SubTabController {
 
     @FXML
     private TabPane tabPane;
+    private final Map<String, Tab> tabs = new HashMap<>();
 
     void sortTabs() {
         tabPane.getTabs().sort(Comparator.comparing(Tab::getText));
@@ -28,10 +31,17 @@ public abstract class SubTabController {
                 Tab tab = new Tab(name, (Node) load);
                 tab.setClosable(false);
                 tabPane.getTabs().add(tab);
+                tabs.put(name, tab);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    protected void navigateToTab(String name) {
+        Tab tab = tabs.get(name);
+        if(tab != null)
+            tabPane.getSelectionModel().select(tab);
     }
 
     abstract String getTabPath();

@@ -3,13 +3,7 @@ package model.enums;
 import model.util.StringUtils;
 
 public enum Action {
-    Free(-1), Reaction(0), One(1), Two(2), Three(3);
-
-    private final int cost;
-
-    Action(int cost) {
-        this.cost = cost;
-    }
+    Free, Reaction, One, Two, Three, Exploration, Downtime;
 
     public static Action robustValueOf(String s) {
         Action result = null;
@@ -29,10 +23,6 @@ public enum Action {
             }
         }
         return result;
-    }
-
-    public int getCost() {
-        return cost;
     }
 
     public String getNiceString() {

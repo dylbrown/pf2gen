@@ -9,43 +9,49 @@ import model.ability_slots.ChoiceList;
 import model.ability_slots.FeatSlot;
 import model.attributes.Attribute;
 import model.attributes.SkillIncrease;
+import model.data_managers.sources.Source;
 import model.data_managers.sources.SourcesLoader;
 import model.enums.Alignment;
 import model.enums.BuySellMode;
 import model.enums.Slot;
 import model.enums.Type;
-import model.equipment.Equipment;
-import model.equipment.ItemCount;
-import model.equipment.runes.Rune;
-import model.equipment.runes.runedItems.RunedEquipment;
-import model.spells.SpellList;
+import model.items.*;
+import model.items.runes.ArmorRune;
+import model.items.runes.Rune;
+import model.items.runes.WeaponRune;
+import model.items.runes.runedItems.Runes;
+import model.player.PC;
+import model.player.VariantManager;
 import model.spells.Spell;
+import model.spells.SpellList;
+import model.spells.heightened.HeightenedSpell;
+import model.util.ObjectNotFoundException;
 import model.util.Pair;
 import model.util.StringUtils;
 import model.util.Triple;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.Files;
+import java.io.Writer;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ui.Main.character;
-
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class SaveLoadManager {
+    private static final String HEADER = "PF2Gen Save - v";
+    private static final int VERSION = 5;
+
     private SaveLoadManager() {}
-    public static void save(File file){
-        PrintWriter out = null;
-        if (file != null) {
-        try {
-            out = new PrintWriter(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+    public static void save(PC character, Writer out) throws IOException {
         if (out != null) {
+            writeOutLine(out, HEADER+SaveLoadManager.VERSION);
+            writeOutLine(out, "Sources");
+            for (Source source : character.sources().getSources()) {
+                writeOutLine(out, " - "+source.getName());
+            }
+            writeOutLine(out, "Variant Rules");
+            for (Map.Entry<VariantManager.Variant, Boolean> entry : character.variants().getMap().entrySet()) {
+                if(entry.getValue())
+                    writeOutLine(out, " - "+entry.getKey());
+            }
             writeOutLine(out, "name = "+character.qualities().get("name"));
             writeOutLine(out, "player = "+character.qualities().get("player"));
             writeOutLine(out, "alignment = "+character.getAlignment());
@@ -78,7 +84,7 @@ public class SaveLoadManager {
 
             //Decisions
             writeOutLine(out, "Decisions");
-            for (Choice decision : character.decisions().getDecisions()) {
+            for (Choice<?> decision : character.decisions().getDecisions()) {
                 if(decision.getSelections().size() == 0) continue;
                 StringBuilder builder = new StringBuilder();
                 builder.append(decision.toString()).append(" : ");
@@ -93,24 +99,42 @@ public class SaveLoadManager {
             writeOutLine(out, "money = " + character.inventory().getMoney());
             writeOutLine(out, "Inventory");
             for (ItemCount item : character.inventory().getItems().values()) {
-                if(item.stats() instanceof RunedEquipment) {
-                    RunedEquipment stats = (RunedEquipment) item.stats();
-                    writeOutLine(out, " @ "+item.getCount()+" "+stats.getBaseItem().getName());
-                    List<Rune> fundamentalRunes = new ArrayList<>();
-                    List<Rune> propertyRunes = new ArrayList<>();
-                    for (Object o : stats.getRunes().list()) {
-                        if(o instanceof Rune) {
-                            Rune rune = (Rune) o;
-                            if(rune.isFundamental())
-                                fundamentalRunes.add(rune);
-                            else
-                                propertyRunes.add(rune);
+                if(item.stats() instanceof ItemInstance) {
+                    ItemInstance stats = (ItemInstance) item.stats();
+                    writeOutLine(out, " @ " + item.getCount() + " " + stats.getRawName());
+                    Runes<?> runes = Runes.getRunes(item.stats());
+                    if(runes != null) {
+                        List<Rune> fundamentalRunes = new ArrayList<>();
+                        List<Rune> propertyRunes = new ArrayList<>();
+
+                        for (Item o : runes.list()) {
+                            Rune rune = o.getExtension(ArmorRune.class);
+                            if (rune == null)
+                                rune = o.getExtension(WeaponRune.class);
+                            if (rune != null) {
+                                if (rune.isFundamental())
+                                    fundamentalRunes.add(rune);
+                                else
+                                    propertyRunes.add(rune);
+                            }
                         }
+                        writeOutLine(out, "    Runes");
+                        for (Rune rune : fundamentalRunes)
+                            writeOutLine(out, "     - " + rune.getItem().getName());
+                        for (Rune rune : propertyRunes)
+                            writeOutLine(out, "     - " + rune.getItem().getName());
                     }
-                    for (Rune rune : fundamentalRunes)
-                        writeOutLine(out, "   - " + rune.getName());
-                    for (Rune rune : propertyRunes)
-                        writeOutLine(out, "   - " + rune.getName());
+                    ItemInstanceChoices choices = stats.getExtension(ItemInstanceChoices.class);
+                    if(choices != null) {
+                        for (Map.Entry<String, Choice<?>> entry : choices.getChoices().entrySet()) {
+                            writeOutLine(out, "    " + entry.getKey());
+                            for (Object selection : entry.getValue().getSelections()) {
+                                writeOutLine(out, "     - " + selection.toString());
+                            }
+
+                        }
+
+                    }
                 }else writeOutLine(out, " - "+item.getCount()+" "+item.stats().getName());
             }
             writeOutLine(out, "Equipped");
@@ -123,6 +147,16 @@ public class SaveLoadManager {
                 writeOutLine(out, " - Carried: "+itemCount.getCount()+" "+itemCount.stats().getName());
             }
 
+            //Formulas
+            writeOutLine(out, "Formulas Bought");
+            for (Item formula : character.inventory().getFormulasBought()) {
+                writeOutLine(out, " - "+formula.getRawName());
+            }
+            writeOutLine(out, "Formulas Granted");
+            for (Item formula : character.inventory().getFormulasGranted()) {
+                writeOutLine(out, " - "+formula.getRawName());
+            }
+
 
             //Spells
             writeOutLine(out, "Spells Known");
@@ -132,7 +166,7 @@ public class SaveLoadManager {
                 for (ObservableList<Spell> spells : entry.getValue().getSpellsKnown()) {
                     writeOutLine(out, "   - Level "+i);
                     for (Spell spell : spells) {
-                        writeOutLine(out, "     - "+ spell.getName());
+                        writeOutLine(out, "     - "+ spell.getRawName());
                     }
                     i++;
                 }
@@ -141,27 +175,51 @@ public class SaveLoadManager {
 
             out.close();
         }
-        }
     }
 
-    private static void writeOutLine(PrintWriter out, String s) {
+    private static void writeOutLine(Writer out, String s) throws IOException {
         out.write(s);
-        out.println();
+        out.write(System.lineSeparator());
     }
 
-    public static void load(File file) {
-        if (file != null) {
-            List<String> lineList;
-            try {
-                lineList = Files.readAllLines(file.toPath());
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
+    public static void load(PC character, List<String> lineList) {
             Pair<List<String>, Integer> lines= new Pair<>(lineList, 0);
-            reset();
+            character.reset();
             long start = System.currentTimeMillis();
             String curr = nextLine(lines);
+            int version = 0;
+            if(curr.startsWith(HEADER)) {
+                version = Integer.parseInt(curr.substring(HEADER.length()));
+            }
+            if(version > VERSION)
+                throw new RuntimeException("Save is from newer version of software!!!");
+            while (version < VERSION) {
+                version++;
+                SaveCompatibilityConverter.updateTo(lines, version);
+            }
+
+            //Load Sources
+            lines.second++; // Skip Section Header
+            curr = nextLine(lines);
+            while(curr.startsWith(" - ")) {
+                character.sources().add(SourcesLoader.instance().find(curr.substring(3)));
+                curr = nextLine(lines);
+            }
+
+            //Load Variant Rules
+            curr = nextLine(lines);
+            while(curr.startsWith(" - ")) {
+                switch(VariantManager.Variant.valueOf(curr.substring(3).trim())) {
+                    case FreeArchetype:
+                        character.variants().setFreeArchetype(true);
+                        break;
+                    default:
+                        throw new RuntimeException("Variant rule not supported in save/load!");
+                }
+                curr = nextLine(lines);
+            }
+
+            // Load simple details
             while(curr.contains("=")) {
                 String[] split = curr.split(" ?= ?", 2);
                 String afterEq = split[1];
@@ -170,19 +228,39 @@ public class SaveLoadManager {
                     case "name": character.qualities().set("name", afterEq); break;
                     case "player": character.qualities().set("player", afterEq); break;
                     case "alignment": character.setAlignment(Alignment.valueOf(afterEq)); break;
-                    case "deity": character.setDeity(SourcesLoader.instance().deities().find(afterEq));
+                    case "deity":
+                        try {
+                            character.setDeity(character.sources().deities().find(afterEq));
+                        } catch (ObjectNotFoundException e) {
+                            e.printStackTrace();
+                        }
                         break;
                     case "ancestry":
-                        if(!StringUtils.clean(afterEq).equals("no_ancestry"))
-                            character.setAncestry(SourcesLoader.instance().ancestries().find(afterEq));
+                        if(!StringUtils.clean(afterEq).equals("no_ancestry")) {
+                            try {
+                                character.setAncestry(character.sources().ancestries().find(afterEq));
+                            } catch (ObjectNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                        }
                         break;
                     case "background":
-                        if(!StringUtils.clean(afterEq).equals("no_background"))
-                            character.setBackground(SourcesLoader.instance().backgrounds().find(afterEq));
+                        if(!StringUtils.clean(afterEq).equals("no_background")) {
+                            try {
+                                character.setBackground(character.sources().backgrounds().find(afterEq));
+                            } catch (ObjectNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                        }
                         break;
                     case "class":
-                        if(!StringUtils.clean(afterEq).equals("no_class"))
-                            character.setPClass(SourcesLoader.instance().classes().find(afterEq));
+                        if(!StringUtils.clean(afterEq).equals("no_class")) {
+                            try {
+                                character.setPClass(character.sources().classes().find(afterEq));
+                            } catch (ObjectNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                        }
                         break;
                     case "level":
                         int lvl = Integer.parseInt(afterEq);
@@ -247,7 +325,7 @@ public class SaveLoadManager {
             }
 
             // Start to Load Decisions
-            boolean allDecisionsMade = makeDecisions(decisionStringMap);
+            boolean allDecisionsMade = makeDecisions(character, decisionStringMap);
 
             //Load Skill Increases and remaining Decisions
             for (String skillIncrease : skillIncreases) {
@@ -266,7 +344,7 @@ public class SaveLoadManager {
                         data = attribute.substring(openBracket + 1, closeBracket);
                     }
                     if(!allDecisionsMade && character.attributes().getSkillIncreasesRemaining(level) == 0)
-                        allDecisionsMade = makeDecisions(decisionStringMap);
+                        allDecisionsMade = makeDecisions(character, decisionStringMap);
                     character.attributes().advanceSkill(Attribute.valueOf(attribute), data);
                 }
             }
@@ -287,38 +365,48 @@ public class SaveLoadManager {
                 if (s.startsWith(" - ")) {
                     String[] split = s.substring(3).split(" ", 2);
                     String cleanedName = StringUtils.clean(split[1]);
-                    SortedMap<String, ? extends Equipment> tailMap = SourcesLoader.instance().equipment()
-                            .getAll().tailMap(cleanedName);
-                    if(tailMap.isEmpty() || !tailMap.get(tailMap.firstKey()).getName().equals(split[1]))
-                        tailMap = SourcesLoader.instance().armor()
-                                .getAll().tailMap(cleanedName);
-                    if(tailMap.isEmpty() || !tailMap.get(tailMap.firstKey()).getName().equals(split[1]))
-                        tailMap = SourcesLoader.instance().weapons()
-                                .getAll().tailMap(cleanedName);
-                    if (!tailMap.isEmpty() && tailMap.firstKey().equals(cleanedName))
-                        character.inventory().buy(tailMap.get(tailMap.firstKey()), Integer.parseInt(split[0]));
+                    Item item = null;
+                    try {
+                        item = character.sources().equipment().find(cleanedName);
+                    } catch (ObjectNotFoundException e) {
+                        try {
+                            item = character.sources().armor().find(cleanedName);
+                        } catch (ObjectNotFoundException objectNotFoundException) {
+                            try {
+                                item = character.sources().weapons().find(cleanedName);
+                            } catch (ObjectNotFoundException notFoundException) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    if(item != null)
+                        character.inventory().buy(item, Integer.parseInt(split[0]));
                 } else if (s.startsWith(" @ ")) {
                     String itemName = StringUtils.clean(s.substring(3).split(" ", 2)[1]);
-                    Equipment item;
-                    SortedMap<String, ? extends Equipment> tailMap = SourcesLoader.instance().equipment()
-                            .getAll().tailMap(itemName);
-                    if(tailMap.isEmpty() || !tailMap.get(tailMap.firstKey()).getName().equals(itemName))
-                        tailMap = SourcesLoader.instance().armor()
-                                .getAll().tailMap(itemName);
-                    if(tailMap.isEmpty() || !tailMap.get(tailMap.firstKey()).getName().equals(itemName))
-                        tailMap = SourcesLoader.instance().weapons()
-                                .getAll().tailMap(itemName);
-                    if (!tailMap.isEmpty() && tailMap.firstKey().equals(itemName)) {
-                        item = tailMap.get(tailMap.firstKey());
-                        character.inventory().buy(item, 1);
-                        upgradeItem(item, lines);
+                    Item item = null;
+                    try {
+                        item = character.sources().equipment().find(itemName);
+                    } catch (ObjectNotFoundException e) {
+                        try {
+                            item = character.sources().armor().find(itemName);
+                        } catch (ObjectNotFoundException objectNotFoundException) {
+                            try {
+                                item = character.sources().weapons().find(itemName);
+                            } catch (ObjectNotFoundException notFoundException) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    if (item != null) {
+                        ItemInstance instance = new ItemInstance(item);
+                        character.inventory().buy(instance, 1);
+                        modifyItem(character, instance, lines);
                     }
                 } else {
                     lines.second--;
                     break;
                 }
             }
-            character.inventory().setMode(BuySellMode.FullPrice);
 
             //Equipping
             lines.second++; // Skip Section Header
@@ -339,6 +427,42 @@ public class SaveLoadManager {
                     }
                 }
             }
+
+            //Formulas Bought
+            lines.second++; //Skip Section Header
+            while(true) {
+                String s;
+                try { s = nextLine(lines); }
+                catch(RuntimeException e) { break; }
+                if(!s.startsWith(" - ")) {
+                    lines.second--;
+                    break;
+                }
+                try {
+                    Item item = character.sources().equipment().find(s.substring(3));
+                    character.inventory().addFormula(new ItemFormula(item), true);
+                } catch (ObjectNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+            //Formulas Granted
+            lines.second++; //Skip Section Header
+            while(true) {
+                String s;
+                try { s = nextLine(lines); }
+                catch(RuntimeException e) { break; }
+                if(!s.startsWith(" - ")) {
+                    lines.second--;
+                    break;
+                }
+                try {
+                    Item item = character.sources().equipment().find(s.substring(3));
+                    character.inventory().addFormula(new ItemFormula(item), false);
+                } catch (ObjectNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+            character.inventory().setMode(BuySellMode.FullPrice);
 
             //Spells
             lines.second++; // Skip Section Header
@@ -361,48 +485,56 @@ public class SaveLoadManager {
                             lines.second--;
                             break;
                         }
-                        spellList.addSpell(SourcesLoader.instance().spells()
-                                .find(s.substring(spellString.length())));
+                        try {
+                            Spell spell = character.sources().spells()
+                                    .find(s.substring(spellString.length()));
+                            if(spell.getLevelOrCantrip() < i)
+                                spell = new HeightenedSpell(spell, i);
+                            spellList.addSpell(spell);
+                        } catch (ObjectNotFoundException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
                 if(lines.second >= lines.first.size())
                     break;
                 spellListName = nextLine(lines);
             }
+            character.mods().refreshAlways();
             System.out.println(System.currentTimeMillis()-start+" ms");
-        }
     }
 
-    private static boolean makeDecisions(Map<String, String> decisionStringMap) {
+    private static boolean makeDecisions(PC character, Map<String, String> decisionStringMap) {
         ObservableList<Choice<?>> decisions = character.decisions().getUnmadeDecisions();
         while(decisions.size() > 0){
             int successes = 0;
             int index = 0;
             while(index < decisions.size()) {
-                Choice decision = decisions.get(index);
+                Choice<?> decision = decisions.get(index);
                 if(decisionStringMap.get(decision.toString()) == null) {
                     index++;
                     continue;
                 }
                 List<String> selections = Arrays.asList(
                         decisionStringMap.get(decision.toString()).split(" ?\\^ ?"));
-                List options;
+                List<?> options;
                 if(decision instanceof ChoiceList)
-                    options = ((ChoiceList) decision).getOptions();
+                    options = ((ChoiceList<?>) decision).getOptions();
                 else if(decision instanceof FeatSlot)
                     options = character.abilities().getOptions((FeatSlot)decision);
                 else options = Collections.emptyList();
                 for (Object option : options) {
                     if(selections.contains(option.toString())) {
                         int oldSize = decision.getSelections().size();
-                        decision.add(option);
+                        if(!decision.tryAdd(option))
+                            throw new ClassCastException("Could not cast "+option+" to "+decision.getOptionsClass());
                         if(decision.getSelections().size() > oldSize)
                             successes++;
                         if(decision.getSelections().size() == selections.size()) {
                             index--;
                             decisionStringMap.remove(decision.toString());
+                            break;
                         }
-                        break;
                     }
                 }
                 index++;
@@ -412,27 +544,60 @@ public class SaveLoadManager {
         return decisions.isEmpty();
     }
 
-    private static void upgradeItem(Equipment item, Pair<List<String>, Integer> lines) {
-        String s;
-        while (true) {
-            Rune rune;
-            try { s = nextLine(lines); }
-            catch(RuntimeException e) { return; }
-            if(!s.startsWith("   - ")) {
-                lines.second--;
-                return;
-            }
-            String itemName = s.substring(5);
-            SortedMap<String, Equipment> tailMap = SourcesLoader.instance().equipment()
-                    .getAll().tailMap(StringUtils.clean(itemName));
-            if (!tailMap.isEmpty()) {
-                if(tailMap.get(tailMap.firstKey()).getName().equals(itemName)) {
-                    if(tailMap.get(tailMap.firstKey()) instanceof Rune) {
-                        rune = (Rune) tailMap.get(tailMap.firstKey());
-                        character.inventory().buy(rune, 1);
-                        item = character.inventory().tryToAddRune(item, rune).second;
+    private static void modifyItem(PC character, ItemInstance instance, Pair<List<String>, Integer> lines) {
+        while(true) {
+            String s = nextLine(lines);
+            if (s.startsWith("    ")) {
+                if (s.equalsIgnoreCase("    Runes")) {
+                    while (true) {
+                        try {
+                            s = nextLine(lines);
+                        } catch (RuntimeException e) {
+                            return;
+                        }
+                        if (!s.startsWith("     - ")) {
+                            lines.second--;
+                            break;
+                        }
+                        String itemName = s.substring("     - ".length());
+                        try {
+                            Item rune = character.sources().equipment()
+                                    .find(itemName);
+                            if (Rune.isRune(rune)) {
+                                character.inventory().buy(rune, 1);
+                                character.inventory().tryToAddRune(instance, Rune.getRune(rune));
+                            }
+                        } catch (ObjectNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } else {
+                    String choiceName = s.substring(4);
+                    ItemInstanceChoices choices = instance.getExtension(ItemInstanceChoices.class);
+                    Choice<?> choice = choices.getChoices().get(choiceName);
+                    while (true) {
+                        try {
+                            s = nextLine(lines);
+                        } catch (RuntimeException e) {
+                            return;
+                        }
+                        if (!s.startsWith("     - ")) {
+                            lines.second--;
+                            break;
+                        }
+                        String decision = s.substring("     - ".length());
+                        if(choice.getOptionsClass() == Spell.class) {
+                            try {
+                                choice.tryAdd(character.sources().spells().find(decision));
+                            } catch (ObjectNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
                 }
+            } else{
+                lines.second--;
+                return;
             }
         }
     }
@@ -466,9 +631,5 @@ public class SaveLoadManager {
             choices = AbilityScore.scores();
         }
         return new Triple<>(type, target, choices);
-    }
-
-    public static void reset() {
-        character.reset();
     }
 }

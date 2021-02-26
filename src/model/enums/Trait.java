@@ -1,18 +1,13 @@
 package model.enums;
 
-import model.NamedObject;
-import model.data_managers.sources.SourcesLoader;
+import model.AbstractNamedObject;
 
-public class Trait extends NamedObject implements Comparable<Trait> {
+public class Trait extends AbstractNamedObject implements Comparable<Trait> {
     private final String category;
 
     protected Trait(Builder builder) {
         super(builder);
         category = builder.category;
-    }
-
-    public static Trait valueOf(String s) {
-        return SourcesLoader.instance().traits().find(s);
     }
 
     public String getCategory() {
@@ -21,10 +16,10 @@ public class Trait extends NamedObject implements Comparable<Trait> {
 
     @Override
     public int compareTo(Trait o) {
-        return getName().compareTo(o.getName());
+        return getName().compareToIgnoreCase(o.getName());
     }
 
-    public static class Builder extends NamedObject.Builder {
+    public static class Builder extends AbstractNamedObject.Builder {
         private String category = "";
 
         public void setCategory(String category) {

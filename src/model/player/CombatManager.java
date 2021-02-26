@@ -3,14 +3,14 @@ package model.player;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import model.attributes.Attribute;
 import model.enums.Slot;
-import model.enums.Trait;
-import model.equipment.Equipment;
-import model.equipment.armor.Armor;
-import model.equipment.armor.Shield;
-import model.equipment.weapons.Damage;
-import model.equipment.weapons.DamageModifier;
-import model.equipment.weapons.RangedWeapon;
-import model.equipment.weapons.Weapon;
+import model.items.Item;
+import model.items.armor.Armor;
+import model.items.armor.Shield;
+import model.items.runes.runedItems.RunedWeapon;
+import model.items.weapons.Damage;
+import model.items.weapons.DamageModifier;
+import model.items.weapons.RangedWeapon;
+import model.items.weapons.Weapon;
 
 import java.util.*;
 
@@ -35,11 +35,10 @@ public class CombatManager implements PlayerState {
 
     public int getAC() {
         if(inventory.getEquipped(Slot.Armor) != null) {
-            Armor armor = (Armor) inventory.getEquipped(Slot.Armor).stats();
+            Armor armor = inventory.getEquipped(Slot.Armor).stats().getExtension(Armor.class);
             if(armor != null) {
                 int dexMod = scores.getMod(Dex);
-                if(scores.getScore(Str) < armor.getStrength())
-                    dexMod = Math.min(dexMod, armor.getMaxDex());
+                dexMod = Math.min(dexMod, armor.getMaxDex());
                 return 10 + attributes.getProficiency(Attribute.valueOf(armor.getProficiency()), "")
                         .getValue().getMod(level.get()) + armor.getAC() + dexMod;
             }
@@ -49,41 +48,46 @@ public class CombatManager implements PlayerState {
 
     public int getArmorProficiency() {
         if(inventory.getEquipped(Slot.Armor) != null) {
-            Armor armor = (Armor) inventory.getEquipped(Slot.Armor).stats();
+            Armor armor = inventory.getEquipped(Slot.Armor).stats().getExtension(Armor.class);
             if(armor != null)
                 return attributes.getProficiency(Attribute.valueOf(armor.getProficiency()), "").getValue().getMod(level.get());
         }
         return attributes.getProficiency(Attribute.Unarmored, "").getValue().getMod(level.get());
     }
 
-    public Armor getArmor() {
+    public Item getArmor() {
         if(inventory.getEquipped(Slot.Armor) != null) {
-            return (Armor) inventory.getEquipped(Slot.Armor).stats();
+            return inventory.getEquipped(Slot.Armor).stats();
         }
-        return Armor.NO_ARMOR;
+        return Armor.NO_ARMOR.getItem();
     }
 
-    public Shield getShield() {
+    public Item getShield() {
         if(inventory.getEquipped(Slot.OneHand) != null) {
-            Equipment stats = inventory.getEquipped(Slot.OneHand).stats();
-            if(stats instanceof Shield) return (Shield) stats;
+            Item stats = inventory.getEquipped(Slot.OneHand).stats();
+            if(stats.hasExtension(Shield.class)) return stats;
         }
         if(inventory.getEquipped(Slot.OffHand) != null) {
-            Equipment stats = inventory.getEquipped(Slot.OffHand).stats();
-            if(stats instanceof Shield) return (Shield) stats;
+            Item stats = inventory.getEquipped(Slot.OffHand).stats();
+            if(stats.hasExtension(Shield.class)) return stats;
         }
-        return Shield.NO_SHIELD;
+        return Shield.NO_SHIELD.getItem();
     }
 
-    public int getAttackMod(Weapon weapon) {
-        int mod = attributes.getProficiency(weapon.getProficiency(), weapon).getMod(level.get());
+    public int getAttackMod(Item weapon) {
+        int mod = attributes.getProficiency(weapon.getExtension(Weapon.class).getProficiency(), weapon).getMod(level.get());
 
-        if(weapon.getWeaponTraits().contains(Trait.valueOf("Finesse")))
-            return mod + weapon.getAttackBonus() + Math.max(scores.getMod(Str), scores.getMod(Dex));
-        else if(weapon instanceof RangedWeapon)
-            return mod + weapon.getAttackBonus() + scores.getMod(Dex);
+        RunedWeapon extension = weapon.getExtension(RunedWeapon.class);
+        if(extension != null) {
+            mod += extension.getAttackBonus();
+        }
+
+        if(weapon.getTraits().stream().anyMatch(t->t.getName().equals("Finesse")))
+            return mod + weapon.getExtension(Weapon.class).getAttackBonus() + Math.max(scores.getMod(Str), scores.getMod(Dex));
+        else if(weapon.hasExtension(RangedWeapon.class))
+            return mod + weapon.getExtension(Weapon.class).getAttackBonus() + scores.getMod(Dex);
         else
-            return mod + weapon.getAttackBonus() + scores.getMod(Str);
+            return mod + weapon.getExtension(Weapon.class).getAttackBonus() + scores.getMod(Str);
     }
 
     void addAttacks(List<Weapon> attacks) {
@@ -98,24 +102,30 @@ public class CombatManager implements PlayerState {
         return Collections.unmodifiableList(attacks);
     }
 
-    public Damage getDamage(Weapon weapon) {
-        Damage damage = weapon.getDamage().add(getDamageMod(weapon), weapon.getDamageType());
-        for (DamageModifier damageModifier : damageModifiers.values()) {
-            damage = damageModifier.apply(weapon, damage);
+    public Damage getDamage(Item weapon) {
+        RunedWeapon runedWeapon = weapon.getExtension(RunedWeapon.class);
+        Weapon extension = weapon.getExtension(Weapon.class);
+        Damage damage;
+        if(runedWeapon != null) {
+            damage = runedWeapon.getDamage().add(getDamageMod(weapon), extension.getDamageType());
+        }else{
+            damage = extension.getDamage().add(getDamageMod(weapon), extension.getDamageType());
         }
-
+        for (DamageModifier damageModifier : damageModifiers.values()) {
+            damage = damageModifier.apply(extension, damage);
+        }
         return damage;
     }
 
-    private int getDamageMod(Weapon weapon) {
-        if(weapon.getWeaponTraits().contains(Trait.valueOf("Thrown")))
-            return scores.getMod(Str);
-        else if(weapon instanceof RangedWeapon)
-            return 0;
-        else if(weapon.getHands() == 2)
-            return (int) (scores.getMod(Str) * 1.5);
-        else
-            return scores.getMod(Str);
+    private int getDamageMod(Item weapon) {
+        Integer mod = scores.getMod(Str);
+        if(weapon.getTraits().stream().anyMatch(t->t.getName().equals("Thrown")))
+            return mod;
+        else if(weapon.getExtension(Weapon.class).isRanged()){
+            if(weapon.getTraits().stream().anyMatch(t->t.getName().equals("Propulsive"))) {
+                return (mod > 0) ? mod / 2 : mod;
+            } else return 0;
+        } else return mod;
     }
 
     void addDamageModifier(String name, DamageModifier d) {

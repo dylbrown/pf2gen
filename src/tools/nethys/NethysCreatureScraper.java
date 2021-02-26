@@ -19,18 +19,18 @@ public class NethysCreatureScraper extends NethysListScraper {
 
     public static void main(String[] args) {
         new NethysCreatureScraper(
-                "https://2e.aonprd.com/Monsters.aspx?Letter=All",
-                "generated/creatures.pfdyl",
-                source->source.equals("bestiary"));
+                "https://2e.aonprd.com/NPCs.aspx?Letter=All",
+                "generated/npcs.pfdyl",
+                source->source.equals("gamemastery_guide"));
     }
 
     public NethysCreatureScraper(String inputURL, String outputPath, Predicate<String> sourceValidator) {
         super(inputURL, outputPath, "ctl00_MainContent_TableElement",
-                href-> href.contains("Monsters") && href.contains("ID="), sourceValidator, true);
+                href-> href.contains("NPCs") && href.contains("ID="), sourceValidator, true);
     }
 
     @Override
-    Pair<String, String> addItem(Document doc) {
+    Entry addItem(Document doc) {
         Element output = doc.getElementById("ctl00_MainContent_DetailedOutput");
 
         Elements titles = output.getElementsByTag("h1");
@@ -121,7 +121,7 @@ public class NethysCreatureScraper extends NethysListScraper {
             result.append("\t<OffensiveAbilities>\n").append(offensiveAbilities).append("\t</OffensiveAbilities>\n");
         result.append("\t<Description>").append(description).append("</Description>\n");
         result.append("</Creature>\n");
-        return new Pair<>(result.toString(), sourcePage.first);
+        return new Entry(creature, result.toString(), sourcePage.first);
     }
 
     private void loadAbilities(Element curr, StringBuilder abilities, StringBuilder attacks, StringBuilder spells) {

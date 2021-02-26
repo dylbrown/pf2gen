@@ -10,12 +10,14 @@ import model.ability_slots.*;
 import model.attributes.*;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
-import model.data_managers.sources.SourcesLoader;
 import model.enums.*;
+import model.items.weapons.Weapon;
 import model.spells.CasterType;
 import model.spells.SpellType;
 import model.spells.Tradition;
+import model.util.ObjectNotFoundException;
 import model.util.Pair;
+import model.util.StringUtils;
 import model.xml_parsers.equipment.WeaponsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -30,10 +32,12 @@ import static model.util.StringUtils.camelCaseWord;
 
 public abstract class AbilityLoader<T> extends FileLoader<T> {
 
-    protected static List<DynamicFilledSlot> dynSlots;
+    protected final static Stack<Pair<String, DynamicFilledSlot>> dynSlots = new Stack<>();
+    private final WeaponsLoader weaponsLoader;
 
     public AbilityLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
         super(sourceConstructor, root, sourceBuilder);
+        weaponsLoader = new WeaponsLoader(null, root, sourceBuilder);
     }
 
    protected static Map<Class<? extends AbilityLoader<?>>, Function<Element, Type>> sources = new HashMap<>();
@@ -65,7 +69,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         String[] split = string.trim().split(" ");
         for(String term: split) {
             if(!term.trim().equals(""))
-                results.add(camelCaseWord(term.trim()));
+                results.add(StringUtils.clean(term.trim()));
         }
         return results;
     }
@@ -74,7 +78,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
     }
 
     protected Ability.Builder makeAbility(Element element, String name, int level) {
-        Ability.Builder builder;
+        Ability.Builder builder = null;
         // Load a template
         Node firstChild = element.getFirstChild();
         if(firstChild != null)
@@ -82,10 +86,18 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                 firstChild = firstChild.getNextSibling();
 
         if(firstChild != null) {
-            if(((Element) firstChild).getTagName().equals("Template"))
-                builder = SourcesLoader.instance().templates().find(firstChild.getTextContent().trim()).get();
-            else builder = new Ability.Builder();
-        } else builder = new Ability.Builder();
+            if(((Element) firstChild).getTagName().equals("Template")) {
+                try {
+                    builder = findFromDependencies(
+                            "Template",
+                            TemplatesLoader.class,
+                            firstChild.getTextContent()).get();
+                } catch (ObjectNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        if (builder == null) builder = new Ability.Builder();
         if(!element.getAttribute("cost").equals("")) {
             builder.getExtension(ActivityExtension.Builder.class)
                     .setCost(Action.robustValueOf(element.getAttribute("cost")));
@@ -131,9 +143,6 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                 case "Description":
                     builder.setDescription(trim);
                     break;
-                case "Prerequisites":
-                    builder.setPrerequisites(Arrays.asList(trim.split(", ?")));
-                    break;
                 case "PrereqStrings":
                     builder.setPrereqStrings(Arrays.asList(trim.split(", ?")));
                     break;
@@ -144,37 +153,56 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     builder.setRequirements(trim);
                     break;
                 case "Requires":
-                    List<AttributeRequirement> requiredAttrs = new ArrayList<>();
-                    List<Pair<AbilityScore, Integer>> requiredScores = new ArrayList<>();
-                    for (String s : trim.split(",")) {
+                case "Prerequisites":
+                    List<Requirement<CustomAttribute>> attrRequirements = new ArrayList<>();
+                    List<Requirement<String>> weaponRequirements = new ArrayList<>();
+                    for (String s : trim.split(", ?")) {
                         if(s.matches(".*\\d.*")) {
                             String[] split = s.trim().split(" ", 2);
-                            requiredScores.add(
-                                    new Pair<>(AbilityScore.robustValueOf(split[0]), Integer.parseInt(split[1])));
-                        } else {
+                            builder.addRequiredScore(new Pair<>(AbilityScore.robustValueOf(split[0]), Integer.parseInt(split[1])));
+                        } else if(s.matches("(Trained|Expert|Master|Legendary) [Ii]n .*")) {
                             if(s.contains("or")) {
                                 String[] orStrings = s.split(" or ");
-                                List<AttributeRequirement> orRequirements = new ArrayList<>();
+                                List<Requirement<CustomAttribute>> orRequirements = new ArrayList<>();
                                 for (String option : orStrings) {
-                                    orRequirements.add(getRequirement(option));
+                                    orRequirements.add(getAttrReq(option));
                                 }
-                                requiredAttrs.add(new AttributeRequirementList(orRequirements));
+                                attrRequirements.add(new RequirementList<>(orRequirements, false));
                             } else {
-                                requiredAttrs.add(getRequirement(s));
+                                attrRequirements.add(getAttrReq(s));
                             }
+                        } else if(s.matches("(Trained|Expert|Master|Legendary) [Ww]ith [Aa] .*")) {
+                            if(s.contains("or")) {
+                                String[] orStrings = s.split(" or ");
+                                List<Requirement<String>> orRequirements = new ArrayList<>();
+                                for (String option : orStrings) {
+                                    orRequirements.add(getReq(option));
+                                }
+                                weaponRequirements.add(new RequirementList<>(orRequirements, false));
+                            } else {
+                                weaponRequirements.add(getReq(s));
+                            }
+                        } else {
+                            builder.addPrerequisite(s.trim());
                         }
                     }
-
-                    builder.setRequiredAttrs(requiredAttrs);
-                    builder.setRequiredScores(requiredScores);
+                    if(attrRequirements.size() > 1)
+                        builder.addRequiredAttr(new RequirementList<>(attrRequirements, true));
+                    else if(attrRequirements.size() == 1)
+                        builder.addRequiredAttr(attrRequirements.get(0));
+                    if(weaponRequirements.size() > 1)
+                        builder.addRequiredWeapon(new RequirementList<>(weaponRequirements, true));
+                    else if(weaponRequirements.size() == 1)
+                        builder.addRequiredWeapon(weaponRequirements.get(0));
                     break;
                 case "Weapon":
                     builder.getExtension(AttackExtension.Builder.class)
-                            .addWeapon(WeaponsLoader.getWeapon(propElem));
+                            .addWeapon(weaponsLoader.getWeapon(propElem, this)
+                                    .getExtension(Weapon.class));
                     break;
                 case "CustomMod":
                     builder.setCustomMod(trim);
-                    switch (element.getAttribute("alwaysRecalculate")) {
+                    switch (propElem.getAttribute("recalculate")) {
                         case "Always":
                             builder.setRecalculateMod(Recalculate.Always);
                             break;
@@ -182,6 +210,11 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                             builder.setRecalculateMod(Recalculate.OnLevel);
                             break;
                     }
+                    break;
+                case "FormulasKnown":
+                    builder.getExtension(FormulaExtension.Builder.class)
+                            .addFormulasKnown(Integer.parseInt(propElem.getAttribute("level")),
+                            Integer.parseInt(propElem.getAttribute("count")));
                     break;
                 case "Spellcasting":
                     SpellExtension.Builder spellExt = builder.getExtension(SpellExtension.Builder.class);
@@ -192,7 +225,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     if(spellListName != null)
                         spellExt.setSpellListName(spellListName);
                     else System.out.println("Warning: missing spellListName");
-                    if(type != null && !type.toLowerCase().equals("") && !type.toLowerCase().equals("focusonly"))
+                    if(type != null && !type.equalsIgnoreCase("") && !type.equalsIgnoreCase("focusonly"))
                         spellExt.setCasterType(CasterType.valueOf(propElem.getAttribute("type")));
                     if(tradition != null && !tradition.equals(""))
                         spellExt.setTradition(Tradition.valueOf(tradition));
@@ -217,21 +250,58 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                         case "Focus": spellType = SpellType.Focus; break;
                         case "Focus Cantrip": spellType = SpellType.FocusCantrip; break;
                     }
-                    builder.getExtension(SpellExtension.Builder.class)
-                            .addBonusSpell(spellType, SourcesLoader.instance()
-                            .spells().find(propElem.getAttribute("name")));
+                    try {
+                        builder.getExtension(SpellExtension.Builder.class)
+                                .addBonusSpell(
+                                        spellType,
+                                        findFromDependencies(
+                                                "Spell",
+                                                SpellsLoader.class,
+                                                propElem.getAttribute("name")
+                                        ));
+                    } catch (ObjectNotFoundException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case "AbilitySlot":
                     builder.addAbilitySlot(makeAbilitySlot(propElem, level));
                     break;
                 case "Traits":
                     for (String s : trim.split(" ?, ?")) {
-                        Trait trait = Trait.valueOf(camelCaseWord(s.trim()));
-                        builder.addTraits(trait);
-                        if(trait == Trait.valueOf("Dedication"))
-                            builder.getExtension(ArchetypeExtension.Builder.class)
-                                    .setDedication(true);
+                        try {
+                            Trait trait = findFromDependencies(
+                                    "Trait",
+                                    TraitsLoader.class,
+                                    s.trim()
+                                    );
+                            builder.addTraits(trait);
+                            if(trait.getName().equals("Dedication"))
+                                builder.getExtension(ArchetypeExtension.Builder.class)
+                                        .setDedication(true);
+                            if(trait.getCategory().equals("Ancestry"))
+                                builder.getExtension(AncestryExtension.Builder.class).addRequiredAncestry(trait);
+                            if(trait.getCategory().equals("Lineage"))
+                                builder.getExtension(AncestryExtension.Builder.class).setFirstLevelOnly(true);
+                        } catch (ObjectNotFoundException e) {
+                            e.printStackTrace();
+                        }
                     }
+                    break;
+                case "GivesTraits":
+                    for (String s : trim.split(" ?, ?")) {
+                        try {
+                            Trait trait = findFromDependencies(
+                                    "Trait",
+                                    TraitsLoader.class,
+                                    s.trim()
+                            );
+                            if(trait.getCategory().equals("Ancestry"))
+                                builder.getExtension(AncestryExtension.Builder.class).addGrantedTrait(trait);
+                        } catch (ObjectNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
             }
         }
         Function<Element, Type> function = sources.get(this.getClass());
@@ -274,16 +344,24 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         return builder;
     }
 
-    private AttributeRequirement getRequirement(String option) {
+    private Requirement<CustomAttribute> getAttrReq(String option) {
         String[] split = option.split(" [iI]n ");
         Proficiency reqProf = Proficiency.valueOf(camelCaseWord(split[0].trim()));
-        int bracketIndex = split[1].indexOf("(");
+        int bracketIndex = option.indexOf("(");
+        CustomAttribute attr;
         if(bracketIndex != -1) {
             String data = camelCase(option.substring(bracketIndex+1).trim().trim().replaceAll("[()]", ""));
-            return new AttributeRequirement(Attribute.robustValueOf(option.substring(0, bracketIndex)), reqProf, data);
+            attr = new CustomAttribute(Attribute.robustValueOf(option.substring(0, bracketIndex)), data);
         }else{
-            return new AttributeRequirement(Attribute.robustValueOf(camelCase(split[1].trim())), reqProf, null);
+            attr = CustomAttribute.get(Attribute.robustValueOf(camelCase(split[1].trim())));
         }
+        return new SingleRequirement<>(attr, reqProf);
+    }
+
+    private Requirement<String> getReq(String option) {
+        String[] split = option.split(" [Ww]ith [Aa] ");
+        Proficiency reqProf = Proficiency.valueOf(camelCaseWord(split[0].trim()));
+        return new SingleRequirement<>(split[1].trim(), reqProf);
     }
 
     AbilitySlot makeAbilitySlot(Element propElem, int level) {
@@ -304,9 +382,19 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     Type dynamicType = getDynamicType(type);
                     DynamicFilledSlot contents = new DynamicFilledSlot(abilityName, slotLevel,
                             propElem.getAttribute("contents"),
-                            dynamicType, dynamicType.equals(Type.Class));
-                    if(dynamicType.equals(Type.Class))
-                        dynSlots.add(contents);
+                            dynamicType,
+                            (featType, name)->{
+                                Ability a = null;
+                                try {
+                                    a = findFromDependencies("Ability", FeatsLoader.class, name,
+                                            featType.toString());
+                                } catch (ObjectNotFoundException e) {
+                                    e.printStackTrace();
+                                }
+                                return a;
+                            });
+                    if(dynamicType.equals(Type.Class) || dynamicType.equals(Type.ClassFeature))
+                        dynSlots.add(new Pair<>(StringUtils.getInBrackets(type), contents));
                     return contents;
                 }
             case "feat":
@@ -331,7 +419,10 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
     }
 
     protected static Type getDynamicType(String type) {
-        return Type.valueOf(type.trim().replaceAll(" [fF]eat", ""));
+        return Type.valueOf(type
+                .replaceAll(" [fF]eat", "")
+                .replaceAll("\\([^)]*\\)", "")
+                .trim());
     }
 
     private static List<AbilityMod> getBoosts(int count, int level) {
@@ -394,7 +485,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
     protected AbilityMod getAbilityBonus(String abilityString, Type type) {
         String[] eachScore = abilityString.split("or|,");
         if(eachScore.length == 1) {
-            AbilityScore abilityScore = AbilityScore.valueOf(camelCaseWord(abilityString));
+            AbilityScore abilityScore = AbilityScore.robustValueOf(camelCaseWord(abilityString));
             if(abilityScore == AbilityScore.Free)
                 return new AbilityModChoice(type);
             else

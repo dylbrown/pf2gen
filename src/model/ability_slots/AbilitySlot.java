@@ -43,4 +43,6 @@ public abstract class AbilitySlot {
     public int getLevel(){
         return level;
     }
+
+    public abstract AbilitySlot copy();
 }

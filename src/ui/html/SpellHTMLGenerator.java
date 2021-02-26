@@ -1,9 +1,9 @@
 package ui.html;
 
 import model.enums.Trait;
-import model.equipment.weapons.Damage;
-import model.equipment.weapons.Dice;
-import model.spells.HeightenedEvery;
+import model.items.weapons.Damage;
+import model.items.weapons.Dice;
+import model.spells.heightened.HeightenedEvery;
 import model.spells.Spell;
 import model.util.Pair;
 import model.util.StringUtils;
@@ -168,7 +168,10 @@ public class SpellHTMLGenerator {
                     // Follows format "deal damage equal to ..."
                     startIndex = equalTo + 9;
                     while(desc.substring(i + searchString.length() + 9, endIndex).contains("damage")) {
-                        endIndex = desc.lastIndexOf("plus", endIndex);
+                        int newIndex = desc.lastIndexOf("plus", endIndex);
+                        if (newIndex == -1)
+                            break;
+                        endIndex = newIndex;
                     }
                 } else {
                     // Follows format "deal ... damage"

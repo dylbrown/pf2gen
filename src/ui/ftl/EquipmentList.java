@@ -7,8 +7,8 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.collections.transformation.SortedList;
 import model.enums.Slot;
-import model.equipment.Equipment;
-import model.equipment.ItemCount;
+import model.items.Item;
+import model.items.ItemCount;
 import model.util.Pair;
 import ui.ftl.wrap.ItemCountWrapper;
 
@@ -23,7 +23,7 @@ public class EquipmentList implements TemplateSequenceModel {
     private final SortedList<ItemCount> unequip = new SortedList<>(unequipList, Comparator.comparing(ItemCount::stats));
     private final ObjectWrapper wrapper;
 
-    public EquipmentList(ObservableMap<Equipment, ItemCount> unequipped, ObservableMap<Slot, ItemCount> equipped, ObjectWrapper wrapper) {
+    public EquipmentList(ObservableMap<Item, ItemCount> unequipped, ObservableMap<Slot, ItemCount> equipped, ObjectWrapper wrapper) {
         this.wrapper = wrapper;
         for (Map.Entry<Slot, ItemCount> entry : equipped.entrySet()) {
             equipList.add(new Pair<>(entry.getKey(), entry.getValue()));
@@ -31,14 +31,16 @@ public class EquipmentList implements TemplateSequenceModel {
         unequipList.addAll(unequipped.values());
         equipped.addListener((MapChangeListener<Slot, ItemCount>) change -> {
             if(change.wasAdded()) {
-                equipList.add(new Pair<>(change.getKey(), change.getValueAdded()));
+                if(change.getValueAdded().getCount() > 0)
+                    equipList.add(new Pair<>(change.getKey(), change.getValueAdded()));
             }
             if(change.wasRemoved()) {
-                equipList.remove(findSourceIndex(new Pair<>(change.getKey(), change.getValueRemoved()),
-                        equip, 0, equip.size()));
+                if(change.getValueRemoved().getCount() > 0)
+                    equipList.remove(findSourceIndex(new Pair<>(change.getKey(), change.getValueRemoved()),
+                            equip, 0, equip.size()));
             }
         });
-        unequipped.addListener((MapChangeListener<Equipment, ItemCount>) change -> {
+        unequipped.addListener((MapChangeListener<Item, ItemCount>) change -> {
             if(change.wasAdded()) {
                 unequipList.add(change.getValueAdded());
             }
@@ -65,7 +67,7 @@ public class EquipmentList implements TemplateSequenceModel {
 
 
     private int findSourceIndex(ItemCount itemCount, SortedList<ItemCount> list, int start, int end) {
-        if(start > end) return -1;
+        if(start >= end) return -1;
         ItemCount mid = unequip.get((start + end) / 2);
         int compare = list.getComparator().compare(itemCount, mid);
         if(compare < 0) return findSourceIndex(itemCount, list, start, (start + end) / 2);

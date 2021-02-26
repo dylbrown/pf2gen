@@ -1,24 +1,19 @@
 package tools.nethys;
 
-import model.util.Pair;
 import model.util.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 public abstract class NethysListScraper extends NethysScraper {
-    final Map<String, StringBuilder> sources = new ConcurrentHashMap<>();
+    final Map<String, Map<String, List<Entry>>> sources = new ConcurrentHashMap<>();
     final Set<Integer> ids = new HashSet<>();
     final ExecutorService executorService = Executors.newCachedThreadPool();
     final CompletionService<Boolean> completionService= new ExecutorCompletionService<>(executorService);
@@ -38,20 +33,34 @@ public abstract class NethysListScraper extends NethysScraper {
         this(inputURL, outputPath, container, hrefValidator, sourceValidator, false);
     }
 
+    public NethysListScraper(String inputURL, Writer out, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator) {
+        this(inputURL, out, container, hrefValidator, sourceValidator, false);
+    }
+
     public NethysListScraper(String inputURL, String outputPath, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator, boolean multithreaded) {
         this.multithreaded = multithreaded;
         parseList(inputURL, container, hrefValidator, e -> true);
         printOutput(outputPath, sourceValidator);
     }
 
+    public NethysListScraper(String inputURL, Writer out, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator, boolean multithreaded) {
+        this.multithreaded = multithreaded;
+        parseList(inputURL, container, hrefValidator, e -> true);
+        printOutput(out, sourceValidator);
+    }
+
     protected final void printOutput(String outputPath, Predicate<String> sourceValidator) {
         BufferedWriter out;
         try {
-            out = new BufferedWriter(new FileWriter(new File(outputPath)), 32768);
+            out = new BufferedWriter(new FileWriter(outputPath), 32768);
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
+        printOutput(out, sourceValidator);
+    }
+
+    protected final void printOutput(Writer out, Predicate<String> sourceValidator) {
         System.out.println("Checking Completion now");
         try {
             for(int i = 0; i < counter.get(); i++) {
@@ -62,20 +71,28 @@ public abstract class NethysListScraper extends NethysScraper {
         }
         afterThreadsCompleted();
         System.out.println("Writing to disk");
-        for (Map.Entry<String, StringBuilder> entry : sources.entrySet()) {
+        for (Map.Entry<String, Map<String, List<Entry>>> entry : sources.entrySet()) {
             if(!sourceValidator.test(entry.getKey()))
                 continue;
-            try {
-                out.append(entry.getValue());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            printList(entry.getValue(), out);
         }
         try {
             out.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    protected void printList(Map<String, List<Entry>> map, Writer out) {
+        map.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry->
+                entry.getValue().stream().sorted(Comparator.comparing(e->e.entryName)).forEach(e->{
+                            try {
+                                out.append(e.entry);
+                            } catch (IOException exception) {
+                                exception.printStackTrace();
+                            }
+                        })
+        );
     }
 
     protected void afterThreadsCompleted() {}
@@ -87,36 +104,43 @@ public abstract class NethysListScraper extends NethysScraper {
             rootDocument = Jsoup.connect(inputURL).get();
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.println(inputURL);
             return;
         }
-        rootDocument.getElementById(container).getElementsByTag("a").forEach(element -> {
-            String href = "";
-            try {
-                href = element.attr("href");
-                int id = -1;
-                try{
-                    id = Integer.parseInt(href.replaceAll(".*ID=", ""));
-                }catch (NumberFormatException ignored) {}
-                if(elementValidator.test(element) && hrefValidator.test(href) && !ids.contains(id)) {
-                    ids.add(id);
-                    if(multithreaded)
-                        setupItemMultithreaded(href);
-                    else
-                        setupItem(href);
+        AtomicBoolean firstRow = new AtomicBoolean(true);
+        rootDocument.getElementById("ctl00_MainContent_TableElement").getElementsByTag("tbody").first()
+                .getElementsByTag("tr").forEach(element -> {
+            if(!firstRow.get()) {
+                String href = "";
+                try {
+                    href = element.select("a[href*=\"?ID=\"]").first().attr("href");
+                    int id = -1;
+                    try{
+                        id = Integer.parseInt(href.replaceAll(".*ID=", ""));
+                    }catch (NumberFormatException ignored) {}
+                    if(elementValidator.test(element) && hrefValidator.test(href) && !ids.contains(id)) {
+                        ids.add(id);
+                        if(multithreaded)
+                            setupItemMultithreaded(href);
+                        else
+                            setupItem(href);
+                    }
+                } catch (Exception e) {
+                    System.out.println(href);
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                System.out.println(href);
-                e.printStackTrace();
-            }
+            } else firstRow.set(false);
         });
     }
 
     protected void setupItem(String href) throws IOException {
         System.out.println(href);
-        Pair<String, String> pair = addItem(Jsoup.connect("http://2e.aonprd.com/"+href).get());
-        if (!pair.first.equals(""))
-            sources.computeIfAbsent(StringUtils.clean(pair.second), key -> new StringBuilder())
-                    .append(pair.first);
+        Entry entry = addItem(Jsoup.connect("http://2e.aonprd.com/"+href).get());
+        if (!entry.entry.isBlank())
+            sources.computeIfAbsent(StringUtils.clean(entry.source), key ->
+                    new ConcurrentHashMap<>())
+                    .computeIfAbsent(entry.entryName, s->Collections.synchronizedList(new ArrayList<>()))
+                    .add(entry);
     }
 
     protected void setupItemMultithreaded(String href) {
@@ -130,14 +154,30 @@ public abstract class NethysListScraper extends NethysScraper {
             }
             try {
                 setupItem(href);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             semaphore.release();
         }, true);
     }
 
-    abstract Pair<String, String> addItem(Document doc);
+    public static class Entry {
+        public final String entryName;
+        public final String entry;
+        public final String source;
+
+        public Entry(String entryName, String entry, String source) {
+            this.entryName = entryName;
+            this.entry = entry;
+            this.source = source;
+        }
+
+        public String getEntryName() {
+            return entryName;
+        }
+    }
+
+    abstract Entry addItem(Document doc);
 
     public boolean isMultithreaded() {
         return multithreaded;

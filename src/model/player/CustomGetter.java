@@ -14,7 +14,10 @@ public class CustomGetter {
     }
 
     public Object get(String pathString) {
-        String[] path = StringUtils.getInBrackets(pathString, '{', '}').split("\\.");
+        String toBeSplit = StringUtils.getInBrackets(pathString, '{', '}');
+        if (toBeSplit.length() == 0)
+            toBeSplit = pathString;
+        String[] path = toBeSplit.split("\\.");
         Object curr = pc;
         for (String s : path) {
             for (Method method : curr.getClass().getMethods()) {

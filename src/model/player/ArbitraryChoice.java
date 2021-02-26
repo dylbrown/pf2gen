@@ -7,14 +7,13 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import model.ability_slots.ChoiceList;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
 public class ArbitraryChoice<T> implements ChoiceList<T> {
-    private final List<T> choices;
+    private final ObservableList<T> choices;
     private final Consumer<T> fillFunction;
     private final Consumer<T> emptyFunction;
     private final String name;
@@ -23,32 +22,28 @@ public class ArbitraryChoice<T> implements ChoiceList<T> {
     private final boolean multipleSelect;
     private final Class<T> optionsClass;
 
-    public ArbitraryChoice(String name, List<T> choices, Consumer<T> fillFunction, Consumer<T> emptyFunction,
-                    int maxSelections, boolean multipleSelect, Class<T> optionsClass) {
-        this.name = name;
-        this.choices = choices;
-        this.fillFunction = fillFunction;
-        this.emptyFunction = emptyFunction;
-        this.maxSelections = new ReadOnlyIntegerWrapper(maxSelections);
+    private ArbitraryChoice(Builder<T> builder) {
+        this.name = builder.name;
+        this.choices = builder.choices;
+        this.fillFunction = builder.fillFunction;
+        this.emptyFunction = builder.emptyFunction;
+        this.maxSelections = new ReadOnlyIntegerWrapper(builder.maxSelections);
         this.numSelections = new ReadOnlyIntegerWrapper(0);
         this.selections.addListener((ListChangeListener<T>) c-> numSelections.set(this.selections.size()));
-        this.multipleSelect = multipleSelect;
-        this.optionsClass = optionsClass;
-        if(choices instanceof ObservableList)
-            ((ObservableList<T>) choices).addListener((ListChangeListener<T>) change->{
-                while(change.next()) {
-                    for (T t : change.getRemoved()) {
-                        remove(t);
-                    }
+        this.multipleSelect = builder.multipleSelect;
+        this.optionsClass = builder.optionsClass;
+        choices.addListener((ListChangeListener<T>) change->{
+            while(change.next()) {
+                for (T t : change.getRemoved()) {
+                    remove(t);
                 }
-            });
+            }
+        });
     }
 
     @Override
-    public List<T> getOptions() {
-        if(choices instanceof ObservableList)
-            return FXCollections.unmodifiableObservableList((ObservableList<T>) choices);
-        return Collections.unmodifiableList(choices);
+    public ObservableList<T> getOptions() {
+        return FXCollections.unmodifiableObservableList(choices);
     }
 
     @Override
@@ -56,14 +51,15 @@ public class ArbitraryChoice<T> implements ChoiceList<T> {
         if(this.selections.size() < maxSelections.get() && this.choices.contains(choice) &&
                 (this.multipleSelect || !this.selections.contains(choice))) {
             this.selections.add(choice);
-            fillFunction.accept(choice);
+            if(fillFunction != null)
+                fillFunction.accept(choice);
         }
     }
 
     @Override
     public void remove(T choice) {
         boolean remove = this.selections.remove(choice);
-        if(remove) emptyFunction.accept(choice);
+        if(remove && emptyFunction != null) emptyFunction.accept(choice);
     }
 
     @Override
@@ -90,6 +86,11 @@ public class ArbitraryChoice<T> implements ChoiceList<T> {
     @Override
     public int getLevel() {
         return 0;
+    }
+
+    @Override
+    public ArbitraryChoice<T> copy() {
+        return new Builder<>(this).build();
     }
 
     @Override
@@ -154,6 +155,60 @@ public class ArbitraryChoice<T> implements ChoiceList<T> {
     public void clear() {
         while(selections.size() > 0) {
             remove(selections.get(0));
+        }
+    }
+
+    public static class Builder<T> {
+        private ObservableList<T> choices;
+        private Consumer<T> fillFunction;
+        private Consumer<T> emptyFunction;
+        private String name;
+        private int maxSelections;
+        private boolean multipleSelect = false;
+        private Class<T> optionsClass;
+
+        public Builder(){}
+
+        public Builder(ArbitraryChoice<T> choice) {
+            choices = choice.choices;
+            fillFunction = choice.fillFunction;
+            emptyFunction = choice.emptyFunction;
+            name = choice.name;
+            maxSelections = choice.maxSelections.get();
+            multipleSelect = choice.multipleSelect;
+            optionsClass = choice.optionsClass;
+        }
+
+        public void setChoices(ObservableList<T> choices) {
+            this.choices = choices;
+        }
+
+        public void setFillFunction(Consumer<T> fillFunction) {
+            this.fillFunction = fillFunction;
+        }
+
+        public void setEmptyFunction(Consumer<T> emptyFunction) {
+            this.emptyFunction = emptyFunction;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setMaxSelections(int maxSelections) {
+            this.maxSelections = maxSelections;
+        }
+
+        public void setMultipleSelect(boolean multipleSelect) {
+            this.multipleSelect = multipleSelect;
+        }
+
+        public void setOptionsClass(Class<T> optionsClass) {
+            this.optionsClass = optionsClass;
+        }
+
+        public ArbitraryChoice<T> build() {
+            return new ArbitraryChoice<>(this);
         }
     }
 }

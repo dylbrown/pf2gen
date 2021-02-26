@@ -6,7 +6,10 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Predicate;
 
 abstract class NethysScraper {
@@ -31,7 +34,9 @@ abstract class NethysScraper {
 					builder.append(((TextNode) node).getWholeText().replaceAll(";$", ""));
 				if (node instanceof Element) {
 					String s = ((Element) node).wholeText().replaceAll(";$", "");
-					if(s.trim().length() == 0 || ((Element) node).tagName().equals("b")) break;
+					if(((Element) node).tagName().equals("b") ||
+							((Element) node).tagName().equals("hr") ||
+							((Element) node).tagName().equals("br")) break;
 					builder.append(s);
 				}
 				node = node.nextSibling();
@@ -39,6 +44,50 @@ abstract class NethysScraper {
 			return builder.toString().trim().replaceAll(";\\z", "");
 		}
 		return "";
+	}
+
+	String getHeaderContents(Element output, String headerTitle) {
+		Element header = output.getElementsMatchingOwnText(headerTitle).first();
+		StringBuilder contents = new StringBuilder();
+		if(header != null) {
+			Node curr = header.nextSibling();
+			while(curr != null && !(curr instanceof Element && ((Element) curr).tagName().equals("h2"))) {
+				String text = "";
+				if(curr instanceof TextNode) {
+					text = ((TextNode) curr).text();
+				}
+				if(curr instanceof Element) {
+					text = ((Element) curr).text();
+					if(((Element) curr).tagName().equals("br"))
+						contents.append("\n");
+				}
+				contents.append(text);
+				curr = curr.nextSibling();
+			}
+		}
+		return contents.toString();
+	}
+
+	List<String> getHeaderList(Element output, String headerTitle) {
+		Element header = output.getElementsMatchingOwnText(headerTitle).first();
+		if(header != null) {
+			List<String> results = new ArrayList<>();
+			Node curr = header.nextSibling();
+			while(curr != null && !(curr instanceof Element && ((Element) curr).tagName().equals("h2"))) {
+				String text = "";
+				if(curr instanceof TextNode) {
+					text = ((TextNode) curr).text();
+				}
+				if(curr instanceof Element) {
+					text = ((Element) curr).text();
+				}
+				if(!text.isBlank())
+					results.add(text);
+				curr = curr.nextSibling();
+			}
+			return results;
+		}
+		return Collections.emptyList();
 	}
 
 	String getRestOfLine(Element output, String bContents) {

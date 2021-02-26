@@ -1,8 +1,6 @@
 package ui.controllers.equip;
 
 import javafx.beans.Observable;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
@@ -11,31 +9,26 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.web.WebView;
-import javafx.util.StringConverter;
-import model.enums.BuySellMode;
+import javafx.scene.layout.AnchorPane;
+import model.CharacterManager;
 import model.enums.Slot;
-import model.equipment.Equipment;
-import model.equipment.ItemCount;
-import model.util.StringUtils;
-import ui.Main;
-import ui.controls.equipment.CategoryAllItemsList;
+import model.items.Item;
+import model.items.ItemCount;
+import model.player.PC;
 import ui.controls.equipment.EquippedEntry;
-import ui.controls.equipment.LevelAllItemsList;
-import ui.controls.lists.entries.ItemEntry;
-import ui.html.EquipmentHTMLGenerator;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
-
-import static model.util.StringUtils.generateCostString;
 
 public class EquipTabController {
-
-    public RadioMenuItem anyLevel, yourLevelLower;
+    @FXML
+    private TabPane tabs;
+    @FXML
+    private Tab tab_purchase, tab_enchant, tab_equip, tab_formulas;
+    @FXML
+    private AnchorPane purchaseTab;
+    @FXML
+    PurchaseTabController purchaseTabController;
     @FXML
     private TableColumn<EquippedEntry, String> nameCol,weightCol;
     @FXML
@@ -43,30 +36,9 @@ public class EquipTabController {
     @FXML
     private TableColumn<EquippedEntry, Integer> quantityCol;
     @FXML
-    private BorderPane allItemsContainer;
-    @FXML
-    private TextField search;
-    private final CategoryAllItemsList categoryGroup = new CategoryAllItemsList(this::tryToBuy);
-    private final LevelAllItemsList levelGroup = new LevelAllItemsList(this::tryToBuy);
-    @FXML
-    private ListView<ItemCount> inventory, unequipped;
+    private ListView<ItemCount> unequipped;
     @FXML
     private TableView<EquippedEntry> equipped;
-    @FXML
-    public GridPane itemGrid;
-    @FXML
-    private Label money, totalValue;
-    @FXML
-    private ComboBox<BuySellMode> multiplier;
-    @FXML
-    private Button addMoney;
-    @FXML
-    private WebView itemDisplay;
-    @FXML
-    private RadioMenuItem groupByCategory, groupByLevel;
-    @FXML
-    private ToggleGroup levelFilter, groupBy;
-    private double value = 0;
 
     //Inventory List
     private final ObservableList<ItemCount> inventoryList = FXCollections.observableArrayList(count -> new Observable[]{count.countProperty()});
@@ -75,14 +47,17 @@ public class EquipTabController {
     private final ObservableList<ItemCount> unequipList = FXCollections.observableArrayList(count -> new Observable[]{count.countProperty()});
     private final FilteredList<ItemCount> unequipFilter = new FilteredList<>(unequipList);
     private final SortedList<ItemCount> unequipSort = new SortedList<>(unequipFilter, Comparator.comparing(o -> o.stats().getName()));
-    private final Map<Equipment, ItemCount> unequipMap = new HashMap<>();
+    private final Map<Item, ItemCount> unequipMap = new HashMap<>();
 
     //Equipped List
     private final ObservableList<EquippedEntry> equipList = FXCollections.observableArrayList(entry -> new Observable[]{entry.countProperty()});
     private final FilteredList<EquippedEntry> equipFilter = new FilteredList<>(equipList);
+    private PC character;
 
     @FXML
     private void initialize() {
+        purchaseTabController.passValues(inventoryList);
+        character = CharacterManager.getActive();
         // itemDisplay.setZoom(1.25);
         nameCol.setCellValueFactory(param -> param.getValue().nameProperty());
         slotCol.setCellValueFactory(param -> param.getValue().slotProperty());
@@ -92,54 +67,6 @@ public class EquipTabController {
         for (TableColumn<EquippedEntry, ?> column : equipped.getColumns()) {
             column.setReorderable(false);
         }
-        allItemsContainer.setCenter(categoryGroup);
-        groupByCategory.setOnAction(event->allItemsContainer.setCenter(categoryGroup));
-        groupByLevel.setOnAction(event->allItemsContainer.setCenter(levelGroup));
-
-        ReadOnlyObjectWrapper<Predicate<ItemEntry>> wrapper = new ReadOnlyObjectWrapper<>();
-
-        Runnable resetFilter = () -> {
-            boolean filterLevel = !levelFilter.getSelectedToggle().equals(anyLevel);
-            if (search.getText().length() == 0 && !filterLevel)
-                wrapper.set(null);
-            else
-                wrapper.set(itemEntry -> StringUtils.containsIgnoreCase(itemEntry.toString(), search.getText())
-                        && (!filterLevel || (itemEntry.getContents() != null &&
-                        itemEntry.getContents().getLevel() <= Main.character.getLevel())));
-        };
-        resetFilter.run();
-        levelFilter.selectedToggleProperty().addListener(c->resetFilter.run());
-        search.textProperty().addListener(c->resetFilter.run());
-        Main.character.levelProperty().addListener(c->resetFilter.run());
-
-        categoryGroup.setFilter(wrapper.getReadOnlyProperty());
-        levelGroup.setFilter(wrapper.getReadOnlyProperty());
-
-        money.setText(generateCostString(Main.character.inventory().getMoneyProperty().get()));
-        Main.character.inventory().getMoneyProperty().addListener((event)->
-                money.setText(generateCostString(Main.character.inventory().getMoneyProperty().get())));
-        value = Main.character.inventory().getTotalValue();
-        totalValue.setText(value+" sp");
-
-        //Set up sort options
-
-        ChangeListener<TreeItem<ItemEntry>> listener = (obs, oldVal, selectedItem) -> {
-            if(selectedItem == null || selectedItem.getValue() == null) return;
-            Equipment item = selectedItem.getValue().getContents();
-            if (item != null) setDisplay(item);
-        };
-
-        categoryGroup.getSelectionModel().selectedItemProperty().addListener(listener);
-        levelGroup.getSelectionModel().selectedItemProperty().addListener(listener);
-        inventory.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selectedItem) -> {
-            if(selectedItem != null) setDisplay(selectedItem.stats());
-        });
-        inventory.setOnMouseClicked((event) -> {
-            if(event.getClickCount() % 2 == 0) {
-                ItemCount item = inventory.getSelectionModel().getSelectedItem();
-                tryToSell(item);
-            }
-        });
         unequipped.setOnMouseClicked((event) -> {
             if(event.getClickCount() % 2 == 0) {
                 ItemCount item = unequipped.getSelectionModel().getSelectedItem();
@@ -169,109 +96,64 @@ public class EquipTabController {
         unequipFilter.setPredicate(item -> item.getCount() > 0);
         equipFilter.setPredicate(pair -> pair.countProperty().getValue() > 0);
 
-        inventory.setItems(new SortedList<>(inventoryList, Comparator.comparing(o -> o.stats().toString())));
         unequipped.setItems(unequipSort);
         equipped.setItems(equipFilter);
 
-        Main.character.inventory().addInventoryListener(change -> {
+        character.inventory().addInventoryListener(change -> {
             if(change.wasRemoved()) {
                 ItemCount valueRemoved = change.getValueRemoved();
                 inventoryList.remove(valueRemoved);
                 unequipList.removeIf(item->item.stats() == valueRemoved.stats());
-                equipList.removeIf(pair -> pair.getItemCount() == valueRemoved);
+                equipList.removeIf(pair -> pair.getItemCount().stats() == valueRemoved.stats());
             }
             if(change.wasAdded()) {
                 ItemCount valueAdded = change.getValueAdded();
-                inventoryList.add(valueAdded);
-                ItemCount unequippedItem = new ItemCount(valueAdded.stats(), valueAdded.getCount());
-                unequipList.add(unequippedItem);
-                valueAdded.countProperty().addListener((o,oldVal,newVal)->{
-                    if (newVal > oldVal) {
-                        unequippedItem.add(newVal - oldVal);
-                    }else if (oldVal  > newVal){
-                        if(unequippedItem.getCount() >= oldVal - newVal)
-                            unequippedItem.remove(oldVal - newVal);
-                        else {
-                            ItemCount equipCount = find(equipFilter, valueAdded.stats(), EquippedEntry::getItemCount);
-                            if(equipCount != null) {
-                                equipCount.remove(oldVal - newVal);
-                            }
-                        }
-                    }
-                });
+                addHandler(valueAdded);
             }
-            refreshTotalValue();
         });
+        for (ItemCount itemCount : character.inventory().getItems().values()) {
+            addHandler(itemCount);
+        }
+        for (Map.Entry<Slot, ItemCount> entry : character.inventory().getEquipped().entrySet()) {
+            updateFromEquip(unequipMap.get(entry.getValue().stats()), entry.getKey());
+        }
 
-        Main.character.inventory().addEquippedListener(change -> {
+
+        character.inventory().addEquippedListener(change -> {
             if(change.wasAdded() && !controllerOp) {
                 ItemCount unequippedItem = unequipMap.get(change.getValueAdded().stats());
                 if(unequippedItem != null)
                     updateFromEquip(unequippedItem, change.getKey());
             }
         });
-        Main.character.inventory().getCarried().addListener(
-        (MapChangeListener<Equipment, ItemCount>) change -> {
+        character.inventory().getCarried().addListener(
+        (MapChangeListener<Item, ItemCount>) change -> {
             if(change.wasAdded() && !controllerOp) {
                 ItemCount unequippedItem = unequipMap.get(change.getValueAdded().stats());
                 if(unequippedItem != null)
                     updateFromEquip(unequippedItem, Slot.Carried);
             }
         });
-
-        multiplier.getItems().addAll(BuySellMode.values());
-        multiplier.setConverter(new StringConverter<>() {
-            @Override
-            public String toString(BuySellMode object) {
-                switch (object) {
-                    case FullPrice:
-                        return "Full Price";
-                    case SellHalf:
-                        return "Sell Half";
-                    case Cashless:
-                        return "Cashless";
-                }
-                return null;
-            }
-
-            @Override
-            public BuySellMode fromString(String string) {
-                switch (string) {
-                    case "FullPrice":
-                        return BuySellMode.FullPrice;
-                    case "Sell Half":
-                        return BuySellMode.SellHalf;
-                    case "Cashless":
-                        return BuySellMode.Cashless;
-                }
-                return null;
-            }
-        });
-        multiplier.valueProperty().addListener(((observable, oldValue, newValue) -> {
-            if(newValue != null) Main.character.inventory().setMode(newValue);
-        }));
-        addMoney.setOnAction(event -> {
-            TextInputDialog dialog = new TextInputDialog();
-            dialog.setTitle("Add Money");
-            dialog.setHeaderText("Add Money (in sp)");
-            dialog.setContentText("Amount:");
-            dialog.showAndWait().ifPresent(s ->
-                    Main.character.inventory().addMoney(Double.parseDouble(s)));
-        });
     }
 
-    private void refreshTotalValue() {
-        value = 0;
-        for (ItemCount itemCount : inventoryList) {
-            value += itemCount.getCount() * itemCount.stats().getValue();
-        }
-        totalValue.setText(value+" sp");
-    }
-
-    private void setDisplay(Equipment selectedItem) {
-        String s = EquipmentHTMLGenerator.parse(selectedItem);
-        itemDisplay.getEngine().loadContent(s);
-//        System.out.println(s);
+    private void addHandler(ItemCount valueAdded) {
+        inventoryList.add(valueAdded);
+        ItemCount unequippedItem = new ItemCount(valueAdded.stats(), valueAdded.getCount());
+        unequipList.add(unequippedItem);
+        valueAdded.countProperty().addListener((o,oldVal,newVal)->{
+            if (newVal > oldVal) {
+                unequippedItem.add(newVal - oldVal);
+            }else if (oldVal  > newVal){
+                if(unequippedItem.getCount() >= oldVal - newVal)
+                    unequippedItem.remove(oldVal - newVal);
+                else {
+                    ItemCount equipCount = find(equipFilter, valueAdded.stats(), EquippedEntry::getItemCount);
+                    if(equipCount != null) {
+                        equipCount.remove(oldVal - newVal);
+                    }
+                }
+            }
+        });
     }
 
     private boolean controllerOp = false;
@@ -294,7 +176,7 @@ public class EquipTabController {
             slot = result.get();
         }
         if(slot == Slot.None) slot = Slot.Carried;
-        if(Main.character.inventory().equip(unequippedItem.stats(), slot, 1)) {
+        if(character.inventory().equip(unequippedItem.stats(), slot, 1)) {
             updateFromEquip(unequippedItem, slot);
         }
         controllerOp = false;
@@ -323,7 +205,7 @@ public class EquipTabController {
     }
 
     private void tryToUnequip(ItemCount equippedItem, Slot slot) {
-        if(Main.character.inventory().unequip(equippedItem.stats(), slot,1)) {
+        if(character.inventory().unequip(equippedItem.stats(), slot,1)) {
             equippedItem.remove(1);
             ItemCount unequippedItem = unequipMap.get(equippedItem.stats());
             if(unequippedItem != null)
@@ -335,13 +217,7 @@ public class EquipTabController {
         }
     }
 
-    private void tryToSell(ItemCount item) {
-        if (!Main.character.inventory().sell(item.stats(), 1)) {
-            new Alert(Alert.AlertType.INFORMATION, "Not Enough Items!").showAndWait();
-        }
-    }
-
-    private <T> ItemCount find(List<T> list, Equipment stats, Function<T,ItemCount> converter) {
+    private <T> ItemCount find(List<T> list, Item stats, Function<T,ItemCount> converter) {
         int first = 0; int last = list.size();
         while(first < last) {
             ItemCount count = converter.apply(list.get((first + last) / 2));
@@ -355,14 +231,20 @@ public class EquipTabController {
         return null;
     }
 
-    private void tryToBuy(Equipment item, int count) {
-        if(count != 2) return;
-        if (!Main.character.inventory().buy(item, 1)) {
-            new Alert(Alert.AlertType.INFORMATION, "Not Enough Money!").showAndWait();
-        }else{
-            inventory.refresh();
-            unequipped.refresh();
-            equipped.refresh();
+    public void navigate(List<String> path) {
+        switch (path.get(0)) {
+            case "tab_purchase":
+                tabs.getSelectionModel().select(tab_purchase);
+                break;
+            case "tab_equip":
+                tabs.getSelectionModel().select(tab_equip);
+                break;
+            case "tab_enchant":
+                tabs.getSelectionModel().select(tab_enchant);
+                break;
+            case "tab_formulas":
+                tabs.getSelectionModel().select(tab_formulas);
+                break;
         }
     }
 }

@@ -1,29 +1,32 @@
 package ui.controls.lists.entries;
 
-import javafx.beans.property.ReadOnlyStringProperty;
+import com.sun.javafx.fxml.PropertyNotFoundException;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.value.ObservableValue;
 import model.util.StringUtils;
 
-public abstract class ListEntry<T> implements Comparable<ListEntry<T>>, TreeTableEntry {
+public class ListEntry<T> implements Comparable<ListEntry<T>>, TreeTableEntry {
     private final T contents;
-    private final ReadOnlyStringProperty name;
+    private final ObservableValue<String> name;
 
-    public ListEntry(T item, ReadOnlyStringProperty name) {
+    public ListEntry(T item, ObservableValue<String> name) {
         this.contents = item;
         this.name = name;
     }
 
     public ListEntry(T item, String name) {
-        this.contents = item;
-        this.name = new ReadOnlyStringWrapper(name).getReadOnlyProperty();
+        this(item, new ReadOnlyStringWrapper(name).getReadOnlyProperty());
+    }
+
+    public ListEntry(T item) {
+        this(item, item.toString());
     }
 
     public ListEntry(String label) {
-        this.contents = null;
-        this.name = new ReadOnlyStringWrapper(StringUtils.unclean(label)).getReadOnlyProperty();
+        this(null, new ReadOnlyStringWrapper(StringUtils.unclean(label)).getReadOnlyProperty());
     }
 
-    protected ReadOnlyStringProperty nameProperty() {
+    protected ObservableValue<String> nameProperty() {
         return name;
     }
 
@@ -40,8 +43,16 @@ public abstract class ListEntry<T> implements Comparable<ListEntry<T>>, TreeTabl
 
     @Override
     public String toString() {
-        if(contents == null) return this.name.get();
+        if(contents == null) return this.name.getValue();
         else return contents.toString();
+    }
+
+    @Override
+    public ObservableValue<String> get(String propertyName) {
+        if ("name".equals(propertyName)) {
+            return nameProperty();
+        }
+        throw new PropertyNotFoundException();
     }
 }
 

@@ -3,6 +3,7 @@ package ui.controls.lists.entries;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
 import model.abilities.Ability;
+import model.enums.Trait;
 import model.util.StringUtils;
 
 public class AbilityEntry extends ListEntry<Ability> {
@@ -10,9 +11,24 @@ public class AbilityEntry extends ListEntry<Ability> {
     private final ReadOnlyStringWrapper type;
 
     public AbilityEntry(Ability ability) {
-        super(ability, ability.getName());
+        super(ability, getName(ability));
         level = new ReadOnlyStringWrapper(Integer.toString(ability.getLevel()));
         type = new ReadOnlyStringWrapper(ability.getType().toString());
+    }
+
+    private static String getName(Ability ability) {
+        String name = ability.getName();
+        for (Trait trait : ability.getTraits()) {
+            switch (trait.getName().toLowerCase()) {
+                case "uncommon":
+                    return name + "ᵁ";
+                case "rare":
+                    return name + "ᴿ";
+                case "unique":
+                    return name + "*";
+            }
+        }
+        return name;
     }
 
     public AbilityEntry(String label) {

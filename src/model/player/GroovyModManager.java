@@ -6,6 +6,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import model.abilities.Ability;
 import org.codehaus.groovy.runtime.MethodClosure;
 
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -67,17 +68,10 @@ public class GroovyModManager implements PlayerState {
 
         this.commands = commands;
         bindings.setVariable("log", new MethodClosure(System.out, "println"));
-        addCommand("get");
-        addCommand("featSlot");
-        addCommand("bonus");
-        addCommand("proficiency");
-        addCommand("spell");
-        addCommand("spellSlot");
-        addCommand("choose");
-        addCommand("weaponGroupProficiency");
-        addCommand("weaponProficiency");
-        addCommand("damageModifier");
-        addCommand("archetypeName");
+        for (Method method : commands.getClass().getMethods()) {
+            String commandName = method.getName();
+            bindings.setVariable(commandName, new MethodClosure(commands, commandName));
+        }
 
         bindings.setVariable("level", levelProperty.getValue());
         levelProperty.addListener((event)-> {
@@ -93,22 +87,31 @@ public class GroovyModManager implements PlayerState {
         });
     }
 
-    private void addCommand(String commandName) {
-        bindings.setVariable(commandName, new MethodClosure(commands, commandName));
-    }
-
     private void apply(String customMod) {
         commands.setApplying();
+        bindings.setVariable("applying", true);
         shell.parse(customMod).run();
     }
 
     private void remove(String customMod) {
         commands.setRemoving();
+        bindings.setVariable("applying", false);
         shell.parse(customMod).run();
     }
 
     public int get(String variable) {
         return commands.getMod(variable);
+    }
+
+    public void refreshAlways() {
+        for (Ability ability : activeAlwaysRecalculateMods) {
+            bindings.setProperty("ability", ability);
+            remove(ability.getCustomMod());
+        }
+        for (Ability ability : activeAlwaysRecalculateMods) {
+            bindings.setProperty("ability", ability);
+            apply(ability.getCustomMod());
+        }
     }
 
     @Override

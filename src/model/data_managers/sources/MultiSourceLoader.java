@@ -1,22 +1,34 @@
 package model.data_managers.sources;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
+import model.util.ObjectNotFoundException;
 import model.util.StringUtils;
 import model.xml_parsers.FileLoader;
 
 import java.util.*;
 
 public class MultiSourceLoader<T> {
-    protected final NavigableMap<String, T> allItems = new TreeMap<>();
-    protected final NavigableMap<String, NavigableMap<String, T>> categorizedItems = new TreeMap<>();
-    protected final List<? extends FileLoader<T>> loaders;
+    protected final ObservableMap<String, T> allItems = FXCollections.observableMap(new TreeMap<>());
+    protected final NavigableMap<String, ObservableMap<String, T>> categorizedItems = new TreeMap<>();
+    protected final List<FileLoader<T>> loaders = new ArrayList<>();
+    private final String type;
     protected Set<String> categories;
     protected boolean notLoaded = true;
-
-    public MultiSourceLoader(List<? extends FileLoader<T>> loaders) {
-        this.loaders = loaders;
+    public MultiSourceLoader(String type) {
+        this.type = type;
     }
 
-    public NavigableMap<String, T> getAll() {
+    public void add(FileLoader<T> loader) {
+        loaders.add(loader);
+        if(!notLoaded) {
+            for (Map.Entry<String, T> entry : loader.getAll().entrySet()) {
+                allItems.put(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
+    public ObservableMap<String, T> getAll() {
         if(notLoaded) {
             for (FileLoader<T> loader : loaders) {
                 for (Map.Entry<String, T> entry : loader.getAll().entrySet()) {
@@ -25,31 +37,31 @@ public class MultiSourceLoader<T> {
             }
             notLoaded = false;
         }
-        return Collections.unmodifiableNavigableMap(allItems);
+        return FXCollections.unmodifiableObservableMap(allItems);
     }
 
-    public T find(String name) {
+    public T find(String name) throws ObjectNotFoundException {
         for (FileLoader<T> loader : loaders) {
             T t = loader.find(name);
             if(t != null)
                 return t;
         }
-        return null;
+        throw new ObjectNotFoundException(name, type);
     }
 
-    public T find(String category, String name) {
+    public T find(String category, String name) throws ObjectNotFoundException {
         for (FileLoader<T> loader : loaders) {
             T t = loader.find(category, name);
             if(t != null)
                 return t;
         }
-        return null;
+        throw new ObjectNotFoundException(name, category, type);
     }
 
-    public NavigableMap<String, T> getCategory(String category) {
+    public ObservableMap<String, T> getCategory(String category) {
         category = StringUtils.clean(category);
         if(categorizedItems.get(category) == null) {
-            NavigableMap<String, T> map = new TreeMap<>();
+            ObservableMap<String, T> map = FXCollections.observableMap(new TreeMap<>());
             for (FileLoader<T> loader : loaders) {
                 for (Map.Entry<String, T> entry : loader.getCategory(category).entrySet()) {
                     map.put(entry.getKey(), entry.getValue());
@@ -57,7 +69,7 @@ public class MultiSourceLoader<T> {
             }
             categorizedItems.put(StringUtils.clean(category), map);
         }
-        return Collections.unmodifiableNavigableMap(categorizedItems.get(StringUtils.clean(category)));
+        return FXCollections.unmodifiableObservableMap(categorizedItems.get(StringUtils.clean(category)));
     }
 
     public Set<String> getCategories() {

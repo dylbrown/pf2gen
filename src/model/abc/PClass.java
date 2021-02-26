@@ -1,9 +1,11 @@
 package model.abc;
 
-import model.ability_slots.AbilitySlot;
+import model.abilities.Ability;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityScore;
+import model.ability_slots.AbilitySlot;
 import model.enums.Type;
+import model.util.ObjectNotFoundException;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +37,16 @@ public class PClass extends AC {
 
     public int getSkillIncrease() {
         return skillIncreases;
+    }
+
+    public Ability findClassFeature(String contents) throws ObjectNotFoundException {
+        for (List<AbilitySlot> list : advancementTable.values()) {
+            for (AbilitySlot slot : list) {
+                if(slot.isPreSet() && slot.getName().equalsIgnoreCase(contents))
+                    return slot.getCurrentAbility();
+            }
+        }
+        throw new ObjectNotFoundException(contents, getName()+ " Class Feature");
     }
 
     public static class Builder extends AC.Builder {

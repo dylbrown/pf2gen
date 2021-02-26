@@ -7,40 +7,44 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import model.ability_slots.Choice;
+import model.util.StringUtils;
 
-@SuppressWarnings("rawtypes")
-public class DecisionEntry implements Comparable<DecisionEntry>, TreeTableEntry {
-    private final ReadOnlyStringProperty name;
-    private final ReadOnlyStringProperty level;
-    private final Object chosenValue;
+
+public class DecisionEntry extends ListEntry<Choice<?>> {
+    private final ReadOnlyStringWrapper level;
+    private final ReadOnlyStringProperty levelReadOnly;
+    private Object chosenValue;
     private ReadOnlyIntegerProperty remaining;
     private ReadOnlyIntegerWrapper remainingWrapper;
     private static final ReadOnlyStringProperty empty = new ReadOnlyStringWrapper("").getReadOnlyProperty();
-    private final Choice<?> choice;
 
-    public DecisionEntry(Choice<?> choice) {
-        this.choice = choice;
-        chosenValue = null;
-        name = new ReadOnlyStringWrapper(choice.getName()).getReadOnlyProperty();
-        level = new ReadOnlyStringWrapper(String.valueOf(choice.getLevel())).getReadOnlyProperty();
+    public <T> DecisionEntry(Choice<T> choice) {
+        this(choice, choice.toString());
         remainingWrapper = new ReadOnlyIntegerWrapper(choice.getMaxSelections());
         remaining = remainingWrapper.getReadOnlyProperty();
         remainingWrapper.bind(choice.maxSelectionsProperty().subtract(choice.getSelections().size()));
-        //noinspection unchecked
-        choice.getSelections().addListener((ListChangeListener) c->
+        choice.getSelections().addListener((ListChangeListener<T>) c->
                 remainingWrapper.bind(choice.maxSelectionsProperty().subtract(choice.getSelections().size())));
     }
 
-    public DecisionEntry(Object chosenValue, String name, int level) {
-        this.choice = null;
-        this.chosenValue = chosenValue;
-        this.name = new ReadOnlyStringWrapper(name).getReadOnlyProperty();
-        this.level = new ReadOnlyStringWrapper((level == -1) ? "" : String.valueOf(level)).getReadOnlyProperty();
+    private <T> DecisionEntry(Choice<T> choice, String name) {
+        super(choice, name);
+        chosenValue = null;
+        level = new ReadOnlyStringWrapper(String.valueOf(choice.getLevel()));
+        levelReadOnly = level.getReadOnlyProperty();
     }
 
-    @Override
-    public int compareTo(DecisionEntry o) {
-        return name.get().compareTo(o.name.get());
+    public <T> DecisionEntry(Choice<T> choice, T chosenValue) {
+        this(choice, chosenValue.toString());
+        this.chosenValue = chosenValue;
+        this.level.set("");
+    }
+
+    public DecisionEntry(String name) {
+        super(name);
+        level = new ReadOnlyStringWrapper("");
+        levelReadOnly = level.getReadOnlyProperty();
+        chosenValue = null;
     }
 
     public Object getChosenValue() {
@@ -50,8 +54,8 @@ public class DecisionEntry implements Comparable<DecisionEntry>, TreeTableEntry 
     @Override
     public ObservableValue<String> get(String propertyName) {
         switch (propertyName) {
-            case "name": return name;
-            case "level": return level;
+            case "name": return nameProperty();
+            case "level": return levelReadOnly;
             case "remaining": {
                 if(remaining != null) return remaining.asString();
                 else return empty;
@@ -60,16 +64,39 @@ public class DecisionEntry implements Comparable<DecisionEntry>, TreeTableEntry 
         }
     }
 
-    public String getName() {
-        return name.get();
+    @Override
+    public String toString() {
+        if(chosenValue != null)
+            return chosenValue.toString();
+        return super.toString();
     }
 
     public Choice<?> getChoice() {
-        return choice;
+        return getContents();
     }
 
     @Override
-    public String toString() {
-        return getName();
+    public int compareTo(ListEntry<Choice<?>> o) {
+        String s1 = this.toString();
+        String s2 = o.toString();
+        boolean level1 = s1.matches(".* \\d+\\z");
+        boolean level2 = s2.matches(".* \\d+\\z");
+        if(level1)
+            s1 = s1.substring(s1.lastIndexOf(" ") + 1);
+        if(level2)
+            s2 = s2.substring(s2.lastIndexOf(" ") + 1);
+        if(level1 && level2)
+            return Integer.compare(
+                    Integer.parseInt(s1),
+                    Integer.parseInt(s2));
+        else if(level2 && this.getContents() != null)
+            return Integer.compare(
+                    this.getContents().getLevel(),
+                    Integer.parseInt(s2));
+        else if(level1 && o.getContents() != null)
+            return Integer.compare(
+                    Integer.parseInt(s1),
+                    o.getContents().getLevel());
+        else return StringUtils.clean(s1).compareTo(StringUtils.clean(s2));
     }
 }

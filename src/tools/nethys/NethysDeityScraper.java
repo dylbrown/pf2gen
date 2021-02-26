@@ -22,7 +22,7 @@ public class NethysDeityScraper extends NethysListScraper {
     }
 
     @Override
-    Pair<String, String> addItem(Document doc) {
+    Entry addItem(Document doc) {
         Element output = doc.getElementById("ctl00_MainContent_DetailedOutput");
         String deity = output.getElementsByTag("h1")
                 .first().text().replaceAll("( \\(.*| ?\\[.*)", "");
@@ -82,6 +82,6 @@ public class NethysDeityScraper extends NethysListScraper {
                 divineFont, divineSkill, favoredWeapon,
                 domains, clericSpells.toString(), desc).replaceAll("\t<[^>]*><[^>]*>\n", "");
 
-        return new Pair<>(results, source);
+        return new Entry(deity, results, source);
     }
 }

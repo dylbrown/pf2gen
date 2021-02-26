@@ -4,10 +4,13 @@ import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.ArmorProficiency;
 import model.enums.Trait;
-import model.equipment.armor.Armor;
-import model.equipment.armor.ArmorGroup;
-import model.equipment.armor.Shield;
-import model.xml_parsers.FileLoader;
+import model.items.BaseItem;
+import model.items.Item;
+import model.items.armor.Armor;
+import model.items.armor.ArmorGroup;
+import model.items.armor.Shield;
+import model.util.ObjectNotFoundException;
+import model.xml_parsers.TraitsLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -17,10 +20,11 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static model.util.StringUtils.camelCase;
 
-public class ArmorLoader extends FileLoader<Armor> {
+public class ArmorLoader extends ItemLoader {
 
     private final Map<String, ArmorGroup> armorGroups = new HashMap<>();
 
@@ -41,24 +45,31 @@ public class ArmorLoader extends FileLoader<Armor> {
         });
 
         iterateElements(doc, "Armor", (curr)->{
-            Armor armor = getArmor(curr);
+            Item armor = getArmor(curr);
             addItem(armor.getSubCategory(), armor);
         });
     }
 
     @Override
-    protected Armor parseItem(File file, Element item) {
+    protected Item parseItem(File file, Element item) {
         return getArmor(item);
     }
 
-    private Armor getArmor(Element armor) {
-        Armor.Builder builder = new Armor.Builder();
-        Shield.Builder shieldBuilder = null;
+    private Item getArmor(Element armor) {
+        BaseItem.Builder builder = new BaseItem.Builder();
+        if(armor.getTagName().equalsIgnoreCase("shield"))
+            builder.setCategory("Shields");
+        else
+            builder.setCategory("Armor");
+        Armor.Builder armorExt = builder.getExtension(Armor.Builder.class);
         Node proficiencyNode= armor.getParentNode();
-        if(proficiencyNode.getNodeName().trim().equals("Shield"))
-            builder = shieldBuilder = new Shield.Builder(builder);
-        builder.setProficiency(ArmorProficiency.valueOf(camelCase(proficiencyNode.getNodeName())));
+        ArmorProficiency armorProficiency = ArmorProficiency.valueOf(camelCase(proficiencyNode.getNodeName()));
+        armorExt.setProficiency(armorProficiency);
+        builder.setSubCategory(armorProficiency.name());
         NodeList nodeList = armor.getChildNodes();
+
+        if(armor.hasAttribute("category"))
+            builder.setCategory(armor.getAttribute("category"));
 
         for(int i=0; i<nodeList.getLength(); i++) {
             if(nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)
@@ -67,45 +78,52 @@ public class ArmorLoader extends FileLoader<Armor> {
             String trim = curr.getTextContent().trim();
             switch (curr.getTagName()) {
                 case "AC":
-                    builder.setAC(Integer.parseInt(trim.replaceAll("\\+","")));
+                    armorExt.setAC(Integer.parseInt(trim.replaceAll("\\+","")));
                     break;
                 case "MaxDex":
-                    builder.setMaxDex(Integer.parseInt(trim.replaceAll("\\+","")));
+                    armorExt.setMaxDex(Integer.parseInt(trim.replaceAll("\\+","")));
                     break;
                 case "ACP":
-                    builder.setACP(Integer.parseInt(trim.replaceAll("\\+","")));
+                    armorExt.setACP(Integer.parseInt(trim.replaceAll("\\+","")));
                     break;
                 case "SpeedPenalty":
-                    builder.setSpeedPenalty(Integer.parseInt(trim.replaceAll("\\+","")));
+                    armorExt.setSpeedPenalty(Integer.parseInt(trim.replaceAll("\\+","")));
                     break;
                 case "Group":
-                    builder.setGroup(armorGroups.get(trim.toLowerCase()));
+                    armorExt.setGroup(armorGroups.get(trim.toLowerCase()));
                     break;
                 case "Strength":
-                    builder.setStrength(Integer.parseInt(trim));
+                    armorExt.setStrength(Integer.parseInt(trim));
                     break;
                 case "Hardness":
-                    if(shieldBuilder == null)
-                        builder = shieldBuilder = new Shield.Builder(builder);
-                    shieldBuilder.setHardness(Integer.parseInt(trim));
+                    builder.getExtension(Shield.Builder.class)
+                            .setHardness(Integer.parseInt(trim));
                     break;
                 case "HP":
-                    if(shieldBuilder == null)
-                        builder = shieldBuilder = new Shield.Builder(builder);
-                    shieldBuilder.setHP(Integer.parseInt(trim));
+                    builder.getExtension(Shield.Builder.class)
+                            .setHP(Integer.parseInt(trim));
                     break;
                 case "BT":
-                    if(shieldBuilder == null)
-                        builder = shieldBuilder = new Shield.Builder(builder);
-                    shieldBuilder.setBT(Integer.parseInt(trim));
+                    builder.getExtension(Shield.Builder.class)
+                            .setBT(Integer.parseInt(trim));
                     break;
                 case "Traits":
-                    Arrays.stream(trim.split(",")).map((item)-> Trait.valueOf(item.trim().split(" ")[0])).forEachOrdered(builder::addArmorTrait);
+                    Arrays.stream(trim.split(",")).map((item)->{
+                        Trait trait = null;
+                        try {
+                            trait = findFromDependencies("Trait",
+                                    TraitsLoader.class,
+                                    item.trim().split(" ")[0]);
+                        } catch (ObjectNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        return trait;
+                    }).filter(Objects::nonNull).forEachOrdered(builder::addTrait);
                     break;
                 default:
-                    EquipmentLoader.parseTag(trim, curr, builder);
+                    parseTag(trim, curr, builder, this);
             }
         }
-        return (shieldBuilder != null) ? shieldBuilder.build() : builder.build();
+        return builder.build();
     }
 }

@@ -1,7 +1,5 @@
 package tools.nethys;
 
-import model.util.Pair;
-import model.util.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
@@ -9,24 +7,21 @@ import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
 
 class NethysSpellScraper extends NethysListScraper {
-	private final Map<String, StringBuilder> sources = new HashMap<>();
 
 	public static void main(String[] args) {
-		new NethysSpellScraper("http://2e.aonprd.com/Spells.aspx?Focus=true&Tradition=0", "generated/focusSpells.txt", source->true);
+		new NethysSpellScraper("http://2e.aonprd.com/Spells.aspx?Tradition=0", "generated/spells.txt", source->source.equals("advanced_player's_guide"));
 	}
 
 	private NethysSpellScraper(String inputURL, String outputPath, Predicate<String> sourceValidator) {
-		super(inputURL, outputPath, "ctl00_MainContent_DetailedOutput", href -> href.contains("ID"), sourceValidator);
+		super(inputURL, outputPath, "ctl00_MainContent_DetailedOutput", href -> href.contains("Spells.aspx?ID"), sourceValidator);
 	}
 
 	@Override
-	Pair<String, String> addItem(Document doc) {
+	Entry addItem(Document doc) {
 		Element output = doc.getElementById("ctl00_MainContent_DetailedOutput");
 
 		String spellName = output.getElementsByClass("title").first().ownText();
@@ -41,7 +36,7 @@ class NethysSpellScraper extends NethysListScraper {
 			afterHr = afterHr.nextSibling();
 		}
 		List<String> traits = new ArrayList<>();
-		for (Element trait : output.getElementsByClass("trait")) {
+		for (Element trait : output.select("span[class^=trait]")) {
 			traits.add(trait.getElementsByTag("a").text());
 		}
 		String sourceAndPage = output.getElementsMatchingText("\\ASource\\z").first().nextElementSibling().text();
@@ -49,7 +44,7 @@ class NethysSpellScraper extends NethysListScraper {
 		String pageNo = sourceAndPage.replaceAll(".*pg\\. ", "");
 
 		String area = getAfter(output, "Area");
-		String cast = StringUtils.camelCase(getAfter(output, "Cast"));
+		String cast = getAfter(output, "Cast");
 		Elements text = output.getElementsMatchingOwnText("\\ACast\\z");
 		if(text.size() == 1) {
 			Element currElem = text.first().nextElementSibling();
@@ -58,7 +53,18 @@ class NethysSpellScraper extends NethysListScraper {
 					!currElem.tagName().equals("b"))
 				currElem = currElem.nextElementSibling();
 			if(currElem != null && currElem.tagName().equals("img")) {
-				cast = currElem.attr("alt") + " (" + cast + ")";
+				if(cast.startsWith("to") || cast.startsWith("To")) {
+					//Variable Cost
+					String cost1 = currElem.attr("alt");
+					currElem = currElem.nextElementSibling().nextElementSibling();
+					String cost2 = currElem.attr("alt");
+					cast = cast.replaceAll("\\A[Tt]o *", "");
+					if(cast.isBlank())
+						cast = "(Varies)";
+					cast = cost1 + " to " + cost2 + " " + cast;
+				}else{
+					cast = currElem.attr("alt") + " (" + cast + ")";
+				}
 			}
 		}
 		String duration = getAfter(output, "Duration");
@@ -116,6 +122,6 @@ class NethysSpellScraper extends NethysListScraper {
 		}
 		results.append("\n</Spell>\n");
 
-		return new Pair<>(results.toString(), source);
+		return new Entry(spellName, results.toString(), source);
 	}
 }

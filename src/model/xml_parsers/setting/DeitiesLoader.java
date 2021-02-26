@@ -3,14 +3,17 @@ package model.xml_parsers.setting;
 import model.attributes.Attribute;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
-import model.data_managers.sources.SourcesLoader;
 import model.enums.Alignment;
+import model.items.weapons.Weapon;
+import model.util.ObjectNotFoundException;
 import model.xml_parsers.FileLoader;
+import model.xml_parsers.SpellsLoader;
+import model.xml_parsers.equipment.WeaponsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import setting.Deity;
-import setting.Domain;
+import model.setting.Deity;
+import model.setting.Domain;
 
 import java.io.File;
 import java.util.stream.Collectors;
@@ -69,11 +72,24 @@ public class DeitiesLoader extends FileLoader<Deity> {
                     builder.setDivineSkills(Stream.of(trim.split(" or ")).map(Attribute::robustValueOf).collect(Collectors.toList()));
                     break;
                 case "favoredweapon":
-                        builder.setFavoredWeapon(SourcesLoader.instance().weapons().find(trim));
+                    try {
+                        builder.setFavoredWeapon(findFromDependencies("Weapon",
+                                WeaponsLoader.class,
+                                trim).getExtension(Weapon.class));
+                    } catch (ObjectNotFoundException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case "domains":
                     for (String s : trim.split(", ?")) {
-                        Domain domain = SourcesLoader.instance().domains().find(s);
+                        Domain domain = null;
+                        try {
+                            domain = findFromDependencies("Domain",
+                                    DomainsLoader.class,
+                                    s);
+                        } catch (ObjectNotFoundException e) {
+                            e.printStackTrace();
+                        }
                         if(domain != null)
                             builder.addDomains(domain);
                         else
@@ -86,8 +102,14 @@ public class DeitiesLoader extends FileLoader<Deity> {
                         if (spellsList.item(j).getNodeType() != Node.ELEMENT_NODE)
                             continue;
                         Element currSpell = (Element) spellsList.item(j);
-                        builder.addSpell(Integer.parseInt(currSpell.getAttribute("level")),
-                                SourcesLoader.instance().spells().find(currSpell.getAttribute("name")));
+                        try {
+                            builder.addSpell(Integer.parseInt(currSpell.getAttribute("level")),
+                                    findFromDependencies("Spell",
+                                            SpellsLoader.class,
+                                            currSpell.getAttribute("name")));
+                        } catch (ObjectNotFoundException e) {
+                            e.printStackTrace();
+                        }
                     }
                     break;
             }

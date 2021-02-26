@@ -6,12 +6,21 @@ import model.attributes.Attribute;
 import model.creatures.*;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
-import model.data_managers.sources.SourcesLoader;
 import model.enums.Language;
 import model.enums.Trait;
 import model.enums.Type;
-import model.equipment.CustomTrait;
-import model.equipment.Equipment;
+import model.items.CustomTrait;
+import model.items.Item;
+import model.items.ItemInstance;
+import model.items.armor.Armor;
+import model.items.runes.runedItems.RunedArmor;
+import model.items.runes.runedItems.RunedWeapon;
+import model.items.runes.runedItems.Runes;
+import model.items.weapons.Weapon;
+import model.util.ObjectNotFoundException;
+import model.xml_parsers.equipment.ArmorLoader;
+import model.xml_parsers.equipment.ItemLoader;
+import model.xml_parsers.equipment.WeaponsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -44,15 +53,26 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                     builder.setName(contents);
                     break;
                 case "Family":
-                    builder.setFamily(SourcesLoader.instance().creatureFamilies().find(contents));
+                    try {
+                        builder.setFamily(findFromDependencies("CreatureFamily",
+                                CreatureFamilyLoader.class,
+                                contents));
+                    } catch (ObjectNotFoundException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case "Traits":
                     builder.setTraits(
                             Arrays.stream(contents.split(", "))
                                     .map(s->{
-                                        Trait trait = Trait.valueOf(s);
-                                        if(trait == null)
-                                            System.out.println(s);
+                                        Trait trait = null;
+                                        try {
+                                            trait = findFromDependencies("Trait",
+                                                    TraitsLoader.class,
+                                                    s);
+                                        } catch (ObjectNotFoundException e) {
+                                            e.printStackTrace();
+                                        }
                                         return trait;
                                     })
                                     .filter(Objects::nonNull)
@@ -113,7 +133,12 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                 case "Items":
                     Arrays.stream(contents.split(", "))
                             .forEach(s->{
-                                Equipment equipment = SourcesLoader.instance().equipment().find(s);
+                                Item equipment = null;
+                                try {
+                                    equipment = getItem(s, true, builder);
+                                } catch (ObjectNotFoundException e) {
+                                    System.out.println(e.getMessage());
+                                }
                                 if(equipment != null)
                                     builder.addItem(new CreatureItem(equipment));
                                 else
@@ -123,7 +148,8 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                 case "AC":
                     endMod = contents.indexOf(" (");
                     if(endMod != -1) {
-                        builder.setACMods(contents.substring(endMod + 2));
+                        int endModString = contents.indexOf(')', endMod);
+                        builder.setACMods(contents.substring(endMod + 2, endModString));
                     } else endMod = contents.length();
                     builder.setAC(Integer.parseInt(contents.substring(0, endMod)));
                     break;
@@ -232,6 +258,124 @@ public class CreatureLoader extends AbilityLoader<Creature> {
         return builder.build();
     }
 
+    private Item getItem(String name, boolean canBeEnchanted, Creature.Builder builder) throws ObjectNotFoundException {
+        if(name.endsWith("armor"))
+            return getItem(name.substring(0, name.length()-6), canBeEnchanted, builder);
+        if(name.matches(".*\\([^+][^)]*\\) *\\z")) {
+            int bracket = name.lastIndexOf('(');
+            String newName = name.substring(0, bracket);
+            String ammo = name.substring(bracket + 1, name.indexOf(')', bracket));
+            name = newName;
+            if(builder != null && ammo.matches("\\A\\d+ .*")) {
+                try {
+                    Item ammoItem = getItem(ammo, false, null);
+                    builder.addItem(new CreatureItem(ammoItem));
+                } catch (ObjectNotFoundException e) {
+                    builder.addItem(new CreatureItem(ammo));
+                }
+            }
+        }
+        try {
+            return findFromDependencies("Equipment",
+                    ItemLoader.class,
+                    name);
+        } catch (ObjectNotFoundException e) {
+            try {
+                return findFromDependencies("Armor",
+                        ArmorLoader.class,
+                        name);
+            } catch (ObjectNotFoundException e2) {
+                try {
+                    return findFromDependencies("Weapon",
+                            WeaponsLoader.class,
+                            name);
+                } catch (ObjectNotFoundException e3) {
+                    if(canBeEnchanted) {
+                        try {
+                            return parseEnchantedItem(name, builder);
+                        } catch (ObjectNotFoundException e4) {
+                            throw e;
+                        }
+                    } else throw e;
+                }
+            }
+        }
+    }
+
+    private enum ItemType {
+        Armor, Weapon
+    }
+
+    private Item parseEnchantedItem(String s, Creature.Builder builder) throws ObjectNotFoundException {
+        String[] words = s.split(" ");
+        Item baseItem = null;
+        ItemType type = null;
+        int startOfItem = words.length - 1;
+        while(baseItem == null && startOfItem > 0) {
+            if(Arrays.asList("composite", "half", "hand", "bo").contains(words[startOfItem - 1])) {
+                startOfItem--;
+                continue;
+            }
+            String itemName = String.join(" ", Arrays.asList(words).subList(startOfItem, words.length));
+            try{
+                baseItem = getItem(itemName, true, builder);
+            }catch (ObjectNotFoundException e) {
+                startOfItem--;
+                continue;
+            }
+            if(!baseItem.hasExtension(Weapon.class) && !baseItem.hasExtension(Armor.class)) {
+                baseItem = null;
+                startOfItem--;
+            }else if(baseItem.hasExtension(Armor.class))
+                type = ItemType.Armor;
+            else
+                type = ItemType.Weapon;
+        }
+        if(baseItem == null) {
+            throw new ObjectNotFoundException(s, "Item");
+        }
+        ItemInstance runedItem = new ItemInstance(baseItem);
+        Runes<?> runes;
+        if(type == ItemType.Armor){
+            runedItem.addExtension(RunedArmor.class);
+            runes = runedItem.getExtension(RunedArmor.class).getRunes();
+        }else{
+            runedItem.addExtension(RunedWeapon.class);
+            runes = runedItem.getExtension(RunedWeapon.class).getRunes();
+        }
+        for(int i = 0; i < startOfItem; i++) {
+            String word = words[i].toLowerCase();
+            switch (word) {
+                case "greater":
+                    word = words[i+1].toLowerCase() + " (Greater)";
+                    break;
+                case "major":
+                    word = words[i+1].toLowerCase() + " (Major)";
+                    break;
+                case "+1":
+                    if(baseItem.hasExtension(Weapon.class))
+                        word = "Weapon Potency (+1)";
+                    else
+                        word = "Armor Potency (+1)";
+                    break;
+                case "+2":
+                    if(baseItem.hasExtension(Weapon.class))
+                        word = "Weapon Potency (+2)";
+                    else
+                        word = "Armor Potency (+2)";
+                    break;
+                case "+3":
+                    if(baseItem.hasExtension(Weapon.class))
+                        word = "Weapon Potency (+3)";
+                    else
+                        word = "Armor Potency (+3)";
+                    break;
+            }
+            runes.tryToAddRune(getItem(word, false, null));
+        }
+        return runedItem;
+    }
+
     private void makeSpells(CreatureSpellList list, Element elem) {
         String level = elem.getAttribute("level");
         int space = level.indexOf(" ");
@@ -246,12 +390,24 @@ public class CreatureLoader extends AbilityLoader<Creature> {
             for (String s : elem.getTextContent().split(", ")) {
                 int bracket = s.indexOf('(');
                 if(bracket == -1) {
-                    list.addSpell(SourcesLoader.instance().spells().find(s), levelNumber);
+                    try {
+                        list.addSpell(findFromDependencies("Spell",
+                                SpellsLoader.class,
+                                s), levelNumber);
+                    } catch (ObjectNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 } else {
                     int endBracket = s.indexOf(')');
-                    list.addSpell(SourcesLoader.instance().spells().find(s.substring(0, bracket - 1)),
-                            levelNumber,
-                            s.substring(bracket + 1, endBracket));
+                    try {
+                        list.addSpell(findFromDependencies("Spell",
+                                SpellsLoader.class,
+                                s.substring(0, bracket - 1)),
+                                levelNumber,
+                                s.substring(bracket + 1, endBracket));
+                    } catch (ObjectNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -275,31 +431,49 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                     break;
                 case "Traits":
                     builder.setTraits(Arrays.stream(content.split(",")).map((item)->{
-                        String[] s = item.trim().split(" ", 2);
+                        item = item.trim();
+                        String[] s = item.split(" ", 2);
                         if(s.length == 1) {
-                            Trait trait = SourcesLoader.instance().traits().find(s[0]);
-                            if(trait == null) {
-                                System.out.println(item.trim());
+                            Trait trait = null;
+                            try {
+                                trait = findFromDependencies("Trait",
+                                        TraitsLoader.class,
+                                        s[0]);
+                            } catch (ObjectNotFoundException e) {
+                                e.printStackTrace();
                             }
                             return trait;
                         }  else {
                             String custom = s[1];
-                            Trait trait = SourcesLoader.instance().traits()
-                                    .find(s[0]);
-                            if(trait == null) {
-                                int space = item.trim().indexOf(' ');
-                                space = item.trim().indexOf(' ', space + 1);
+                            Trait trait = null;
+                            try {
+                                trait = findFromDependencies("Trait",
+                                        TraitsLoader.class,
+                                        s[0]);
+                            } catch (ObjectNotFoundException e) {
+                                int space = item.indexOf(' ');
+                                space = item.indexOf(' ', space + 1);
                                 if(space == -1) {
-                                    space = item.trim().length();
                                     custom = "";
-                                }else custom = item.trim().substring(space+1);
-                                trait = SourcesLoader.instance().traits()
-                                        .find(item.trim().substring(0, space));
+                                    try {
+                                        trait = findFromDependencies("Trait",
+                                                TraitsLoader.class,
+                                                item);
+                                    } catch (ObjectNotFoundException objectNotFoundException) {
+                                        System.out.println(e.getMessage());
+                                    }
+                                }else {
+                                    custom = item.trim().substring(space+1);
+                                    try {
+                                        trait = findFromDependencies("Trait",
+                                                TraitsLoader.class,
+                                                item.trim().substring(0, space));
+                                    } catch (ObjectNotFoundException e2) {
+                                        e2.printStackTrace();
+                                    }
+                                }
                             }
-                            if(trait == null) {
-                                System.out.println(item.trim());
-                            }
-                            if(custom.length() == 0)
+                            if(custom.isBlank())
                                 return trait;
                             return new CustomTrait(trait, custom);
                         }

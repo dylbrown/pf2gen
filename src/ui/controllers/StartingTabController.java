@@ -4,50 +4,53 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import model.data_managers.sources.SourcesLoader;
-import setting.Deity;
-import ui.Main;
+import model.CharacterManager;
+import model.player.PC;
+import model.setting.Deity;
 import ui.html.ABCHTMLGenerator;
 import ui.html.SettingHTMLGenerator;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class StartingTabController extends SubTabController {
 
+    private PC character;
+
     @FXML
     private void initialize() {
+        character = CharacterManager.getActive();
         addTab("Ancestry", FXCollections.unmodifiableObservableList(
-                    FXCollections.observableList(new ArrayList<>(SourcesLoader.instance()
+                    FXCollections.observableList(new ArrayList<>(character.sources()
                             .ancestries().getAll().values()))
                 ),
-                Main.character.getAncestryProperty(),
-                Main.character::setAncestry,
+                character.ancestryProperty(),
+                character::setAncestry,
                 ABCHTMLGenerator::parse);
         addTab("Background", FXCollections.unmodifiableObservableList(
-                FXCollections.observableList(new ArrayList<>(SourcesLoader.instance()
+                FXCollections.observableList(new ArrayList<>(character.sources()
                         .backgrounds().getAll().values()))
                 ),
-                Main.character.getBackgroundProperty(),
-                Main.character::setBackground,
+                character.backgroundProperty(),
+                character::setBackground,
                 ABCHTMLGenerator::parse);
         addTab("Class", FXCollections.unmodifiableObservableList(
-                FXCollections.observableList(new ArrayList<>(SourcesLoader.instance()
+                FXCollections.observableList(new ArrayList<>(character.sources()
                         .classes().getAll().values()))
                 ),
-                Main.character.getPClassProperty(),
-                Main.character::setPClass,
+                character.pClassProperty(),
+                character::setPClass,
                 ABCHTMLGenerator::parse);
         ObservableList<Deity> deities = FXCollections.observableArrayList();
-        deities.add(Deity.NO_DEITY);
-        deities.addAll(SourcesLoader.instance()
+        deities.addAll(character.sources()
                 .deities().getAll().values());
         addTab("Deity", FXCollections.unmodifiableObservableList(
                 deities
                 ),
-                Main.character.getDeityProperty(),
-                Main.character::setDeity,
+                character.deityProperty(),
+                character::setDeity,
                 SettingHTMLGenerator::parse);
     }
 
@@ -59,5 +62,9 @@ public class StartingTabController extends SubTabController {
     @Override
     String getTabPath() {
         return "/fxml/singleChoicePage.fxml";
+    }
+
+    public void navigate(List<String> path) {
+        navigateToTab(path.get(0));
     }
 }

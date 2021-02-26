@@ -27,6 +27,10 @@ class Applier {
 		process(ability, applyFns);
 	}
 
+	void preRemove(Ability ability) {
+		process(ability, preRemoveFns);
+	}
+
 	void remove(Ability ability) {
 		process(ability, removeFns);
 	}

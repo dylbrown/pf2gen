@@ -1,96 +1,207 @@
 package ui.controls;
 
+import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.SortedList;
-import javafx.scene.control.ListView;
-import javafx.scene.control.MultipleSelectionModel;
-import javafx.scene.control.SplitPane;
+import javafx.collections.transformation.FilteredList;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableColumn;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
 import model.ability_slots.Choice;
 import model.ability_slots.ChoiceList;
+import model.util.FilteredSelectionList;
+import model.util.Pair;
+import model.util.StringUtils;
+import ui.controls.lists.ObservableCategoryEntryList;
+import ui.controls.lists.entries.ListEntry;
+import ui.controls.lists.factories.TreeCellFactory;
 import ui.html.HTMLGenerator;
 
-import java.util.Comparator;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 
-public class SelectionPane<T> extends BorderPane {
-    final ObservableList<T> items = FXCollections.observableArrayList();
-    final ObservableList<T> sortedItems = new SortedList<>(items, Comparator.comparing(Object::toString));
-    private final Function<T, String> htmlGenerator;
-    WebView display;
-    ObservableList<T> selections = FXCollections.observableArrayList();
-    final ListView<T> chosen = new ListView<>();
-    final SplitPane side = new SplitPane();
-    Choice<T> slot;
-    private MultipleSelectionModel<T> selectionModel;
-    private ListView<T> list;
+public class SelectionPane<T, U extends ListEntry<T>> extends BorderPane {
 
-    public SelectionPane(ChoiceList<T> slot, WebView display) {
-        list = new ListView<>(sortedItems);
-        this.setCenter(list);
-        selectionModel = list.getSelectionModel();
-        init(slot);
-        htmlGenerator = HTMLGenerator.getGenerator(slot.getOptionsClass());
-        this.display = display;
-        selections = slot.getSelections();
-        items.addAll(slot.getOptions());
-        items.removeAll(slot.getSelections());
-        if(slot.getOptions() instanceof ObservableList)
-            ((ObservableList<T>) slot.getOptions()).addListener((ListChangeListener<T>)change->{
-                while(change.next()){
-                    items.addAll(change.getAddedSubList());
-                    items.removeAll(change.getRemoved());
-                }
-            });
-        slot.getSelections().addListener((ListChangeListener<T>) c->{
-            while(c.next()) {
-                items.removeAll(c.getAddedSubList());
-                items.addAll(c.getRemoved());
-            }
+    protected final Choice<T> choice;
+    protected final WebView display;
+    protected Function<T, String> generator;
+    protected final ObservableValue<Pair<Function<T, String>, String>> categoryFunctionProperty;
+    protected final ObservableValue<Pair<Function<T, String>, String>> subCategoryFunctionProperty;
+    protected final Function<T, U> makeEntry;
+    protected final Function<String, U> makeLabelEntry;
+    protected final ObservableList<T> list;
+    private final Map<Pair<String, String>, ObservableCategoryEntryList<T, U>> entryListMap = new HashMap<>();
+    private ObservableCategoryEntryList<T, U> currentList = null;
+
+    protected SelectionPane(SelectionPane.Builder<T, U> builder) {
+        this.choice = builder.choice;
+        this.display = builder.display;
+        this.categoryFunctionProperty = builder.categoryFunctionProperty;
+        this.subCategoryFunctionProperty = builder.subCategoryFunctionProperty;
+        if(choice != null)
+            this.generator = HTMLGenerator.getGenerator(choice.getOptionsClass());
+        this.makeEntry = builder.makeEntry;
+        this.makeLabelEntry = builder.makeLabelEntry;
+        ObservableList<T> tempList = builder.options;
+        if(choice != null)
+            tempList = new FilteredSelectionList<>(tempList, choice);
+        FilteredList<T> searchFilter = new FilteredList<>(tempList, getFilter(builder.search));
+        builder.search.addListener(c->{
+            if(builder.search.get().isBlank())
+                searchFilter.setPredicate(null);
+            else
+                searchFilter.setPredicate(getFilter(builder.search));
         });
+        this.list = searchFilter;
+        categoryFunctionProperty.addListener((o, oldVal, newVal)->updateGroupings());
+        subCategoryFunctionProperty.addListener((o, oldVal, newVal)->updateGroupings());
+        updateGroupings();
     }
 
-    protected MultipleSelectionModel<T> getSelectionModel() {
-        return selectionModel;
+    private void updateGroupings() {
+        Pair<Function<T, String>, String> getCategory = categoryFunctionProperty.getValue();
+        Pair<Function<T, String>, String> getSubCategory = subCategoryFunctionProperty.getValue();
+        ObservableCategoryEntryList<T, U> list = entryListMap.computeIfAbsent(
+                new Pair<>(getCategory.second, getSubCategory.second), p->makeList());
+        currentList = list;
+        setCenter(list);
     }
 
-    SelectionPane() {
-        htmlGenerator = (o) -> "";
+    protected ObservableCategoryEntryList<T, U> makeList() {
+        return new ObservableCategoryEntryList<>(
+                        this.list,
+                        (item, clickCount)->{
+                            display.getEngine().loadContent(generator.apply(item));
+                            if(clickCount != 2) return;
+                            choice.add(item);
+                        },
+                        categoryFunctionProperty.getValue().first,
+                        subCategoryFunctionProperty.getValue().first,
+                        makeEntry, makeLabelEntry,
+                        this::makeColumns);
     }
 
-    void init(Choice<T> slot) {
-        this.slot = slot;
-        chosen.setItems(new SortedList<>(selections, Comparator.comparing(Object::toString)));
-
-        setupChoicesListener();
-        setupChosenListener();
+    private Predicate<T> getFilter(StringProperty search) {
+        return t->StringUtils.containsIgnoreCase(t.toString(), search.get());
     }
 
-    void setupChoicesListener() {
-        selectionModel.selectedItemProperty().addListener((o, oldVal, newVal)->{
-            if(newVal != null) {
-                display.getEngine().loadContent(htmlGenerator.apply(newVal));
+    protected List<TreeTableColumn<U, ?>> makeColumns(ReadOnlyDoubleProperty width) {
+        TreeTableColumn<U, String> name = new TreeTableColumn<>("Name");
+        name.setCellValueFactory(new TreeCellFactory<>("name"));
+        name.setComparator((s1,s2)->{
+            if(s1.matches("Level \\d+") && s2.matches("Level \\d+")) {
+                double d1 = Double.parseDouble(s1.substring(6));
+                double d2 = Double.parseDouble(s2.substring(6));
+                return Double.compare(d1, d2);
             }
+            return s1.compareTo(s2);
         });
-        list.setOnMouseClicked((event) -> {
-            if(event.getClickCount() % 2 == 0) {
-                T selectedItem = selectionModel.getSelectedItem();
-                if(selectedItem != null && slot.getMaxSelections() > slot.getSelections().size()) {
-                    slot.add(selectedItem);
-                }
-            }
-        });
+        return Collections.singletonList(name);
     }
-    void setupChosenListener() {
-        chosen.setOnMouseClicked((event) -> {
-            if(event.getClickCount() == 2) {
-                T selectedItem = chosen.getSelectionModel().getSelectedItem();
-                slot.remove(selectedItem);
-            }
-        });
+
+    public void expandAll() {
+        if(currentList != null)
+            expand(currentList.getRoot());
+    }
+
+    private void expand(TreeItem<U> root) {
+        root.setExpanded(true);
+        for (TreeItem<U> child : root.getChildren()) {
+            expand(child);
+        }
+    }
+
+    public void navigate(List<String> path) {
+        if(currentList == null)
+            return;
+        expandTo(path.get(0), currentList.getRoot());
+    }
+
+    private boolean expandTo(String nodeName, TreeItem<U> node) {
+        if(node.getValue().toString().equalsIgnoreCase(nodeName)) {
+            expand(node);
+            return true;
+        }
+        if(node.getChildren().stream().anyMatch(child->expandTo(nodeName, child))) {
+            node.setExpanded(true);
+            return true;
+        }
+        return false;
+    }
+
+    public static class Builder<T, U extends ListEntry<T>> {
+        private Choice<T> choice;
+        private ObservableList<T> options;
+        private WebView display;
+        private StringProperty search;
+        private ObservableValue<Pair<Function<T, String>, String>> categoryFunctionProperty;
+        private ObservableValue<Pair<Function<T, String>, String>> subCategoryFunctionProperty;
+        private final Function<T, U> makeEntry;
+        private final Function<String, U> makeLabelEntry;
+
+        public static <T> Builder<T, ListEntry<T>> makeDefault() {
+            return new Builder<>(ListEntry::new, ListEntry::new);
+        }
+
+        public Builder(Function<T, U> makeEntry, Function<String, U> makeLabelEntry){
+            this.makeEntry = makeEntry;
+            this.makeLabelEntry = makeLabelEntry;
+        }
+
+        public void setChoice(Choice<T> choice) {
+            if(choice instanceof ChoiceList)
+                setOptions(makeList(((ChoiceList<T>) choice).getOptions()));
+            this.choice = choice;
+        }
+        protected static <T> ObservableList<T> makeList(List<T> options) {
+            if(options instanceof ObservableList)
+                return (ObservableList<T>) options;
+            return FXCollections.observableArrayList(options);
+        }
+
+        public void setOptions(List<T> options) {
+            setOptions(makeList(options));
+        }
+
+        public void setOptions(ObservableList<T> options) {
+            this.options = options;
+        }
+
+        protected ObservableList<T> getOptions() {
+            return options;
+        }
+
+        public void setDisplay(WebView display) {
+            this.display = display;
+        }
+
+        public void setSearch(StringProperty search) {
+            this.search = search;
+        }
+
+        public void setCategoryFunctionProperty(ObservableValue<Pair<Function<T, String>, String>> categoryFunctionProperty) {
+            this.categoryFunctionProperty = categoryFunctionProperty;
+        }
+
+        public void setSubCategoryFunctionProperty(ObservableValue<Pair<Function<T, String>, String>> subCategoryFunctionProperty) {
+            this.subCategoryFunctionProperty = subCategoryFunctionProperty;
+        }
+
+        public SelectionPane<T, U> build() {
+            if(categoryFunctionProperty == null)
+                categoryFunctionProperty = new SimpleObjectProperty<>(new Pair<>((t)->"", ""));
+            if(subCategoryFunctionProperty == null)
+                subCategoryFunctionProperty = new SimpleObjectProperty<>(new Pair<>((t)->"", ""));
+            return new SelectionPane<>(this);
+        }
     }
 }

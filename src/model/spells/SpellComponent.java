@@ -1,5 +1,5 @@
 package model.spells;
 
 public enum SpellComponent {
-	Verbal, Somatic, Material, Focus
+	Verbal, Somatic, Material, Focus, Varies
 }

@@ -2,14 +2,17 @@ package ui.controllers;
 
 import javafx.collections.MapChangeListener;
 import javafx.fxml.FXML;
+import model.CharacterManager;
 import model.spells.SpellList;
-import ui.Main;
+
+import java.util.List;
+import java.util.Map;
 
 public class SpellsTabController extends SubTabController {
 
 	@FXML
 	private void initialize() {
-		Main.character.spells().getSpellLists().addListener((MapChangeListener<String, SpellList>) c->{
+		CharacterManager.getActive().spells().getSpellLists().addListener((MapChangeListener<String, SpellList>) c->{
 			if(c.wasAdded()) {
 				addTab(c.getKey(), new SpellListController(c.getValueAdded()));
 				sortTabs();
@@ -18,10 +21,19 @@ public class SpellsTabController extends SubTabController {
 				removeTab(c.getKey());
 			}
 		});
+		for (Map.Entry<String, SpellList> c :
+				CharacterManager.getActive().spells().getSpellLists().entrySet()) {
+			addTab(c.getKey(), new SpellListController(c.getValue()));
+		}
+		sortTabs();
 	}
 
 	@Override
 	String getTabPath() {
 		return "/fxml/spellListPage.fxml";
+	}
+
+	public void navigate(List<String> path) {
+		navigateToTab(path.get(0));
 	}
 }

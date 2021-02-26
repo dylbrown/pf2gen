@@ -44,11 +44,11 @@ class BackgroundScraper extends SRDScraper {
 
         //Split the string so that the first element is the ability boosts, and the remainder is the second
         String[] chooseSkill; boolean or = false;
-        if(descChoose[1].contains("You’re trained in the ")) {
-            chooseSkill = descChoose[1].split(" ?, and one is a free (ability )?boost\\. *You’re trained in the ", 2);
+        if(descChoose[1].contains("You're trained in the ") || descChoose[1].contains("You’re trained in the ")) {
+            chooseSkill = descChoose[1].split(" ?, and one is a free (ability )?boost\\. *You're trained in the ", 2);
         }else{
             or = true;
-            chooseSkill = descChoose[1].split(" ?, and one is a free (ability )?boost\\. *You’re trained in your choice of (either )?the ", 2);
+            chooseSkill = descChoose[1].split(" ?, and one is a free (ability )?boost\\. *You're trained in your choice of (either )?the ", 2);
         }
 
         //Split the ability boosts

@@ -3,6 +3,8 @@ package model.xml_parsers;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.data_managers.sources.SourceLoadTracker;
+import model.data_managers.sources.SourcesLoader;
+import model.util.ObjectNotFoundException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -20,7 +22,7 @@ import java.util.function.Consumer;
 import static model.util.StringUtils.clean;
 
 public abstract class FileLoader<T> {
-    private final SourceConstructor sourceConstructor;
+    protected final SourceConstructor sourceConstructor;
     protected final SourceLoadTracker loadTracker;
     private final File root;
     private static final DocumentBuilderFactory factory;
@@ -35,17 +37,22 @@ public abstract class FileLoader<T> {
     private boolean loadedFromRepository = false;
     private Source source = null;
 
+    protected String getName(T t) {
+        return t.toString();
+    }
+
     public FileLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
         this.sourceConstructor = sourceConstructor;
-        this.loadTracker = new SourceLoadTracker(sourceConstructor);
+        this.loadTracker = new SourceLoadTracker(sourceConstructor, sourceBuilder);
         this.root = root;
-        if(sourceBuilder != null)
-            sourceBuilder.onBuild((source)->this.source = source);
+        if(sourceBuilder != null) {
+            source = sourceBuilder.onBuild((source)->this.source = source);
+        }
     }
 
     protected FileLoader(SourceConstructor sourceConstructor, File root) {
         this.sourceConstructor = sourceConstructor;
-        this.loadTracker = new SourceLoadTracker(sourceConstructor);
+        this.loadTracker = new SourceLoadTracker(sourceConstructor, null);
         this.root = root;
     }
 
@@ -87,6 +94,38 @@ public abstract class FileLoader<T> {
 
     public T find(String category, String name) {
         return getCategory(category).get(clean(name));
+    }
+
+    public <A, B extends FileLoader<A>> A findFromDependencies(String nameOfA, Class<B> loaderClass, String name) throws ObjectNotFoundException {
+        A a;
+        B loader = source.getLoader(loaderClass);
+        a = (loader != null) ? loader.find(name) : null;
+        if(a != null) return a;
+        for (String dependency : source.getDependencies()) {
+            Source childSource = SourcesLoader.instance().find(dependency);
+            if(childSource != null) {
+                loader = childSource.getLoader(loaderClass);
+                a = (loader != null) ? loader.find(name) : null;
+                if(a != null) return a;
+            }
+        }
+        throw new ObjectNotFoundException(name, nameOfA);
+    }
+
+    public <A, B extends FileLoader<A>> A findFromDependencies(String nameOfA, Class<B> loaderClass, String name, String category) throws ObjectNotFoundException {
+        A a;
+        B loader = source.getLoader(loaderClass);
+        a = (loader != null) ? loader.find(category, name) : null;
+        if(a != null) return a;
+        for (String dependency : source.getDependencies()) {
+            Source childSource = SourcesLoader.instance().find(dependency);
+            if(childSource != null) {
+                loader = childSource.getLoader(loaderClass);
+                a = (loader != null) ? loader.find(category, name) : null;
+                if(a != null) return a;
+            }
+        }
+        throw new ObjectNotFoundException(name, nameOfA);
     }
 
     public NavigableMap<String, T> getCategory(String category) {
@@ -160,9 +199,9 @@ public abstract class FileLoader<T> {
 
     protected void addItem(String category, T t) {
         synchronized (this) {
-            allItems.put(clean(t.toString()), t);
+            allItems.put(clean(getName(t)), t);
             if(category != null && category.length() > 0)
-                getCategoryInternal(category).put(clean(t.toString()), t);
+                getCategoryInternal(category).put(clean(getName(t)), t);
         }
     }
 

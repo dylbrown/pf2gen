@@ -8,7 +8,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ObservableValue;
 import model.attributes.Attribute;
 import model.enums.Proficiency;
-import ui.Main;
+import model.player.PC;
 
 public class AttributeEntry implements TemplateHashModel {
     private final Attribute attr;
@@ -16,8 +16,10 @@ public class AttributeEntry implements TemplateHashModel {
     private final ObjectWrapper wrapper;
     private final ReadOnlyObjectProperty<Integer> level;
     private final String data;
+    private final PC character;
 
-    public AttributeEntry(Attribute attr, String data, ObservableValue<Proficiency> prof, ReadOnlyObjectProperty<Integer> levelProperty, ObjectWrapper objectWrapper) {
+    public AttributeEntry(PC character, Attribute attr, String data, ObservableValue<Proficiency> prof, ReadOnlyObjectProperty<Integer> levelProperty, ObjectWrapper objectWrapper) {
+        this.character = character;
         this.attr = attr;
         this.data = data;
         this.prof = prof;
@@ -28,12 +30,12 @@ public class AttributeEntry implements TemplateHashModel {
     @Override
     public TemplateModel get(String s) throws TemplateModelException {
         switch(s.toLowerCase()) {
-            case "total": return wrapper.wrap(Main.character.getTotalMod(attr, data)); // TODO: Remove call to main
+            case "total": return wrapper.wrap(character.getTotalMod(attr, data));
             case "attribute": return wrapper.wrap(attr);
             case "proficiency": return wrapper.wrap(prof.getValue());
             case "proficiencymod": return wrapper.wrap(prof.getValue().getMod(level.get()));
             case "ability": return wrapper.wrap(attr.getKeyAbility());
-            case "itembonus": return wrapper.wrap(Main.character.attributes().getBonus(attr)); // TODO: Support general bonuses
+            case "itembonus": return wrapper.wrap(character.attributes().getBonus(attr)); // TODO: Support general bonuses
             case "level": return wrapper.wrap(level.get());
             case "name": return wrapper.wrap(toString());
         }

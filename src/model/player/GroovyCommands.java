@@ -7,8 +7,9 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import model.equipment.weapons.WeaponGroupMod;
-import model.equipment.weapons.WeaponMod;
+import model.enums.WeaponProficiency;
+import model.items.weapons.WeaponGroupMod;
+import model.items.weapons.WeaponMod;
 import model.abilities.Ability;
 import model.abilities.ArchetypeExtension;
 import model.abilities.SpellExtension;
@@ -19,13 +20,14 @@ import model.attributes.AttributeMod;
 import model.data_managers.sources.MultiSourceLoader;
 import model.data_managers.sources.SourcesLoader;
 import model.enums.Proficiency;
-import model.equipment.weapons.Damage;
-import model.equipment.weapons.WeaponGroup;
+import model.items.weapons.Damage;
+import model.items.weapons.WeaponGroup;
 import model.spells.Spell;
+import model.util.ObjectNotFoundException;
 import model.util.StringUtils;
 import model.xml_parsers.AbilityLoader;
-import setting.Deity;
-import setting.Domain;
+import model.setting.Deity;
+import model.setting.Domain;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -33,7 +35,7 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"rawtypes", "unused", "unchecked"})
+@SuppressWarnings({"rawtypes", "unchecked"})
 class GroovyCommands {
     private final ObservableMap<String, Integer> mods = FXCollections.observableHashMap();
     private final BooleanProperty applying = new SimpleBooleanProperty(true);
@@ -47,8 +49,10 @@ class GroovyCommands {
     private final ReadOnlyObjectProperty<Deity> deity;
     private final CustomGetter customGetter;
     private final AbilityManager abilities;
+    private final SourcesManager sources;
 
-    GroovyCommands(CustomGetter customGetter, AbilityManager abilities, AttributeManager attributes, DecisionManager decisions, CombatManager combat, SpellListManager spells, ReadOnlyObjectProperty<Deity> deity, ReadOnlyObjectProperty<Integer> levelProperty) {
+    GroovyCommands(CustomGetter customGetter, SourcesManager sources, AbilityManager abilities, AttributeManager attributes, DecisionManager decisions, CombatManager combat, SpellListManager spells, ReadOnlyObjectProperty<Deity> deity, ReadOnlyObjectProperty<Integer> levelProperty) {
+        this.sources = sources;
         this.abilities = abilities;
         this.attributes = attributes;
         this.decisions = decisions;
@@ -74,12 +78,15 @@ class GroovyCommands {
                     if(loader instanceof MultiSourceLoader) {
                         return ((MultiSourceLoader) loader).find(name);
                     }
-                } catch (IllegalAccessException | InvocationTargetException e) {
+                } catch (IllegalAccessException | InvocationTargetException | ObjectNotFoundException e) {
                     e.printStackTrace();
                 }
             }
         }
         return null;
+    }
+    public List<Object> getChoices(String choiceName) {
+        return choices.getOrDefault(choiceName, Collections.emptyList());
     }
     public String archetypeName(Ability ability) {
         return ability.getExtension(ArchetypeExtension.class).getArchetype();
@@ -117,9 +124,11 @@ class GroovyCommands {
         }
     }
     public void spell(String spellName, String spellListName) {
-        Spell spell = SourcesLoader.instance().spells().find(spellName);
-        if(spell != null) {
-            spell(spell, spellListName);
+        Spell spell = null;
+        try {
+            spell(sources.spells().find(spellName), spellListName);
+        } catch (ObjectNotFoundException e) {
+            e.printStackTrace();
         }
     }
     public void spell(Spell spell, String spellListName) {
@@ -139,16 +148,15 @@ class GroovyCommands {
     public void spellSlot(int level, int count, Ability source) {
         spellSlot(level, count, source.getExtension(SpellExtension.class).getSpellListName());
     }
-    public void choose(String things, String name, Closure callback, String secondParam, int numSelections) {
+    public void choose(String things, String name, Closure callback, String secondParam, int maxSelections) {
         if(applying.get()) {
             if(arbitraryChoices.get(name) != null){
-                arbitraryChoices.get(name).increaseChoices(numSelections);
+                arbitraryChoices.get(name).increaseChoices(maxSelections);
                 return;
             }
-            List<?> selections = Collections.emptyList();
-            Class<?> optionsClass = Object.class;
             String[] listSplit = things.split(" ?: ?");
             String[] words = listSplit[0].split(" ");
+            ArbitraryChoice.Builder<?> builder = null;
             switch (words[0].toLowerCase()){
                 case "deitydomain":
                     ObservableList<Domain> domains = FXCollections.observableArrayList();
@@ -163,8 +171,10 @@ class GroovyCommands {
                         }
                         domains.sort(Comparator.comparing(Object::toString));
                     });
-                    selections = domains;
-                    optionsClass = Domain.class;
+                    ArbitraryChoice.Builder<Domain> domain = new ArbitraryChoice.Builder<>();
+                    domain.setChoices(domains);
+                    domain.setOptionsClass(Domain.class);
+                    builder = domain;
                     break;
                 case "divineskill":
                     ObservableList<Attribute> skills = FXCollections.observableArrayList();
@@ -172,60 +182,81 @@ class GroovyCommands {
                         skills.addAll(deity.get().getDivineSkillChoices());
 
                     deity.addListener((o, oldVal, newVal)->{
-                        skills.removeIf(s->!newVal.getDivineSkillChoices().contains(s));
-                        for (Attribute skill : newVal.getDivineSkillChoices()) {
-                            if(!skills.contains(skill))
-                                skills.add(skill);
+                        if(newVal == null) {
+                            skills.clear();
+                        }else {
+                            skills.removeIf(s -> !newVal.getDivineSkillChoices().contains(s));
+                            for (Attribute skill : newVal.getDivineSkillChoices()) {
+                                if (!skills.contains(skill))
+                                    skills.add(skill);
+                            }
+                            skills.sort(Comparator.comparing(Object::toString));
                         }
-                        skills.sort(Comparator.comparing(Object::toString));
                     });
-                    selections = skills;
-                    optionsClass = Attribute.class;
+                    ArbitraryChoice.Builder<Attribute> attribute = new ArbitraryChoice.Builder<>();
+                    attribute.setChoices(skills);
+                    attribute.setOptionsClass(Attribute.class);
+                    builder = attribute;
                     break;
                 case "weapongroup":
-                    selections = new ArrayList<>(SourcesLoader.instance().weapons()
-                            .getWeaponGroups().values());
-                    optionsClass = WeaponGroup.class;
+                    ArbitraryChoice.Builder<WeaponGroup> groups = new ArbitraryChoice.Builder<>();
+                    groups.setChoices(FXCollections.observableArrayList(sources.weapons()
+                            .getWeaponGroups().values()));
+                    groups.setOptionsClass(WeaponGroup.class);
+                    builder = groups;
                     break;
                 case "skill":
+                    ArbitraryChoice.Builder<String> stringChoice = new ArbitraryChoice.Builder<>();
                     if(words.length > 1){
                         Proficiency min = Proficiency.valueOf(words[1].replaceAll("[()]", ""));
-                        selections = attributes.getMinList(min);
+                        stringChoice.setChoices(attributes.getMinList(min));
                     }else
-                        selections = Arrays.stream(Attribute.getSkills()).map(
-                                Enum::toString).collect(Collectors.toCollection(ArrayList::new));
-                    optionsClass = String.class;
+                        stringChoice.setChoices(Arrays.stream(Attribute.getSkills()).map(
+                                Enum::toString).collect(Collectors.toCollection(FXCollections::observableArrayList)));
+                    stringChoice.setOptionsClass(String.class);
+                    builder = stringChoice;
                     break;
                 case "saving throw":
+                    stringChoice = new ArbitraryChoice.Builder<>();
                     if(words.length > 1){
                         Proficiency min = Proficiency.valueOf(words[1].replaceAll("[()]", ""));
-                        selections = attributes.getMinSavesList(min);
+                        stringChoice.setChoices(attributes.getMinSavesList(min));
                     }else
-                        selections = Arrays.stream(Attribute.getSaves()).map(
-                                Enum::toString).collect(Collectors.toCollection(ArrayList::new));
-                    optionsClass = String.class;
+                        stringChoice.setChoices(Arrays.stream(Attribute.getSaves()).map(
+                                Enum::toString).collect(Collectors.toCollection(FXCollections::observableArrayList)));
+                    stringChoice.setOptionsClass(String.class);
+                    builder = stringChoice;
                     break;
                 case "attributes":
                     String[] items = listSplit[1].split("[, ]+");
-                    selections = new ArrayList<>(Arrays.asList(items));
-                    optionsClass = String.class;
+                    stringChoice = new ArbitraryChoice.Builder<>();
+                    stringChoice.setChoices(FXCollections.observableArrayList(items));
+                    stringChoice.setOptionsClass(String.class);
+                    builder = stringChoice;
                     break;
             }
-            ArbitraryChoice choice = new ArbitraryChoice(name, selections, (response) -> {
+            if(builder == null)
+                builder = new ArbitraryChoice.Builder<String>();
+            builder.setName(name);
+            builder.setFillFunction((response) -> {
                 choices.computeIfAbsent(name, (key)->new ArrayList<>()).add(response);
                 applying.set(true);
                 if(secondParam != null)
                     callback.call(response, secondParam);
                 else
                     callback.call(response);
-            },(response) -> {
+            });
+            builder.setEmptyFunction((response) -> {
                 choices.computeIfAbsent(name, (key)->new ArrayList<>()).remove(response);
                 applying.set(false);
                 if(secondParam != null)
                     callback.call(response, secondParam);
                 else
                     callback.call(response);
-            }, numSelections, false, optionsClass);
+            });
+            builder.setMaxSelections(maxSelections);
+
+            ArbitraryChoice choice = builder.build();
             arbitraryChoices.put(name, choice);
             decisions.add(choice);
             if(choices.get(name) != null) {
@@ -234,8 +265,8 @@ class GroovyCommands {
                 choice.addAll(strings);
             }
         } else {
-            if(arbitraryChoices.get(name).getMaxSelections() > numSelections){
-                arbitraryChoices.get(name).decreaseChoices(numSelections);
+            if(arbitraryChoices.get(name).getMaxSelections() > maxSelections){
+                arbitraryChoices.get(name).decreaseChoices(maxSelections);
                 return;
             }
             if(choices.get(name) != null) {
@@ -248,15 +279,18 @@ class GroovyCommands {
         }
     }
     public void weaponGroupProficiency(String group, String prof) {
+        weaponGroupProficiency(sources.weapons().getWeaponGroups().get(group),
+                prof);
+    }
+    public void weaponGroupProficiency(WeaponGroup weaponGroup, String prof) {
         if(applying.get()) {
             attributes.apply(new WeaponGroupMod(
-                    SourcesLoader.instance().weapons().getWeaponGroups().get(group.toLowerCase()),
+                    weaponGroup,
                     Proficiency.valueOf(StringUtils.camelCaseWord(prof.trim()))
             ));
         } else {
             attributes.remove(new WeaponGroupMod(
-                    SourcesLoader.instance().weapons()
-                            .getWeaponGroups().get(group.toLowerCase()),
+                    weaponGroup,
                     Proficiency.valueOf(StringUtils.camelCaseWord(prof.trim()))
             ));
         }
@@ -272,6 +306,13 @@ class GroovyCommands {
                     weaponName,
                     Proficiency.valueOf(StringUtils.camelCaseWord(prof.trim()))
             ));
+        }
+    }
+    public void weaponProficiencyTranslator(Closure<WeaponProficiency> translator) {
+        if(applying.get()) {
+            attributes.apply(translator::call);
+        } else {
+            attributes.remove(translator::call);
         }
     }
     public void damageModifier(String name, Closure<Damage> modifier) {

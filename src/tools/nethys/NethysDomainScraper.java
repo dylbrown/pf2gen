@@ -1,6 +1,5 @@
 package tools.nethys;
 
-import model.util.Pair;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
@@ -22,7 +21,7 @@ public class NethysDomainScraper extends NethysListScraper {
     }
 
     @Override
-    Pair<String, String> addItem(Document doc) {
+    Entry addItem(Document doc) {
         Element output = doc.getElementById("ctl00_MainContent_DetailedOutput");
         String domainName = output.getElementsByTag("h1")
                 .first().text().replaceAll(" Domain", "").trim();
@@ -45,6 +44,6 @@ public class NethysDomainScraper extends NethysListScraper {
                         "</Domain>\n",
                 pageNo, domainName, domainSpell, advDomainSpell, desc);
 
-        return new Pair<>(results, source);
+        return new Entry(domainName, results, source);
     }
 }
