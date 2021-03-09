@@ -129,8 +129,6 @@ public abstract class FileLoader<T> {
     }
 
     public NavigableMap<String, T> getCategory(String category) {
-        if(source != null && sourceConstructor.getType() != SourceConstructor.Type.MultiItemMultiFile)
-            return getAll();
         if(loadTracker.isNotLoaded(category))
             load(category, "");
         return Collections.unmodifiableNavigableMap(getCategoryInternal(category));
