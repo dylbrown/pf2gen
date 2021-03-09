@@ -32,21 +32,24 @@ public class CustomItemController extends DecisionsController implements Popup.C
     private final Function<Item, Boolean> tryToBuy;
 
     public CustomItemController(BaseItem item, Function<Item, Boolean> tryToBuy) {
+        super(getChoices(item));
         this.item = new ItemInstance(item);
         this.tryToBuy = tryToBuy;
     }
 
-    @FXML
-    private void initialize() {
+    private static ObservableList<Choice<?>> getChoices(BaseItem item) {
         ObservableList<Choice<?>> choices = FXCollections.observableArrayList(
                 c->new Observable[]{c.numSelectionsProperty()}
         );
         choices.addAll(item.getExtension(ItemInstanceChoices.class).getChoices().values());
-        initialize(
-                choices
-        );
+        return choices;
+    }
+
+    @FXML
+    protected void initialize() {
+        super.initialize();
         instancePreview.getEngine().loadContent(EquipmentHTMLGenerator.parse(item));
-        choices.addListener((ListChangeListener<? super Choice<?>>) c->
+        decisions.addListener((ListChangeListener<? super Choice<?>>) c->
                 instancePreview.getEngine().loadContent(EquipmentHTMLGenerator.parse(item)));
         buy.setOnAction(e->{
             if(tryToBuy.apply(this.item))

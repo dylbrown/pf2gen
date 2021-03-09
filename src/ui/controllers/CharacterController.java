@@ -1,6 +1,7 @@
 package ui.controllers;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCode;
@@ -14,6 +15,7 @@ import ui.controllers.equip.EquipTabController;
 import ui.ftl.TemplateFiller;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,15 +28,14 @@ public class CharacterController {
     @FXML
     private WebView display;
     @FXML
-    private AnchorPane window_startingChoices, window_decisions, window_equipment, window_spells;
+    private AnchorPane window_startingChoices, window_equipment, window_spells;
     @FXML
     private StartingTabController window_startingChoicesController;
-    @FXML
-    private DecisionsController window_decisionsController;
     @FXML
     private EquipTabController window_equipmentController;
     @FXML
     private SpellsTabController window_spellsController;
+    private DecisionsController window_decisionsController;
     private String htmlContent;
 
     @FXML
@@ -67,6 +68,14 @@ public class CharacterController {
                 display.getEngine().loadContent(htmlContent);
             }
         });
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/decisionsTab.fxml"));
+        window_decisionsController = new DecisionsController(CharacterManager.getActive().decisions().getDecisions());
+        loader.setController(window_decisionsController);
+        try {
+            tab_decisions.setContent(loader.load());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void navigate(List<String> path) {

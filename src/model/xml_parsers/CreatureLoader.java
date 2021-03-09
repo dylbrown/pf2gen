@@ -39,7 +39,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
 
     @Override
     protected Creature parseItem(File file, Element item) {
-        Creature.Builder builder = new Creature.Builder();
+        BaseCreature.Builder builder = new BaseCreature.Builder();
         NodeList childNodes = item.getChildNodes();
         builder.setLevel(Integer.parseInt(item.getAttribute("level")));
         builder.setPage(Integer.parseInt(item.getAttribute("page")));
@@ -258,7 +258,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
         return builder.build();
     }
 
-    private Item getItem(String name, boolean canBeEnchanted, Creature.Builder builder) throws ObjectNotFoundException {
+    private Item getItem(String name, boolean canBeEnchanted, BaseCreature.Builder builder) throws ObjectNotFoundException {
         if(name.endsWith("armor"))
             return getItem(name.substring(0, name.length()-6), canBeEnchanted, builder);
         if(name.matches(".*\\([^+][^)]*\\) *\\z")) {
@@ -306,7 +306,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
         Armor, Weapon
     }
 
-    private Item parseEnchantedItem(String s, Creature.Builder builder) throws ObjectNotFoundException {
+    private Item parseEnchantedItem(String s, BaseCreature.Builder builder) throws ObjectNotFoundException {
         String[] words = s.split(" ");
         Item baseItem = null;
         ItemType type = null;

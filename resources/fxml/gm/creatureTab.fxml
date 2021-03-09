@@ -1,26 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.RadioMenuItem?>
-<?import javafx.scene.control.Spinner?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ToggleGroup?>
-<?import javafx.scene.control.TreeTableColumn?>
-<?import javafx.scene.control.TreeTableView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.web.WebView?>
-
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.gm.CreatureTabController">
     <TabPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <Tab closable="false" text="Core Statistics">
@@ -88,75 +69,6 @@
                           GridPane.valignment="TOP"/>
             </GridPane>
         </Tab>
-        <Tab closable="false" text="Abilities, Attacks, Attributes, and Others">
-            <SplitPane dividerPositions="0.6" prefHeight="160.0" prefWidth="200.0">
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
-                    <SplitPane dividerPositions="0.5" orientation="VERTICAL" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-                            <BorderPane fx:id="decisionsPaneContainer" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                <top>
-                                    <Label text="Decisions" BorderPane.alignment="CENTER_LEFT">
-                                        <padding>
-                                            <Insets left="5.0" />
-                                        </padding>
-                                    </Label>
-                                </top>
-                                <center>
-                                    <TreeTableView BorderPane.alignment="CENTER">
-                                        <placeholder>
-                                            <Label text="No Decisions" />
-                                        </placeholder>
-                                        <columns>
-                                            <TreeTableColumn prefWidth="274.2856968641281" text="Name" />
-                                            <TreeTableColumn prefWidth="77.71429443359375" text="Remaining" />
-                                        </columns>
-                                        <columnResizePolicy>
-                                            <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                                        </columnResizePolicy>
-                                    </TreeTableView>
-                                </center>
-                            </BorderPane>
-                        </AnchorPane>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-                            <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                <top>
-                                    <Label text="Selected Item Description" BorderPane.alignment="CENTER_LEFT">
-                                        <padding>
-                                            <Insets left="5.0" />
-                                        </padding>
-                                    </Label>
-                                </top>
-                                <center>
-                                    <WebView fx:id="display" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
-                                </center>
-                            </BorderPane>
-                        </AnchorPane>
-                    </SplitPane>
-                </AnchorPane>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
-                    <BorderPane fx:id="choicesContainer" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                        <top>
-                            <MenuBar BorderPane.alignment="CENTER">
-                                <Menu mnemonicParsing="false" text="Filter">
-                                    <RadioMenuItem mnemonicParsing="false" text="All">
-                                        <toggleGroup>
-                                            <ToggleGroup fx:id="filterChoices" />
-                                        </toggleGroup>
-                                    </RadioMenuItem>
-                                    <RadioMenuItem mnemonicParsing="false" selected="true" text="Qualified" toggleGroup="$filterChoices" />
-                                </Menu>
-                            </MenuBar>
-                        </top>
-                        <center>
-                            <TreeTableView prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-                                <placeholder>
-                                    <Label text="No Options" />
-                                </placeholder>
-                            </TreeTableView>
-                        </center>
-                    </BorderPane>
-                </AnchorPane>
-            </SplitPane>
-        </Tab>
+        <Tab closable="false" text="Abilities, Attacks, Attributes, and Others" fx:id="decisionPane" />
     </TabPane>
 </AnchorPane>

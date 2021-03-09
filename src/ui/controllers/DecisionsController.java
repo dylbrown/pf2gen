@@ -8,7 +8,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
-import model.CharacterManager;
 import model.abilities.Ability;
 import model.abilities.ArchetypeExtension;
 import model.ability_slots.Choice;
@@ -57,13 +56,14 @@ public class DecisionsController {
             new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<Pair<Function<Choice<?>, String>, String>> decisionsSubCategoryFunctionProperty =
             new ReadOnlyObjectWrapper<>();
+    protected final ObservableList<Choice<?>> decisions;
 
-    @FXML
-    private void initialize() {
-        initialize(CharacterManager.getActive().decisions().getDecisions());
+    public DecisionsController(ObservableList<Choice<?>> decisions) {
+        this.decisions = decisions;
     }
 
-    protected void initialize(ObservableList<Choice<?>> decisions) {
+    @FXML
+    protected void initialize() {
         display.getEngine().setUserStyleSheetLocation(getClass().getResource("/webview_style.css").toString());
         groupBy.selectedToggleProperty().addListener((observableValue, oldVal, newVal) -> updateGroupBy(newVal, categoryFunctionProperty));
         groupBySecond.selectedToggleProperty().addListener((observableValue, oldVal, newVal) -> updateGroupBy(newVal, subCategoryFunctionProperty));

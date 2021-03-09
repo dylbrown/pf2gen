@@ -20,7 +20,6 @@
             <fx:include source="skillTab.fxml" />
         </Tab>
         <Tab fx:id="tab_decisions" closable="false" text="Decisions">
-            <fx:include fx:id="window_decisions" source="decisionsTab.fxml" />
         </Tab>
         <Tab fx:id="tab_equipment" closable="false" text="Equipment">
             <fx:include fx:id="window_equipment" source="equip/equipTab.fxml" />

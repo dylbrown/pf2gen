@@ -179,6 +179,10 @@ public class ArbitraryChoice<T> implements ChoiceList<T> {
             optionsClass = choice.optionsClass;
         }
 
+        public void setChoicesConstant(List<T> list) {
+            setChoices(FXCollections.observableList(list));
+        }
+
         public void setChoices(ObservableList<T> choices) {
             this.choices = choices;
         }
