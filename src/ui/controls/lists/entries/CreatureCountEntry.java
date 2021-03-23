@@ -24,7 +24,8 @@ public class CreatureCountEntry extends ListEntry<CreatureCount> {
             case "level":
                 return levelProperty();
             case "count":
-                return getContents().countProperty().asString();
+                return (getContents() != null) ? getContents().countProperty().asString()
+                        : new ReadOnlyStringWrapper("").getReadOnlyProperty();
         }
         return null;
     }
