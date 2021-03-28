@@ -2,14 +2,13 @@ package model.xml_parsers.abc;
 
 import model.abc.PClass;
 import model.abilities.Ability;
-import model.ability_slots.*;
+import model.ability_slots.AbilitySlot;
+import model.ability_slots.DynamicFilledSlot;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.Type;
-import model.util.ObjectNotFoundException;
 import model.util.Pair;
-import model.util.StringUtils;
-import model.xml_parsers.FeatsLoader;
+import model.xml_parsers.AbilityLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -20,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class PClassesLoader extends ACLoader<PClass, PClass.Builder> {
+    private final AbilityLoader<Ability> abilityLoader;
 
     static{
         sources.put(PClassesLoader.class, e -> Type.Class);
@@ -27,6 +27,12 @@ public class PClassesLoader extends ACLoader<PClass, PClass.Builder> {
 
     public PClassesLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
         super(sourceConstructor, root, sourceBuilder);
+        abilityLoader = new AbilityLoader<>(null, root, sourceBuilder) {
+            @Override
+            protected Ability parseItem(File file, Element item) {
+                throw new UnsupportedOperationException();
+            }
+        };
     }
 
     @Override
@@ -47,39 +53,7 @@ public class PClassesLoader extends ACLoader<PClass, PClass.Builder> {
                         continue;
                     Element slotNode = (Element) childNodes.item(j);
                     if(!slotNode.getTagName().equals("AbilitySlot")) continue;
-                    String abilityName = slotNode.getAttribute("name");
-                    switch(slotNode.getAttribute("state").toLowerCase().trim()){
-                        case "filled":
-                            NodeList ability = slotNode.getElementsByTagName("Ability");
-                            if(ability.getLength() > 0) {
-                                Element temp = (Element) ability.item(0);
-                                abilitySlots.add(new FilledSlot(abilityName, level, makeAbility(temp, abilityName, level).build()));
-                            }else{
-                                String type = slotNode.getAttribute("type");
-                                if(type.equals("")) type = "General";
-                                DynamicFilledSlot dynamicFilledSlot = new DynamicFilledSlot(abilityName, level,
-                                        slotNode.getAttribute("contents"),
-                                        getDynamicType(type),
-                                        (featType, name)->{
-                                            Ability a = null;
-                                            try {
-                                                a = findFromDependencies("Ability", FeatsLoader.class, name, featType.toString());
-                                            } catch (ObjectNotFoundException e) {
-                                                e.printStackTrace();
-                                            }
-                                            return a;
-                                        });
-                                abilitySlots.add(dynamicFilledSlot);
-                                dynSlots.add(new Pair<>(StringUtils.getInBrackets(type), dynamicFilledSlot));
-                            }
-                            break;
-                        case "feat":
-                            abilitySlots.add(new FeatSlot(abilityName, level, getTypes(slotNode.getAttribute("type"))));
-                            break;
-                        case "choice":
-                            abilitySlots.add(new SingleChoiceSlot(abilityName, level, makeAbilities(slotNode.getChildNodes())));
-                            break;
-                    }
+                    abilitySlots.add(abilityLoader.makeAbilitySlot(slotNode, level));
                 }
                 builder.addToTable(level, abilitySlots);
                 break;

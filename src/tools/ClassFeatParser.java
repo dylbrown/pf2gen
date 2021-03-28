@@ -18,8 +18,8 @@ class ClassFeatParser extends SourceParser {
     }
 
     private ClassFeatParser() {
-        try (BufferedReader br = new BufferedReader(new FileReader(new File("generated/inputClassFeats.txt")))) {
-            classFeats = new BufferedWriter(new FileWriter(new File("generated/classFeats.txt")));
+        try (BufferedReader br = new BufferedReader(new FileReader("generated/inputClassFeats.txt"))) {
+            classFeats = new BufferedWriter(new FileWriter("generated/classFeats.txt"));
             String line;
             while ((line = br.readLine()) != null) {
                 parseLine(line);

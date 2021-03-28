@@ -120,6 +120,13 @@ public class DecisionsList extends SelectionPane<Choice<?>, DecisionEntry> {
         }
     }
 
+    @Override
+    protected void handleSelect(TreeItem<DecisionEntry> node) {
+        if(node.getValue() != null) {
+            selectHandler.accept(node.getValue().getChoice());
+        }
+    }
+
     public static class Builder extends SelectionPane.Builder<Choice<?>, DecisionEntry> {
         private FilteredList<Choice<?>> filteredOptions;
         private Consumer<Choice<?>> selectHandler;

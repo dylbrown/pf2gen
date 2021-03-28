@@ -205,7 +205,7 @@ public class ItemLoader extends FileLoader<Item> {
                 builder.setValue(getPrice(trim));
                 break;
             case "Bulk":
-                if (trim.toUpperCase().equals("L"))
+                if (trim.equalsIgnoreCase("L"))
                     builder.setWeight(.1);
                 else
                     builder.setWeight(Double.parseDouble(trim));

@@ -194,7 +194,7 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
         private List<Trait> traits = Collections.emptyList();
         private String customMod = "";
         private List<AbilitySlot> abilitySlots = Collections.emptyList();
-        private Type type;
+        private Type type = Type.Untyped;
         private boolean multiple = false;
         private List<AttributeMod> modifiers = Collections.emptyList();
         private List<AbilityMod> abilityMods = Collections.emptyList();
@@ -307,7 +307,7 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
         }
 
         public void setType(Type type) {
-            if(type != null)
+            if(type != Type.Untyped && type != null)
                 this.type = type;
         }
 

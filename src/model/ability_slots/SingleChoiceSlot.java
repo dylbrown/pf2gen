@@ -13,13 +13,17 @@ import java.util.Collections;
 import java.util.List;
 
 public class SingleChoiceSlot extends AbilitySlot implements AbilityChoiceList, AbilitySingleChoice {
-    private final List<Ability> choices;
+    private List<Ability> choices;
     private final ObservableList<Ability> list = FXCollections.observableArrayList();
     private final ReadOnlyIntegerWrapper numSelections = new ReadOnlyIntegerWrapper(0);
 
     public SingleChoiceSlot(String abilityName, int level, List<Ability> choices) {
-        super(abilityName, level);
+        this(abilityName, level);
         this.choices = choices;
+    }
+
+    protected SingleChoiceSlot(String abilityName, int level) {
+        super(abilityName, level);
         list.addListener((ListChangeListener<Ability>) c-> numSelections.set(list.size()));
     }
 
@@ -74,7 +78,7 @@ public class SingleChoiceSlot extends AbilitySlot implements AbilityChoiceList, 
         if(list.size() == 1 && currentAbility.get().equals(choice)) fill(null);
     }
 
-    private ObservableList<Ability> unmodifiable = FXCollections.unmodifiableObservableList(list);
+    private final ObservableList<Ability> unmodifiable = FXCollections.unmodifiableObservableList(list);
     @Override
     public ObservableList<Ability> getSelections() {
         return unmodifiable;

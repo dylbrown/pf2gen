@@ -20,8 +20,6 @@ import org.w3c.dom.NodeList;
 import java.io.File;
 import java.util.*;
 
-import static model.util.StringUtils.capitalize;
-
 public class WeaponsLoader extends ItemLoader {
 
     private static final Map<String, WeaponGroup> weaponGroups = new HashMap<>();
@@ -68,8 +66,14 @@ public class WeaponsLoader extends ItemLoader {
 
         if(weapon.hasAttribute("category"))
             item.setCategory(weapon.getAttribute("category"));
-
-        weaponExt.setProficiency(WeaponProficiency.valueOf(capitalize(proficiencyNode.getNodeName())));
+        WeaponProficiency proficiency;
+        String type = weapon.getAttribute("type");
+        if(type != null && !type.isBlank())
+            proficiency = WeaponProficiency.valueOf(type);
+        else {
+            proficiency = WeaponProficiency.robustValueOf(proficiencyNode.getNodeName());
+        }
+        weaponExt.setProficiency((proficiency != null) ? proficiency : WeaponProficiency.Unarmed);
         NodeList nodeList = weapon.getChildNodes();
         for(int i=0; i<nodeList.getLength(); i++) {
             if(nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)
@@ -105,7 +109,7 @@ public class WeaponsLoader extends ItemLoader {
                             .setReload(Integer.parseInt(trim));
                     break;
                 case "Bulk":
-                    if (trim.toUpperCase().equals("L"))
+                    if (trim.equalsIgnoreCase("L"))
                         item.setWeight(.1);
                     else
                         item.setWeight(Double.parseDouble(trim));

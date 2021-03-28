@@ -18,9 +18,9 @@ class FeatListParser extends SourceParser {
     }
 
     private FeatListParser() {
-        try (BufferedReader br = new BufferedReader(new FileReader(new File("generated/featListSource.txt")))) {
-            skill = new BufferedWriter(new FileWriter(new File("generated/skill.txt")));
-            general = new BufferedWriter(new FileWriter(new File("generated/general.txt")));
+        try (BufferedReader br = new BufferedReader(new FileReader("generated/featListSource.txt"))) {
+            skill = new BufferedWriter(new FileWriter("generated/skill.txt"));
+            general = new BufferedWriter(new FileWriter("generated/general.txt"));
             String line;
             while ((line = br.readLine()) != null) {
                 parseLine(line);
@@ -81,7 +81,7 @@ class FeatListParser extends SourceParser {
                     currentFeat.append("<Traits>").append(String.join(", ", specialTraits)).append("</Traits>");
                 break;
             case 2:
-                if(!line.substring(0, 15).equals("Prerequisite(s)")){
+                if(!line.startsWith("Prerequisite(s)")){
                     currentPointInList = 3;
                     parseLine(line);
                     break;

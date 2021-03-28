@@ -44,12 +44,12 @@ public class FeatsLoader extends AbilityLoader<Ability> {
         if(file.getName().toLowerCase().contains("bloodline") || category.equalsIgnoreCase("bloodline"))
             return makeBloodline(item);
         Ability.Builder builder = makeAbility(item, item.getAttribute("name"));
-        if (builder.getType() == null && sourceConstructor instanceof TypeSourceConstructor) {
+        if (builder.getType() == Type.Untyped && sourceConstructor instanceof TypeSourceConstructor) {
             String type = ((TypeSourceConstructor) sourceConstructor).getObjectType(category);
             if (type != null && !type.isBlank())
                 builder.setType(Type.valueOf(StringUtils.capitalize(type.trim())));
         }
-        if(builder.getType() == null) {
+        if(builder.getType() == Type.Untyped) {
             if (!category.isBlank()) {
                 if (category.equalsIgnoreCase("archetype"))
                     category = "class";

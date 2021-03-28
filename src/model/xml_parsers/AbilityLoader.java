@@ -20,6 +20,7 @@ import model.spells.Tradition;
 import model.util.ObjectNotFoundException;
 import model.util.Pair;
 import model.util.StringUtils;
+import model.xml_parsers.abc.PClassesLoader;
 import model.xml_parsers.equipment.WeaponsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -39,6 +40,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
     public AbilityLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
         super(sourceConstructor, root, sourceBuilder);
         weaponsLoader = new WeaponsLoader(null, root, sourceBuilder);
+        clearAccumulators();
     }
 
    protected static Map<Class<? extends AbilityLoader<?>>, Function<Element, Type>> sources = new HashMap<>();
@@ -320,7 +322,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     ReadOnlyStringProperty readOnlyProperty = archetypeSpellListNames
                             .computeIfAbsent(archetype.getArchetype(), s -> new ReadOnlyStringWrapper())
                             .getReadOnlyProperty();
-                    if(readOnlyProperty.get() == null || readOnlyProperty.get().equals(""))
+                    if(readOnlyProperty.get() == null || readOnlyProperty.get().isBlank())
                         spells.setSpellListName(readOnlyProperty);
                     else
                         spells.setSpellListName(readOnlyProperty.get());
@@ -357,7 +359,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         return new SingleRequirement<>(split[1].trim(), reqProf);
     }
 
-    AbilitySlot makeAbilitySlot(Element propElem, int level) {
+    public AbilitySlot makeAbilitySlot(Element propElem, int level) {
         String abilityName = propElem.getAttribute("name");
         int slotLevel = level;
         if(!propElem.getAttribute("level").equals(""))
@@ -402,9 +404,18 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     ChoicesLoader choices = getSource().getLoader(ChoicesLoader.class);
                     if(choices == null)
                         break;
+                    String type = propElem.getAttribute("type");
+                    if(!type.isBlank()) {
+                        Type baseClass = getDynamicType(type);
+                        if(baseClass.equals(Type.ClassFeature)) {
+                            PClassesLoader loader = getSource().getLoader(PClassesLoader.class);
+                            if(loader != null)
+                                loader.find(StringUtils.getInBrackets(type));
+                        }
+                    }
                     choices.addChoices(contents, makeAbilities(propElem.getChildNodes()));
-                    return new SingleChoiceSlot(abilityName, slotLevel,
-                            new ArrayList<>(choices.getCategory(contents).values()));
+                    return new DynamicSingleChoiceSlot(abilityName, slotLevel,
+                            ()->new ArrayList<>(choices.getCategory(contents).values()));
                 }
 
         }

@@ -52,8 +52,8 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 		bloodline.setGivesPrerequisites(Collections.singletonList(tradition+" Bloodline"));
 		String[] skills = item.getElementsByTagName("Skills").item(0).getTextContent().split(", ?");
 		bloodline.setAttrMods(Arrays.asList(
-				new AttributeMod(Attribute.robustValueOf(skills[0]), Proficiency.Trained),
-				new AttributeMod(Attribute.robustValueOf(skills[1]), Proficiency.Trained)));
+				new AttributeMod(Attribute.valueOf(skills[0]), Proficiency.Trained),
+				new AttributeMod(Attribute.valueOf(skills[1]), Proficiency.Trained)));
 
 		//Granted Spells
 		List<Ability> grantedAbilities = new ArrayList<>();
@@ -116,6 +116,7 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 
 		//Blood Magic
 		Ability.Builder bloodMagic = new Ability.Builder(); bloodMagic.setName("Blood Magic");
+		bloodMagic.setType(Type.ClassFeature);
 		bloodMagic.setDescription(item.getElementsByTagName("BloodMagic").item(0).getTextContent());
 		bloodline.addAbilitySlot(new FilledSlot("Blood Magic", 1, bloodMagic.build()));
 

@@ -21,7 +21,6 @@ import ui.controls.FeatSelectionPane;
 import ui.controls.SelectionPane;
 import ui.controls.lists.DecisionsList;
 import ui.controls.lists.entries.ListEntry;
-import ui.html.HTMLGenerator;
 
 import java.util.HashMap;
 import java.util.List;

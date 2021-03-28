@@ -6,7 +6,7 @@ import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 
-import static model.util.StringUtils.camelCase;
+import static model.util.StringUtils.capitalize;
 import static model.util.StringUtils.camelCaseWord;
 
 class BackgroundScraper extends SRDScraper {

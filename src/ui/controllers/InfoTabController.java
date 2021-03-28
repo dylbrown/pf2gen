@@ -154,7 +154,7 @@ public class InfoTabController {
 
 	private void addDecision(Choice<?> choice) {
 		ChoiceTodoItem<?> todoItem = new ChoiceTodoItem<>(choice, new Priority(2.0), () ->
-				navigate("tab_decisions", choice.getName()));
+				navigate("tab_decisions", choice.getName() + " " + choice.getLevel()));
 		choiceTodos.put(choice, todoItem);
 		todos.add(todoItem);
 	}

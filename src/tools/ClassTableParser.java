@@ -1,6 +1,6 @@
 package tools;
 
-import static model.util.StringUtils.camelCase;
+import static model.util.StringUtils.capitalize;
 import static model.util.StringUtils.camelCaseWord;
 
 public abstract class ClassTableParser extends SourceParser {
