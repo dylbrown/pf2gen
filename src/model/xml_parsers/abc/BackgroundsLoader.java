@@ -10,7 +10,6 @@ import model.data_managers.sources.SourceConstructor;
 import model.enums.Proficiency;
 import model.enums.Type;
 import model.util.ObjectNotFoundException;
-import model.util.Pair;
 import model.xml_parsers.FeatsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -20,7 +19,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import static model.util.StringUtils.*;
+import static model.util.StringUtils.capitalize;
 
 public class BackgroundsLoader extends ABCLoader<Background, Background.Builder> {
     private List<Background> backgrounds;
@@ -51,19 +50,18 @@ public class BackgroundsLoader extends ABCLoader<Background, Background.Builder>
                 break;
             case "Skill":
                 AttributeMod[] mods = {null, null};
-                String[] split = camelCase(trim).split(",");
+                String[] split = capitalize(trim).split(",");
                 for(int k=0; k<2; k++){
                     String[] orCheck = split[k].trim().split(" [oO]r ");
                     if(orCheck.length > 1) {
                         Attribute[] attributes = new Attribute[orCheck.length];
                         for (int l=0; l<orCheck.length; l++) {
-                            attributes[l] = makeAttribute(orCheck[l]).first;
+                            attributes[l] = Attribute.valueOf(orCheck[l]);
                         }
 
                         mods[k] = new AttributeModSingleChoice(Arrays.asList(attributes), Proficiency.Trained);
                     }else{
-                        Pair<Attribute, String> pair = makeAttribute(split[k]);
-                        mods[k] = new AttributeMod(pair.first, Proficiency.Trained, pair.second);
+                        mods[k] = new AttributeMod(Attribute.valueOf(split[k]), Proficiency.Trained);
                     }
                 }
                 builder.setMod1(mods[0]);
@@ -75,12 +73,6 @@ public class BackgroundsLoader extends ABCLoader<Background, Background.Builder>
             default:
                 super.parseElement(curr, trim, builder);
         }
-    }
-
-    private Pair<Attribute, String> makeAttribute(String source) {
-        if (source.contains("Lore")) {
-            return new Pair<>(Attribute.Lore, getInBrackets(source).trim());
-        }else return new Pair<>(Attribute.valueOf(camelCaseWord(source.trim())), "");
     }
 
     @Override

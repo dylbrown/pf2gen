@@ -4,8 +4,8 @@ import model.AbstractNamedObject;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityScore;
 import model.ability_slots.AbilitySlot;
+import model.attributes.Attribute;
 import model.attributes.AttributeMod;
-import model.attributes.CustomAttribute;
 import model.enums.Recalculate;
 import model.enums.Trait;
 import model.enums.Type;
@@ -19,7 +19,7 @@ import static model.util.Copy.copy;
 public class Ability extends AbstractNamedObject implements Comparable<Ability> {
     //TODO: Support Repeated Choice
     private final List<String> prerequisites, prereqStrings, givenPrerequisites;
-    private final Requirement<CustomAttribute> requiredAttrs;
+    private final Requirement<Attribute> requiredAttrs;
     private final Requirement<String> requiredWeapons;
     private final List<Pair<AbilityScore, Integer>> requiredScores;
     private final String customMod;
@@ -106,7 +106,7 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
         return skillIncreases;
     }
 
-    public Requirement<CustomAttribute> getRequiredAttrs() {
+    public Requirement<Attribute> getRequiredAttrs() {
         return (requiredAttrs != null) ? requiredAttrs : Requirement.none();
     }
 
@@ -188,7 +188,7 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
         private List<String> prerequisites = Collections.emptyList();
         private List<String> prereqStrings = Collections.emptyList();
         private List<String> givenPrerequisites = Collections.emptyList();
-        private Requirement<CustomAttribute> requiredAttrs = null;
+        private Requirement<Attribute> requiredAttrs = null;
         private Requirement<String> requiredWeapons = null;
         private List<Pair<AbilityScore, Integer>> requiredScores = Collections.emptyList();
         private List<Trait> traits = Collections.emptyList();
@@ -267,7 +267,7 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
 
         public void setGivesPrerequisites(List<String> given) {this.givenPrerequisites = given;}
 
-        public void addRequiredAttr(Requirement<CustomAttribute> requiredAttrs) {
+        public void addRequiredAttr(Requirement<Attribute> requiredAttrs) {
             if(this.requiredAttrs == null)
                 this.requiredAttrs = requiredAttrs;
             else

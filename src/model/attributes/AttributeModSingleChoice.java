@@ -22,14 +22,14 @@ public class AttributeModSingleChoice extends AttributeMod implements SingleChoi
     private final ReadOnlyIntegerWrapper numSelections = new ReadOnlyIntegerWrapper(0);
 
     public AttributeModSingleChoice(Attribute first, Attribute second, Proficiency prof) {
-        super(Attribute.None,prof);
+        super(BaseAttribute.None,prof);
         this.choices.add(first);
         this.choices.add(second);
         list.addListener((ListChangeListener<Attribute>) c-> numSelections.set(list.size()));
     }
 
     public AttributeModSingleChoice(List<Attribute> options, Proficiency prof) {
-        super(Attribute.None,prof);
+        super(BaseAttribute.None,prof);
         this.choices.addAll(options);
     }
 
@@ -67,7 +67,7 @@ public class AttributeModSingleChoice extends AttributeMod implements SingleChoi
 
     @Override
     public String toNiceAttributeString() {
-        return choices.stream().map(Attribute::name).collect(Collectors.joining(" or "));
+        return choices.stream().map(Attribute::toString).collect(Collectors.joining(" or "));
     }
 
     @Override
@@ -100,7 +100,7 @@ public class AttributeModSingleChoice extends AttributeMod implements SingleChoi
         return numSelections.getReadOnlyProperty();
     }
 
-    private ObservableList<Attribute> unmodifiable = FXCollections.unmodifiableObservableList(list);
+    private final ObservableList<Attribute> unmodifiable = FXCollections.unmodifiableObservableList(list);
     @Override
     public ObservableList<Attribute> getSelections() {
         return unmodifiable;

@@ -4,7 +4,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import model.attributes.AttributeMod;
 import model.attributes.AttributeModSingleChoice;
-import model.attributes.Attribute;
+import model.attributes.BaseAttribute;
 import model.enums.Proficiency;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,49 +32,49 @@ class AttributeManagerTest {
 
 	@Test
 	void applyThatIncreases() {
-		ObservableValue<Proficiency> value = attributes.getProficiency(Attribute.Athletics);
+		ObservableValue<Proficiency> value = attributes.getProficiency(BaseAttribute.Athletics);
 		assertEquals(Proficiency.Untrained, value.getValue());
 
-		attributes.apply(new AttributeMod(Attribute.Athletics, Proficiency.Trained));
+		attributes.apply(new AttributeMod(BaseAttribute.Athletics, Proficiency.Trained));
 		assertEquals(Proficiency.Trained, value.getValue());
 
-		attributes.apply(new AttributeMod(Attribute.Athletics, Proficiency.Expert));
+		attributes.apply(new AttributeMod(BaseAttribute.Athletics, Proficiency.Expert));
 		assertEquals(Proficiency.Expert, value.getValue());
 	}
 
 	@Test
 	void applyThatDoesNotIncrease() {
-		ObservableValue<Proficiency> value = attributes.getProficiency(Attribute.Athletics);
+		ObservableValue<Proficiency> value = attributes.getProficiency(BaseAttribute.Athletics);
 		assertEquals(Proficiency.Untrained, value.getValue());
 
-		attributes.apply(new AttributeMod(Attribute.Athletics, Proficiency.Expert));
+		attributes.apply(new AttributeMod(BaseAttribute.Athletics, Proficiency.Expert));
 		assertEquals(Proficiency.Expert, value.getValue());
 
-		attributes.apply(new AttributeMod(Attribute.Athletics, Proficiency.Trained));
+		attributes.apply(new AttributeMod(BaseAttribute.Athletics, Proficiency.Trained));
 		assertEquals(Proficiency.Expert, value.getValue());
 	}
 
 	@Test
 	void applyChoiceIncreaseLater() {
-		ObservableValue<Proficiency> value = attributes.getProficiency(Attribute.Athletics);
+		ObservableValue<Proficiency> value = attributes.getProficiency(BaseAttribute.Athletics);
 		assertEquals(Proficiency.Untrained, value.getValue());
 
 		AttributeModSingleChoice choice = new AttributeModSingleChoice(
-				Arrays.asList(Attribute.Athletics, Attribute.Acrobatics), Proficiency.Trained);
+				Arrays.asList(BaseAttribute.Athletics, BaseAttribute.Acrobatics), Proficiency.Trained);
 		attributes.apply(choice);
 		assertEquals(Proficiency.Untrained, value.getValue());
 
-		choice.fill(Attribute.Athletics);
+		choice.fill(BaseAttribute.Athletics);
 		assertEquals(Proficiency.Trained, value.getValue());
 	}
 
 	@Test
 	void applyChoiceAutomatically() {
-		ObservableValue<Proficiency> value = attributes.getProficiency(Attribute.Athletics);
+		ObservableValue<Proficiency> value = attributes.getProficiency(BaseAttribute.Athletics);
 		assertEquals(Proficiency.Untrained, value.getValue());
 
 		AttributeModSingleChoice choice = new AttributeModSingleChoice(
-				Collections.singletonList(Attribute.Athletics), Proficiency.Trained);
+				Collections.singletonList(BaseAttribute.Athletics), Proficiency.Trained);
 		attributes.apply(choice);
 		assertEquals(Proficiency.Trained, value.getValue());
 	}

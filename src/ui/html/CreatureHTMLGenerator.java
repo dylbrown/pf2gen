@@ -2,7 +2,7 @@ package ui.html;
 
 import model.abilities.Ability;
 import model.ability_scores.AbilityScore;
-import model.attributes.Attribute;
+import model.attributes.BaseAttribute;
 import model.creatures.Attack;
 import model.creatures.Creature;
 import model.creatures.CreatureItem;
@@ -27,7 +27,7 @@ public class CreatureHTMLGenerator {
         ).append("</br>");
         builder.append("<b>Source</b> pg. ").append(creature.getPage())
                 .append("; <b>Perception</b> ");
-        String perception = signed(creature.getModifiers().get(Attribute.Perception));
+        String perception = signed(creature.getModifiers().get(BaseAttribute.Perception));
             builder.append(perception).append("<br>");
         builder.append("<b>Languages</b> ").append(
                 creature.getLanguages().stream().map(Enum::toString).collect(Collectors.joining(", "))
@@ -54,9 +54,9 @@ public class CreatureHTMLGenerator {
         builder.append("<b>AC</b> ").append(creature.getAC());
         if(!creature.getACMods().isBlank())
             builder.append(" (").append(creature.getACMods()).append(")");
-        builder.append("; <b>Fort</b> ").append(signed(creature.getModifiers().get(Attribute.Fortitude)))
-                .append("; <b>Ref</b> ").append(signed(creature.getModifiers().get(Attribute.Reflex)))
-                .append("; <b>Will</b> ").append(signed(creature.getModifiers().get(Attribute.Will)));
+        builder.append("; <b>Fort</b> ").append(signed(creature.getModifiers().get(BaseAttribute.Fortitude)))
+                .append("; <b>Ref</b> ").append(signed(creature.getModifiers().get(BaseAttribute.Reflex)))
+                .append("; <b>Will</b> ").append(signed(creature.getModifiers().get(BaseAttribute.Will)));
         if(!creature.getSaveMods().isBlank())
             builder.append("; ").append(creature.getSaveMods());
         builder.append("<br><b>HP</b> ").append(creature.getHP());

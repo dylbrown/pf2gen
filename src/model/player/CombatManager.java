@@ -1,7 +1,7 @@
 package model.player;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
-import model.attributes.Attribute;
+import model.attributes.BaseAttribute;
 import model.enums.Slot;
 import model.items.Item;
 import model.items.armor.Armor;
@@ -39,20 +39,20 @@ public class CombatManager implements PlayerState {
             if(armor != null) {
                 int dexMod = scores.getMod(Dex);
                 dexMod = Math.min(dexMod, armor.getMaxDex());
-                return 10 + attributes.getProficiency(Attribute.valueOf(armor.getProficiency()), "")
+                return 10 + attributes.getProficiency(armor.getProficiency().toAttribute())
                         .getValue().getMod(level.get()) + armor.getAC() + dexMod;
             }
         }
-        return 10 + attributes.getProficiency(Attribute.Unarmored, "").getValue().getMod(level.get()) + scores.getMod(Dex);
+        return 10 + attributes.getProficiency(BaseAttribute.Unarmored).getValue().getMod(level.get()) + scores.getMod(Dex);
     }
 
     public int getArmorProficiency() {
         if(inventory.getEquipped(Slot.Armor) != null) {
             Armor armor = inventory.getEquipped(Slot.Armor).stats().getExtension(Armor.class);
             if(armor != null)
-                return attributes.getProficiency(Attribute.valueOf(armor.getProficiency()), "").getValue().getMod(level.get());
+                return attributes.getProficiency(armor.getProficiency().toAttribute()).getValue().getMod(level.get());
         }
-        return attributes.getProficiency(Attribute.Unarmored, "").getValue().getMod(level.get());
+        return attributes.getProficiency(BaseAttribute.Unarmored).getValue().getMod(level.get());
     }
 
     public Item getArmor() {

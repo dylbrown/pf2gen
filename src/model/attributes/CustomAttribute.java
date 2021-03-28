@@ -1,31 +1,37 @@
 package model.attributes;
 
-import java.util.HashMap;
-import java.util.Map;
+import model.ability_scores.AbilityScore;
+
 import java.util.Objects;
 
-public class CustomAttribute {
-    private static final Map<Attribute, CustomAttribute> map = new HashMap<>();
+public class CustomAttribute implements Attribute {
 
-    public static CustomAttribute get(Attribute attribute) {
-        return map.computeIfAbsent(attribute, CustomAttribute::new);
-    }
-
-    private final Attribute attribute;
+    private final BaseAttribute attribute;
     private final String data;
 
-    public CustomAttribute(Attribute attribute, String data) {
+    public static Attribute get(BaseAttribute attribute, String data) {
+        if(data == null || data.isBlank())
+            return attribute;
+        return new CustomAttribute(attribute, data);
+    }
+
+    private CustomAttribute(BaseAttribute attribute, String data) {
         this.attribute = attribute;
         this.data = data;
     }
 
-    private CustomAttribute(Attribute attribute) {
-        this.attribute = attribute;
-        data = null;
+    public BaseAttribute getBase() {
+        return attribute;
     }
 
-    public Attribute getAttribute() {
-        return attribute;
+    @Override
+    public AbilityScore getKeyAbility() {
+        return attribute.getKeyAbility();
+    }
+
+    @Override
+    public boolean hasACP() {
+        return attribute.hasACP();
     }
 
     public String getData() {

@@ -1,137 +1,32 @@
 package model.attributes;
 
 import model.ability_scores.AbilityScore;
-import model.enums.ArmorProficiency;
-import model.enums.WeaponProficiency;
-import model.util.StringUtils;
 
-import java.util.*;
+import static model.util.StringUtils.capitalize;
 
-import static model.ability_scores.AbilityScore.*;
+public interface Attribute {
 
-public enum Attribute {
-    Acrobatics(Dex), Arcana(Int), Athletics(Str), Crafting(Int), Deception(Cha), Diplomacy(Cha), Intimidation(Cha), Lore(Int), Medicine(Wis), Nature(Wis), Occultism(Int), Performance(Cha), Religion(Wis), Society(Int), Stealth(Dex), Survival(Wis), Thievery(Dex),
-
-    Fortitude(Con), Reflex(Dex), Will(Wis), Perception(Wis),
-
-    SimpleWeapons, MartialWeapons, AdvancedWeapons, Unarmed,
-
-    LightArmor, MediumArmor, HeavyArmor, Unarmored, Shields,
-
-    ArcaneSpellAttacks(CastingAbility), ArcaneSpellDCs(CastingAbility),
-    DivineSpellAttacks(CastingAbility), DivineSpellDCs(CastingAbility),
-    OccultSpellAttacks(CastingAbility), OccultSpellDCs(CastingAbility),
-    PrimalSpellAttacks(CastingAbility), PrimalSpellDCs(CastingAbility),
-
-    ClassDC(KeyAbility),
-
-    None;
-
-    private static final Map<AbilityScore, List<Attribute>> skillsByScore = new HashMap<>();
-
-    public static Attribute[] getSkills() {
-        return skills;
-    }
-
-    private static final Attribute[] skills = {Acrobatics, Arcana, Athletics, Crafting, Deception, Diplomacy, Intimidation, Lore, Medicine, Nature, Occultism, Performance, Religion, Society, Stealth, Survival, Thievery};
-    private static final Attribute[] saves = {Fortitude, Reflex, Will};
-
-    static{
-        skillsByScore.put(Str, new ArrayList<>(Collections.singletonList(Athletics)));
-        skillsByScore.put(Dex, new ArrayList<>(Arrays.asList(Acrobatics, Stealth, Thievery)));
-        skillsByScore.put(Con, new ArrayList<>(Collections.emptyList()));
-        skillsByScore.put(Int, new ArrayList<>(Arrays.asList(Arcana, Crafting, Lore, Occultism, Society)));
-        skillsByScore.put(Wis, new ArrayList<>(Arrays.asList(Medicine, Nature, Religion, Survival)));
-        skillsByScore.put(Cha, new ArrayList<>(Arrays.asList(Deception, Diplomacy, Intimidation, Performance)));
-    }
-
-    private final AbilityScore keyAbility;
-
-    Attribute(AbilityScore score) {
-        this.keyAbility = score;
-    }
-
-    Attribute() {
-        this.keyAbility = AbilityScore.None;
-    }
-
-    public static List<Attribute> skillsByScore(AbilityScore score) {
-        return Collections.unmodifiableList(skillsByScore.get(score));
-    }
-
-    public static Attribute[] getSaves() {
-        return saves;
-    }
-
-    public boolean hasACP() {
-        return this.getKeyAbility().equals(Str) || this.getKeyAbility().equals(Dex);
-    }
-
-    public static Attribute valueOf(WeaponProficiency proficiency) {
-        switch(proficiency) {
-            default:
-            case Unarmed:
-                return Unarmed;
-            case Simple:
-                return SimpleWeapons;
-            case Martial:
-                return MartialWeapons;
-            case Advanced:
-                return AdvancedWeapons;
+    static Attribute valueOf(String str) {
+        int bracket = str.indexOf('(');
+        if (bracket != -1) {
+            BaseAttribute baseAttribute = BaseAttribute.robustValueOf(str.substring(0, bracket));
+            String data = capitalize(str.trim().substring(bracket).trim().replaceAll("[()]", ""));
+            return CustomAttribute.get(baseAttribute, data);
+        } else {
+            return BaseAttribute.robustValueOf(str);
         }
     }
 
-        public static Attribute valueOf(ArmorProficiency proficiency) {
-            switch(proficiency) {
-                default:
-                case Unarmored:
-                    return Unarmored;
-                case Light:
-                    return LightArmor;
-                case Medium:
-                    return MediumArmor;
-                case Heavy:
-                    return HeavyArmor;
-                case Shield:
-                    return Shields;
-            }
-        }
-
-        @SuppressWarnings("SpellCheckingInspection")
-        public static Attribute robustValueOf(String s) {
-            if(s.contains("Lore"))
-                return Lore;
-            String formatted = org.apache.commons.lang3.StringUtils.
-                    deleteWhitespace(StringUtils.camelCase(s.trim()));
-            try {
-                return Attribute.valueOf(formatted);
-            }catch(IllegalArgumentException e) {
-                switch (formatted.toLowerCase()) {
-                    case "simpleweapons": return SimpleWeapons;
-                    case "martialweapons": return MartialWeapons;
-                    case "advancedweapons": return AdvancedWeapons;
-                    case "lightarmor": return LightArmor;
-                    case "mediumarmor": return MediumArmor;
-                    case "heavyarmor": return HeavyArmor;
-                    case "arcanespellattacks": return ArcaneSpellAttacks;
-                    case "arcanespelldcs": return ArcaneSpellDCs;
-                    case "divinespellattacks": return DivineSpellAttacks;
-                    case "divinespelldcs": return DivineSpellDCs;
-                    case "occultspellattacks": return OccultSpellAttacks;
-                    case "occultspelldcs": return OccultSpellDCs;
-                    case "primalspellattacks": return PrimalSpellAttacks;
-                    case "primalspelldcs": return PrimalSpellDCs;
-                    case "classdc": return ClassDC;
-                    case "fort": return Fortitude;
-                    case "ref": return Reflex;
-                    case "will": return Will;
-                }
-            }
-            System.out.println(s);
-            throw new IllegalArgumentException();
-        }
-
-        public AbilityScore getKeyAbility() {
-        return keyAbility;
+    static Attribute valueOf(String str1, String str2) {
+        if(str2 == null || str2.isBlank())
+            return valueOf(str1);
+        else
+            return CustomAttribute.get(BaseAttribute.robustValueOf(str1), capitalize(str2.trim()));
     }
+
+    BaseAttribute getBase();
+
+    AbilityScore getKeyAbility();
+
+    boolean hasACP();
 }

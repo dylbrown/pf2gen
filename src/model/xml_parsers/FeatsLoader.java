@@ -47,7 +47,7 @@ public class FeatsLoader extends AbilityLoader<Ability> {
         if (builder.getType() == null && sourceConstructor instanceof TypeSourceConstructor) {
             String type = ((TypeSourceConstructor) sourceConstructor).getObjectType(category);
             if (type != null && !type.isBlank())
-                builder.setType(Type.valueOf(StringUtils.camelCase(type.trim())));
+                builder.setType(Type.valueOf(StringUtils.capitalize(type.trim())));
         }
         if(builder.getType() == null) {
             if (!category.isBlank()) {

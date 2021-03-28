@@ -7,7 +7,9 @@ import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
 import model.ability_slots.*;
-import model.attributes.*;
+import model.attributes.Attribute;
+import model.attributes.AttributeMod;
+import model.attributes.AttributeModSingleChoice;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.*;
@@ -27,7 +29,6 @@ import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 
-import static model.util.StringUtils.camelCase;
 import static model.util.StringUtils.camelCaseWord;
 
 public abstract class AbilityLoader<T> extends FileLoader<T> {
@@ -154,7 +155,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     break;
                 case "Requires":
                 case "Prerequisites":
-                    List<Requirement<CustomAttribute>> attrRequirements = new ArrayList<>();
+                    List<Requirement<Attribute>> attrRequirements = new ArrayList<>();
                     List<Requirement<String>> weaponRequirements = new ArrayList<>();
                     for (String s : trim.split(", ?")) {
                         if(s.matches(".*\\d.*")) {
@@ -163,7 +164,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                         } else if(s.matches("(Trained|Expert|Master|Legendary) [Ii]n .*")) {
                             if(s.contains("or")) {
                                 String[] orStrings = s.split(" or ");
-                                List<Requirement<CustomAttribute>> orRequirements = new ArrayList<>();
+                                List<Requirement<Attribute>> orRequirements = new ArrayList<>();
                                 for (String option : orStrings) {
                                     orRequirements.add(getAttrReq(option));
                                 }
@@ -344,18 +345,10 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         return builder;
     }
 
-    private Requirement<CustomAttribute> getAttrReq(String option) {
+    private Requirement<Attribute> getAttrReq(String option) {
         String[] split = option.split(" [iI]n ");
         Proficiency reqProf = Proficiency.valueOf(camelCaseWord(split[0].trim()));
-        int bracketIndex = option.indexOf("(");
-        CustomAttribute attr;
-        if(bracketIndex != -1) {
-            String data = camelCase(option.substring(bracketIndex+1).trim().trim().replaceAll("[()]", ""));
-            attr = new CustomAttribute(Attribute.robustValueOf(option.substring(0, bracketIndex)), data);
-        }else{
-            attr = CustomAttribute.get(Attribute.robustValueOf(camelCase(split[1].trim())));
-        }
-        return new SingleRequirement<>(attr, reqProf);
+        return new SingleRequirement<>(Attribute.valueOf(split[1]), reqProf);
     }
 
     private Requirement<String> getReq(String option) {
@@ -439,17 +432,10 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
             if (!str.trim().equals("")) {
                 String[] orCheck = str.trim().split(" or ");
                 if(orCheck.length > 1) {
-                    mods.add(new AttributeModSingleChoice(Attribute.robustValueOf(orCheck[0]),
-                            Attribute.robustValueOf(orCheck[1]), prof));
+                    mods.add(new AttributeModSingleChoice(Attribute.valueOf(orCheck[0]),
+                            Attribute.valueOf(orCheck[1]), prof));
                 }else {
-                    int bracket = str.indexOf('(');
-                    if (bracket != -1) {
-                        Attribute skill = Attribute.robustValueOf(str.substring(0, bracket));
-                        String data = camelCase(str.trim().substring(bracket).trim().replaceAll("[()]", ""));
-                        mods.add(new AttributeMod(skill, prof, data));
-                    } else {
-                        mods.add(new AttributeMod(Attribute.robustValueOf(str), prof));
-                    }
+                    mods.add(new AttributeMod(Attribute.valueOf(str), prof));
                 }
             }
         }

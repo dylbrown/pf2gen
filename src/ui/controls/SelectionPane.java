@@ -80,7 +80,7 @@ public class SelectionPane<T, U extends ListEntry<T>> extends BorderPane {
         return new ObservableCategoryEntryList<>(
                         this.list,
                         (item, clickCount)->{
-                            display.getEngine().loadContent(generator.apply(item));
+                            setDisplay(choice, item);
                             if(clickCount != 2) return;
                             choice.add(item);
                         },
@@ -88,6 +88,17 @@ public class SelectionPane<T, U extends ListEntry<T>> extends BorderPane {
                         subCategoryFunctionProperty.getValue().first,
                         makeEntry, makeLabelEntry,
                         this::makeColumns);
+    }
+
+
+
+    protected <X> void setDisplay(Choice<X> choice, Object chosenValue) {
+        Function<X, String> generator = HTMLGenerator.getGenerator(choice.getOptionsClass());
+        if(chosenValue != null) {
+            display.getEngine().loadContent(
+                    generator.apply(choice.getOptionsClass().cast(chosenValue))
+            );
+        }
     }
 
     private Predicate<T> getFilter(StringProperty search) {

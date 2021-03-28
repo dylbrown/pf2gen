@@ -20,7 +20,7 @@ import org.w3c.dom.NodeList;
 import java.io.File;
 import java.util.*;
 
-import static model.util.StringUtils.camelCase;
+import static model.util.StringUtils.capitalize;
 
 public class WeaponsLoader extends ItemLoader {
 
@@ -69,7 +69,7 @@ public class WeaponsLoader extends ItemLoader {
         if(weapon.hasAttribute("category"))
             item.setCategory(weapon.getAttribute("category"));
 
-        weaponExt.setProficiency(WeaponProficiency.valueOf(camelCase(proficiencyNode.getNodeName())));
+        weaponExt.setProficiency(WeaponProficiency.valueOf(capitalize(proficiencyNode.getNodeName())));
         NodeList nodeList = weapon.getChildNodes();
         for(int i=0; i<nodeList.getLength(); i++) {
             if(nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)

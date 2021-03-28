@@ -6,7 +6,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static model.util.StringUtils.camelCase;
+import static model.util.StringUtils.capitalize;
 
 class FeatListParser extends SourceParser {
     private StringBuilder currentFeat = new StringBuilder();
@@ -62,7 +62,7 @@ class FeatListParser extends SourceParser {
                 }else if(line.contains("[FREE-ACTION]")){
                     cost = Action.Free;
                 }
-                currentFeat.append("<Ability name=\"").append(camelCase(split[0].replaceAll("\\[[^\\[\\]]*]", "")))
+                currentFeat.append("<Ability name=\"").append(capitalize(split[0].replaceAll("\\[[^\\[\\]]*]", "")))
                         .append("\" level=\"").append(split[1]).append("\"");
                 if(cost != null)
                     currentFeat.append(" cost=\"").append(cost.toString()).append("\">");
@@ -86,7 +86,7 @@ class FeatListParser extends SourceParser {
                     parseLine(line);
                     break;
                 }
-                currentFeat.append("<Requires>").append(camelCase(line.substring(16))).append("</Requires>");
+                currentFeat.append("<Requires>").append(capitalize(line.substring(16))).append("</Requires>");
                 break;
             case 3:
                 currentFeat.append("<Description>").append(line.trim());

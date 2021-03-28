@@ -149,15 +149,6 @@ public class DecisionsController {
         return builder.build();
     }
 
-    private <T> void setDisplay(Choice<T> choice, Object chosenValue) {
-        Function<T, String> generator = HTMLGenerator.getGenerator(choice.getOptionsClass());
-        if(chosenValue != null) {
-            display.getEngine().loadContent(
-                    generator.apply(choice.getOptionsClass().cast(chosenValue))
-            );
-        }
-    }
-
     public void navigate(List<String> path) {
         decisionsList.navigate(path);
     }

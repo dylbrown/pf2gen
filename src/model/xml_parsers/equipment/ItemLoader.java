@@ -233,7 +233,7 @@ public class ItemLoader extends FileLoader<Item> {
                     String[] s = item.trim().split(" ");
                     if(s.length != 2) return null;
                     return new AttributeBonus(
-                            Attribute.robustValueOf(s[1]),
+                            Attribute.valueOf(s[1]),
                             Integer.parseInt(s[0]),
                             Type.Item);
                 }).filter(Objects::nonNull)

@@ -14,6 +14,7 @@ import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
 import model.ability_slots.AbilitySlot;
 import model.attributes.Attribute;
+import model.attributes.CustomAttribute;
 import model.enums.Alignment;
 import model.enums.Proficiency;
 import model.enums.Trait;
@@ -27,7 +28,6 @@ import model.spells.SpellList;
 import model.util.ObjectNotFoundException;
 import model.util.Pair;
 
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -212,9 +212,6 @@ public class PC {
     public int getHP() {
         return ((getAncestry() != null) ? getAncestry().getHP() : 0) + (((getPClass() != null) ? getPClass().getHP() : 0) + scores.getMod(Con)) * level.get() + modManager.get("hp");
     }
-    public void addAncestryObserver(PropertyChangeListener o) {
-        ancestryWatcher.addPropertyChangeListener(o);
-    }
 
     public ReadOnlyObjectProperty<Integer> levelProperty() {
         return level.getReadOnlyProperty();
@@ -224,12 +221,15 @@ public class PC {
         return level.get();
     }
 
-    public int getTotalMod(Attribute attribute, String data) {
+    public int getTotalMod(Attribute attribute) {
         int acp = 0;
         if(attribute.hasACP() && combat.getArmor().getExtension(Armor.class).getStrength() > scores.getScore(Str))
             acp -= combat.getArmor().getExtension(Armor.class).getACP();
+        String data = null;
+        if(attribute instanceof CustomAttribute)
+            data = ((CustomAttribute) attribute).getData();
         return scores.getMod(attribute.getKeyAbility(), data)
-                + attributes.getProficiency(attribute, data).getValue().getMod(level.get())
+                + attributes.getProficiency(attribute).getValue().getMod(level.get())
                 + attributes.getBonus(attribute) + acp;
     }
 
@@ -239,8 +239,8 @@ public class PC {
 
     public boolean meetsPrerequisites(Ability ability) {
         if(ability.getLevel() > getLevel()) return false;
-        if(!ability.getRequiredAttrs().test(ca->
-                attributes.getProficiency(ca.getAttribute(), ca.getData()).getValue()))
+        if(!ability.getRequiredAttrs().test(attr->
+                attributes.getProficiency(attr).getValue()))
             return false;
         if(!ability.getRequiredWeapons().test(s->{
             try {

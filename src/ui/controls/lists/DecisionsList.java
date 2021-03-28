@@ -63,8 +63,12 @@ public class DecisionsList extends SelectionPane<Choice<?>, DecisionEntry> {
                 this.list,
                 (item, treeItem, clickCount) -> {
                     selectHandler.accept(item);
+                    DecisionEntry value = treeItem.getValue();
+                    if(value.getChosenValue() != null) {
+                        setDisplay(value.getChoice(), value.getChosenValue());
+                    }
                     if(clickCount == 2) {
-                        item.tryRemove(treeItem.getValue().getChosenValue());
+                        item.tryRemove(value.getChosenValue());
                     }
                 },
                 categoryFunctionProperty.getValue().first,

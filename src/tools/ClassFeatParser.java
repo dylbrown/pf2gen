@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static model.util.StringUtils.camelCase;
+import static model.util.StringUtils.capitalize;
 
 class ClassFeatParser extends SourceParser {
     private StringBuilder currentFeat = new StringBuilder();
@@ -59,7 +59,7 @@ class ClassFeatParser extends SourceParser {
                 }else if(line.contains("[FREE-ACTION]")){
                     cost = Action.Free;
                 }
-                currentFeat.append("<Ability name=\"").append(camelCase(split[0].replaceAll("\\[.*]", "")))
+                currentFeat.append("<Ability name=\"").append(capitalize(split[0].replaceAll("\\[.*]", "")))
                         .append("\" level=\"").append(split[1]).append("\"");
                 if(cost != null)
                     currentFeat.append(" cost=\"").append(cost.toString()).append("\">");
@@ -87,9 +87,9 @@ class ClassFeatParser extends SourceParser {
                     List<String> requirements = new ArrayList<>();
                     for (String s : line.replaceAll("Prerequisite\\(s\\)", "").trim().split(",")) {
                         if(s.contains(" in "))
-                            requirements.add(camelCase(s));
+                            requirements.add(capitalize(s));
                         else
-                            prereqs.add(camelCase(s));
+                            prereqs.add(capitalize(s));
                     }
                     if(prereqs.size()>0)
                         currentFeat.append("<Prerequisites>").append(String.join(", ", prereqs))

@@ -9,7 +9,7 @@ public class StringUtils {
         return src.toLowerCase().trim().replaceAll(" ", "_");
     }
 
-    public static String camelCase(String str) {
+    public static String capitalize(String str) {
         return WordUtils.capitalizeFully(str);
     }
 
@@ -36,7 +36,7 @@ public class StringUtils {
     }
 
     public static String unclean(String filename) {
-        return camelCase(filename.replaceAll("_", " "));
+        return capitalize(filename.replaceAll("_", " "));
     }
 
     public static boolean containsIgnoreCase(String string, String searchString) {

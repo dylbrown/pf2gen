@@ -102,7 +102,7 @@ class NethysFeatListScraper extends NethysListScraper {
 					break;
 			}
 		}
-		String prereqs = StringUtils.camelCase(getAfter(output, "Prerequisites"));
+		String prereqs = StringUtils.capitalize(getAfter(output, "Prerequisites"));
 		String frequency = getAfter(output, "Frequency");
 		String archetype = getAfter(output, "Archetype");
 		String requirements = getAfter(output, "Requirements");

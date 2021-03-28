@@ -8,6 +8,7 @@ import model.abilities.Ability;
 import model.abilities.SpellExtension;
 import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
+import model.attributes.BaseAttribute;
 import model.player.PC;
 import model.player.PlayerState;
 
@@ -208,22 +209,22 @@ public class SpellList implements PlayerState {
 
 	public Attribute getSpellDCsAttribute() {
 		switch (tradition.get()) {
-			case Arcane: return Attribute.ArcaneSpellDCs;
-			case Divine: return Attribute.DivineSpellDCs;
-			case Occult: return Attribute.OccultSpellDCs;
-			case Primal: return Attribute.PrimalSpellDCs;
+			case Arcane: return BaseAttribute.ArcaneSpellDCs;
+			case Divine: return BaseAttribute.DivineSpellDCs;
+			case Occult: return BaseAttribute.OccultSpellDCs;
+			case Primal: return BaseAttribute.PrimalSpellDCs;
 		}
-		return Attribute.None;
+		return BaseAttribute.None;
 	}
 
 	public Attribute getSpellAttacksAttribute() {
 		switch (tradition.get()) {
-			case Arcane: return Attribute.ArcaneSpellAttacks;
-			case Divine: return Attribute.DivineSpellAttacks;
-			case Occult: return Attribute.OccultSpellAttacks;
-			case Primal: return Attribute.PrimalSpellAttacks;
+			case Arcane: return BaseAttribute.ArcaneSpellAttacks;
+			case Divine: return BaseAttribute.DivineSpellAttacks;
+			case Occult: return BaseAttribute.OccultSpellAttacks;
+			case Primal: return BaseAttribute.PrimalSpellAttacks;
 		}
-		return Attribute.None;
+		return BaseAttribute.None;
 	}
 
 	public int getFocusPointCount() {

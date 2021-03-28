@@ -8,10 +8,10 @@ class StringUtilsTest {
 
     @Test
     void camelCaseValid() {
-        assertEquals("Test", StringUtils.camelCase("tEsT"));
-        assertEquals("Test Multi Word", StringUtils.camelCase("tEST Multi WorD"));
-        assertEquals("", StringUtils.camelCase(""));
-        assertEquals("Test  Test", StringUtils.camelCase("tEST  tesT"));
+        assertEquals("Test", StringUtils.capitalize("tEsT"));
+        assertEquals("Test Multi Word", StringUtils.capitalize("tEST Multi WorD"));
+        assertEquals("", StringUtils.capitalize(""));
+        assertEquals("Test  Test", StringUtils.capitalize("tEST  tesT"));
     }
 
     @Test

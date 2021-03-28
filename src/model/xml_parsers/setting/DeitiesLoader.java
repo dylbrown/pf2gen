@@ -69,7 +69,7 @@ public class DeitiesLoader extends FileLoader<Deity> {
                         builder.setHealFont(true);
                     break;
                 case "divineskill":
-                    builder.setDivineSkills(Stream.of(trim.split(" or ")).map(Attribute::robustValueOf).collect(Collectors.toList()));
+                    builder.setDivineSkills(Stream.of(trim.split(" or ")).map(Attribute::valueOf).collect(Collectors.toList()));
                     break;
                 case "favoredweapon":
                     try {

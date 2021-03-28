@@ -41,7 +41,7 @@ public enum Type {
 
     public static Type robustValueOf(String category) {
         try {
-            return valueOf(StringUtils.camelCase(category.trim()));
+            return valueOf(StringUtils.capitalize(category.trim()));
         } catch (IllegalArgumentException e) {
             if(category.equalsIgnoreCase("classfeature"))
                 return ClassFeature;

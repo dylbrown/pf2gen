@@ -3,6 +3,7 @@ package model.xml_parsers;
 import model.abilities.Ability;
 import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
+import model.attributes.BaseAttribute;
 import model.creatures.*;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
@@ -84,7 +85,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                     if(endMod != -1) {
                         builder.setSenses(contents.substring(endMod + 2));
                     } else endMod = contents.length();
-                    builder.setModifier(Attribute.Perception, Integer.parseInt(contents.substring(0, endMod)));
+                    builder.setModifier(BaseAttribute.Perception, Integer.parseInt(contents.substring(0, endMod)));
                     break;
                 case "Languages":
                     int languagesEnd = contents.indexOf(';');
@@ -104,7 +105,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                     for(int j = 0; j < skills.length; j++) {
                         String s = skills[j];
                         int lastSpace = s.lastIndexOf(" ", s.indexOf('+'));
-                        Attribute attribute = Attribute.robustValueOf(s.substring(0, lastSpace));
+                        Attribute attribute = Attribute.valueOf(s.substring(0, lastSpace));
                         int nextSpace = s.indexOf(' ', lastSpace + 1);
                         builder.setModifier(attribute, Integer.parseInt(s.substring(lastSpace + 1,
                                 (nextSpace == -1) ? s.length() : nextSpace))
@@ -160,7 +161,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                     } else endMod = contents.length();
                     for (String s : contents.substring(0, endMod).split(", ")) {
                         String[] split = s.split(" ");
-                        builder.setModifier(Attribute.robustValueOf(split[0]), Integer.parseInt(split[1]));
+                        builder.setModifier(Attribute.valueOf(split[0]), Integer.parseInt(split[1]));
                     }
                     break;
                 case "HP":

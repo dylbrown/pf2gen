@@ -286,7 +286,7 @@ Loop:   while(currNode != null) {
             if(s.isBlank())
                 continue;
             if(entry.getKey() == AbilityPart.Traits)
-                s = StringUtils.camelCase(s);
+                s = StringUtils.capitalize(s);
             abilities.append("\t\t\t<").append(entry.getKey()).append(">")
                     .append(s)
                     .append("</").append(entry.getKey()).append(">\n");
@@ -421,7 +421,7 @@ Loop:   while(currNode != null) {
             curr = curr.nextElementSibling();
         }while (curr != null && curr.tagName().equals("b"));
         attacks.append("\t\t<Attack type=\"").append(type.trim()).append("\">\n")
-                .append("\t\t\t<Name>").append(StringUtils.camelCase(name.trim())).append("</Name>\n")
+                .append("\t\t\t<Name>").append(StringUtils.capitalize(name.trim())).append("</Name>\n")
                 .append("\t\t\t<AttackModifier>").append(attackModifier.trim()).append("</AttackModifier>\n");
         if(traits.size() > 0)
             attacks.append("\t\t\t<Traits>").append(String.join(", ", traits)).append("</Traits>\n");

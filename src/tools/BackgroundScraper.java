@@ -62,15 +62,15 @@ class BackgroundScraper extends SRDScraper {
         if(!or) {
             skill1 = camelCaseWord(skillsFeat[0].replaceAll(" .*", ""));
         }else{
-            skill1 = camelCase(skillsFeat[0].replaceAll(" skill.*", "").replaceAll(" ?, ?", " or "));
+            skill1 = capitalize(skillsFeat[0].replaceAll(" skill.*", "").replaceAll(" ?, ?", " or "));
         }
 
         //Filter out the Lore
-        Lore = camelCase(skillsFeat[0].replaceAll("\\w+ skill( and |, as well as the | and the )", ""))
+        Lore = capitalize(skillsFeat[0].replaceAll("\\w+ skill( and |, as well as the | and the )", ""))
                 .replaceFirst("The ", "");
 
         // Filter out the feat
-        String feat = camelCase(skillsFeat[1].replaceAll(" skill feat.*", ""));
+        String feat = capitalize(skillsFeat[1].replaceAll(" skill feat.*", ""));
 
         String format = "<background>\n" +
                 "\t\t<Name>%s</Name>\n" +
@@ -80,6 +80,6 @@ class BackgroundScraper extends SRDScraper {
                 "\t\t<AbilityBonuses>%s or %s, Free</AbilityBonuses>\n" +
                 "\t\t<Feat>%s</Feat>\n" +
                 "\t</background>\n";
-        return String.format(format, backgroundName, camelCase(source), description, skill1, Lore, choice1, choice2, feat);
+        return String.format(format, backgroundName, capitalize(source), description, skill1, Lore, choice1, choice2, feat);
     }
 }
