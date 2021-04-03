@@ -34,7 +34,7 @@ class NethysFeatListScraper extends NethysListScraper {
 	}
 
 	@Override
-	protected void setupItem(String href) throws IOException {
+	protected void setupItem(String href, Element row) throws IOException {
 		System.out.println(href);
 		FeatEntry entry = addItemStatic(Jsoup.connect("http://2e.aonprd.com/"+href).get());
 		if (!entry.entry.isBlank())
