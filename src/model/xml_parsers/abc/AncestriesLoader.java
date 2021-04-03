@@ -73,8 +73,16 @@ public class AncestriesLoader extends ACLoader<Ancestry, Ancestry.Builder> {
             case "AbilityPenalties":
                 this.penalties = trim;
                 break;
-            case "Feats":
+            case "Abilities":
                 NodeList featNodes = curr.getChildNodes();
+                for (int j = 0; j < featNodes.getLength(); j++) {
+                    if(featNodes.item(j) instanceof Element)
+                        builder.addGrantedAbility(makeAbility((Element) featNodes.item(j),
+                                ((Element) featNodes.item(j)).getAttribute("name")).build());
+                }
+                break;
+            case "Feats":
+                featNodes = curr.getChildNodes();
                 for (int j = 0; j < featNodes.getLength(); j++) {
                     if(featNodes.item(j) instanceof Element)
                         if (((Element) featNodes.item(j)).getAttribute("type").trim().equalsIgnoreCase("heritage")) {

@@ -20,6 +20,7 @@ public class Ancestry extends AC {
     private final Size size;
     private final int speed;
     private final List<Ability> heritages;
+    private final List<Ability> grantedAbilities;
     private final List<Language> languages;
     private final List<Language> bonusLanguages;
     private final List<Sense> senses;
@@ -29,6 +30,7 @@ public class Ancestry extends AC {
         this.size = builder.size;
         this.speed = builder.speed;
         this.heritages = builder.heritages;
+        this.grantedAbilities = builder.grantedAbilities;
         this.languages = builder.languages;
         this.bonusLanguages = builder.bonusLanguages;
         this.senses = builder.senses;
@@ -36,6 +38,10 @@ public class Ancestry extends AC {
 
     public List<Ability> getHeritages() {
         return Collections.unmodifiableList(heritages);
+    }
+
+    public List<Ability> getGrantedAbilities() {
+        return grantedAbilities;
     }
 
     public int getSpeed() {
@@ -62,13 +68,10 @@ public class Ancestry extends AC {
         private Size size = Size.Medium;
         private int speed = 0;
         private final List<Ability> heritages = new ArrayList<>();
+        private List<Ability> grantedAbilities = Collections.emptyList();
         private final List<Language> languages = new ArrayList<>();
         private final List<Language> bonusLanguages = new ArrayList<>();
         private final List<Sense> senses = new ArrayList<>();
-
-        public Ancestry build() {
-            return new Ancestry(this);
-        }
 
         public void setSize(Size size) {
             this.size = size;
@@ -93,6 +96,15 @@ public class Ancestry extends AC {
 
         public void addSenses(Sense... sense) {
             senses.addAll(Arrays.asList(sense));
+        }
+
+        public void addGrantedAbility(Ability ability) {
+            if(grantedAbilities.isEmpty()) grantedAbilities = new ArrayList<>();
+            grantedAbilities.add(ability);
+        }
+
+        public Ancestry build() {
+            return new Ancestry(this);
         }
     }
 }
