@@ -39,7 +39,7 @@ public class HTMLGenerator {
         add(PClass.class, ABCHTMLGenerator::parse);
         add(Deity.class, SettingHTMLGenerator::parse);
         add(Domain.class, SettingHTMLGenerator::parse);
-        add(Item.class, EquipmentHTMLGenerator::parse);
+        add(Item.class, ItemHTMLGenerator::parse);
         add(Ability.class, AbilityHTMLGenerator::parse);
         add(Spell.class, s -> SpellHTMLGenerator.parse(s, s.getLevelOrCantrip()));
         add(Creature.class, CreatureHTMLGenerator::parse);

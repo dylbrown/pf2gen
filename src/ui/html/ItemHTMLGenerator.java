@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 import static model.util.StringUtils.generateCostString;
 
-public class EquipmentHTMLGenerator {
+public class ItemHTMLGenerator {
 
     public static String parse(Item item) {
         if (item.hasExtension(Weapon.class))
@@ -86,6 +86,10 @@ public class EquipmentHTMLGenerator {
         }
         if(armor.getItem().getTraits().size() > 0)
             text.append("<br><b>Traits</b> ").append(armor.getItem().getTraits().stream().map(Trait::getName).collect(Collectors.joining(", ")));
+        text.append("<hr>").append(armor.getItem().getDescription());
+        for (Ability ability : armor.getItem().getAbilities()) {
+            text.append("<hr>").append(AbilityHTMLGenerator.parse(ability));
+        }
         return text.toString();
     }
 
@@ -103,6 +107,10 @@ public class EquipmentHTMLGenerator {
         }
         if(weapon.getItem().getTraits().size() > 0)
             text.append("<br><b>Traits</b> ").append(weapon.getItem().getTraits().stream().map(Trait::getName).collect(Collectors.joining(", ")));
+        text.append("<hr>").append(weapon.getItem().getDescription());
+        for (Ability ability : weapon.getItem().getAbilities()) {
+            text.append("<hr>").append(AbilityHTMLGenerator.parse(ability));
+        }
         return text.toString();
     }
 }

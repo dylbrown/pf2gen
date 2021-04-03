@@ -23,7 +23,7 @@ import ui.controls.Popup;
 import ui.controls.equipment.CategoryAllItemsList;
 import ui.controls.equipment.LevelAllItemsList;
 import ui.controls.lists.entries.ItemEntry;
-import ui.html.EquipmentHTMLGenerator;
+import ui.html.ItemHTMLGenerator;
 
 import java.util.Comparator;
 import java.util.function.Predicate;
@@ -181,7 +181,7 @@ public class PurchaseTabController {
     }
 
     protected void setDisplay(Item selectedItem) {
-        String s = EquipmentHTMLGenerator.parse(selectedItem);
+        String s = ItemHTMLGenerator.parse(selectedItem);
         itemDisplay.getEngine().loadContent(s);
 //        System.out.println(s);
     }
