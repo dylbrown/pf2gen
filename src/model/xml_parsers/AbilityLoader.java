@@ -408,9 +408,13 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     if(!type.isBlank()) {
                         Type baseClass = getDynamicType(type);
                         if(baseClass.equals(Type.ClassFeature)) {
-                            PClassesLoader loader = getSource().getLoader(PClassesLoader.class);
-                            if(loader != null)
-                                loader.find(StringUtils.getInBrackets(type));
+                            try {
+                                findFromDependencies("PClass",
+                                        PClassesLoader.class,
+                                        StringUtils.getInBrackets(type));
+                            } catch (ObjectNotFoundException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                     choices.addChoices(contents, makeAbilities(propElem.getChildNodes()));
