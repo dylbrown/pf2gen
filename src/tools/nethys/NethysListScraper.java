@@ -58,6 +58,11 @@ public abstract class NethysListScraper extends NethysScraper {
             return;
         }
         printOutput(out, sourceValidator);
+        try {
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     protected final void printOutput(Writer out, Predicate<String> sourceValidator) {
@@ -75,11 +80,6 @@ public abstract class NethysListScraper extends NethysScraper {
             if(!sourceValidator.test(entry.getKey()))
                 continue;
             printList(entry.getValue(), out);
-        }
-        try {
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 

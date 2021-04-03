@@ -34,6 +34,7 @@ public class AttributeManager implements PlayerState {
     // Maps from level to number of increases
     private final SortedMap<Integer, Integer> innerSkillIncreases = new TreeMap<>();
     private final ObservableMap<Integer, Integer> skillIncreases = FXCollections.observableMap(innerSkillIncreases);
+    private int prevNumSkills = 0;
 
     private final Map<Proficiency, ObservableList<String>> minSkillLists = new HashMap<>();
     private final Map<Proficiency, ObservableList<String>> minSaveLists = new HashMap<>();
@@ -103,7 +104,8 @@ public class AttributeManager implements PlayerState {
      * @param numSkills the number of initial skill increases
      */
     void updateSkillCount(int numSkills) {
-        skillIncreases.put(1,numSkills);
+        skillIncreases.merge(1, numSkills - prevNumSkills, Integer::sum);
+        prevNumSkills = numSkills;
         proficiencyChange.firePropertyChange("skillCount", null, null);
     }
 
