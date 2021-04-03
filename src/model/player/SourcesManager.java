@@ -10,8 +10,11 @@ import model.data_managers.sources.MultiSourceLoader;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SpellsMultiSourceLoader;
 import model.data_managers.sources.WeaponsMultiSourceLoader;
+import model.enums.Sense;
 import model.enums.Trait;
 import model.items.Item;
+import model.setting.Deity;
+import model.setting.Domain;
 import model.xml_parsers.*;
 import model.xml_parsers.abc.AncestriesLoader;
 import model.xml_parsers.abc.BackgroundsLoader;
@@ -21,8 +24,6 @@ import model.xml_parsers.equipment.ItemLoader;
 import model.xml_parsers.equipment.WeaponsLoader;
 import model.xml_parsers.setting.DeitiesLoader;
 import model.xml_parsers.setting.DomainsLoader;
-import model.setting.Deity;
-import model.setting.Domain;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,6 +47,7 @@ public class SourcesManager {
     private final MultiSourceLoader<CreatureFamily> creatureFamilies = new MultiSourceLoader<>("Creature Family");
     private final MultiSourceLoader<TemplatesLoader.BuilderSupplier> templates = new MultiSourceLoader<>("Template");
     private final MultiSourceLoader<Trait> traits = new MultiSourceLoader<>("Trait");
+    private final MultiSourceLoader<Sense> senses = new MultiSourceLoader<>("Sense");
 
     public SourcesManager() {}
 
@@ -72,6 +74,7 @@ public class SourcesManager {
         addIfNotNull(creatureFamilies, source.getLoader(CreatureFamilyLoader.class));
         addIfNotNull(templates, source.getLoader(TemplatesLoader.class));
         addIfNotNull(traits, source.getLoader(TraitsLoader.class));
+        addIfNotNull(senses, source.getLoader(SensesLoader.class));
     }
 
     private <T> void addIfNotNull(MultiSourceLoader<T> multiSourceLoader, FileLoader<T> loader) {
@@ -137,6 +140,10 @@ public class SourcesManager {
 
     public MultiSourceLoader<Trait> traits() {
         return traits;
+    }
+
+    public MultiSourceLoader<Sense> senses() {
+        return senses;
     }
 
     public List<Source> getSources() {

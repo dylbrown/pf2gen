@@ -305,6 +305,20 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                         }
                     }
                     break;
+                case "Senses":
+                    for (String s : trim.split(" ?, ?")) {
+                        try {
+                            Sense sense = findFromDependencies(
+                                    "Sense",
+                                    SensesLoader.class,
+                                    s.trim()
+                            );
+                            builder.getExtension(GranterExtension.Builder.class).addSense(sense);
+                        } catch (ObjectNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
             }
         }
         Function<Element, Type> function = sources.get(this.getClass());

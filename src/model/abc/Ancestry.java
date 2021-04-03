@@ -2,9 +2,13 @@ package model.abc;
 
 import model.abilities.Ability;
 import model.enums.Language;
+import model.enums.Sense;
 import model.enums.Size;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class Ancestry extends AC {
     public static final Ancestry NO_ANCESTRY;
@@ -18,7 +22,7 @@ public class Ancestry extends AC {
     private final List<Ability> heritages;
     private final List<Language> languages;
     private final List<Language> bonusLanguages;
-    private final List<String> senses;
+    private final List<Sense> senses;
 
     private Ancestry(Ancestry.Builder builder) {
         super(builder);
@@ -50,7 +54,7 @@ public class Ancestry extends AC {
         return Collections.unmodifiableList(bonusLanguages);
     }
 
-    public List<String> getSenses() {
+    public List<Sense> getSenses() {
         return Collections.unmodifiableList(senses);
     }
 
@@ -60,7 +64,7 @@ public class Ancestry extends AC {
         private final List<Ability> heritages = new ArrayList<>();
         private final List<Language> languages = new ArrayList<>();
         private final List<Language> bonusLanguages = new ArrayList<>();
-        private final List<String> senses = new ArrayList<>();
+        private final List<Sense> senses = new ArrayList<>();
 
         public Ancestry build() {
             return new Ancestry(this);
@@ -87,7 +91,7 @@ public class Ancestry extends AC {
             this.bonusLanguages.addAll(Arrays.asList(language));
         }
 
-        public void addSenses(String... sense) {
+        public void addSenses(Sense... sense) {
             senses.addAll(Arrays.asList(sense));
         }
     }

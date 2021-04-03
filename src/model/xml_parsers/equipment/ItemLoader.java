@@ -301,7 +301,7 @@ public class ItemLoader extends FileLoader<Item> {
         if(traditions.isEmpty())
             traditions.addAll(Arrays.asList(Tradition.values()));
         ObservableList<Spell> choices = FXCollections.observableArrayList();
-        SpellsLoader loader = getSource().getLoader(SpellsLoader.class);
+        SpellsLoader loader = getSource().getLoader(SpellsLoader.class);//TODO: replace with fromDependencies
         if(loader != null) {
             for (Spell value : loader.getAll().values()) {
                 if(value.getTraditions().stream().anyMatch(traditions::contains) &&

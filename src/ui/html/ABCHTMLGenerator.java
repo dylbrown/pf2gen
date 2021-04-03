@@ -12,6 +12,7 @@ import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
 import model.attributes.AttributeMod;
 import model.enums.Language;
+import model.enums.Sense;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,7 +49,7 @@ public class ABCHTMLGenerator {
                 ancestry.getSpeed(),
                 String.join(", ", bonuses),
                 String.join(", ", flaws),
-                String.join(", ", ancestry.getSenses()),
+                ancestry.getSenses().stream().map(Sense::getName).collect(Collectors.joining(", ")),
                 ancestry.getLanguages().stream().map(Language::name).collect(Collectors.joining(", ")),
                 bonusLanguages,
                 ancestry.getDescription());
