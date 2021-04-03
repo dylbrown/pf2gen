@@ -2,7 +2,6 @@ package model.items;
 
 import model.abilities.Ability;
 import model.attributes.AttributeBonus;
-import model.enums.Rarity;
 import model.enums.Slot;
 import model.enums.Trait;
 
@@ -71,11 +70,6 @@ public class ItemFormula implements Item {
             case 20: return 35000;
         }
         return 0;
-    }
-
-    @Override
-    public Rarity getRarity() {
-        return item.getRarity();
     }
 
     @Override

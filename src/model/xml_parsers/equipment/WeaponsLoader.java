@@ -2,7 +2,6 @@ package model.xml_parsers.equipment;
 
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
-import model.enums.Rarity;
 import model.enums.Trait;
 import model.enums.WeaponProficiency;
 import model.items.BaseItem;
@@ -58,11 +57,6 @@ public class WeaponsLoader extends ItemLoader {
             item.getExtension(RangedWeapon.Builder.class);
             item.setCategory("Ranged Weapons");
         }else item.setCategory("Weapons");
-
-
-        if(weapon.hasAttribute("Uncommon") || weapon.hasAttribute("uncommon"))
-            item.setRarity(Rarity.Uncommon);
-
 
         if(weapon.hasAttribute("category"))
             item.setCategory(weapon.getAttribute("category"));
