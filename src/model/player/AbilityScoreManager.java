@@ -3,6 +3,7 @@ package model.player;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import model.abilities.GranterExtension;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
@@ -38,8 +39,18 @@ public class AbilityScoreManager implements PlayerState {
         );
         abilityScoreChoices.addAll(choices);
         abilityScoresByType.put(Type.Initial, new ArrayList<>(choices));
-        applier.onApply(ability -> apply(ability.getAbilityMods()));
-        applier.onRemove(ability -> remove(ability.getAbilityMods()));
+        applier.onApply(ability -> {
+            GranterExtension granter = ability.getExtension(GranterExtension.class);
+            if(granter != null) {
+                apply(granter.getAbilityMods());
+            }
+        });
+        applier.onRemove(ability -> {
+            GranterExtension granter = ability.getExtension(GranterExtension.class);
+            if(granter != null) {
+                remove(granter.getAbilityMods());
+            }
+        });
     }
 
     PropertyChangeSupport getScoreEyeball(@SuppressWarnings("SameParameterValue") AbilityScore score) {

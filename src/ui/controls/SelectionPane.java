@@ -21,10 +21,7 @@ import ui.controls.lists.entries.ListEntry;
 import ui.controls.lists.factories.TreeCellFactory;
 import ui.html.HTMLGenerator;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -80,7 +77,7 @@ public class SelectionPane<T, U extends ListEntry<T>> extends BorderPane {
         return new ObservableCategoryEntryList<>(
                         this.list,
                         (item, clickCount)->{
-                            display.getEngine().loadContent(generator.apply(item));
+                            setDisplay(choice, item);
                             if(clickCount != 2) return;
                             choice.add(item);
                         },
@@ -88,6 +85,17 @@ public class SelectionPane<T, U extends ListEntry<T>> extends BorderPane {
                         subCategoryFunctionProperty.getValue().first,
                         makeEntry, makeLabelEntry,
                         this::makeColumns);
+    }
+
+
+
+    protected <X> void setDisplay(Choice<X> choice, Object chosenValue) {
+        Function<X, String> generator = HTMLGenerator.getGenerator(choice.getOptionsClass());
+        if(chosenValue != null) {
+            display.getEngine().loadContent(
+                    generator.apply(choice.getOptionsClass().cast(chosenValue))
+            );
+        }
     }
 
     private Predicate<T> getFilter(StringProperty search) {
@@ -114,6 +122,15 @@ public class SelectionPane<T, U extends ListEntry<T>> extends BorderPane {
     }
 
     private void expand(TreeItem<U> root) {
+        List<TreeItem<U>> parents = new ArrayList<>();
+        TreeItem<U> parent = root.getParent();
+        while(parent != null) {
+            parents.add(parent);
+            parent = parent.getParent();
+        }
+        ListIterator<TreeItem<U>> it = parents.listIterator(parents.size());
+        while(it.hasPrevious())
+            it.previous().setExpanded(true);
         root.setExpanded(true);
         for (TreeItem<U> child : root.getChildren()) {
             expand(child);
@@ -127,15 +144,20 @@ public class SelectionPane<T, U extends ListEntry<T>> extends BorderPane {
     }
 
     private boolean expandTo(String nodeName, TreeItem<U> node) {
-        if(node.getValue().toString().equalsIgnoreCase(nodeName)) {
+        if(node.getValue() != null && node.getValue().toString().equalsIgnoreCase(nodeName)) {
             expand(node);
+            handleSelect(node);
+            currentList.requestFocus();
+            currentList.getSelectionModel().select(node);
             return true;
         }
-        if(node.getChildren().stream().anyMatch(child->expandTo(nodeName, child))) {
-            node.setExpanded(true);
-            return true;
+        return node.getChildren().stream().anyMatch(child->expandTo(nodeName, child));
+    }
+
+    protected void handleSelect(TreeItem<U> node) {
+        if(node.getValue() != null) {
+            setDisplay(choice, node);
         }
-        return false;
     }
 
     public static class Builder<T, U extends ListEntry<T>> {

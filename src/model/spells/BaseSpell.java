@@ -207,7 +207,7 @@ public class BaseSpell extends AbstractNamedObject implements Comparable<Spell>,
         }
 
         public void setSave(String save) {
-            this.save = StringUtils.camelCase(save);
+            this.save = StringUtils.capitalize(save);
         }
 
         public void setSchool(MagicalSchool school) {

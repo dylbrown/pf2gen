@@ -6,7 +6,9 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.collections.ObservableSet;
 import javafx.collections.transformation.FilteredList;
+import model.abilities.GranterExtension;
 import model.attributes.*;
 import model.enums.Proficiency;
 import model.enums.Type;
@@ -25,7 +27,7 @@ import java.util.function.Predicate;
 public class AttributeManager implements PlayerState {
     private final Map<Attribute, ReadOnlyObjectWrapper<Proficiency>> proficiencies = new HashMap<>();
     private final Map<Attribute, Map<Proficiency, List<AttributeMod>>> trackers = new HashMap<>();
-    private final Map<Attribute, SingleAttributeManager> singleAttributes = new HashMap<>();
+    private final Map<BaseAttribute, ObservableSet<Attribute>> childAttributes = new HashMap<>();
 
     //Map from level to selected skills`
     private final SortedMap<Integer, Set<SkillIncrease>> skillChoices = new TreeMap<>();
@@ -33,6 +35,7 @@ public class AttributeManager implements PlayerState {
     // Maps from level to number of increases
     private final SortedMap<Integer, Integer> innerSkillIncreases = new TreeMap<>();
     private final ObservableMap<Integer, Integer> skillIncreases = FXCollections.observableMap(innerSkillIncreases);
+    private int prevNumSkills = 0;
 
     private final Map<Proficiency, ObservableList<String>> minSkillLists = new HashMap<>();
     private final Map<Proficiency, ObservableList<String>> minSaveLists = new HashMap<>();
@@ -51,20 +54,18 @@ public class AttributeManager implements PlayerState {
         this.customGetter = customGetter;
         this.level = level;
         this.decisions = decisions;
-        for (Attribute skill : Attribute.getSkills()) {
+        for (Attribute skill : BaseAttribute.getSkills()) {
             proficiencies.put(skill, new ReadOnlyObjectWrapper<>(Proficiency.Untrained));
         }
-        singleAttributes.put(Attribute.Lore, new SingleAttributeManager(Attribute.Lore));
-        singleAttributes.put(Attribute.ClassDC, new SingleAttributeManager(Attribute.ClassDC));
 
         Predicate<String> isSkill = s -> {
-            for (Attribute skill : Attribute.getSkills())
+            for (Attribute skill : BaseAttribute.getSkills())
                 if (skill.toString().equals(s))
                     return true;
             return false;
         };
         Predicate<String> isSave = s -> {
-            for (Attribute save : Attribute.getSaves())
+            for (Attribute save : BaseAttribute.getSaves())
                 if (save.toString().equals(s))
                     return true;
             return false;
@@ -85,16 +86,22 @@ public class AttributeManager implements PlayerState {
         }
 
         applier.onApply((ability -> {
-            addSkillIncreases(ability.getSkillIncreases(), ability.getLevel());
-            for (AttributeMod mod : ability.getModifiers()) {
-                apply(mod);
+            GranterExtension granter = ability.getExtension(GranterExtension.class);
+            if(granter != null) {
+                addSkillIncreases(granter.getSkillIncreases(), ability.getLevel());
+                for (AttributeMod mod : granter.getModifiers()) {
+                    apply(mod);
+                }
             }
         }));
 
         applier.onRemove((ability -> {
-            removeSkillIncreases(ability.getSkillIncreases(), ability.getLevel());
-            for (AttributeMod mod : ability.getModifiers()) {
-                remove(mod);
+            GranterExtension granter = ability.getExtension(GranterExtension.class);
+            if(granter != null) {
+                removeSkillIncreases(granter.getSkillIncreases(), ability.getLevel());
+                for (AttributeMod mod : granter.getModifiers()) {
+                    remove(mod);
+                }
             }
         }));
     }
@@ -104,7 +111,8 @@ public class AttributeManager implements PlayerState {
      * @param numSkills the number of initial skill increases
      */
     void updateSkillCount(int numSkills) {
-        skillIncreases.put(1,numSkills);
+        skillIncreases.merge(1, numSkills - prevNumSkills, Integer::sum);
+        prevNumSkills = numSkills;
         proficiencyChange.firePropertyChange("skillCount", null, null);
     }
 
@@ -142,20 +150,17 @@ public class AttributeManager implements PlayerState {
             decisions.add(choice);
             return;
         }
-        SingleAttributeManager singleManager = singleAttributes.get(mod.getAttr());
         boolean used = false;
-        if(singleManager != null)
-            used = singleManager.apply(mod);
-        else{
-            ReadOnlyObjectWrapper<Proficiency> proficiency = get(mod.getAttr());
-            trackers
-                    .computeIfAbsent(mod.getAttr(), (key) -> new HashMap<>())
-                    .computeIfAbsent(mod.getMod(), (key) -> new ArrayList<>())
-                    .add(mod);
-            if (proficiency.getValue() == null || proficiency.getValue().getMod() < mod.getMod().getMod()) {
-                proficiency.set(mod.getMod());
-                used = true;
-            }
+        ReadOnlyObjectWrapper<Proficiency> proficiency = get(mod.getAttr());
+        trackers
+                .computeIfAbsent(mod.getAttr(), (key) -> new HashMap<>())
+                .computeIfAbsent(mod.getMod(), (key) -> new ArrayList<>())
+                .add(mod);
+        if (proficiency.getValue() == null || proficiency.getValue().getMod() < mod.getMod().getMod()) {
+            proficiency.set(mod.getMod());
+            childAttributes.computeIfAbsent(mod.getAttr().getBase(), k->FXCollections.observableSet(new HashSet<>()))
+                    .add(mod.getAttr());
+            used = true;
         }
         // Granted proficiencies instead give you a free skill increase if they overlap
         if(!used && mod.getMod().equals(Proficiency.Trained)){
@@ -195,22 +200,20 @@ public class AttributeManager implements PlayerState {
                 remove(new AttributeMod(choice, mod.getMod()));
             return;
         }
-        SingleAttributeManager singleManager = singleAttributes.get(mod.getAttr());
         boolean changed, haveTrainedMod;
-        if (singleManager != null) {
-            changed = singleManager.remove(mod);
-            haveTrainedMod = singleManager.hasMod(mod.getData(), Proficiency.Trained);
-        }else {
-            ReadOnlyObjectWrapper<Proficiency> proficiency = get(mod.getAttr());
-            Map<Proficiency, List<AttributeMod>> tracker = trackers
-                    .computeIfAbsent(mod.getAttr(), (key) -> new HashMap<>());
-            List<AttributeMod> attributeMods = tracker
-                    .computeIfAbsent(mod.getMod(), (key) -> new ArrayList<>());
-            if (!attributeMods.contains(mod)) return;
-            attributeMods.remove(mod);
-            changed = updateProficiencyToMatchTracker(tracker, proficiency, mod);
-            haveTrainedMod = attributeMods.size() > 0;
-        }
+
+        ReadOnlyObjectWrapper<Proficiency> proficiency = get(mod.getAttr());
+        Map<Proficiency, List<AttributeMod>> tracker = trackers
+                .computeIfAbsent(mod.getAttr(), (key) -> new HashMap<>());
+        List<AttributeMod> attributeMods = tracker
+                .computeIfAbsent(mod.getMod(), (key) -> new ArrayList<>());
+        if (!attributeMods.contains(mod)) return;
+        attributeMods.remove(mod);
+        changed = updateProficiencyToMatchTracker(tracker, proficiency, mod);
+        if(proficiency.get().equals(Proficiency.Untrained))
+            childAttributes.get(mod.getAttr().getBase()).remove(mod.getAttr());
+        haveTrainedMod = attributeMods.size() > 0;
+
         if(!changed && mod.getMod().equals(Proficiency.Trained) && haveTrainedMod) {
             if(!(mod instanceof SkillIncrease))
                 removeSkillIncreases(1, 1);
@@ -241,7 +244,7 @@ outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
                 if(increase != null) {
                     skillChoices.get(increase.getLevel()).remove(increase);
                     remove(increase);
-                    SkillIncrease skillIncrease = new SkillIncrease(increase.getAttr(), increase.getMod(), minSpendLevel, increase.getData());
+                    SkillIncrease skillIncrease = new SkillIncrease(increase.getAttr(), increase.getMod(), minSpendLevel);
                     skillChoices.get(minSpendLevel).add(skillIncrease);
                     apply(skillIncrease);
                     downScale();
@@ -303,14 +306,7 @@ outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
     }
 
     public ObservableValue<Proficiency> getProficiency(Attribute attr) {
-        return getProficiency(attr, "");
-    }
-
-    public ObservableValue<Proficiency> getProficiency(Attribute attr, String data) {
-        SingleAttributeManager singleAttribute = singleAttributes.get(attr);
-        if(singleAttribute != null)
-            return singleAttribute.getProficiency(data);
-        else return proficiencies
+        return proficiencies
                 .computeIfAbsent(attr, (key) -> new ReadOnlyObjectWrapper<>(Proficiency.Untrained))
                 .getReadOnlyProperty();
     }
@@ -319,14 +315,11 @@ outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
         proficiencyChange.addPropertyChangeListener(l);
     }
 
-    public boolean advanceSkill(Attribute skill, String data) {
-        if(!Arrays.asList(Attribute.getSkills()).contains(skill))
+    public boolean advanceSkill(Attribute skill) {
+        if(!Arrays.asList(BaseAttribute.getSkills()).contains(skill.getBase()))
             return false;
 
-        SingleAttributeManager singleAttribute = singleAttributes.get(skill);
-
-        ObservableValue<Proficiency> prof = (singleAttribute != null) ?
-                singleAttribute.getProficiency(data) : getProficiency(skill);
+        ObservableValue<Proficiency> prof = getProficiency(skill);
 
         if(prof.getValue() == Proficiency.Legendary) return false;
         for (Map.Entry<Integer, Integer> entry : skillIncreases.entrySet()) {
@@ -340,7 +333,7 @@ outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
             if(entry.getValue() - choices.size() <= 0)
                 continue;
             Proficiency value = Proficiency.values()[Arrays.asList(Proficiency.values()).indexOf(prof.getValue()) + 1];
-            SkillIncrease increase = new SkillIncrease(skill, value, entry.getKey(), data);
+            SkillIncrease increase = new SkillIncrease(skill, value, entry.getKey());
             choices.add(increase);
             apply(increase);
             return true;
@@ -348,14 +341,11 @@ outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
         return false;
     }
 
-    public boolean canAdvanceSkill(Attribute skill, String data) {
-        if(!Arrays.asList(Attribute.getSkills()).contains(skill))
+    public boolean canAdvanceSkill(Attribute skill) {
+        if(!Arrays.asList(BaseAttribute.getSkills()).contains(skill.getBase()))
             return false;
 
-        SingleAttributeManager singleAttribute = singleAttributes.get(skill);
-
-        ObservableValue<Proficiency> prof = (singleAttribute != null) ?
-                singleAttribute.getProficiency(data) : getProficiency(skill);
+        ObservableValue<Proficiency> prof = getProficiency(skill);
 
         if(prof.getValue() == Proficiency.Legendary) return false;
         for (Map.Entry<Integer, Integer> entry : skillIncreases.entrySet()) {
@@ -373,15 +363,11 @@ outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
         return false;
     }
 
-    public boolean regressSkill(Attribute skill, String data) {
-        if(!Arrays.asList(Attribute.getSkills()).contains(skill))
+    public boolean regressSkill(Attribute skill) {
+        if(!Arrays.asList(BaseAttribute.getSkills()).contains(skill.getBase()))
             return false;
 
-        SingleAttributeManager singleAttribute = singleAttributes.get(skill);
-
-        ObservableValue<Proficiency> prof = (singleAttribute != null) ?
-                singleAttribute.getProficiency(data)
-                : getProficiency(skill);
+        ObservableValue<Proficiency> prof = getProficiency(skill);
 
         if(prof.getValue() == Proficiency.Untrained) return false;
         Stack<Map.Entry<Integer, Integer>> reverser = new Stack<>();
@@ -390,7 +376,7 @@ outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
         }
         for (Map.Entry<Integer, Integer> entry : reverser) {
             Set<SkillIncrease> choices = skillChoices.computeIfAbsent(entry.getKey(), (key) -> new HashSet<>());
-            SkillIncrease increase = new SkillIncrease(skill, prof.getValue(), entry.getKey(), data);
+            SkillIncrease increase = new SkillIncrease(skill, prof.getValue(), entry.getKey());
             if(!choices.contains(increase))
                 continue;
             choices.remove(increase);
@@ -402,15 +388,11 @@ outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
         return false;
     }
 
-    public boolean canRegressSkill(Attribute skill, String data) {
-        if(!Arrays.asList(Attribute.getSkills()).contains(skill))
+    public boolean canRegressSkill(Attribute skill) {
+        if(!Arrays.asList(BaseAttribute.getSkills()).contains(skill.getBase()))
             return false;
 
-        SingleAttributeManager singleAttribute = singleAttributes.get(skill);
-
-        ObservableValue<Proficiency> prof = (singleAttribute != null) ?
-                singleAttribute.getProficiency(data)
-                : getProficiency(skill);
+        ObservableValue<Proficiency> prof = getProficiency(skill);
 
         if(prof.getValue() == Proficiency.Untrained) return false;
         Stack<Map.Entry<Integer, Integer>> reverser = new Stack<>();
@@ -419,7 +401,7 @@ outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
         }
         for (Map.Entry<Integer, Integer> entry : reverser) {
             Set<SkillIncrease> choices = skillChoices.computeIfAbsent(entry.getKey(), (key) -> new HashSet<>());
-            if(!choices.contains(new SkillIncrease(skill, prof.getValue(), entry.getKey(), data)))
+            if(!choices.contains(new SkillIncrease(skill, prof.getValue(), entry.getKey())))
                 continue;
             return true;
         }
@@ -436,7 +418,7 @@ outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
         skillIncreases.put(level, skillIncreases.computeIfAbsent(level, (key) -> 1) - amount);
         while(getSkillIncreasesRemaining(level) < 0) {
             SkillIncrease next = skillChoices.get(level).iterator().next();
-            regressSkill(next.getAttr(), next.getData());
+            regressSkill(next.getAttr());
         }
         proficiencyChange.firePropertyChange("removeSkillIncrease", null, null);
     }
@@ -475,11 +457,11 @@ outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
             attr = translator.apply(weapon, attr);
         }
 
-        return getProficiency(Attribute.valueOf(attr), weapon);
+        return getProficiency(attr.toAttribute(), weapon);
     }
 
     Proficiency getProficiency(Attribute attr, Item weapon) {
-        return Proficiency.max(getProficiency(attr, "").getValue(),
+        return Proficiency.max(getProficiency(attr).getValue(),
                 groupProficiencies.getOrDefault(weapon.getExtension(Weapon.class).getGroup(), Proficiency.Untrained),
                 getSpecificWeaponProficiency(weapon));
     }
@@ -512,7 +494,7 @@ outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
             if (attributes != null) {
                 while(attributes.size() > 0) {
                     SkillIncrease next = attributes.iterator().next();
-                    regressSkill(next.getAttr(), next.getData());
+                    regressSkill(next.getAttr());
                 }
             }
         }
@@ -565,7 +547,7 @@ outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
         return bonus;
     }
 
-    public Set<String> lores() {
-        return singleAttributes.get(Attribute.Lore).getDataStrings();
+    public ObservableSet<Attribute> getAll(BaseAttribute value) {
+        return childAttributes.computeIfAbsent(value, s->FXCollections.observableSet(new HashSet<>()));
     }
 }

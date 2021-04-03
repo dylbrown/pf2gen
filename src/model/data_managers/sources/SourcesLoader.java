@@ -157,6 +157,10 @@ public class SourcesLoader extends FileLoader<Source> {
                 builder.addLoader(TraitsLoader.class,
                         new TraitsLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
+            case "senses":
+                builder.addLoader(SensesLoader.class,
+                        new SensesLoader(getSourceConstructor(curr), parentFile, builder));
+                break;
         }
     }
 

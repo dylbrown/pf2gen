@@ -6,7 +6,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static model.util.StringUtils.camelCase;
+import static model.util.StringUtils.capitalize;
 
 class FeatListParser extends SourceParser {
     private StringBuilder currentFeat = new StringBuilder();
@@ -18,9 +18,9 @@ class FeatListParser extends SourceParser {
     }
 
     private FeatListParser() {
-        try (BufferedReader br = new BufferedReader(new FileReader(new File("generated/featListSource.txt")))) {
-            skill = new BufferedWriter(new FileWriter(new File("generated/skill.txt")));
-            general = new BufferedWriter(new FileWriter(new File("generated/general.txt")));
+        try (BufferedReader br = new BufferedReader(new FileReader("generated/featListSource.txt"))) {
+            skill = new BufferedWriter(new FileWriter("generated/skill.txt"));
+            general = new BufferedWriter(new FileWriter("generated/general.txt"));
             String line;
             while ((line = br.readLine()) != null) {
                 parseLine(line);
@@ -62,7 +62,7 @@ class FeatListParser extends SourceParser {
                 }else if(line.contains("[FREE-ACTION]")){
                     cost = Action.Free;
                 }
-                currentFeat.append("<Ability name=\"").append(camelCase(split[0].replaceAll("\\[[^\\[\\]]*]", "")))
+                currentFeat.append("<Ability name=\"").append(capitalize(split[0].replaceAll("\\[[^\\[\\]]*]", "")))
                         .append("\" level=\"").append(split[1]).append("\"");
                 if(cost != null)
                     currentFeat.append(" cost=\"").append(cost.toString()).append("\">");
@@ -81,12 +81,12 @@ class FeatListParser extends SourceParser {
                     currentFeat.append("<Traits>").append(String.join(", ", specialTraits)).append("</Traits>");
                 break;
             case 2:
-                if(!line.substring(0, 15).equals("Prerequisite(s)")){
+                if(!line.startsWith("Prerequisite(s)")){
                     currentPointInList = 3;
                     parseLine(line);
                     break;
                 }
-                currentFeat.append("<Requires>").append(camelCase(line.substring(16))).append("</Requires>");
+                currentFeat.append("<Requires>").append(capitalize(line.substring(16))).append("</Requires>");
                 break;
             case 3:
                 currentFeat.append("<Description>").append(line.trim());

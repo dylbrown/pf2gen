@@ -2,7 +2,6 @@ package model.items;
 
 import model.abilities.Ability;
 import model.attributes.AttributeBonus;
-import model.enums.Rarity;
 import model.enums.Slot;
 import model.enums.Trait;
 
@@ -67,11 +66,6 @@ public class SearchItem implements Item {
 
     @Override
     public double getValue() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Rarity getRarity() {
         throw new UnsupportedOperationException();
     }
 

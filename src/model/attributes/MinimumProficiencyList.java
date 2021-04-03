@@ -24,7 +24,7 @@ public class MinimumProficiencyList extends TransformationList<String, Attribute
      * @param minimum the minimum proficiency to filter by
      */
     public MinimumProficiencyList(Map<Attribute, ReadOnlyObjectWrapper<Proficiency>> proficiencies, Proficiency minimum) {
-        super(FXCollections.observableList(Arrays.asList(Attribute.getSkills())));
+        super(FXCollections.observableList(Arrays.asList(BaseAttribute.getSkills())));
         size = getSource().size();
         sourceIndices = new int[size];
         isInList = new boolean[size];

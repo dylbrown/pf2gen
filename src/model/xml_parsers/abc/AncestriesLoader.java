@@ -6,11 +6,15 @@ import model.data_managers.sources.SourceConstructor;
 import model.enums.Language;
 import model.enums.Size;
 import model.enums.Type;
+import model.util.ObjectNotFoundException;
+import model.xml_parsers.SensesLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Objects;
 
 import static model.util.StringUtils.camelCaseWord;
 
@@ -18,7 +22,7 @@ public class AncestriesLoader extends ACLoader<Ancestry, Ancestry.Builder> {
 
     static{
         sources.put(AncestriesLoader.class, element -> {
-            if (element.getAttribute("type").trim().toLowerCase().equals("heritage"))
+            if (element.getAttribute("type").trim().equalsIgnoreCase("heritage"))
                 return Type.Heritage;
             else return Type.Ancestry;
         });
@@ -48,7 +52,14 @@ public class AncestriesLoader extends ACLoader<Ancestry, Ancestry.Builder> {
                 }
                 break;
             case "Senses":
-                builder.addSenses(trim.split(" ?, ?"));
+                Arrays.stream(trim.split(" ?, ?")).map(s->{
+                    try {
+                        return findFromDependencies("Sense", SensesLoader.class, s);
+                    } catch (ObjectNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }).filter(Objects::nonNull).forEach(builder::addSenses);
                 break;
             case "Size":
                 builder.setSize(Size.valueOf(camelCaseWord(trim)));
@@ -62,11 +73,19 @@ public class AncestriesLoader extends ACLoader<Ancestry, Ancestry.Builder> {
             case "AbilityPenalties":
                 this.penalties = trim;
                 break;
-            case "Feats":
+            case "Abilities":
                 NodeList featNodes = curr.getChildNodes();
                 for (int j = 0; j < featNodes.getLength(); j++) {
                     if(featNodes.item(j) instanceof Element)
-                        if (((Element) featNodes.item(j)).getAttribute("type").trim().toLowerCase().equals("heritage")) {
+                        builder.addGrantedAbility(makeAbility((Element) featNodes.item(j),
+                                ((Element) featNodes.item(j)).getAttribute("name")).build());
+                }
+                break;
+            case "Feats":
+                featNodes = curr.getChildNodes();
+                for (int j = 0; j < featNodes.getLength(); j++) {
+                    if(featNodes.item(j) instanceof Element)
+                        if (((Element) featNodes.item(j)).getAttribute("type").trim().equalsIgnoreCase("heritage")) {
                             builder.addHeritage(makeAbility((Element) featNodes.item(j),
                                     ((Element) featNodes.item(j)).getAttribute("name")).build());
                         } else {

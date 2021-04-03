@@ -205,7 +205,7 @@ public class ItemLoader extends FileLoader<Item> {
                 builder.setValue(getPrice(trim));
                 break;
             case "Bulk":
-                if (trim.toUpperCase().equals("L"))
+                if (trim.equalsIgnoreCase("L"))
                     builder.setWeight(.1);
                 else
                     builder.setWeight(Double.parseDouble(trim));
@@ -233,7 +233,7 @@ public class ItemLoader extends FileLoader<Item> {
                     String[] s = item.trim().split(" ");
                     if(s.length != 2) return null;
                     return new AttributeBonus(
-                            Attribute.robustValueOf(s[1]),
+                            Attribute.valueOf(s[1]),
                             Integer.parseInt(s[0]),
                             Type.Item);
                 }).filter(Objects::nonNull)
@@ -301,7 +301,7 @@ public class ItemLoader extends FileLoader<Item> {
         if(traditions.isEmpty())
             traditions.addAll(Arrays.asList(Tradition.values()));
         ObservableList<Spell> choices = FXCollections.observableArrayList();
-        SpellsLoader loader = getSource().getLoader(SpellsLoader.class);
+        SpellsLoader loader = getSource().getLoader(SpellsLoader.class);//TODO: replace with fromDependencies
         if(loader != null) {
             for (Spell value : loader.getAll().values()) {
                 if(value.getTraditions().stream().anyMatch(traditions::contains) &&

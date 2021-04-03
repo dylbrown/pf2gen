@@ -5,7 +5,7 @@ import model.enums.Proficiency;
 import java.util.Objects;
 
 public class AttributeMod {
-    public static final AttributeMod NONE = new AttributeMod(Attribute.None, Proficiency.Untrained);
+    public static final AttributeMod NONE = new AttributeMod(BaseAttribute.None, Proficiency.Untrained);
     private String data;
     private final Attribute attr;
     private final Proficiency mod;
@@ -14,21 +14,12 @@ public class AttributeMod {
         this.mod = mod;
     }
 
-    public AttributeMod(Attribute attr, Proficiency mod, String data) {
-        this(attr, mod);
-        this.data = data;
-    }
-
     public Attribute getAttr() {
         return attr;
     }
 
     public Proficiency getMod() {
         return mod;
-    }
-
-    public String getData() {
-        return data;
     }
 
     public String toNiceAttributeString() {

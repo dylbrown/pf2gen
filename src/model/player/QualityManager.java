@@ -8,6 +8,7 @@ import javafx.collections.ObservableSet;
 import model.abc.Ancestry;
 import model.abilities.AncestryExtension;
 import model.enums.Language;
+import model.enums.Sense;
 import model.enums.Trait;
 
 import java.util.*;
@@ -18,7 +19,7 @@ public class QualityManager implements PlayerState {
     private final Map<String, StringProperty> qualities = new HashMap<>();
     private final ObservableSet<Trait> traits = FXCollections.observableSet(new TreeSet<>());
     private final Set<Language> languages = new TreeSet<>();
-    private final Set<String> senses = new TreeSet<>();
+    private final Set<Sense> senses = new TreeSet<>();
     private final ObservableList<String> bonusLanguages = FXCollections.observableArrayList();
     private final ArbitraryChoice<String> bonusLanguageChoice;
 
@@ -116,7 +117,7 @@ public class QualityManager implements PlayerState {
         senses.addAll(ancestry.getSenses());
 
         set("languages", languages.stream().map(Enum::toString).collect(Collectors.joining(", ")));
-        set("senses", String.join(", ", senses));
+        set("senses", senses.stream().map(Sense::getName).collect(Collectors.joining(", ")));
     }
 
     private int previousInt = 0;
@@ -129,7 +130,7 @@ public class QualityManager implements PlayerState {
         return Collections.unmodifiableSet(languages);
     }
 
-    public Set<String> getSenses() {
+    public Set<Sense> getSenses() {
         return Collections.unmodifiableSet(senses);
     }
 

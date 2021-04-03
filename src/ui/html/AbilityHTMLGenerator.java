@@ -2,7 +2,7 @@ package ui.html;
 
 import model.abilities.*;
 import model.ability_scores.AbilityScore;
-import model.attributes.CustomAttribute;
+import model.attributes.Attribute;
 import model.enums.Trait;
 import model.util.Pair;
 
@@ -22,7 +22,7 @@ public class AbilityHTMLGenerator {
                 .append(ability.getTraits().stream().map(Trait::toString).collect(Collectors.joining(", ")))
                 .append("<br>");
 
-        Requirement<CustomAttribute> requiredAttrs = ability.getRequiredAttrs();
+        Requirement<Attribute> requiredAttrs = ability.getRequiredAttrs();
         List<Pair<AbilityScore, Integer>> requiredScores = ability.getRequiredScores();
         Requirement<String> requiredWeapons = ability.getRequiredWeapons();
         boolean strings = !ability.getPrereqStrings().isEmpty() || !ability.getPrerequisites().isEmpty();

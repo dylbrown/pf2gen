@@ -23,7 +23,7 @@ import model.player.PC;
 import model.util.Pair;
 import ui.controls.equipment.ItemsList;
 import ui.controls.lists.entries.ItemEntry;
-import ui.html.EquipmentHTMLGenerator;
+import ui.html.ItemHTMLGenerator;
 
 import java.util.Map;
 
@@ -219,13 +219,13 @@ public class EnchantTabController {
 
     private void setItemDisplay(Item selectedItem) {
         if(selectedItem == null) return;
-        String s = EquipmentHTMLGenerator.parse(selectedItem);
+        String s = ItemHTMLGenerator.parse(selectedItem);
         itemDisplay.getEngine().loadContent(s);
     }
 
     private void setRuneDisplay(Item selectedItem) {
         if(selectedItem == null) return;
-        String s = EquipmentHTMLGenerator.parse(selectedItem);
+        String s = ItemHTMLGenerator.parse(selectedItem);
         runeDisplay.getEngine().loadContent(s);
     }
 

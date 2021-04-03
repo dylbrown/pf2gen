@@ -55,6 +55,16 @@ public class AbilityManager implements PlayerState {
 		sortedAbilities = new SortedList<>(abilities);
 
 		ancestry.addListener((o, oldVal, newVal)->{
+			if(oldVal != null) {
+				for (Ability grantedAbility : oldVal.getGrantedAbilities()) {
+					remove(grantedAbility, false);
+				}
+			}
+			if(newVal != null) {
+				for (Ability grantedAbility : newVal.getGrantedAbilities()) {
+					apply(grantedAbility, false);
+				}
+			}
 			for (Map.Entry<FeatSlot, ObservableList<Ability>> entry : featSlotOptions.entrySet()) {
 				FeatSlot slot = entry.getKey();
 				ObservableList<Ability> list = entry.getValue();

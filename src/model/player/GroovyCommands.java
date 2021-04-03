@@ -7,6 +7,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import model.attributes.BaseAttribute;
 import model.enums.WeaponProficiency;
 import model.items.weapons.WeaponGroupMod;
 import model.items.weapons.WeaponMod;
@@ -211,7 +212,7 @@ class GroovyCommands {
                         Proficiency min = Proficiency.valueOf(words[1].replaceAll("[()]", ""));
                         stringChoice.setChoices(attributes.getMinList(min));
                     }else
-                        stringChoice.setChoices(Arrays.stream(Attribute.getSkills()).map(
+                        stringChoice.setChoices(Arrays.stream(BaseAttribute.getSkills()).map(
                                 Enum::toString).collect(Collectors.toCollection(FXCollections::observableArrayList)));
                     stringChoice.setOptionsClass(String.class);
                     builder = stringChoice;
@@ -222,7 +223,7 @@ class GroovyCommands {
                         Proficiency min = Proficiency.valueOf(words[1].replaceAll("[()]", ""));
                         stringChoice.setChoices(attributes.getMinSavesList(min));
                     }else
-                        stringChoice.setChoices(Arrays.stream(Attribute.getSaves()).map(
+                        stringChoice.setChoices(Arrays.stream(BaseAttribute.getSaves()).map(
                                 Enum::toString).collect(Collectors.toCollection(FXCollections::observableArrayList)));
                     stringChoice.setOptionsClass(String.class);
                     builder = stringChoice;

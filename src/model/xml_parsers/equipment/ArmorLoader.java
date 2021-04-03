@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static model.util.StringUtils.camelCase;
+import static model.util.StringUtils.capitalize;
 
 public class ArmorLoader extends ItemLoader {
 
@@ -63,7 +63,7 @@ public class ArmorLoader extends ItemLoader {
             builder.setCategory("Armor");
         Armor.Builder armorExt = builder.getExtension(Armor.Builder.class);
         Node proficiencyNode= armor.getParentNode();
-        ArmorProficiency armorProficiency = ArmorProficiency.valueOf(camelCase(proficiencyNode.getNodeName()));
+        ArmorProficiency armorProficiency = ArmorProficiency.valueOf(capitalize(proficiencyNode.getNodeName()));
         armorExt.setProficiency(armorProficiency);
         builder.setSubCategory(armorProficiency.name());
         NodeList nodeList = armor.getChildNodes();

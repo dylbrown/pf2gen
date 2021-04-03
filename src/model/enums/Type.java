@@ -8,7 +8,7 @@ public enum Type {
     ClassFeature, // These are feats that are shared across classes like Weapon Specialization
     Misc, Defensive, Offensive, // These are used for creature abilities
     Item,
-    Five,Ten,Fifteen,Twenty;
+    Five,Ten,Fifteen,Twenty,Untyped;
 
     public static Type get(int level) {
         switch(level) {
@@ -41,7 +41,7 @@ public enum Type {
 
     public static Type robustValueOf(String category) {
         try {
-            return valueOf(StringUtils.camelCase(category.trim()));
+            return valueOf(StringUtils.capitalize(category.trim()));
         } catch (IllegalArgumentException e) {
             if(category.equalsIgnoreCase("classfeature"))
                 return ClassFeature;

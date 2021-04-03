@@ -1,6 +1,6 @@
 package tools;
 
-import static model.util.StringUtils.camelCase;
+import static model.util.StringUtils.capitalize;
 import static model.util.StringUtils.camelCaseWord;
 
 public abstract class ClassTableParser extends SourceParser {
@@ -82,7 +82,7 @@ public abstract class ClassTableParser extends SourceParser {
 
     protected void handleDefaultCase(StringBuilder listBuilder, String feature) {
         listBuilder.append("\t<AbilitySlot state=\"filled\" name=\"")
-                .append(camelCase(feature.trim())).append("\">\n")
+                .append(capitalize(feature.trim())).append("\">\n")
                 .append("\t\t<Ability>\n").append("\t\t\t<Description>").append(getDescription(feature)).append("</Description>\n")
                 .append("\t\t</Ability>\n").append("\t</AbilitySlot>\n");
     }

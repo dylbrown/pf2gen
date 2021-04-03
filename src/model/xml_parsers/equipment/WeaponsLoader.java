@@ -2,7 +2,6 @@ package model.xml_parsers.equipment;
 
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
-import model.enums.Rarity;
 import model.enums.Trait;
 import model.enums.WeaponProficiency;
 import model.items.BaseItem;
@@ -19,8 +18,6 @@ import org.w3c.dom.NodeList;
 
 import java.io.File;
 import java.util.*;
-
-import static model.util.StringUtils.camelCase;
 
 public class WeaponsLoader extends ItemLoader {
 
@@ -61,15 +58,16 @@ public class WeaponsLoader extends ItemLoader {
             item.setCategory("Ranged Weapons");
         }else item.setCategory("Weapons");
 
-
-        if(weapon.hasAttribute("Uncommon") || weapon.hasAttribute("uncommon"))
-            item.setRarity(Rarity.Uncommon);
-
-
         if(weapon.hasAttribute("category"))
             item.setCategory(weapon.getAttribute("category"));
-
-        weaponExt.setProficiency(WeaponProficiency.valueOf(camelCase(proficiencyNode.getNodeName())));
+        WeaponProficiency proficiency;
+        String type = weapon.getAttribute("type");
+        if(type != null && !type.isBlank())
+            proficiency = WeaponProficiency.valueOf(type);
+        else {
+            proficiency = WeaponProficiency.robustValueOf(proficiencyNode.getNodeName());
+        }
+        weaponExt.setProficiency((proficiency != null) ? proficiency : WeaponProficiency.Unarmed);
         NodeList nodeList = weapon.getChildNodes();
         for(int i=0; i<nodeList.getLength(); i++) {
             if(nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)
@@ -105,7 +103,7 @@ public class WeaponsLoader extends ItemLoader {
                             .setReload(Integer.parseInt(trim));
                     break;
                 case "Bulk":
-                    if (trim.toUpperCase().equals("L"))
+                    if (trim.equalsIgnoreCase("L"))
                         item.setWeight(.1);
                     else
                         item.setWeight(Double.parseDouble(trim));

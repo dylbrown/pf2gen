@@ -15,7 +15,7 @@ import model.items.ItemInstance;
 import model.items.ItemInstanceChoices;
 import ui.controllers.DecisionsController;
 import ui.controls.Popup;
-import ui.html.EquipmentHTMLGenerator;
+import ui.html.ItemHTMLGenerator;
 
 import java.util.function.Function;
 
@@ -48,9 +48,9 @@ public class CustomItemController extends DecisionsController implements Popup.C
     @FXML
     protected void initialize() {
         super.initialize();
-        instancePreview.getEngine().loadContent(EquipmentHTMLGenerator.parse(item));
+        instancePreview.getEngine().loadContent(ItemHTMLGenerator.parse(item));
         decisions.addListener((ListChangeListener<? super Choice<?>>) c->
-                instancePreview.getEngine().loadContent(EquipmentHTMLGenerator.parse(item)));
+                instancePreview.getEngine().loadContent(ItemHTMLGenerator.parse(item)));
         buy.setOnAction(e->{
             if(tryToBuy.apply(this.item))
                 stage.close();

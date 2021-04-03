@@ -19,7 +19,7 @@ public class CreatureAttributeWrapper implements TemplateHashModel {
     }
     @Override
     public TemplateModel get(String s) throws TemplateModelException {
-        return wrapper.wrap(modifiers.get(Attribute.robustValueOf(s)));
+        return wrapper.wrap(modifiers.get(Attribute.valueOf(s)));
     }
 
     @Override

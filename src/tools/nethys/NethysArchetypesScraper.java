@@ -3,6 +3,7 @@ package tools.nethys;
 import model.util.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -26,7 +27,7 @@ public class NethysArchetypesScraper extends NethysListScraper {
     }
 
     @Override
-    protected void setupItem(String href) {
+    protected void setupItem(String href, Element row) {
         System.out.println(href);
         if (href.contains("Archetypes")) {
             parseList("http://2e.aonprd.com/" + href, "ctl00_MainContent_DetailedOutput",

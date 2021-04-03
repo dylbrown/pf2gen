@@ -58,6 +58,11 @@ public abstract class NethysListScraper extends NethysScraper {
             return;
         }
         printOutput(out, sourceValidator);
+        try {
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     protected final void printOutput(Writer out, Predicate<String> sourceValidator) {
@@ -75,11 +80,6 @@ public abstract class NethysListScraper extends NethysScraper {
             if(!sourceValidator.test(entry.getKey()))
                 continue;
             printList(entry.getValue(), out);
-        }
-        try {
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -108,7 +108,7 @@ public abstract class NethysListScraper extends NethysScraper {
             return;
         }
         AtomicBoolean firstRow = new AtomicBoolean(true);
-        rootDocument.getElementById("ctl00_MainContent_TableElement").getElementsByTag("tbody").first()
+        rootDocument.getElementById(container).getElementsByTag("tbody").first()
                 .getElementsByTag("tr").forEach(element -> {
             if(!firstRow.get()) {
                 String href = "";
@@ -121,9 +121,9 @@ public abstract class NethysListScraper extends NethysScraper {
                     if(elementValidator.test(element) && hrefValidator.test(href) && !ids.contains(id)) {
                         ids.add(id);
                         if(multithreaded)
-                            setupItemMultithreaded(href);
+                            setupItemMultithreaded(href, element);
                         else
-                            setupItem(href);
+                            setupItem(href, element);
                     }
                 } catch (Exception e) {
                     System.out.println(href);
@@ -133,17 +133,17 @@ public abstract class NethysListScraper extends NethysScraper {
         });
     }
 
-    protected void setupItem(String href) throws IOException {
+    protected void setupItem(String href, Element row) throws IOException {
         System.out.println(href);
         Entry entry = addItem(Jsoup.connect("http://2e.aonprd.com/"+href).get());
         if (!entry.entry.isBlank())
             sources.computeIfAbsent(StringUtils.clean(entry.source), key ->
                     new ConcurrentHashMap<>())
-                    .computeIfAbsent(entry.entryName, s->Collections.synchronizedList(new ArrayList<>()))
+                    .computeIfAbsent(entry.getEntryName(), s->Collections.synchronizedList(new ArrayList<>()))
                     .add(entry);
     }
 
-    protected void setupItemMultithreaded(String href) {
+    protected void setupItemMultithreaded(String href, Element row) {
         counter.incrementAndGet();
         completionService.submit(() -> {
             try {
@@ -153,7 +153,7 @@ public abstract class NethysListScraper extends NethysScraper {
                 return;
             }
             try {
-                setupItem(href);
+                setupItem(href, row);
             } catch (Exception e) {
                 e.printStackTrace();
             }

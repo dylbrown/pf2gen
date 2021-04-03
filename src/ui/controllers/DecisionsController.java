@@ -20,7 +20,6 @@ import ui.controls.FeatSelectionPane;
 import ui.controls.SelectionPane;
 import ui.controls.lists.DecisionsList;
 import ui.controls.lists.entries.ListEntry;
-import ui.html.HTMLGenerator;
 
 import java.util.HashMap;
 import java.util.List;
@@ -147,15 +146,6 @@ public class DecisionsController {
         builder.setDisplay(display);
         builder.setSearch(search.textProperty());
         return builder.build();
-    }
-
-    private <T> void setDisplay(Choice<T> choice, Object chosenValue) {
-        Function<T, String> generator = HTMLGenerator.getGenerator(choice.getOptionsClass());
-        if(chosenValue != null) {
-            display.getEngine().loadContent(
-                    generator.apply(choice.getOptionsClass().cast(chosenValue))
-            );
-        }
     }
 
     public void navigate(List<String> path) {

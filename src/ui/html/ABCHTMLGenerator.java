@@ -4,6 +4,7 @@ import model.abc.Ancestry;
 import model.abc.Background;
 import model.abc.PClass;
 import model.abilities.Ability;
+import model.abilities.GranterExtension;
 import model.ability_slots.AbilitySlot;
 import model.ability_slots.FilledSlot;
 import model.ability_scores.AbilityMod;
@@ -11,6 +12,7 @@ import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
 import model.attributes.AttributeMod;
 import model.enums.Language;
+import model.enums.Sense;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +49,7 @@ public class ABCHTMLGenerator {
                 ancestry.getSpeed(),
                 String.join(", ", bonuses),
                 String.join(", ", flaws),
-                String.join(", ", ancestry.getSenses()),
+                ancestry.getSenses().stream().map(Sense::getName).collect(Collectors.joining(", ")),
                 ancestry.getLanguages().stream().map(Language::name).collect(Collectors.joining(", ")),
                 bonusLanguages,
                 ancestry.getDescription());
@@ -96,9 +98,12 @@ public class ABCHTMLGenerator {
             if(!(slot instanceof FilledSlot))
                 continue;
             Ability currentAbility = slot.getCurrentAbility();
-            if(currentAbility.getName().trim().toLowerCase().equals("initial proficiencies")) {
-                for (AttributeMod modifier : currentAbility.getModifiers()) {
-                    proficiencies.add(modifier.getMod().name() + " in " + modifier.toNiceAttributeString());
+            if(currentAbility.getName().trim().equalsIgnoreCase("initial proficiencies")) {
+                GranterExtension granter = currentAbility.getExtension(GranterExtension.class);
+                if(granter != null) {
+                    for (AttributeMod modifier : granter.getModifiers()) {
+                        proficiencies.add(modifier.getMod().name() + " in " + modifier.toNiceAttributeString());
+                    }
                 }
                 break;
             }

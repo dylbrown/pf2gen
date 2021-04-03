@@ -128,7 +128,7 @@ class NethysClassTableScraper extends ClassTableParser {
 
 						proficiencies.computeIfAbsent(Proficiency.robustValueOf(split[0]).name(),
 								a->new ArrayList<>())
-								.add(StringUtils.camelCase(value));
+								.add(StringUtils.capitalize(value));
 					}
 				}
 				currNode = currNode.nextSibling();
@@ -152,9 +152,9 @@ class NethysClassTableScraper extends ClassTableParser {
 	protected void handleDefaultCase(StringBuilder listBuilder, String feature) {
 		if(templateAbilities.contains(StringUtils.clean(feature))) {
 			listBuilder.append("\t<AbilitySlot state=\"filled\" name=\"")
-					.append(StringUtils.camelCase(feature))
+					.append(StringUtils.capitalize(feature))
 					.append("\" type=\"ClassFeature\" contents=\"")
-					.append(StringUtils.camelCase(feature))
+					.append(StringUtils.capitalize(feature))
 					.append("\" />\n");
 		}else{
 			super.handleDefaultCase(listBuilder, feature);

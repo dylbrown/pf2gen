@@ -8,6 +8,7 @@ import model.abilities.Ability;
 import model.abilities.ActivityExtension;
 import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
+import model.attributes.BaseAttribute;
 import model.enums.Slot;
 import model.enums.Type;
 import model.items.ItemCount;
@@ -38,16 +39,6 @@ public class CharacterWrapper implements TemplateHashModel {
 
         //map.put("totalweight", (NumberSupplier) ()->character.inventory().getTotalWeight());
 
-        for (Ability ability : character.abilities().getAbilities()) {
-            if(ability.getType() == null) continue;
-            if(ability.getType().equals(Type.Heritage)){
-                map.put("heritage", ability);
-                break;
-            }
-        }
-        if(!map.containsKey("heritage"))
-            map.put("heritage", "No Heritage");
-
         map.put("attributes", character.attributes());
         map.put("attacks", character.combat().getAttacks().stream()
                 .map((o)->new ItemCountWrapper(new ItemCount(o.getItem(), 1), wrapper)).collect(Collectors.toList()));
@@ -71,28 +62,26 @@ public class CharacterWrapper implements TemplateHashModel {
         map.put("items", new EquipmentList(character.inventory().getUnequipped(), character.inventory().getEquipped(), wrapper));
 
 
-        map.put("inventory", character.inventory().getItems().values());
         map.put("qualities", character.qualities());
         map.put("combat", character.combat());
 
-        map.put("skills", getSkills());
-
         map.put("spells", character.spells());
+
+        refresh();
     }
 
     private List<AttributeEntry> getSkills() {
         List<AttributeEntry> entries = new ArrayList<>();
-        for (Attribute value : Attribute.getSkills()) {
-            if(value.equals(Attribute.Lore)) {
-                for (String lore : character.attributes().lores()) {
-                    entries.add(new AttributeEntry(character, value, lore,
-                            character.attributes().getProficiency(value, lore),
+        for (Attribute value : BaseAttribute.getSkills()) {
+            if(value.equals(BaseAttribute.Lore)) {
+                for (Attribute custom : character.attributes().getAll(BaseAttribute.Lore)) {
+                    entries.add(new AttributeEntry(character, custom,
+                            character.attributes().getProficiency(custom),
                             character.levelProperty(),
                             wrapper));
                 }
-            }
-            entries.add(new AttributeEntry(character, value, "",
-                    character.attributes().getProficiency(value, ""),
+            }else entries.add(new AttributeEntry(character, value,
+                    character.attributes().getProficiency(value),
                     character.levelProperty(),
                     wrapper));
         }
@@ -104,9 +93,9 @@ public class CharacterWrapper implements TemplateHashModel {
         //TODO: Replace this with something listener-based
         map.put("inventory", character.inventory().getItems().values());
         map.put("heritage", "No Heritage");
+        map.put("skills", getSkills());
         for (Ability ability : character.abilities().getAbilities()) {
-            if(ability.getType() == null) continue;
-            if(ability.getType().equals(Type.Heritage)){
+            if(Type.Heritage.equals(ability.getType())){
                 map.put("heritage", ability);
                 break;
             }

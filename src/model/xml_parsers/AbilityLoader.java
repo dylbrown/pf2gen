@@ -7,7 +7,9 @@ import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
 import model.ability_slots.*;
-import model.attributes.*;
+import model.attributes.Attribute;
+import model.attributes.AttributeMod;
+import model.attributes.AttributeModSingleChoice;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.enums.*;
@@ -18,6 +20,7 @@ import model.spells.Tradition;
 import model.util.ObjectNotFoundException;
 import model.util.Pair;
 import model.util.StringUtils;
+import model.xml_parsers.abc.PClassesLoader;
 import model.xml_parsers.equipment.WeaponsLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -27,7 +30,6 @@ import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 
-import static model.util.StringUtils.camelCase;
 import static model.util.StringUtils.camelCaseWord;
 
 public abstract class AbilityLoader<T> extends FileLoader<T> {
@@ -38,6 +40,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
     public AbilityLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
         super(sourceConstructor, root, sourceBuilder);
         weaponsLoader = new WeaponsLoader(null, root, sourceBuilder);
+        clearAccumulators();
     }
 
    protected static Map<Class<? extends AbilityLoader<?>>, Function<Element, Type>> sources = new HashMap<>();
@@ -114,12 +117,12 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         }else builder.setLevel(level);
         String increase = element.getAttribute("skillIncrease");
         if(!increase.equals("")){
-            if(increase.equals("true")) builder.setSkillIncreases(1);
-            else builder.setSkillIncreases(Integer.parseInt(increase));
+            if(increase.equals("true")) builder.getExtension(GranterExtension.Builder.class).setSkillIncreases(1);
+            else builder.getExtension(GranterExtension.Builder.class).setSkillIncreases(Integer.parseInt(increase));
         }
         if(!element.getAttribute("abilityBoosts").trim().equals("")) {
             int count = Integer.parseInt(element.getAttribute("abilityBoosts"));
-            builder.setBoosts(getBoosts(count, level));
+            builder.getExtension(GranterExtension.Builder.class).setBoosts(getBoosts(count, level));
         }
         if(element.getAttribute("multiple").equals("true"))
             builder.setMultiple(true);
@@ -138,7 +141,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     break;
                 case "AttributeMods":
                     Proficiency prof = Proficiency.robustValueOf(propElem.getAttribute("Proficiency").trim());
-                    builder.addAllMods(addMods(trim, prof));
+                    builder.getExtension(GranterExtension.Builder.class).addAllMods(addMods(trim, prof));
                     break;
                 case "Description":
                     builder.setDescription(trim);
@@ -154,7 +157,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     break;
                 case "Requires":
                 case "Prerequisites":
-                    List<Requirement<CustomAttribute>> attrRequirements = new ArrayList<>();
+                    List<Requirement<Attribute>> attrRequirements = new ArrayList<>();
                     List<Requirement<String>> weaponRequirements = new ArrayList<>();
                     for (String s : trim.split(", ?")) {
                         if(s.matches(".*\\d.*")) {
@@ -163,7 +166,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                         } else if(s.matches("(Trained|Expert|Master|Legendary) [Ii]n .*")) {
                             if(s.contains("or")) {
                                 String[] orStrings = s.split(" or ");
-                                List<Requirement<CustomAttribute>> orRequirements = new ArrayList<>();
+                                List<Requirement<Attribute>> orRequirements = new ArrayList<>();
                                 for (String option : orStrings) {
                                     orRequirements.add(getAttrReq(option));
                                 }
@@ -302,6 +305,20 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                         }
                     }
                     break;
+                case "Senses":
+                    for (String s : trim.split(" ?, ?")) {
+                        try {
+                            Sense sense = findFromDependencies(
+                                    "Sense",
+                                    SensesLoader.class,
+                                    s.trim()
+                            );
+                            builder.getExtension(GranterExtension.Builder.class).addSense(sense);
+                        } catch (ObjectNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
             }
         }
         Function<Element, Type> function = sources.get(this.getClass());
@@ -319,7 +336,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     ReadOnlyStringProperty readOnlyProperty = archetypeSpellListNames
                             .computeIfAbsent(archetype.getArchetype(), s -> new ReadOnlyStringWrapper())
                             .getReadOnlyProperty();
-                    if(readOnlyProperty.get() == null || readOnlyProperty.get().equals(""))
+                    if(readOnlyProperty.get() == null || readOnlyProperty.get().isBlank())
                         spells.setSpellListName(readOnlyProperty);
                     else
                         spells.setSpellListName(readOnlyProperty.get());
@@ -344,18 +361,10 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         return builder;
     }
 
-    private Requirement<CustomAttribute> getAttrReq(String option) {
+    private Requirement<Attribute> getAttrReq(String option) {
         String[] split = option.split(" [iI]n ");
         Proficiency reqProf = Proficiency.valueOf(camelCaseWord(split[0].trim()));
-        int bracketIndex = option.indexOf("(");
-        CustomAttribute attr;
-        if(bracketIndex != -1) {
-            String data = camelCase(option.substring(bracketIndex+1).trim().trim().replaceAll("[()]", ""));
-            attr = new CustomAttribute(Attribute.robustValueOf(option.substring(0, bracketIndex)), data);
-        }else{
-            attr = CustomAttribute.get(Attribute.robustValueOf(camelCase(split[1].trim())));
-        }
-        return new SingleRequirement<>(attr, reqProf);
+        return new SingleRequirement<>(Attribute.valueOf(split[1]), reqProf);
     }
 
     private Requirement<String> getReq(String option) {
@@ -364,7 +373,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         return new SingleRequirement<>(split[1].trim(), reqProf);
     }
 
-    AbilitySlot makeAbilitySlot(Element propElem, int level) {
+    public AbilitySlot makeAbilitySlot(Element propElem, int level) {
         String abilityName = propElem.getAttribute("name");
         int slotLevel = level;
         if(!propElem.getAttribute("level").equals(""))
@@ -409,9 +418,22 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     ChoicesLoader choices = getSource().getLoader(ChoicesLoader.class);
                     if(choices == null)
                         break;
+                    String type = propElem.getAttribute("type");
+                    if(!type.isBlank()) {
+                        Type baseClass = getDynamicType(type);
+                        if(baseClass.equals(Type.ClassFeature)) {
+                            try {
+                                findFromDependencies("PClass",
+                                        PClassesLoader.class,
+                                        StringUtils.getInBrackets(type));
+                            } catch (ObjectNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                     choices.addChoices(contents, makeAbilities(propElem.getChildNodes()));
-                    return new SingleChoiceSlot(abilityName, slotLevel,
-                            new ArrayList<>(choices.getCategory(contents).values()));
+                    return new DynamicSingleChoiceSlot(abilityName, slotLevel,
+                            ()->new ArrayList<>(choices.getCategory(contents).values()));
                 }
 
         }
@@ -439,17 +461,10 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
             if (!str.trim().equals("")) {
                 String[] orCheck = str.trim().split(" or ");
                 if(orCheck.length > 1) {
-                    mods.add(new AttributeModSingleChoice(Attribute.robustValueOf(orCheck[0]),
-                            Attribute.robustValueOf(orCheck[1]), prof));
+                    mods.add(new AttributeModSingleChoice(Attribute.valueOf(orCheck[0]),
+                            Attribute.valueOf(orCheck[1]), prof));
                 }else {
-                    int bracket = str.indexOf('(');
-                    if (bracket != -1) {
-                        Attribute skill = Attribute.robustValueOf(str.substring(0, bracket));
-                        String data = camelCase(str.trim().substring(bracket).trim().replaceAll("[()]", ""));
-                        mods.add(new AttributeMod(skill, prof, data));
-                    } else {
-                        mods.add(new AttributeMod(Attribute.robustValueOf(str), prof));
-                    }
+                    mods.add(new AttributeMod(Attribute.valueOf(str), prof));
                 }
             }
         }

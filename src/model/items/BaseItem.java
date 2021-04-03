@@ -4,7 +4,6 @@ import model.AbstractNamedObject;
 import model.abilities.Ability;
 import model.abilities.AbilityExtension;
 import model.attributes.AttributeBonus;
-import model.enums.Rarity;
 import model.enums.Slot;
 import model.enums.Trait;
 
@@ -16,7 +15,6 @@ import java.util.*;
 public class BaseItem extends AbstractNamedObject implements Item {
     private final double weight, value;
     private final String category, subCategory;
-    private final Rarity rarity;
     private final Slot slot;
     private final List<Trait> traits;
     private final int hands, level;
@@ -30,7 +28,6 @@ public class BaseItem extends AbstractNamedObject implements Item {
         this.value = builder.value;
         this.category = builder.category;
         this.subCategory = builder.subCategory;
-        this.rarity = builder.rarity;
         this.slot = builder.slot;
         this.traits = (builder.traits.size() > 0) ? builder.traits : Collections.emptyList();
         this.hands = builder.hands;
@@ -84,10 +81,6 @@ public class BaseItem extends AbstractNamedObject implements Item {
 
     public double getValue() {
         return value;
-    }
-
-    public Rarity getRarity() {
-        return rarity;
     }
 
     public String getPrettyWeight() {
@@ -158,7 +151,6 @@ public class BaseItem extends AbstractNamedObject implements Item {
                 level == item.level &&
                 Objects.equals(category, item.category) &&
                 Objects.equals(subCategory, item.subCategory) &&
-                rarity == item.rarity &&
                 slot == item.slot &&
                 Objects.equals(traits, item.traits) &&
                 Objects.equals(bonuses, item.bonuses) &&
@@ -167,7 +159,7 @@ public class BaseItem extends AbstractNamedObject implements Item {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), weight, value, category, subCategory, rarity, slot, traits, hands, level, bonuses, abilities);
+        return Objects.hash(super.hashCode(), weight, value, category, subCategory, slot, traits, hands, level, bonuses, abilities);
     }
 
     @Override
@@ -197,7 +189,6 @@ public class BaseItem extends AbstractNamedObject implements Item {
         double value = 0;
         String category = "";
         String subCategory = "";
-        Rarity rarity = Rarity.Common;
         Slot slot = Slot.None;
         List<Trait> traits = new ArrayList<>();
         private int hands;
@@ -214,7 +205,6 @@ public class BaseItem extends AbstractNamedObject implements Item {
             this.value = item.value;
             this.category = item.category;
             this.subCategory = item.subCategory;
-            this.rarity = item.rarity;
             this.slot = item.slot;
             this.traits = (item.traits.size() > 0) ? new ArrayList<>(item.traits) : Collections.emptyList();
             this.hands = item.hands;
@@ -237,10 +227,6 @@ public class BaseItem extends AbstractNamedObject implements Item {
 
         public void setSubCategory(String subCategory) {
             this.subCategory = subCategory;
-        }
-
-        public void setRarity(Rarity rarity) {
-            this.rarity = rarity;
         }
 
         public void setSlot(Slot slot) {

@@ -15,13 +15,11 @@ public class AttributeEntry implements TemplateHashModel {
     private final ObservableValue<Proficiency> prof;
     private final ObjectWrapper wrapper;
     private final ReadOnlyObjectProperty<Integer> level;
-    private final String data;
     private final PC character;
 
-    public AttributeEntry(PC character, Attribute attr, String data, ObservableValue<Proficiency> prof, ReadOnlyObjectProperty<Integer> levelProperty, ObjectWrapper objectWrapper) {
+    public AttributeEntry(PC character, Attribute attr, ObservableValue<Proficiency> prof, ReadOnlyObjectProperty<Integer> levelProperty, ObjectWrapper objectWrapper) {
         this.character = character;
         this.attr = attr;
-        this.data = data;
         this.prof = prof;
         this.level = levelProperty;
         this.wrapper = objectWrapper;
@@ -30,7 +28,7 @@ public class AttributeEntry implements TemplateHashModel {
     @Override
     public TemplateModel get(String s) throws TemplateModelException {
         switch(s.toLowerCase()) {
-            case "total": return wrapper.wrap(character.getTotalMod(attr, data));
+            case "total": return wrapper.wrap(character.getTotalMod(attr));
             case "attribute": return wrapper.wrap(attr);
             case "proficiency": return wrapper.wrap(prof.getValue());
             case "proficiencymod": return wrapper.wrap(prof.getValue().getMod(level.get()));
@@ -49,7 +47,6 @@ public class AttributeEntry implements TemplateHashModel {
 
     @Override
     public String toString() {
-        if(data != null && data.length() > 0) return attr.toString() + " (" + data + ")";
         return attr.toString();
     }
 }

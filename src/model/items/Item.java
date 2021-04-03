@@ -2,7 +2,6 @@ package model.items;
 
 import model.abilities.Ability;
 import model.attributes.AttributeBonus;
-import model.enums.Rarity;
 import model.enums.Slot;
 import model.enums.Trait;
 
@@ -17,7 +16,6 @@ public interface Item extends Comparable<Item> {
     boolean hasExtension(String extensionName);
     double getWeight();
     double getValue();
-    Rarity getRarity();
     String getPrettyWeight();
     Slot getSlot();
     int getHands();

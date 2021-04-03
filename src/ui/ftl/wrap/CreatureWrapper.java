@@ -4,7 +4,7 @@ import freemarker.template.ObjectWrapper;
 import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
-import model.attributes.Attribute;
+import model.attributes.BaseAttribute;
 import model.creatures.Creature;
 
 import java.util.Arrays;
@@ -16,8 +16,8 @@ public class CreatureWrapper extends MapGenericWrapper<Creature> {
         super(creature, objectWrapper);
         map.put("modifiers", c->new CreatureAttributeWrapper(wrapper, c.getModifiers()));
         map.put("skilllist", c->creature.getModifiers().entrySet().stream()
-                .filter(e-> Arrays.asList(Attribute.getSkills()).contains(e.getKey()))
-                .map(e->new SkillEntry(e.getKey().name(), e.getValue()))
+                .filter(e-> Arrays.asList(BaseAttribute.getSkills()).contains(e.getKey().getBase()))
+                .map(e->new SkillEntry(e.getKey().toString(), e.getValue()))
                 .sorted((e1,e2)->e2.getValue().compareTo(e1.getValue()))
                 .collect(Collectors.toList()));
     }

@@ -335,17 +335,9 @@ public class SaveLoadManager {
                 int level = Integer.parseInt(split[0]);
                 for (String skill : split[1].split(" ?, ?")) {
                     int openBracket = skill.indexOf("(");
-                    String attribute = skill;
-                    String data;
-                    if(openBracket == -1) data = null;
-                    else {
-                        attribute = attribute.substring(0, openBracket);
-                        int closeBracket = skill.indexOf(")", openBracket);
-                        data = attribute.substring(openBracket + 1, closeBracket);
-                    }
                     if(!allDecisionsMade && character.attributes().getSkillIncreasesRemaining(level) == 0)
                         allDecisionsMade = makeDecisions(character, decisionStringMap);
-                    character.attributes().advanceSkill(Attribute.valueOf(attribute), data);
+                    character.attributes().advanceSkill(Attribute.valueOf(skill));
                 }
             }
 

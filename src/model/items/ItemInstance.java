@@ -2,7 +2,6 @@ package model.items;
 
 import model.abilities.Ability;
 import model.attributes.AttributeBonus;
-import model.enums.Rarity;
 import model.enums.Slot;
 import model.enums.Trait;
 
@@ -102,11 +101,6 @@ public class ItemInstance implements Item {
     @Override
     public double getValue() {
         return resolveDecoration(item.getValue(), "getValue", Double.class);
-    }
-
-    @Override
-    public Rarity getRarity() {
-        return item.getRarity();
     }
 
     @Override

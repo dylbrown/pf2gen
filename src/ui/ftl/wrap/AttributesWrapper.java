@@ -31,11 +31,9 @@ public class AttributesWrapper implements TemplateHashModel {
     public TemplateModel get(String s) throws TemplateModelException {
         if(s.equals("get"))
             return wrapper.wrap((TemplateMethodModelEx) (List arguments) -> {
-                Attribute attr = Attribute.robustValueOf(arguments.get(0).toString());
+                Attribute attr = Attribute.valueOf(arguments.get(0).toString(), arguments.get(1).toString());
                 return new AttributeEntry(character, attr,
-                        arguments.get(1).toString(),
-                        attributes.getProficiency(attr,
-                                (arguments.get(1) == null) ? null : arguments.get(1).toString()),
+                        attributes.getProficiency(attr),
                         character.levelProperty(),
                         wrapper);
             });
@@ -47,14 +45,13 @@ public class AttributesWrapper implements TemplateHashModel {
                 } catch (IllegalAccessException | InvocationTargetException e) {
                     e.printStackTrace();
                 }
-            } else if (method.getName().toLowerCase().equals(s.toLowerCase())){
+            } else if (method.getName().equalsIgnoreCase(s)){
                 return wrapper.wrap(method);
             }
         }
-        Attribute attribute = Attribute.robustValueOf(s);
+        Attribute attribute = Attribute.valueOf(s);
         if(attribute != null)
             return new AttributeEntry(character, attribute,
-                    "",
                     attributes.getProficiency(attribute),
                     character.levelProperty(),
                     wrapper);
