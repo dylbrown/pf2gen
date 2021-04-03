@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.collections.ObservableSet;
 import javafx.collections.transformation.FilteredList;
+import model.abilities.GranterExtension;
 import model.attributes.*;
 import model.enums.Proficiency;
 import model.enums.Type;
@@ -85,16 +86,22 @@ public class AttributeManager implements PlayerState {
         }
 
         applier.onApply((ability -> {
-            addSkillIncreases(ability.getSkillIncreases(), ability.getLevel());
-            for (AttributeMod mod : ability.getModifiers()) {
-                apply(mod);
+            GranterExtension granter = ability.getExtension(GranterExtension.class);
+            if(granter != null) {
+                addSkillIncreases(granter.getSkillIncreases(), ability.getLevel());
+                for (AttributeMod mod : granter.getModifiers()) {
+                    apply(mod);
+                }
             }
         }));
 
         applier.onRemove((ability -> {
-            removeSkillIncreases(ability.getSkillIncreases(), ability.getLevel());
-            for (AttributeMod mod : ability.getModifiers()) {
-                remove(mod);
+            GranterExtension granter = ability.getExtension(GranterExtension.class);
+            if(granter != null) {
+                removeSkillIncreases(granter.getSkillIncreases(), ability.getLevel());
+                for (AttributeMod mod : granter.getModifiers()) {
+                    remove(mod);
+                }
             }
         }));
     }

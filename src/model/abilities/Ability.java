@@ -1,11 +1,9 @@
 package model.abilities;
 
 import model.AbstractNamedObject;
-import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityScore;
 import model.ability_slots.AbilitySlot;
 import model.attributes.Attribute;
-import model.attributes.AttributeMod;
 import model.enums.Recalculate;
 import model.enums.Trait;
 import model.enums.Type;
@@ -27,18 +25,14 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
     private final Type type;
     private final boolean multiple;
     private final Recalculate recalculate;
-    private final List<AttributeMod> modifiers;
-    private final List<AbilityMod> abilityMods;
     private final List<Trait> traits;
     private final String requirements;
     private final int level;
-    private final int skillIncreases;
     private final Map<Class<? extends AbilityExtension>, AbilityExtension> extensions;
 
     private Ability(Builder builder, Map<Class<? extends AbilityExtension>, AbilityExtension> extensions) {
         super(builder);
         this.level = builder.level;
-        this.modifiers = builder.modifiers;
         this.prerequisites = builder.prerequisites;
         this.prereqStrings = builder.prereqStrings;
         this.givenPrerequisites = builder.givenPrerequisites;
@@ -48,11 +42,9 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
         this.requiredScores = builder.requiredScores;
         this.traits = builder.traits;
         this.customMod = builder.customMod;
-        this.abilityMods = builder.abilityMods;
         this.abilitySlots = builder.abilitySlots;
         this.type = builder.type;
         this.multiple = builder.multiple;
-        this.skillIncreases = builder.skillIncreases;
         this.recalculate = builder.recalculate;
         this.extensions = extensions;
     }
@@ -90,20 +82,8 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
         return false;
     }
 
-    public List<AttributeMod> getModifiers() {
-        return Collections.unmodifiableList(modifiers);
-    }
-
-    public List<AbilityMod> getAbilityMods() {
-        return Collections.unmodifiableList(abilityMods);
-    }
-
     public int getLevel() {
         return level;
-    }
-
-    public int getSkillIncreases() {
-        return skillIncreases;
     }
 
     public Requirement<Attribute> getRequiredAttrs() {
@@ -196,10 +176,7 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
         private List<AbilitySlot> abilitySlots = Collections.emptyList();
         private Type type = Type.Untyped;
         private boolean multiple = false;
-        private List<AttributeMod> modifiers = Collections.emptyList();
-        private List<AbilityMod> abilityMods = Collections.emptyList();
         private int level = 1;
-        private int skillIncreases = 0;
         private String requirements = "";
         private Recalculate recalculate = Recalculate.Never;
         private Map<Class<? extends AbilityExtension.Builder>, AbilityExtension.Builder>
@@ -219,10 +196,7 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
             this.abilitySlots = copy(other.abilitySlots);
             this.type = other.type;
             this.multiple = other.multiple;
-            this.modifiers = copy(other.modifiers);
-            this.abilityMods = copy(other.abilityMods);
             this.level = other.level;
-            this.skillIncreases = other.skillIncreases;
             this.requirements = other.requirements;
             this.recalculate = other.recalculate;
             this.extensions = new HashMap<>();
@@ -243,10 +217,7 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
             this.abilitySlots = ability.abilitySlots;
             this.type = ability.type;
             this.multiple = ability.multiple;
-            this.modifiers = ability.modifiers;
-            this.abilityMods = ability.abilityMods;
             this.level = ability.level;
-            this.skillIncreases = ability.skillIncreases;
             this.requirements = ability.requirements;
             this.recalculate = ability.recalculate;
         }
@@ -315,25 +286,8 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
             this.multiple = multiple;
         }
 
-        public void setAttrMods(List<AttributeMod> modifiers) {
-            this.modifiers = modifiers;
-        }
-
-        public void setBoosts(List<AbilityMod> abilityMods) {
-            this.abilityMods = abilityMods;
-        }
-
-        public void addAllMods(List<AttributeMod> mods) {
-            if(modifiers.size() == 0) modifiers = new ArrayList<>();
-            modifiers.addAll(mods);
-        }
-
         public void setLevel(int level) {
             this.level = level;
-        }
-
-        public void setSkillIncreases(int skillIncreases) {
-            this.skillIncreases = skillIncreases;
         }
 
         public void setRecalculateMod(Recalculate recalculate) {

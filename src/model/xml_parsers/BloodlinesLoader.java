@@ -2,6 +2,7 @@ package model.xml_parsers;
 
 import model.abilities.Ability;
 import model.abilities.AbilitySetExtension;
+import model.abilities.GranterExtension;
 import model.abilities.SpellExtension;
 import model.ability_scores.AbilityScore;
 import model.ability_slots.FilledSlot;
@@ -51,7 +52,7 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 		spellExt.setSpellListName("Sorcerer");
 		bloodline.setGivesPrerequisites(Collections.singletonList(tradition+" Bloodline"));
 		String[] skills = item.getElementsByTagName("Skills").item(0).getTextContent().split(", ?");
-		bloodline.setAttrMods(Arrays.asList(
+		bloodline.getExtension(GranterExtension.Builder.class).setAttrMods(Arrays.asList(
 				new AttributeMod(Attribute.valueOf(skills[0]), Proficiency.Trained),
 				new AttributeMod(Attribute.valueOf(skills[1]), Proficiency.Trained)));
 

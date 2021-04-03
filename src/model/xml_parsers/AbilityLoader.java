@@ -117,12 +117,12 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         }else builder.setLevel(level);
         String increase = element.getAttribute("skillIncrease");
         if(!increase.equals("")){
-            if(increase.equals("true")) builder.setSkillIncreases(1);
-            else builder.setSkillIncreases(Integer.parseInt(increase));
+            if(increase.equals("true")) builder.getExtension(GranterExtension.Builder.class).setSkillIncreases(1);
+            else builder.getExtension(GranterExtension.Builder.class).setSkillIncreases(Integer.parseInt(increase));
         }
         if(!element.getAttribute("abilityBoosts").trim().equals("")) {
             int count = Integer.parseInt(element.getAttribute("abilityBoosts"));
-            builder.setBoosts(getBoosts(count, level));
+            builder.getExtension(GranterExtension.Builder.class).setBoosts(getBoosts(count, level));
         }
         if(element.getAttribute("multiple").equals("true"))
             builder.setMultiple(true);
@@ -141,7 +141,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     break;
                 case "AttributeMods":
                     Proficiency prof = Proficiency.robustValueOf(propElem.getAttribute("Proficiency").trim());
-                    builder.addAllMods(addMods(trim, prof));
+                    builder.getExtension(GranterExtension.Builder.class).addAllMods(addMods(trim, prof));
                     break;
                 case "Description":
                     builder.setDescription(trim);
