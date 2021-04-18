@@ -1,0 +1,74 @@
+package model.creatures;
+
+import model.enums.Trait;
+
+import java.util.Collections;
+import java.util.List;
+
+public class BaseAttack implements Attack {
+    private final String name;
+    private final int modifier;
+    private final List<Trait> traits;
+    private final String damage;
+    private final AttackType attackType;
+
+    private BaseAttack(Builder builder) {
+        name = builder.name;
+        modifier = builder.modifier;
+        traits = Collections.unmodifiableList(builder.traits);
+        damage = builder.damage;
+        attackType = builder.attackType;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getModifier() {
+        return modifier;
+    }
+
+    public List<Trait> getTraits() {
+        return traits;
+    }
+
+    public String getDamage() {
+        return damage;
+    }
+
+    public AttackType getAttackType() {
+        return attackType;
+    }
+
+    public static class Builder {
+        private String name = "";
+        private int modifier = 0;
+        private List<Trait> traits = Collections.emptyList();
+        private String damage = "";
+        private AttackType attackType;
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setModifier(int modifier) {
+            this.modifier = modifier;
+        }
+
+        public void setTraits(List<Trait> traits) {
+            this.traits = traits;
+        }
+
+        public void setDamage(String damage) {
+            this.damage = damage;
+        }
+
+        public void setAttackType(AttackType type) {
+            this.attackType = type;
+        }
+
+        public BaseAttack build() {
+            return new BaseAttack(this);
+        }
+    }
+}

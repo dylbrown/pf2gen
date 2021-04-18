@@ -17,7 +17,7 @@ public class CreatureWrapper extends MapGenericWrapper<Creature> {
         map.put("modifiers", c->new CreatureAttributeWrapper(wrapper, c.getModifiers()));
         map.put("skilllist", c->creature.getModifiers().entrySet().stream()
                 .filter(e-> Arrays.asList(BaseAttribute.getSkills()).contains(e.getKey().getBase()))
-                .map(e->new SkillEntry(e.getKey().toString(), e.getValue()))
+                .map(e->new SkillEntry(e.getKey().toString(), e.getValue().getModifier()))
                 .sorted((e1,e2)->e2.getValue().compareTo(e1.getValue()))
                 .collect(Collectors.toList()));
     }

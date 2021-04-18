@@ -27,7 +27,7 @@ public class CreatureHTMLGenerator {
         ).append("</br>");
         builder.append("<b>Source</b> pg. ").append(creature.getPage())
                 .append("; <b>Perception</b> ");
-        String perception = signed(creature.getModifiers().get(BaseAttribute.Perception));
+        String perception = signed(creature.getModifiers().get(BaseAttribute.Perception).getModifier());
             builder.append(perception).append("<br>");
         builder.append("<b>Languages</b> ").append(
                 creature.getLanguages().stream().map(Enum::toString).collect(Collectors.joining(", "))
@@ -54,9 +54,9 @@ public class CreatureHTMLGenerator {
         builder.append("<b>AC</b> ").append(creature.getAC());
         if(!creature.getACMods().isBlank())
             builder.append(" (").append(creature.getACMods()).append(")");
-        builder.append("; <b>Fort</b> ").append(signed(creature.getModifiers().get(BaseAttribute.Fortitude)))
-                .append("; <b>Ref</b> ").append(signed(creature.getModifiers().get(BaseAttribute.Reflex)))
-                .append("; <b>Will</b> ").append(signed(creature.getModifiers().get(BaseAttribute.Will)));
+        builder.append("; <b>Fort</b> ").append(signed(creature.getModifiers().get(BaseAttribute.Fortitude).getModifier()))
+                .append("; <b>Ref</b> ").append(signed(creature.getModifiers().get(BaseAttribute.Reflex).getModifier()))
+                .append("; <b>Will</b> ").append(signed(creature.getModifiers().get(BaseAttribute.Will).getModifier()));
         if(!creature.getSaveMods().isBlank())
             builder.append("; ").append(creature.getSaveMods());
         builder.append("<br><b>HP</b> ").append(creature.getHP());

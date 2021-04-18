@@ -218,11 +218,15 @@ public class SelectionPane<T, U extends ListEntry<T>> extends BorderPane {
             this.subCategoryFunctionProperty = subCategoryFunctionProperty;
         }
 
-        public SelectionPane<T, U> build() {
+        protected void checkNulls() {
             if(categoryFunctionProperty == null)
                 categoryFunctionProperty = new SimpleObjectProperty<>(new Pair<>((t)->"", ""));
             if(subCategoryFunctionProperty == null)
                 subCategoryFunctionProperty = new SimpleObjectProperty<>(new Pair<>((t)->"", ""));
+        }
+
+        public SelectionPane<T, U> build() {
+            checkNulls();
             return new SelectionPane<>(this);
         }
     }

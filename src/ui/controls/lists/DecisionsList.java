@@ -153,6 +153,7 @@ public class DecisionsList extends SelectionPane<Choice<?>, DecisionEntry> {
 
         @Override
         public DecisionsList build() {
+            checkNulls();
             return new DecisionsList(this);
         }
     }

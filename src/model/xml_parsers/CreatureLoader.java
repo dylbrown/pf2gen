@@ -105,7 +105,12 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                     for(int j = 0; j < skills.length; j++) {
                         String s = skills[j];
                         int lastSpace = s.lastIndexOf(" ", s.indexOf('+'));
-                        Attribute attribute = Attribute.valueOf(s.substring(0, lastSpace));
+                        String loreString = s.substring(0, lastSpace);
+                        if(loreString.endsWith(" Lore"))
+                            loreString = "Lore (" +
+                                    loreString.substring(0, loreString.length() - " Lore".length()) +
+                                    ")";
+                        Attribute attribute = Attribute.valueOf(loreString);
                         int nextSpace = s.indexOf(' ', lastSpace + 1);
                         builder.setModifier(attribute, Integer.parseInt(s.substring(lastSpace + 1,
                                 (nextSpace == -1) ? s.length() : nextSpace))
@@ -260,8 +265,6 @@ public class CreatureLoader extends AbilityLoader<Creature> {
     }
 
     private Item getItem(String name, boolean canBeEnchanted, BaseCreature.Builder builder) throws ObjectNotFoundException {
-        if(name.endsWith("armor"))
-            return getItem(name.substring(0, name.length()-6), canBeEnchanted, builder);
         if(name.matches(".*\\([^+][^)]*\\) *\\z")) {
             int bracket = name.lastIndexOf('(');
             String newName = name.substring(0, bracket);
@@ -415,7 +418,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
     }
 
     private Attack makeAttack(Element element) {
-        Attack.Builder builder = new Attack.Builder();
+        BaseAttack.Builder builder = new BaseAttack.Builder();
         NodeList childNodes = element.getChildNodes();
         builder.setAttackType(AttackType.valueOf(element.getAttribute("type")));
         for(int i = 0; i < childNodes.getLength(); i++) {

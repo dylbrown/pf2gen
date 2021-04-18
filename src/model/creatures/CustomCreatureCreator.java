@@ -7,6 +7,7 @@ import model.enums.Language;
 import model.enums.Trait;
 import model.player.SourcesManager;
 import model.util.ObjectNotFoundException;
+import model.util.TransformationMap;
 
 import java.util.*;
 
@@ -15,9 +16,8 @@ public class CustomCreatureCreator {
     private String description = "";
     private CreatureFamily family;
     private final List<Trait> traits = new ArrayList<>();
-    private final Map<Attribute, Integer> modifiers = new HashMap<>();
-    private final Map<Attribute, String> modifierSpecialInfo = new HashMap<>();
-    private final Map<AbilityScore, Integer> abilityModifiers = new HashMap<>();
+    public final Map<Attribute, CustomCreatureAttribute> modifiers = new HashMap<>();
+    private final Map<AbilityScore, CustomCreatureAttribute> abilityModifiers = new HashMap<>();
     private final List<Language> languages = new ArrayList<>();
     private final List<CreatureItem> items = new ArrayList<>();
     private int level = 0;
@@ -42,6 +42,10 @@ public class CustomCreatureCreator {
 
     public CustomCreatureCreator(SourcesManager sources) {
         this.sources = sources;
+    }
+
+    public CustomCreatureAttribute getModifier(Attribute attribute) {
+        return modifiers.computeIfAbsent(attribute, CustomCreatureAttribute::new);
     }
 
     public void set(CreatureFamily family) {
@@ -81,6 +85,15 @@ public class CustomCreatureCreator {
     }
 
     private class CustomCreature implements Creature {
+
+        private final TransformationMap<AbilityScore, CustomCreatureAttribute, Integer> abilityModifierInts;
+        private final TransformationMap<Attribute, CustomCreatureAttribute, CreatureAttribute> attributeMods;
+
+        public CustomCreature() {
+            this.abilityModifierInts = new TransformationMap<>(abilityModifiers, CustomCreatureAttribute::getModifier);
+            attributeMods = new TransformationMap<>(modifiers, CustomCreatureAttribute::getAsCreatureAttribute);
+        }
+
         public CreatureFamily getFamily() {
             return family;
         }
@@ -89,16 +102,12 @@ public class CustomCreatureCreator {
             return Collections.unmodifiableList(traits);
         }
 
-        public Map<Attribute, Integer> getModifiers() {
-            return Collections.unmodifiableMap(modifiers);
-        }
-
-        public Map<Attribute, String> getModifierSpecialInfo() {
-            return Collections.unmodifiableMap(modifierSpecialInfo);
+        public Map<Attribute, CreatureAttribute> getModifiers() {
+            return Collections.unmodifiableMap(attributeMods);
         }
 
         public Map<AbilityScore, Integer> getAbilityModifiers() {
-            return Collections.unmodifiableMap(abilityModifiers);
+            return Collections.unmodifiableMap(abilityModifierInts);
         }
 
         public List<Language> getLanguages() {

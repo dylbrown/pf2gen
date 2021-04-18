@@ -7,7 +7,7 @@ public enum Language {
     Abyssal, Aklo, Alghollthu, Amurrun, Aquan, Arboreal, Auran, Boggard, Caligni, Celestial, Cyclops, Daemonic,
     Ettin, Giant, Gnoll, Ignan, Infernal, Iruxi, Necril, Protean, Requian, Shadowtongue, Sphinx, Tengu, Terran, Utopian,
     //Secret
-    Druidic, Envisioning, Free;
+    Druidic, Envisioning, Free, Unknown;
 
     public static Language[] getChooseable() {
         return new Language[]{
@@ -20,10 +20,10 @@ public enum Language {
 
     public static Language testValueOf(String s) {
         try {
-            Language.valueOf(s);
+            return Language.valueOf(s);
         }catch (IllegalArgumentException e) {
             System.out.println("Language: " + s);
         }
-        return Common;
+        return Unknown;
     }
 }
