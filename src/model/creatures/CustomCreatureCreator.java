@@ -1,26 +1,34 @@
 package model.creatures;
 
+import javafx.beans.property.*;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import model.abilities.Ability;
 import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
+import model.creatures.scaling.ScaleMap;
+import model.enums.Alignment;
 import model.enums.Language;
+import model.enums.Size;
 import model.enums.Trait;
 import model.player.SourcesManager;
-import model.util.ObjectNotFoundException;
-import model.util.TransformationMap;
+import model.util.*;
 
 import java.util.*;
 
 public class CustomCreatureCreator {
-    private String name = "";
+    public final StringProperty name = new SimpleStringProperty("");
+    public final ReadOnlyIntegerWrapper level = new ReadOnlyIntegerWrapper(0);
+    public final ObjectProperty<Alignment> alignment = new SimpleObjectProperty<>();
+    public final ObjectProperty<Size> size = new SimpleObjectProperty<>();
     private String description = "";
     private CreatureFamily family;
-    private final List<Trait> traits = new ArrayList<>();
-    public final Map<Attribute, CustomCreatureAttribute> modifiers = new HashMap<>();
-    private final Map<AbilityScore, CustomCreatureAttribute> abilityModifiers = new HashMap<>();
+    private final ObservableList<ObservableValue<Trait>> traits = FXCollections.observableArrayList();
+    public final Map<Attribute, CustomCreatureValue<Attribute>> modifiers = new HashMap<>();
+    private final ObservableList<CustomCreatureValue<AbilityScore>> abilityModifiers = FXCollections.observableArrayList();
     private final List<Language> languages = new ArrayList<>();
     private final List<CreatureItem> items = new ArrayList<>();
-    private int level = 0;
     private int ac = 0;
     private int hp = 0;
     private String specialLanguages = "";
@@ -42,56 +50,45 @@ public class CustomCreatureCreator {
 
     public CustomCreatureCreator(SourcesManager sources) {
         this.sources = sources;
+        addTraitHookup(alignment);
+        addTraitHookup(size);
+        AbilityScore.scores().forEach(a->abilityModifiers.add(
+                new CustomCreatureValue<>(a, AbilityScore::toFullName, level.getReadOnlyProperty(), ScaleMap.ABILITY_MODIFIER_SCALES)));
     }
 
-    public CustomCreatureAttribute getModifier(Attribute attribute) {
-        return modifiers.computeIfAbsent(attribute, CustomCreatureAttribute::new);
+    private <T> void addTraitHookup(ObjectProperty<T> property) {
+        traits.add(new TransformationProperty<>(property, a-> {
+            try {
+                if(a != null) return sources.traits().find(a.toString());
+            } catch (ObjectNotFoundException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }));
     }
 
-    public void set(CreatureFamily family) {
-        this.family = family;
-        Trait trait = null;
-        try {
-            trait = sources.traits().find(family.getName());
-        } catch (ObjectNotFoundException e) {
-            e.printStackTrace();
-        }
-        if(trait != null)
-            traits.add(trait);
-    }
-    public void unset(CreatureFamily family) {
-        this.family = null;
-        Trait trait = null;
-        try {
-            trait = sources.traits().find(family.getName());
-        } catch (ObjectNotFoundException e) {
-            e.printStackTrace();
-        }
-        if(trait != null)
-            traits.remove(trait);
-    }
-
-    public void addTrait(Trait trait) {
-        if(!traits.contains(trait))
-            traits.add(trait);
-    }
-
-    public void removeTrait(Trait trait) {
-        traits.remove(trait);
+    public CustomCreatureValue<Attribute> getModifier(Attribute attribute) {
+        return modifiers.computeIfAbsent(attribute, a->new CustomCreatureValue<>(a, level, null)); // TODO: ScaleMap
     }
 
     public CustomCreature getCreature() {
         return creature;
     }
 
+    public ObservableList<CustomCreatureValue<AbilityScore>> getAbilityScores() {
+        return abilityModifiers;
+    }
+
     private class CustomCreature implements Creature {
 
-        private final TransformationMap<AbilityScore, CustomCreatureAttribute, Integer> abilityModifierInts;
-        private final TransformationMap<Attribute, CustomCreatureAttribute, CreatureAttribute> attributeMods;
+        private final TransformationMap<AbilityScore, CustomCreatureValue<AbilityScore>, Integer> abilityModifierInts;
+        private final TransformationMap<Attribute, CustomCreatureValue<Attribute>, CreatureValue<Attribute>> attributeMods;
+        private final WrapperTransformationList<Trait, ObservableValue<Trait>> traitsList;
 
         public CustomCreature() {
-            this.abilityModifierInts = new TransformationMap<>(abilityModifiers, CustomCreatureAttribute::getModifier);
-            attributeMods = new TransformationMap<>(modifiers, CustomCreatureAttribute::getAsCreatureAttribute);
+            this.abilityModifierInts = new TransformationMap<>(new ListToMap<>(abilityModifiers, a->a.target), CustomCreatureValue::getModifier);
+            attributeMods = new TransformationMap<>(modifiers, CustomCreatureValue::getAsCreatureValue);
+            traitsList = new WrapperTransformationList<>(traits, ObservableValue::getValue);
         }
 
         public CreatureFamily getFamily() {
@@ -99,10 +96,10 @@ public class CustomCreatureCreator {
         }
 
         public List<Trait> getTraits() {
-            return Collections.unmodifiableList(traits);
+            return Collections.unmodifiableList(traitsList);
         }
 
-        public Map<Attribute, CreatureAttribute> getModifiers() {
+        public Map<Attribute, CreatureValue<Attribute>> getModifiers() {
             return Collections.unmodifiableMap(attributeMods);
         }
 
@@ -123,7 +120,7 @@ public class CustomCreatureCreator {
         }
 
         public int getLevel() {
-            return level;
+            return level.get();
         }
 
         public int getAC() {
@@ -188,12 +185,12 @@ public class CustomCreatureCreator {
 
         @Override
         public String getName() {
-            return name;
+            return name.get();
         }
 
         @Override
         public String getRawName() {
-            return name;
+            return name.get();
         }
 
         @Override

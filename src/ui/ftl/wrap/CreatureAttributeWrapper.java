@@ -5,16 +5,16 @@ import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
 import model.attributes.Attribute;
-import model.creatures.CreatureAttribute;
+import model.creatures.CreatureValue;
 
 import java.util.Map;
 
 public class CreatureAttributeWrapper implements TemplateHashModel {
 
-    private final Map<Attribute, CreatureAttribute> modifiers;
+    private final Map<Attribute, CreatureValue<Attribute>> modifiers;
     private final ObjectWrapper wrapper;
 
-    public CreatureAttributeWrapper(ObjectWrapper wrapper, Map<Attribute, CreatureAttribute> modifiers) {
+    public CreatureAttributeWrapper(ObjectWrapper wrapper, Map<Attribute, CreatureValue<Attribute>> modifiers) {
         this.wrapper = wrapper;
         this.modifiers = modifiers;
     }

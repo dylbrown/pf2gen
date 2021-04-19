@@ -13,7 +13,7 @@ import java.util.Map;
 public interface Creature extends NamedObject {
     CreatureFamily getFamily();
     List<Trait> getTraits();
-    Map<Attribute, CreatureAttribute> getModifiers();
+    Map<Attribute, CreatureValue<Attribute>> getModifiers();
     Map<AbilityScore, Integer> getAbilityModifiers();
     List<Language> getLanguages();
     String getSpecialLanguages();

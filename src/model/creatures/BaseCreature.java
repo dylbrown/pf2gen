@@ -12,7 +12,7 @@ import java.util.*;
 public class BaseCreature extends AbstractNamedObject implements Creature {
     private final CreatureFamily family;
     private final List<Trait> traits;
-    private final Map<Attribute, CreatureAttribute> modifiers;
+    private final Map<Attribute, CreatureValue<Attribute>> modifiers;
     private final Map<AbilityScore, Integer> abilityModifiers;
     private final List<Language> languages;
     private final List<CreatureItem> items;
@@ -29,7 +29,7 @@ public class BaseCreature extends AbstractNamedObject implements Creature {
         traits = Collections.unmodifiableList(builder.traits);
         modifiers = Collections.unmodifiableMap(builder.modifiers.values().stream().collect(
                 HashMap::new,
-                (map, val)->map.put(val.getAttribute(), val.build()),
+                (map, val)->map.put(val.getTarget(), val.build()),
                 Map::putAll
         ));
         abilityModifiers = Collections.unmodifiableMap(builder.abilityModifiers);
@@ -62,7 +62,7 @@ public class BaseCreature extends AbstractNamedObject implements Creature {
         return traits;
     }
 
-    public Map<Attribute, CreatureAttribute> getModifiers() {
+    public Map<Attribute, CreatureValue<Attribute>> getModifiers() {
         return modifiers;
     }
 
@@ -154,7 +154,7 @@ public class BaseCreature extends AbstractNamedObject implements Creature {
     public static class Builder extends AbstractNamedObject.Builder {
         private CreatureFamily family = null;
         private List<Trait> traits = Collections.emptyList();
-        private Map<Attribute, BaseCreatureAttribute.Builder> modifiers = Collections.emptyMap();
+        private Map<Attribute, BaseCreatureValue.Builder<Attribute>> modifiers = Collections.emptyMap();
         private Map<AbilityScore, Integer> abilityModifiers = Collections.emptyMap();
         private List<Language> languages= Collections.emptyList();
         private List<CreatureItem> items= Collections.emptyList();
@@ -187,13 +187,13 @@ public class BaseCreature extends AbstractNamedObject implements Creature {
         public void setModifier(Attribute attribute, int modifier) {
             if(modifiers.size() == 0)
                 modifiers = new HashMap<>();
-            modifiers.computeIfAbsent(attribute, BaseCreatureAttribute.Builder::new).modifier = modifier;
+            modifiers.computeIfAbsent(attribute, BaseCreatureValue.Builder::new).modifier = modifier;
         }
 
         public void addModifierSpecialInfo(Attribute attribute, String info) {
             if(modifiers.size() == 0)
                 modifiers = new HashMap<>();
-            modifiers.computeIfAbsent(attribute, BaseCreatureAttribute.Builder::new).info = info;
+            modifiers.computeIfAbsent(attribute, BaseCreatureValue.Builder::new).info = info;
         }
 
         public void setModifier(AbilityScore score, int modifier) {

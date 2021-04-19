@@ -44,4 +44,16 @@ public enum AbilityScore {
         }
         return None;
     }
+
+    public String toFullName() {
+        switch (this) {
+            case Str: return "Strength";
+            case Dex: return "Dexterity";
+            case Con: return "Constitution";
+            case Int: return "Intelligence";
+            case Wis: return "Wisdom";
+            case Cha: return "Charisma";
+        }
+        return toString();
+    }
 }

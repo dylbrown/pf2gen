@@ -1,5 +1,5 @@
 package model.enums;
 
 public enum Size {
-    Small, Medium
+    Diminutive, Tiny, Small, Medium, Large, Huge, Gargantuan
 }

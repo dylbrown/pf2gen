@@ -4,7 +4,6 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -16,83 +15,72 @@
 <?import javafx.scene.text.Font?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.controllers.gm.CreatureTabController">
-    <ScrollPane fitToWidth="true" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <GridPane>
-            <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.5" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.5" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.5" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.5" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.5" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.5" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.5" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.5" prefWidth="100.0" />
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" vgrow="ALWAYS" />
-            </rowConstraints>
-            <Label text="Name" GridPane.columnSpan="2" GridPane.halignment="CENTER" />
-            <TextField fx:id="name" GridPane.columnIndex="2" GridPane.columnSpan="2" />
-            <Label text="Level" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-            <Spinner fx:id="level" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Label text="Alignment" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-            <ComboBox fx:id="alignment" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-            <Label text="Size" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-            <ComboBox fx:id="size" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <Label text="Traits" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-            <Button fx:id="traitsButton" mnemonicParsing="false" text="Select..." GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-         <Label alignment="CENTER" contentDisplay="CENTER" text="Languages" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
-            <TabPane prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" GridPane.columnSpan="4" GridPane.rowIndex="5"
-                     GridPane.rowSpan="2147483647" GridPane.vgrow="ALWAYS">
-                <Tab closable="false" text="Ability Scores">
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="200.0">
-                        <ListView fx:id="abilityScores" prefHeight="200.0" prefWidth="200.0"
-                                  AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                  AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
-                    </AnchorPane>
-                </Tab>
-                <Tab closable="false" text="Core Attributes">
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                        <ListView fx:id="coreAttributes" prefHeight="200.0" prefWidth="200.0"
-                                  AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                  AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
-                    </AnchorPane>
-                </Tab>
-                <Tab closable="false" text="Skills">
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                        <ListView fx:id="skills" prefHeight="200.0" prefWidth="200.0"
-                                  AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                  AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
-                    </AnchorPane>
-                </Tab>
-                <Tab text="Spells">
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                        <ListView fx:id="spells" prefHeight="200.0" prefWidth="200.0"
-                                  AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                  AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"/>
-                    </AnchorPane>
-                </Tab>
-            </TabPane>
-         <Label alignment="CENTER" contentDisplay="CENTER" text="Weakness &amp; Resistance" textAlignment="CENTER" wrapText="true" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3">
-            <font>
-               <Font size="10.0" />
-            </font>
-         </Label>
-         <Button fx:id="languagesButton" mnemonicParsing="false" text="Select..." GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
-         <Button fx:id="weakResistButton" mnemonicParsing="false" text="Select..." GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
-         <Label text="Attributes" GridPane.columnSpan="4" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
-         <ListView fx:id="strikesList" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="4" GridPane.columnSpan="4" GridPane.rowIndex="1" GridPane.rowSpan="3" />
-         <Label text="Strikes" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.halignment="CENTER" />
-         <Button fx:id="addStrike" alignment="CENTER" mnemonicParsing="false" text="Add Strike" GridPane.columnIndex="6" GridPane.columnSpan="2" GridPane.halignment="RIGHT" />
-        </GridPane>
-    </ScrollPane>
+     <GridPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <columnConstraints>
+             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.5" prefWidth="100.0" />
+             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.5" prefWidth="100.0" />
+             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.5" prefWidth="100.0" />
+             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.5" prefWidth="100.0" />
+             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.5" prefWidth="100.0" />
+             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.5" prefWidth="100.0" />
+             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.5" prefWidth="100.0" />
+             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="12.5" prefWidth="100.0" />
+         </columnConstraints>
+         <rowConstraints>
+             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+         </rowConstraints>
+         <Label text="Name" GridPane.columnSpan="2" GridPane.halignment="CENTER" />
+         <TextField fx:id="name" GridPane.columnIndex="2" GridPane.columnSpan="2" />
+         <Label text="Level" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+         <Spinner fx:id="level" editable="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+         <Label text="Alignment" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+         <ComboBox fx:id="alignment" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+         <Label text="Size" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+         <ComboBox fx:id="size" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+         <Label text="Traits" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+         <Button fx:id="traitsButton" mnemonicParsing="false" text="Select..." GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+      <Label alignment="CENTER" contentDisplay="CENTER" text="Languages" textAlignment="CENTER" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+         <TabPane prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" GridPane.columnSpan="4" GridPane.rowIndex="5" GridPane.rowSpan="2147483647" GridPane.vgrow="ALWAYS">
+             <Tab closable="false" text="Ability Scores">
+                 <AnchorPane minHeight="0.0" minWidth="0.0" prefWidth="200.0">
+                     <ListView fx:id="abilityScores" prefHeight="400.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                 </AnchorPane>
+             </Tab>
+             <Tab closable="false" text="Core Attributes">
+                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <ListView fx:id="coreAttributes" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                 </AnchorPane>
+             </Tab>
+             <Tab closable="false" text="Skills">
+                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <ListView fx:id="skills" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                 </AnchorPane>
+             </Tab>
+             <Tab text="Spells">
+                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <ListView fx:id="spells" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                 </AnchorPane>
+             </Tab>
+         </TabPane>
+      <Label alignment="CENTER" contentDisplay="CENTER" text="Weakness &amp; Resistance" textAlignment="CENTER" wrapText="true" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3">
+         <font>
+            <Font size="10.0" />
+         </font>
+      </Label>
+      <Button fx:id="languagesButton" mnemonicParsing="false" text="Select..." GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+      <Button fx:id="weakResistButton" mnemonicParsing="false" text="Select..." GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+      <Label text="Attributes" GridPane.columnSpan="4" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
+      <ListView fx:id="strikesList" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="4" GridPane.columnSpan="4" GridPane.rowIndex="1" GridPane.rowSpan="3" />
+      <Label text="Strikes" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.halignment="CENTER" />
+      <Button fx:id="addStrike" alignment="CENTER" mnemonicParsing="false" text="Add Strike" GridPane.columnIndex="6" GridPane.columnSpan="2" GridPane.halignment="RIGHT" />
+     </GridPane>
 </AnchorPane>

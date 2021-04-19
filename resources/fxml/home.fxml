@@ -78,7 +78,11 @@
                       </MenuItem>
                   </Menu>
                   <Menu mnemonicParsing="false" text="Tools">
-                      <MenuItem fx:id="gm_menu" mnemonicParsing="false" text="GM Tools" />
+                      <MenuItem fx:id="gm_menu" mnemonicParsing="false" text="GM Tools">
+                          <accelerator>
+                              <KeyCodeCombination alt="UP" code="G" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                          </accelerator>
+                      </MenuItem>
                   </Menu>
                   <Menu mnemonicParsing="false" text="Help">
                       <MenuItem fx:id="about_menu" mnemonicParsing="false" text="About">
