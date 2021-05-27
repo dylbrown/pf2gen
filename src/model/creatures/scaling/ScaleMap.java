@@ -7,22 +7,76 @@ import java.util.TreeMap;
 import java.util.function.Function;
 
 public class ScaleMap {
-    public static ScaleMap ABILITY_MODIFIER_SCALES;
+    public static ScaleMap ABILITY_MODIFIER_SCALES, PERCEPTION_AND_SAVES_SCALES, SKILL_SCALES, AC_SCALES;
 
     static {
         ABILITY_MODIFIER_SCALES = new ScaleMap(
-            new PiecewiseFunction(
-                    new PolynomialFunction(i->i<=20, 0.324812030075, 4.48947368421),
-                    new FloorFunction(new PolynomialFunction(i->i>=20, 1d/3, 5.0 - 20d/3), 2, 1)),
-            new PiecewiseFunction(
-                    new FloorFunction(new PolynomialFunction(i->i>=20, 1d/3, 5.0 - 20d/3), 2, 0),
-                    new PolynomialFunction(0.332015810277, 3.33201581028)),
-            new PiecewiseFunction(
-                    new PolynomialFunction(i->i<=20, 0.212450592885, 2.44071146245),
-                    new PolynomialFunction(i->i>=20, .5, -3.75)),
-            new PiecewiseFunction(
-                    new PolynomialFunction(i->i<=1, .5, .25),
-                    new PolynomialFunction(i->i>=1, 0.251304347826, 0.608695652174))
+            new PiecewiseFunction( // Extreme
+                new PolynomialFunction(i->i<=20, 0.324812030075, 4.48947368421),
+                new FloorFunction(new PolynomialFunction(i->i>=20, 1d/3, 5.0 - 20d/3), 2, 1)),
+            new PiecewiseFunction( // High
+                new FloorFunction(new PolynomialFunction(i->i>=20, 1d/3, 5.0 - 20d/3), 2, 0),
+                new PolynomialFunction(0.332015810277, 3.33201581028)),
+            new PiecewiseFunction( // Moderate
+                new PolynomialFunction(i->i<=20, 0.212450592885, 2.44071146245),
+                new PolynomialFunction(i->i>=20, .5, -3.75)),
+            new PiecewiseFunction( // Low
+                new PolynomialFunction(i->i<=1, .5, .25),
+                new PolynomialFunction(i->i>=1, 0.251304347826, 0.608695652174))
+        );
+
+        PiecewiseFunction terriblePerceptionScale = new PiecewiseFunction( // Terrible
+                new PolynomialFunction(i -> i <= 1, 1, 1),
+                new RepeatingStepFunction(2, 1, 20, 1, 1, 2),
+                new PolynomialFunction(i -> i >= 20, 1.3, 1));
+        RepeatingStepFunction extremePerceptionCenter = new RepeatingStepFunction(11, 1, 20, 1, 2);
+        RepeatingStepFunction modPerceptionCenter = new RepeatingStepFunction(7, 1, 20, 1, 1, 2, 1, 2);
+        PERCEPTION_AND_SAVES_SCALES = new ScaleMap(
+            new PiecewiseFunction( // Extreme
+                new PolynomialFunction(i->i<=1, 1, 10),
+                extremePerceptionCenter,
+                new PolynomialFunction(i->i>=20, 1.7, 5.2)),
+            new PiecewiseFunction( // High
+                new PolynomialFunction(i -> i <= 1, 1, 9),
+                new PolynomialFunction(i -> i >= 1 && i <= 20, 1.376623377, 8.369242424),
+                new PolynomialFunction(i -> i >= 20, 1.4, 8.2)),
+            new PiecewiseFunction( // Moderate
+                new PolynomialFunction(i->i<=1, 1, 6),
+                    modPerceptionCenter,
+                new PolynomialFunction(i->i>=20, 1.7, 5.2)),
+            new PiecewiseFunction( // Low
+                new PolynomialFunction(i->i<=1, 1, 3),
+                new ShiftedFunction(modPerceptionCenter, -3),
+                new PolynomialFunction(i->i>=20, 1.4, 2.2)),
+            terriblePerceptionScale
+        );
+
+        PiecewiseFunction extremeSkillScale = new PiecewiseFunction( // Extreme
+                new PolynomialFunction(i -> i <= 1, 1, 9),
+                new RepeatingStepFunction(10, 1, 20, 1, 2, 2),
+                new PolynomialFunction(i -> i >= 20, 1.7, 7.2));
+        PiecewiseFunction moderateSkillScale = new PiecewiseFunction( // Moderate
+                new PolynomialFunction(i -> i <= 1, 1, 5),
+                new ShiftedFunction(extremePerceptionCenter, -5),
+                new PolynomialFunction(i -> i >= 20, 1.4, 6.2));
+        SKILL_SCALES = new ScaleMap(
+            extremeSkillScale,
+            new ShiftedFunction(extremeSkillScale, -3),
+            moderateSkillScale,
+            new ShiftedFunction(moderateSkillScale, -2),
+            new ShiftedFunction(terriblePerceptionScale, +1)
+        );
+
+        PiecewiseFunction acScale = new PiecewiseFunction(
+                new PolynomialFunction(i -> i <= 1, .5, 18.666666),
+                new PolynomialFunction(1.5, 17.75)
+        );
+
+        AC_SCALES = new ScaleMap(
+            acScale,
+            new ShiftedFunction(acScale, -3),
+            new ShiftedFunction(acScale, -4),
+            new ShiftedFunction(acScale, -6)
         );
     }
 
