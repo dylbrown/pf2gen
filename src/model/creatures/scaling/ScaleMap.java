@@ -1,14 +1,33 @@
 package model.creatures.scaling;
 
+import model.ability_scores.AbilityScore;
+import model.attributes.BaseAttribute;
 import model.util.TransformationMap;
 import model.util.Triple;
 
+import java.util.Arrays;
 import java.util.TreeMap;
 import java.util.function.Function;
 
 public class ScaleMap {
     public static ScaleMap ABILITY_MODIFIER_SCALES, PERCEPTION_AND_SAVES_SCALES, SKILL_SCALES, AC_SCALES;
 
+    public static ScaleMap get(String target) {
+        if(AbilityScore.robustValueOf(target) != AbilityScore.None)
+            return ABILITY_MODIFIER_SCALES;
+        if(target.equalsIgnoreCase("ac"))
+            return AC_SCALES;
+        try{
+            BaseAttribute attribute = BaseAttribute.robustValueOf(target);
+            return get(attribute);
+        }catch(Exception ignored){}
+        return null;
+    }
+    public static ScaleMap get(BaseAttribute attribute) {
+        if(Arrays.asList(BaseAttribute.getSaves()).contains(attribute) || attribute == BaseAttribute.Perception)
+            return PERCEPTION_AND_SAVES_SCALES;
+        return SKILL_SCALES;
+    }
     static {
         ABILITY_MODIFIER_SCALES = new ScaleMap(
             new PiecewiseFunction( // Extreme

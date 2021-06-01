@@ -1,54 +1,46 @@
-package ui.controllers;
+package ui.controllers.util;
 
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.web.WebView;
+import model.ability_slots.Choice;
+import model.ability_slots.ChoiceList;
+import model.util.ObservableUtils;
 
-import java.util.function.Consumer;
+import java.util.Objects;
 import java.util.function.Function;
 
-public class SingleChoicePageController<T> {
-    private final ReadOnlyObjectProperty<T> value;
-    private final Consumer<T> adder;
+public class ChoicePageController<T> {
     private final Function<T, String> htmlGenerator;
+    private final Choice<T> choice;
     @FXML
     private ListView<T> options, chosen;
     @FXML
     private WebView preview;
     private final ObservableList<T> optionsList;
 
-    SingleChoicePageController(ObservableList<T> options, ReadOnlyObjectProperty<T> value,
-                               Consumer<T> adder, Function<T, String> htmlGenerator) {
+    public ChoicePageController(ObservableList<T> options, Choice<T> choice, Function<T, String> htmlGenerator) {
         optionsList = options;
-        this.value = value;
-        this.adder = adder;
+        this.choice = choice;
         this.htmlGenerator = htmlGenerator;
+    }
+
+    ChoicePageController(ChoiceList<T> choice, Function<T, String> htmlGenerator) {
+        this(ObservableUtils.makeList(choice.getOptions()), choice, htmlGenerator);
     }
 
     @FXML
     private void initialize() {
-        preview.getEngine().setUserStyleSheetLocation(getClass().getResource("/webview_style.css").toString());
+        preview.getEngine().setUserStyleSheetLocation(
+                Objects.requireNonNull(getClass().getResource("/webview_style.css")).toString());
         this.options.setItems(optionsList);
-        if (value.get() != null)
-            chosen.getItems().add(value.get());
-        value.addListener((o, oldVal, newVal) -> {
-            if (newVal != null) {
-                if(chosen.getItems().size() == 0)
-                    chosen.getItems().add(newVal);
-                else
-                    chosen.getItems().set(0, newVal);
-            } else {
-                chosen.getItems().clear();
-            }
-        });
+        this.chosen.setItems(choice.getSelections());
         options.setOnMouseClicked(e->{
             T selectedItem = options.getSelectionModel().getSelectedItem();
             if(selectedItem != null) {
                 if(e.getClickCount() == 2){
-                    adder.accept(null);
-                    adder.accept(selectedItem);
+                    choice.add(selectedItem);
                 }
             }
         });
@@ -62,7 +54,7 @@ public class SingleChoicePageController<T> {
             if(selectedItem != null) {
                 preview.getEngine().loadContent(htmlGenerator.apply(selectedItem));
                 if(e.getClickCount() == 2)
-                    adder.accept(null);
+                    choice.remove(selectedItem);
             }
         });
     }

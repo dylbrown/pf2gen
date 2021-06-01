@@ -4,14 +4,18 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
+import model.attributes.BaseAttribute;
 import model.creatures.CustomAttack;
 import model.creatures.CustomCreatureCreator;
 import model.creatures.CustomCreatureValue;
-import model.creatures.scaling.ScaleMap;
 import model.data_managers.sources.SourcesLoader;
 import model.enums.Alignment;
 import model.enums.Size;
+import ui.controllers.ChoicePopupController;
+import ui.controls.Popup;
 import ui.controls.lists.entries.CreatureChoiceCell;
+
+import java.util.Arrays;
 
 public class CreatureTabController {
 
@@ -28,11 +32,7 @@ public class CreatureTabController {
     @FXML
     private ListView<CustomCreatureValue<AbilityScore>> abilityScores;
     @FXML
-    private Button traitsButton;
-    @FXML
-    private Button languagesButton;
-    @FXML
-    private Button weakResistButton;
+    private Button traitsButton, languagesButton, weakResistButton, skillsButton;
     @FXML
     private ListView<CustomAttack> strikesList;
     @FXML
@@ -52,11 +52,20 @@ public class CreatureTabController {
         creatureCreator.size.bind(size.valueProperty());
 
         abilityScores.setItems(creatureCreator.getAbilityScores());
+        coreAttributes.getItems().addAll(Arrays.asList(
+                creatureCreator.getOrCreateModifier(BaseAttribute.Fortitude),
+                creatureCreator.getOrCreateModifier(BaseAttribute.Reflex),
+                creatureCreator.getOrCreateModifier(BaseAttribute.Will),
+                creatureCreator.getOrCreateModifier(BaseAttribute.Perception)
+        ));
 
-        abilityScores.setCellFactory(listView -> new CreatureChoiceCell<>(creatureCreator.level,
-                ScaleMap.ABILITY_MODIFIER_SCALES));
-        //coreAttributes.setCellFactory(listView -> new CreatureChoiceCell<>());
-        //skills.setCellFactory(listView -> new CreatureChoiceCell<>());
+        skillsButton.setOnAction(e-> Popup.popup("/fxml/choicePagePopup.fxml",
+                new ChoicePopupController<>(creatureCreator.getSkillsChoice(), (a)->"")));
+        skills.setItems(creatureCreator.getSkills());
+
+        abilityScores.setCellFactory(listView -> new CreatureChoiceCell<>(creatureCreator.level));
+        coreAttributes.setCellFactory(listView -> new CreatureChoiceCell<>(creatureCreator.level));
+        skills.setCellFactory(listView -> new CreatureChoiceCell<>(creatureCreator.level));
         //spells.setCellFactory(listView -> new CreatureChoiceCell<>());
     }
 }

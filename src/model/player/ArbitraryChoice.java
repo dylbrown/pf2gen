@@ -48,10 +48,11 @@ public class ArbitraryChoice<T> implements ChoiceList<T> {
 
     @Override
     public void add(T choice) {
-        if(this.selections.size() < maxSelections.get() && this.choices.contains(choice) &&
+        if ((this.selections.size() < maxSelections.get() || maxSelections.get() < 0) &&
+                this.choices.contains(choice) &&
                 (this.multipleSelect || !this.selections.contains(choice))) {
             this.selections.add(choice);
-            if(fillFunction != null)
+            if (fillFunction != null)
                 fillFunction.accept(choice);
         }
     }

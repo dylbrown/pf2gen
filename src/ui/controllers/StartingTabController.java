@@ -7,6 +7,7 @@ import javafx.fxml.FXML;
 import model.CharacterManager;
 import model.player.PC;
 import model.setting.Deity;
+import ui.controllers.util.PropertyChoicePageController;
 import ui.html.ABCHTMLGenerator;
 import ui.html.SettingHTMLGenerator;
 
@@ -56,12 +57,12 @@ public class StartingTabController extends SubTabController {
 
     <T> void addTab(String name, ObservableList<T> options, ReadOnlyObjectProperty<T> value,
                     Consumer<T> adder, Function<T, String> htmlGenerator) {
-        addTab(name, new SingleChoicePageController<>(options, value, adder, htmlGenerator));
+        addTab(name, new PropertyChoicePageController<>(options, value, adder, htmlGenerator));
     }
 
     @Override
     String getTabPath() {
-        return "/fxml/singleChoicePage.fxml";
+        return "/fxml/choicePage.fxml";
     }
 
     public void navigate(List<String> path) {

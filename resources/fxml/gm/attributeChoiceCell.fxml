@@ -6,21 +6,20 @@
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
 
 <AnchorPane fx:id="cell" styleClass="custom-cell-graphic" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <right>
-         <HBox alignment="CENTER_RIGHT" BorderPane.alignment="CENTER_RIGHT">
-            <Slider fx:id="slider" />
-            <Spinner fx:id="spinner" editable="true" prefWidth="60.0" HBox.hgrow="NEVER">
-               <HBox.margin>
-                  <Insets left="5.0" />
-               </HBox.margin></Spinner>
-         </HBox>
+         <Spinner fx:id="spinner" editable="true" prefWidth="60.0" />
       </right>
+      <left>
+         <Label fx:id="label" text="Attribute Name" BorderPane.alignment="CENTER">
+            <padding>
+               <Insets right="10.0" />
+            </padding></Label>
+      </left>
       <center>
-         <Label fx:id="label" text="Attribute Name" BorderPane.alignment="CENTER_LEFT" />
+         <Slider fx:id="slider" maxWidth="200.0" BorderPane.alignment="CENTER_RIGHT" />
       </center>
    </BorderPane>
 </AnchorPane>

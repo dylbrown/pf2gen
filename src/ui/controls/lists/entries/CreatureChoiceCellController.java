@@ -2,6 +2,7 @@ package ui.controls.lists.entries;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,7 +23,8 @@ import java.util.concurrent.Semaphore;
 public class CreatureChoiceCellController<T> {
     private final ObjectProperty<Integer> spinnerValueProperty;
     private final IntegerProperty level;
-    private final ScaleMap scaleMap;
+    private final ChangeListener<Number> onItemChange;
+    private ScaleMap scaleMap = null;
     @FXML
     private AnchorPane cell;
     @FXML
@@ -34,10 +36,10 @@ public class CreatureChoiceCellController<T> {
     private CustomCreatureValue<T> item;
     Semaphore changingValue = new Semaphore(1);
 
-    public CreatureChoiceCellController(IntegerProperty level, ScaleMap scaleMap)
+    public CreatureChoiceCellController(IntegerProperty level)
     {
         this.level = level;
-        this.scaleMap = scaleMap;
+        this.onItemChange = this::onItemChange;
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/gm/attributeChoiceCell.fxml"));
         fxmlLoader.setController(this);
         try {
@@ -51,7 +53,6 @@ public class CreatureChoiceCellController<T> {
         slider.setSnapToTicks(true);
         slider.setMinorTickCount(0);
         slider.setMajorTickUnit(1);
-        updateSlider(scaleMap, level.get());
 
         SpinnerValueFactory.IntegerSpinnerValueFactory factory = new SpinnerValueFactory.IntegerSpinnerValueFactory(Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
         spinner.setValueFactory(factory);
@@ -105,10 +106,13 @@ public class CreatureChoiceCellController<T> {
     }
 
     private void updateSlider(ScaleMap scaleMap, int level) {
+        if(scaleMap == null)
+            return;
         slider.setMin(scaleMap.getMin(level));
         slider.setMax(scaleMap.get(Scale.Extreme, level));
         slider.setMajorTickUnit(.5);
         slider.setMajorTickUnit(1);
+        slider.setValue(spinnerValueProperty.getValue());
     }
 
     public Node getCell() {
@@ -117,14 +121,20 @@ public class CreatureChoiceCellController<T> {
 
     public void setItem(CustomCreatureValue<T> item) {
         if(item != this.item) {
+            if(!changingValue.tryAcquire())
+                throw new RuntimeException("Failed to acquire change when setting item");
+            if(item != null)
+                scaleMap = ScaleMap.get(item.getTargetString());
+            updateSlider(scaleMap, level.get());
             if(this.item != null)
-                this.item.modifier.removeListener(this::onItemChange);
+                this.item.modifier.removeListener(onItemChange);
             this.item = item;
             if(item != null) {
                 spinnerValueProperty.setValue(item.getModifier());
                 label.setText(item.getTargetString());
-                this.item.modifier.addListener(this::onItemChange);
+                this.item.modifier.addListener(onItemChange);
             }
+            changingValue.release();
         }
     }
 }

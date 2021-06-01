@@ -3,15 +3,18 @@ package model.creatures;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import model.abilities.Ability;
 import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
+import model.attributes.BaseAttribute;
 import model.creatures.scaling.ScaleMap;
 import model.enums.Alignment;
 import model.enums.Language;
 import model.enums.Size;
 import model.enums.Trait;
+import model.player.ArbitraryChoice;
 import model.player.SourcesManager;
 import model.util.*;
 
@@ -27,6 +30,7 @@ public class CustomCreatureCreator {
     private final ObservableList<ObservableValue<Trait>> traits = FXCollections.observableArrayList();
     public final Map<Attribute, CustomCreatureValue<Attribute>> modifiers = new HashMap<>();
     private final ObservableList<CustomCreatureValue<AbilityScore>> abilityModifiers = FXCollections.observableArrayList();
+    private final ObservableList<CustomCreatureValue<Attribute>> skills = FXCollections.observableArrayList();
     private final List<Language> languages = new ArrayList<>();
     private final List<CreatureItem> items = new ArrayList<>();
     private int ac = 0;
@@ -47,6 +51,8 @@ public class CustomCreatureCreator {
     private final List<CreatureSpellList> spells = new ArrayList<>();
     private final SourcesManager sources;
     private final CustomCreature creature = new CustomCreature();
+    private final ArbitraryChoice<Attribute> skillsChoice;
+
 
     public CustomCreatureCreator(SourcesManager sources) {
         this.sources = sources;
@@ -54,6 +60,25 @@ public class CustomCreatureCreator {
         addTraitHookup(size);
         AbilityScore.scores().forEach(a->abilityModifiers.add(
                 new CustomCreatureValue<>(a, AbilityScore::toFullName, level.getReadOnlyProperty(), ScaleMap.ABILITY_MODIFIER_SCALES)));
+
+        ArbitraryChoice.Builder<Attribute> skillsChoiceBuilder = new ArbitraryChoice.Builder<>();
+        skillsChoiceBuilder.setChoicesConstant(Arrays.asList(BaseAttribute.getSkills()));
+        skillsChoiceBuilder.setMaxSelections(-1);
+        skillsChoiceBuilder.setOptionsClass(Attribute.class);
+        skillsChoiceBuilder.setName("Choose Skills");
+        skillsChoice = skillsChoiceBuilder.build();
+
+        skillsChoice.getSelections().addListener((ListChangeListener<Attribute>) change -> {
+            while(change.next()) {
+                for (Attribute attribute : change.getAddedSubList()) {
+                    skills.add(getOrCreateModifier(attribute));
+                }
+                for (Attribute attribute : change.getRemoved()) {
+                    modifiers.remove(attribute);
+                    skills.removeIf(v->v.target == attribute);
+                }
+            }
+        });
     }
 
     private <T> void addTraitHookup(ObjectProperty<T> property) {
@@ -67,8 +92,8 @@ public class CustomCreatureCreator {
         }));
     }
 
-    public CustomCreatureValue<Attribute> getModifier(Attribute attribute) {
-        return modifiers.computeIfAbsent(attribute, a->new CustomCreatureValue<>(a, level, null)); // TODO: ScaleMap
+    public CustomCreatureValue<Attribute> getOrCreateModifier(Attribute attribute) {
+        return modifiers.computeIfAbsent(attribute, a->new CustomCreatureValue<>(a, level, ScaleMap.get(attribute.getBase())));
     }
 
     public CustomCreature getCreature() {
@@ -77,6 +102,16 @@ public class CustomCreatureCreator {
 
     public ObservableList<CustomCreatureValue<AbilityScore>> getAbilityScores() {
         return abilityModifiers;
+    }
+
+    public ArbitraryChoice<Attribute> getSkillsChoice() {
+        return skillsChoice;
+    }
+
+    private final ObservableList<CustomCreatureValue<Attribute>> unmodifiableSkills =
+            FXCollections.unmodifiableObservableList(skills);
+    public ObservableList<CustomCreatureValue<Attribute>> getSkills() {
+        return unmodifiableSkills;
     }
 
     private class CustomCreature implements Creature {

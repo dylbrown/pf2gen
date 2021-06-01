@@ -78,9 +78,14 @@
       </Label>
       <Button fx:id="languagesButton" mnemonicParsing="false" text="Select..." GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
       <Button fx:id="weakResistButton" mnemonicParsing="false" text="Select..." GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
-      <Label text="Attributes" GridPane.columnSpan="4" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
+      <Label text="Attributes" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="4">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Label>
       <ListView fx:id="strikesList" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="4" GridPane.columnSpan="4" GridPane.rowIndex="1" GridPane.rowSpan="3" />
       <Label text="Strikes" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.halignment="CENTER" />
       <Button fx:id="addStrike" alignment="CENTER" mnemonicParsing="false" text="Add Strike" GridPane.columnIndex="6" GridPane.columnSpan="2" GridPane.halignment="RIGHT" />
+      <Button fx:id="skillsButton" mnemonicParsing="false" text="Select..." GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
+      <Label text="Skills" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" />
      </GridPane>
 </AnchorPane>

@@ -4,7 +4,6 @@ import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.TreeItem;
@@ -14,6 +13,7 @@ import javafx.scene.web.WebView;
 import model.ability_slots.Choice;
 import model.ability_slots.ChoiceList;
 import model.util.FilteredSelectionList;
+import model.util.ObservableUtils;
 import model.util.Pair;
 import model.util.StringUtils;
 import ui.controls.lists.ObservableCategoryEntryList;
@@ -181,17 +181,12 @@ public class SelectionPane<T, U extends ListEntry<T>> extends BorderPane {
 
         public void setChoice(Choice<T> choice) {
             if(choice instanceof ChoiceList)
-                setOptions(makeList(((ChoiceList<T>) choice).getOptions()));
+                setOptions(ObservableUtils.makeList(((ChoiceList<T>) choice).getOptions()));
             this.choice = choice;
-        }
-        protected static <T> ObservableList<T> makeList(List<T> options) {
-            if(options instanceof ObservableList)
-                return (ObservableList<T>) options;
-            return FXCollections.observableArrayList(options);
         }
 
         public void setOptions(List<T> options) {
-            setOptions(makeList(options));
+            setOptions(ObservableUtils.makeList(options));
         }
 
         public void setOptions(ObservableList<T> options) {
