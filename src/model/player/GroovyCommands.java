@@ -107,11 +107,11 @@ class GroovyCommands {
             abilities.remove(slots.remove(name));
         }
     }
-    public void bonus(String str, Integer num) {
+    public void bonus(String str, Number num) {
         if(applying.get()) {
-            mods.merge(str, num, Integer::sum);
+            mods.merge(str, num.intValue(), Integer::sum);
         } else {
-            mods.merge(str, num, (oldInt, newInt)->oldInt-newInt);
+            mods.merge(str, num.intValue(), (oldInt, newInt)->oldInt-newInt);
         }
     }
     public void proficiency(String attr, String prof) {
