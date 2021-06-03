@@ -167,7 +167,7 @@ public class AbilityManager implements PlayerState {
 							break;
 						}else if (pClass.get() != null) {
 							results.addAll(pClass.get().getFeats(maxLevel));
-							results.addAll(sources.feats().getCategory(pClass.getName()).values());
+							results.addAll(sources.feats().getCategory(pClass.get().getName()).values());
 						}
 					case "archetype":
 						for (Ability a : sources.feats().getCategory("Archetype").values()) {
