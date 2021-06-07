@@ -106,8 +106,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     .setCost(Action.robustValueOf(element.getAttribute("cost")));
         }
         builder.setName(name);
-        if(!element.getAttribute("page").equals(""))
-            builder.setPage(Integer.parseInt(element.getAttribute("page")));
+        setSource(builder, element);
         String levelString = element.getAttribute("level");
         if(!levelString.equals("")) {
             if(levelString.endsWith("+")){

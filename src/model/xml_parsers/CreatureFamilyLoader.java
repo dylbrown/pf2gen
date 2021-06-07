@@ -18,7 +18,7 @@ public class CreatureFamilyLoader extends FileLoader<CreatureFamily> {
     protected CreatureFamily parseItem(File file, Element item) {
         CreatureFamily.Builder builder = new CreatureFamily.Builder();
         NodeList childNodes = item.getChildNodes();
-        builder.setPage(Integer.parseInt(item.getAttribute("page")));
+        setSource(builder, item);
         for(int i = 0; i < childNodes.getLength(); i++) {
             if(childNodes.item(i).getNodeType() != Node.ELEMENT_NODE)
                 continue;

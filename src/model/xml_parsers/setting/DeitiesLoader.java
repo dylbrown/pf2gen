@@ -29,7 +29,7 @@ public class DeitiesLoader extends FileLoader<Deity> {
     protected Deity parseItem(File file, Element deity) {
         NodeList nodeList = deity.getChildNodes();
         Deity.Builder builder = new Deity.Builder();
-        builder.setPage(Integer.parseInt(deity.getAttribute("page")));
+        setSource(builder, deity);
         for (int i = 0; i < nodeList.getLength(); i++) {
             if (nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)
                 continue;

@@ -41,9 +41,9 @@ public class CreatureLoader extends AbilityLoader<Creature> {
     @Override
     protected Creature parseItem(File file, Element item) {
         BaseCreature.Builder builder = new BaseCreature.Builder();
+        setSource(builder, item);
         NodeList childNodes = item.getChildNodes();
         builder.setLevel(Integer.parseInt(item.getAttribute("level")));
-        builder.setPage(Integer.parseInt(item.getAttribute("page")));
         for(int i = 0; i < childNodes.getLength(); i++) {
             if(childNodes.item(i).getNodeType() != Node.ELEMENT_NODE)
                 continue;

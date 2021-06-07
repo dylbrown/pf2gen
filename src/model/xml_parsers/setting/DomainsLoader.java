@@ -22,7 +22,7 @@ public class DomainsLoader extends FileLoader<Domain> {
     protected Domain parseItem(File file, Element domain) {
         NodeList nodeList = domain.getChildNodes();
         Domain.Builder builder = new Domain.Builder();
-        builder.setPage(Integer.parseInt(domain.getAttribute("page")));
+        setSource(builder, domain);
         for(int i=0; i<nodeList.getLength(); i++) {
             if(nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)
                 continue;

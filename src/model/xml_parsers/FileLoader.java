@@ -1,5 +1,6 @@
 package model.xml_parsers;
 
+import model.AbstractNamedObject;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
 import model.data_managers.sources.SourceLoadTracker;
@@ -132,6 +133,13 @@ public abstract class FileLoader<T> {
         if(loadTracker.isNotLoaded(category))
             load(category, "");
         return Collections.unmodifiableNavigableMap(getCategoryInternal(category));
+    }
+
+    protected <X extends AbstractNamedObject.Builder> void setSource(X builder, Element element) {
+        if(source != null)
+            builder.setSourceBook(source.getName());
+        if(!element.getAttribute("page").equals(""))
+            builder.setPage(Integer.parseInt(element.getAttribute("page")));
     }
 
     private NavigableMap<String, T> getCategoryInternal(String category) {

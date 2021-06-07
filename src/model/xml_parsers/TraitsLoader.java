@@ -44,7 +44,7 @@ public class TraitsLoader extends FileLoader<Trait> {
     protected Trait parseItem(File file, Element item, String category) {
         NodeList nodeList = item.getChildNodes();
         Trait.Builder builder = new Trait.Builder();
-        builder.setPage(Integer.parseInt(item.getAttribute("page")));
+        setSource(builder, item);
         builder.setCategory(category);
         for (int i = 0; i < nodeList.getLength(); i++) {
             if (nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)
