@@ -5,10 +5,11 @@ import model.abc.Background;
 import model.abc.PClass;
 import model.abilities.Ability;
 import model.creatures.Creature;
+import model.enums.Trait;
 import model.items.Item;
-import model.spells.Spell;
 import model.setting.Deity;
 import model.setting.Domain;
+import model.spells.Spell;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +44,7 @@ public class HTMLGenerator {
         add(Ability.class, AbilityHTMLGenerator::parse);
         add(Spell.class, s -> SpellHTMLGenerator.parse(s, s.getLevelOrCantrip()));
         add(Creature.class, CreatureHTMLGenerator::parse);
+        add(Trait.class, TraitHTMLGenerator::parse);
     }
     private <T> void add(Class<T> tClass, Function<T, String> generator) {
         generators.put(tClass, new GeneratorPair<>(tClass, generator));

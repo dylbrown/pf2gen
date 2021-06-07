@@ -31,7 +31,6 @@ public class CustomCreatureCreator {
     public final Map<Attribute, CustomCreatureValue<Attribute>> modifiers = new HashMap<>();
     private final ObservableList<CustomCreatureValue<AbilityScore>> abilityModifiers = FXCollections.observableArrayList();
     private final ObservableList<CustomCreatureValue<Attribute>> skills = FXCollections.observableArrayList();
-    private final List<Language> languages = new ArrayList<>();
     private final List<CreatureItem> items = new ArrayList<>();
     private int ac = 0;
     private int hp = 0;
@@ -51,6 +50,8 @@ public class CustomCreatureCreator {
     private final List<CreatureSpellList> spells = new ArrayList<>();
     private final SourcesManager sources;
     private final CustomCreature creature = new CustomCreature();
+    private final ArbitraryChoice<Trait> traitsChoice;
+    private final ArbitraryChoice<Language> languagesChoice;
     private final ArbitraryChoice<Attribute> skillsChoice;
 
 
@@ -60,6 +61,23 @@ public class CustomCreatureCreator {
         addTraitHookup(size);
         AbilityScore.scores().forEach(a->abilityModifiers.add(
                 new CustomCreatureValue<>(a, AbilityScore::toFullName, level.getReadOnlyProperty(), ScaleMap.ABILITY_MODIFIER_SCALES)));
+
+        ArbitraryChoice.Builder<Trait> traitsChoiceBuilder = new ArbitraryChoice.Builder<>();
+        ObservableList<Trait> traits = FXCollections.observableArrayList();
+        traits.addAll(sources.traits().getCategory("ancestry").values());
+        traits.addAll(sources.traits().getCategory("monster").values());
+        traitsChoiceBuilder.setChoices(traits);
+        traitsChoiceBuilder.setMaxSelections(-1);
+        traitsChoiceBuilder.setOptionsClass(Trait.class);
+        traitsChoiceBuilder.setName("Choose Traits");
+        traitsChoice = traitsChoiceBuilder.build();
+
+        ArbitraryChoice.Builder<Language> languagesChoiceBuilder = new ArbitraryChoice.Builder<>();
+        languagesChoiceBuilder.setChoicesConstant(Arrays.asList(Language.values()));
+        languagesChoiceBuilder.setMaxSelections(-1);
+        languagesChoiceBuilder.setOptionsClass(Language.class);
+        languagesChoiceBuilder.setName("Choose Languages");
+        languagesChoice = languagesChoiceBuilder.build();
 
         ArbitraryChoice.Builder<Attribute> skillsChoiceBuilder = new ArbitraryChoice.Builder<>();
         skillsChoiceBuilder.setChoicesConstant(Arrays.asList(BaseAttribute.getSkills()));
@@ -104,6 +122,14 @@ public class CustomCreatureCreator {
         return abilityModifiers;
     }
 
+    public ArbitraryChoice<Trait> getTraitsChoice() {
+        return traitsChoice;
+    }
+
+    public ArbitraryChoice<Language> getLanguagesChoice() {
+        return languagesChoice;
+    }
+
     public ArbitraryChoice<Attribute> getSkillsChoice() {
         return skillsChoice;
     }
@@ -142,8 +168,8 @@ public class CustomCreatureCreator {
             return Collections.unmodifiableMap(abilityModifierInts);
         }
 
-        public List<Language> getLanguages() {
-            return Collections.unmodifiableList(languages);
+        public ObservableList<Language> getLanguages() {
+            return FXCollections.unmodifiableObservableList(languagesChoice.getSelections());
         }
 
         public String getSpecialLanguages() {

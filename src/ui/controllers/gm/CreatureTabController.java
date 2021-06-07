@@ -11,9 +11,11 @@ import model.creatures.CustomCreatureValue;
 import model.data_managers.sources.SourcesLoader;
 import model.enums.Alignment;
 import model.enums.Size;
+import model.enums.Trait;
 import ui.controllers.ChoicePopupController;
 import ui.controls.Popup;
 import ui.controls.lists.entries.CreatureChoiceCell;
+import ui.html.HTMLGenerator;
 
 import java.util.Arrays;
 
@@ -59,8 +61,16 @@ public class CreatureTabController {
                 creatureCreator.getOrCreateModifier(BaseAttribute.Perception)
         ));
 
+        traitsButton.setOnAction(e-> Popup.popup("/fxml/choicePagePopup.fxml",
+                new ChoicePopupController<>(creatureCreator.getTraitsChoice(),
+                        HTMLGenerator.getGenerator(Trait.class))));
+
+        languagesButton.setOnAction(e-> Popup.popup("/fxml/choicePagePopup.fxml",
+                new ChoicePopupController<>(creatureCreator.getLanguagesChoice(), (l)->"")));
+
         skillsButton.setOnAction(e-> Popup.popup("/fxml/choicePagePopup.fxml",
                 new ChoicePopupController<>(creatureCreator.getSkillsChoice(), (a)->"")));
+
         skills.setItems(creatureCreator.getSkills());
 
         abilityScores.setCellFactory(listView -> new CreatureChoiceCell<>(creatureCreator.level));
