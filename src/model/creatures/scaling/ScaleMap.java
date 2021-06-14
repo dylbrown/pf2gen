@@ -10,11 +10,13 @@ import java.util.TreeMap;
 import java.util.function.Function;
 
 public class ScaleMap {
-    public static ScaleMap ABILITY_MODIFIER_SCALES, PERCEPTION_AND_SAVES_SCALES, SKILL_SCALES, AC_SCALES;
+    public static ScaleMap ABILITY_MODIFIER_SCALES, PERCEPTION_AND_SAVES_SCALES, SKILL_SCALES, AC_SCALES, ATTACK_BONUS_SCALES;
 
     public static ScaleMap get(String target) {
         if(AbilityScore.robustValueOf(target) != AbilityScore.None)
             return ABILITY_MODIFIER_SCALES;
+        if(target.equalsIgnoreCase("attack"))
+            return ATTACK_BONUS_SCALES;
         if(target.equalsIgnoreCase("ac"))
             return AC_SCALES;
         try{
@@ -96,6 +98,22 @@ public class ScaleMap {
             new ShiftedFunction(acScale, -3),
             new ShiftedFunction(acScale, -4),
             new ShiftedFunction(acScale, -6)
+        );
+
+        PiecewiseFunction highAttackBonusScale = new PiecewiseFunction(
+                new PolynomialFunction(i -> i <= 1, .5, 8.3333),
+                new ShiftedFunction(acScale, -10));
+
+        ATTACK_BONUS_SCALES = new ScaleMap(
+                new PointReplacementFunction(
+                    new ShiftedFunction(highAttackBonusScale, 2),
+                        11, 27.0 /* One weird outlier */),
+                highAttackBonusScale,
+                new ShiftedFunction(highAttackBonusScale, -2),
+                new PiecewiseFunction(
+                        new PolynomialFunction(i -> i <= 1, .5, 4.333),
+                        new RepeatingStepFunction(5, 1, 20, 2, 1, 1),
+                        new PolynomialFunction(i -> i >= 20, 4d/3, 4.8))
         );
     }
 

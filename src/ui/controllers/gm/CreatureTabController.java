@@ -5,7 +5,7 @@ import javafx.scene.control.*;
 import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
 import model.attributes.BaseAttribute;
-import model.creatures.CustomAttack;
+import model.creatures.CustomStrike;
 import model.creatures.CustomCreatureCreator;
 import model.creatures.CustomCreatureValue;
 import model.data_managers.sources.SourcesLoader;
@@ -15,6 +15,7 @@ import model.enums.Trait;
 import ui.controllers.ChoicePopupController;
 import ui.controls.Popup;
 import ui.controls.lists.entries.CreatureChoiceCell;
+import ui.controls.lists.entries.CustomStrikeCell;
 import ui.html.HTMLGenerator;
 
 import java.util.Arrays;
@@ -36,7 +37,7 @@ public class CreatureTabController {
     @FXML
     private Button traitsButton, languagesButton, weakResistButton, skillsButton;
     @FXML
-    private ListView<CustomAttack> strikesList;
+    private ListView<CustomStrike> strikesList;
     @FXML
     private Button addStrike;
     @FXML
@@ -73,9 +74,14 @@ public class CreatureTabController {
 
         skills.setItems(creatureCreator.getSkills());
 
+        addStrike.setOnAction(e->creatureCreator.getStrikes().add(new CustomStrike(creatureCreator.level)));
+
+        strikesList.setItems(creatureCreator.getStrikes());
+
         abilityScores.setCellFactory(listView -> new CreatureChoiceCell<>(creatureCreator.level));
         coreAttributes.setCellFactory(listView -> new CreatureChoiceCell<>(creatureCreator.level));
         skills.setCellFactory(listView -> new CreatureChoiceCell<>(creatureCreator.level));
         //spells.setCellFactory(listView -> new CreatureChoiceCell<>());
+        strikesList.setCellFactory(listView -> new CustomStrikeCell(creatureCreator.level, s->strikesList.getItems().remove(s)));
     }
 }

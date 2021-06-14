@@ -1,24 +1,29 @@
 package model.creatures;
 
-import javafx.beans.property.ReadOnlyIntegerWrapper;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import model.creatures.scaling.ScaleMap;
 import model.enums.Trait;
 
 import java.util.List;
 
-public class CustomAttack implements Attack {
+public class CustomStrike implements Attack {
     public final ReadOnlyStringWrapper name = new ReadOnlyStringWrapper("");
-    public final ReadOnlyIntegerWrapper modifier = new ReadOnlyIntegerWrapper(0);
+    public final CustomCreatureValue<String> modifier;
     public List<Trait> traits;
     public final ReadOnlyStringWrapper damage = new ReadOnlyStringWrapper("");
     public AttackType attackType;
+
+    public CustomStrike(IntegerProperty level) {
+        modifier = new CustomCreatureValue<>("Attack", level, ScaleMap.ATTACK_BONUS_SCALES);
+    }
 
     public String getName() {
         return name.get();
     }
 
     public int getModifier() {
-        return modifier.get();
+        return modifier.getModifier();
     }
 
     public List<Trait> getTraits() {

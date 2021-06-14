@@ -46,7 +46,7 @@ public class CustomCreatureCreator {
     private final List<Ability> miscAbilities = new ArrayList<>();
     private final List<Ability> defensiveAbilities = new ArrayList<>();
     private final List<Ability> offensiveAbilities = new ArrayList<>();
-    private final List<Attack> attacks = new ArrayList<>();
+    private final ObservableList<CustomStrike> strikes = FXCollections.observableArrayList();
     private final List<CreatureSpellList> spells = new ArrayList<>();
     private final SourcesManager sources;
     private final CustomCreature creature = new CustomCreature();
@@ -138,6 +138,10 @@ public class CustomCreatureCreator {
             FXCollections.unmodifiableObservableList(skills);
     public ObservableList<CustomCreatureValue<Attribute>> getSkills() {
         return unmodifiableSkills;
+    }
+
+    public ObservableList<CustomStrike> getStrikes() {
+        return strikes;
     }
 
     private class CustomCreature implements Creature {
@@ -237,7 +241,7 @@ public class CustomCreatureCreator {
         }
 
         public List<Attack> getAttacks() {
-            return Collections.unmodifiableList(attacks);
+            return Collections.unmodifiableList(strikes);
         }
 
         public List<CreatureSpellList> getSpells() {

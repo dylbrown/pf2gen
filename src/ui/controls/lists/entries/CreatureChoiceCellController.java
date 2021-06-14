@@ -131,6 +131,7 @@ public class CreatureChoiceCellController<T> {
             this.item = item;
             if(item != null) {
                 spinnerValueProperty.setValue(item.getModifier());
+                slider.setValue(item.getModifier());
                 label.setText(item.getTargetString());
                 this.item.modifier.addListener(onItemChange);
             }
