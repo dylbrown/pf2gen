@@ -9,6 +9,6 @@ public enum DamageType {
 
     Bleed,
 
-    Lawful, Chaotic, Good, Evil
+    Lawful, Chaotic, Good, Multiple, Evil
 
 }

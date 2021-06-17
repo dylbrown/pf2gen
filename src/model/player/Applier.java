@@ -5,62 +5,61 @@ import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
-import model.abilities.Ability;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-class Applier {
-	private final List<Consumer<Ability>> preApplyFns = new ArrayList<>();
-	private final List<Consumer<Ability>> applyFns = new ArrayList<>();
-	private final List<Consumer<Ability>> preRemoveFns = new ArrayList<>();
-	private final List<Consumer<Ability>> removeFns = new ArrayList<>();
+class Applier<T> {
+	private final List<Consumer<T>> preApplyFns = new ArrayList<>();
+	private final List<Consumer<T>> applyFns = new ArrayList<>();
+	private final List<Consumer<T>> preRemoveFns = new ArrayList<>();
+	private final List<Consumer<T>> removeFns = new ArrayList<>();
 	private final BooleanProperty isLooping = new SimpleBooleanProperty(false);
-	private Ability mostRecentAbility = null;
+	private T mostRecentT = null;
 
-	void preApply(Ability ability) {
-		process(ability, preApplyFns);
+	void preApply(T t) {
+		process(t, preApplyFns);
 	}
 
-	void apply(Ability ability) {
-		process(ability, applyFns);
+	void apply(T t) {
+		process(t, applyFns);
 	}
 
-	void preRemove(Ability ability) {
-		process(ability, preRemoveFns);
+	void preRemove(T t) {
+		process(t, preRemoveFns);
 	}
 
-	void remove(Ability ability) {
-		process(ability, removeFns);
+	void remove(T t) {
+		process(t, removeFns);
 	}
 
-	private void process(Ability ability, List<Consumer<Ability>> functions) {
+	private void process(T t, List<Consumer<T>> functions) {
 		isLooping.setValue(true);
-		for (Consumer<Ability> function : functions) {
-			function.accept(ability);
+		for (Consumer<T> function : functions) {
+			function.accept(t);
 		}
-		mostRecentAbility = ability;
+		mostRecentT = t;
 		isLooping.setValue(false);
 	}
 
-	void onPreApply(Consumer<Ability> consumer) {
+	void onPreApply(Consumer<T> consumer) {
 		addListener(consumer, preApplyFns);
 	}
 
-	void onApply(Consumer<Ability> consumer) {
+	void onApply(Consumer<T> consumer) {
 		addListener(consumer, applyFns);
 	}
 
-	void onPreRemove(Consumer<Ability> consumer) {
+	void onPreRemove(Consumer<T> consumer) {
 		addListener(consumer, preRemoveFns);
 	}
 
-	void onRemove(Consumer<Ability> consumer) {
+	void onRemove(Consumer<T> consumer) {
 		addListener(consumer, removeFns);
 	}
 
-	private void addListener(Consumer<Ability> consumer, List<Consumer<Ability>> functions) {
+	private void addListener(Consumer<T> consumer, List<Consumer<T>> functions) {
 		if(!isLooping.get())
 			functions.add(consumer);
 		else {
@@ -68,7 +67,7 @@ class Applier {
 			listener.setValue((o, oldVal, newVal) -> {
 				if (!newVal) {
 					functions.add(consumer);
-					consumer.accept(mostRecentAbility);
+					consumer.accept(mostRecentT);
 					isLooping.removeListener(listener.getValue());
 				}
 			});

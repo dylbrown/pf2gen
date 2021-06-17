@@ -3,6 +3,7 @@ package model.player;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import model.abilities.Ability;
 import model.abilities.GranterExtension;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
@@ -26,7 +27,7 @@ public class AbilityScoreManager implements PlayerState {
     private final Supplier<AbilityScore> keyAbility;
     private final Function<String, AbilityScore> castingAbility;
 
-    AbilityScoreManager(Applier applier,
+    AbilityScoreManager(Applier<Ability> applier,
                         Supplier<AbilityScore> keyAbility,
                         Function<String, AbilityScore> castingAbility) {
         this.keyAbility = keyAbility;

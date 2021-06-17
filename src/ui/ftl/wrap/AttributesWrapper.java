@@ -4,6 +4,7 @@ import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
+import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
 import model.player.AttributeManager;
 import model.player.PC;
@@ -31,7 +32,15 @@ public class AttributesWrapper implements TemplateHashModel {
     public TemplateModel get(String s) throws TemplateModelException {
         if(s.equals("get"))
             return wrapper.wrap((TemplateMethodModelEx) (List arguments) -> {
-                Attribute attr = Attribute.valueOf(arguments.get(0).toString(), arguments.get(1).toString());
+                String customMod = (arguments.size() > 1) ? arguments.get(1).toString() : null;
+                Attribute attr = Attribute.valueOf(arguments.get(0).toString(), customMod);
+                if(attr.getKeyAbility().equals(AbilityScore.CastingAbility)) {
+                    // Spell lists share DC, we just need to know casting ability
+                    return new AttributeEntry(character, attr.getBase(),
+                            attributes.getProficiency(attr),
+                            character.levelProperty(),
+                            wrapper, customMod);
+                }
                 return new AttributeEntry(character, attr,
                         attributes.getProficiency(attr),
                         character.levelProperty(),

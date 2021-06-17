@@ -2,6 +2,7 @@ package model.items;
 
 import model.abilities.Ability;
 import model.attributes.AttributeBonus;
+import model.enums.Recalculate;
 import model.enums.Slot;
 import model.enums.Trait;
 
@@ -27,6 +28,8 @@ public interface Item extends Comparable<Item> {
     String getDescription();
     Item copy();
     List<Trait> getTraits();
+    String getCustomMod();
+    Recalculate getRecalculate();
     List<AttributeBonus> getBonuses();
     List<Ability> getAbilities();
 }

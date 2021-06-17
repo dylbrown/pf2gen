@@ -2,20 +2,22 @@ package model.player;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.*;
+import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableMap;
+import javafx.collections.ObservableSet;
+import model.abilities.Ability;
 import model.abilities.FormulaExtension;
-import model.attributes.AttributeBonus;
 import model.enums.BuySellMode;
 import model.enums.Slot;
 import model.items.*;
 import model.items.armor.Armor;
 import model.items.armor.Shield;
 import model.items.runes.Rune;
+import model.items.runes.runedItems.Enchantable;
 import model.items.runes.runedItems.RunedArmor;
 import model.items.runes.runedItems.RunedWeapon;
 import model.items.runes.runedItems.Runes;
-import model.items.weapons.RangedWeapon;
-import model.items.weapons.Weapon;
 import model.util.Eyeball;
 import model.util.Pair;
 import model.util.Watcher;
@@ -35,13 +37,13 @@ public class InventoryManager implements PlayerState {
     private final ObservableSet<Item> formulasBought = FXCollections.observableSet(new HashSet<>());
     private final ObservableSet<Item> formulasGranted = FXCollections.observableSet(new HashSet<>());
     private final ObservableMap<Integer, Integer> grantedFormulasCount = FXCollections.observableMap(new TreeMap<>());
-    private final AttributeManager attributes;
+    private final Applier<Item> itemApplier;
     private double totalWeight = 0;
     private double sellMultiplier = 1;
     private double buyMultiplier = 1;
 
-    InventoryManager(AttributeManager attributes, Applier applier) {
-        this.attributes = attributes;
+    InventoryManager(Applier<Ability> applier, Applier<Item> itemApplier) {
+        this.itemApplier = itemApplier;
         applier.onApply(a->{
             FormulaExtension formulas = a.getExtension(FormulaExtension.class);
             if(formulas != null) {
@@ -174,18 +176,7 @@ public class InventoryManager implements PlayerState {
         if(unequipped.get(item).getCount() <= 0) {
             unequipped.remove(item);
         }
-        attributes.apply(item.getBonuses());
-        if(item.hasExtension(RunedArmor.class)) {
-            item.getExtension(RunedArmor.class).getBonuses().addListener(
-                    (ListChangeListener<AttributeBonus>) c->{
-                while(c.next()) {
-                    if(c.wasAdded())
-                        attributes.apply(c.getAddedSubList());
-                    if(c.wasRemoved())
-                        attributes.remove(c.getRemoved());
-                }
-            });
-        }
+        itemApplier.apply(item);
         return true;
     }
 
@@ -217,7 +208,7 @@ public class InventoryManager implements PlayerState {
             }
         }
         unequipped.computeIfAbsent(item, (key) -> new ItemCount(item, 0)).add(count);
-        attributes.remove(item.getBonuses());
+        itemApplier.remove(item);
         return true;
     }
 
@@ -277,8 +268,8 @@ public class InventoryManager implements PlayerState {
 
     private Item convertToRuned(Item item) {
         if(!getItems().containsKey(item)) return null;
-        if(!(item.hasExtension(Armor.class) || item.hasExtension(Weapon.class)
-        || item.hasExtension(Shield.class) || item.hasExtension(RangedWeapon.class))) return null;
+        Enchantable enchantable = item.getExtension(Enchantable.class);
+        if(enchantable == null || !enchantable.isEnchantable()) return null;
         boolean equip = (getEquipped(item.getSlot()) != null) && item.equals(getEquipped(item.getSlot()).stats());
         remove(item, 1);
         ItemInstance runedItem;

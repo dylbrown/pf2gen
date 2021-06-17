@@ -13,12 +13,11 @@ import javafx.scene.web.WebView;
 import model.CharacterManager;
 import model.items.Item;
 import model.items.ItemCount;
-import model.items.armor.Armor;
 import model.items.runes.ArmorRune;
 import model.items.runes.Rune;
 import model.items.runes.WeaponRune;
+import model.items.runes.runedItems.Enchantable;
 import model.items.runes.runedItems.Runes;
-import model.items.weapons.Weapon;
 import model.player.PC;
 import model.util.Pair;
 import ui.controls.equipment.ItemsList;
@@ -26,6 +25,7 @@ import ui.controls.lists.entries.ItemEntry;
 import ui.html.ItemHTMLGenerator;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static model.util.StringUtils.generateCostString;
 
@@ -47,8 +47,10 @@ public class EnchantTabController {
 
     @FXML
     private void initialize() {
-        itemDisplay.getEngine().setUserStyleSheetLocation(getClass().getResource("/webview_style.css").toString());
-        runeDisplay.getEngine().setUserStyleSheetLocation(getClass().getResource("/webview_style.css").toString());
+        itemDisplay.getEngine().setUserStyleSheetLocation(
+                Objects.requireNonNull(getClass().getResource("/webview_style.css")).toString());
+        runeDisplay.getEngine().setUserStyleSheetLocation(
+                Objects.requireNonNull(getClass().getResource("/webview_style.css")).toString());
         character = CharacterManager.getActive();
         for (Map.Entry<Item, ItemCount> entry : character.inventory().getItems().entrySet()) {
             int count = entry.getValue().getCount();
@@ -139,7 +141,8 @@ public class EnchantTabController {
 
     private void addItem(Item item, int count) {
         if(count > 0) {
-            if(item.hasExtension(Weapon.class) || item.hasExtension(Armor.class)) {
+            Enchantable enchantable = item.getExtension(Enchantable.class);
+            if(enchantable != null && enchantable.isEnchantable()) {
                 for(int i = 0; i < count; i++)
                     itemsList.add(item);
             }else if (item.hasExtension(ArmorRune.class) || item.hasExtension(WeaponRune.class)) {

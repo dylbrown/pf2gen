@@ -6,6 +6,7 @@ import model.attributes.Attribute;
 import model.attributes.AttributeBonus;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
+import model.enums.Recalculate;
 import model.enums.Trait;
 import model.enums.Type;
 import model.items.BaseItem;
@@ -13,6 +14,7 @@ import model.items.BaseItemChoices;
 import model.items.Item;
 import model.items.runes.ArmorRune;
 import model.items.runes.WeaponRune;
+import model.items.runes.runedItems.Enchantable;
 import model.items.weapons.Damage;
 import model.items.weapons.DamageType;
 import model.items.weapons.Dice;
@@ -214,7 +216,7 @@ public class ItemLoader extends FileLoader<Item> {
                 builder.setHands(Integer.parseInt(trim));
                 break;
             case "Traits":
-                Arrays.stream(trim.split(",")).map((item)->
+                Arrays.stream(trim.split(",")).map((item) ->
                 {
                     Trait trait = null;
                     try {
@@ -226,7 +228,34 @@ public class ItemLoader extends FileLoader<Item> {
                     }
                     return trait;
                 }).filter(Objects::nonNull)
-                    .forEachOrdered(builder::addTrait);
+                        .forEachOrdered(builder::addTrait);
+                break;
+            case "CustomMod":
+                builder.setCustomMod(trim);
+                if(curr.hasAttribute("recalculate"))
+                    builder.setRecalculate(Recalculate.valueOf(
+                            StringUtils.camelCaseWord(curr.getAttribute("recalculate").trim())));
+                break;
+            case "Enchantable":
+                Enchantable.Builder enchantable = builder.getExtension(Enchantable.Builder.class);
+                switch (trim.toLowerCase()) {
+                    case "no":
+                        enchantable.armorRunes = false;
+                        enchantable.weaponRunes = false;
+                        break;
+                    case "armor runes":
+                        enchantable.armorRunes = true;
+                        enchantable.weaponRunes = false;
+                        break;
+                    case "weapon runes":
+                        enchantable.armorRunes = false;
+                        enchantable.weaponRunes = true;
+                        break;
+                    case "both":
+                        enchantable.armorRunes = true;
+                        enchantable.weaponRunes = true;
+                        break;
+                }
                 break;
             case "Bonuses":
                 Arrays.stream(trim.split(",")).map((item)->{

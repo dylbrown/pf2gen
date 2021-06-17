@@ -2,6 +2,7 @@ package model.items;
 
 import model.abilities.Ability;
 import model.attributes.AttributeBonus;
+import model.enums.Recalculate;
 import model.enums.Slot;
 import model.enums.Trait;
 
@@ -21,6 +22,16 @@ public class SearchItem implements Item {
 
     @Override
     public List<Trait> getTraits() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getCustomMod() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Recalculate getRecalculate() {
         throw new UnsupportedOperationException();
     }
 

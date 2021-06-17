@@ -7,6 +7,7 @@ import model.enums.WeaponProficiency;
 import model.items.BaseItem;
 import model.items.CustomTrait;
 import model.items.Item;
+import model.items.runes.runedItems.Enchantable;
 import model.items.weapons.*;
 import model.util.ObjectNotFoundException;
 import model.xml_parsers.FileLoader;
@@ -120,6 +121,10 @@ public class WeaponsLoader extends ItemLoader {
                                 trait = loader.findFromDependencies("Trait",
                                         TraitsLoader.class,
                                         traitString.trim());
+                                if(trait.getName().equalsIgnoreCase("unarmed") &&
+                                        item.hasExtension(Weapon.Builder.class)) {
+                                    item.getExtension(Enchantable.Builder.class).weaponRunes = false;
+                                }
                             } catch (ObjectNotFoundException e) {
                                 e.printStackTrace();
                             }

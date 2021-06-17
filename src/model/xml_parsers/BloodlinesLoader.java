@@ -54,7 +54,9 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 		String[] skills = item.getElementsByTagName("Skills").item(0).getTextContent().split(", ?");
 		bloodline.getExtension(GranterExtension.Builder.class).setAttrMods(Arrays.asList(
 				new AttributeMod(Attribute.valueOf(skills[0]), Proficiency.Trained),
-				new AttributeMod(Attribute.valueOf(skills[1]), Proficiency.Trained)));
+				new AttributeMod(Attribute.valueOf(skills[1]), Proficiency.Trained),
+				new AttributeMod(Attribute.valueOf(tradition + " Spell Attacks"), Proficiency.Trained),
+				new AttributeMod(Attribute.valueOf(tradition + " Spell DCs"), Proficiency.Trained)));
 
 		//Granted Spells
 		List<Ability> grantedAbilities = new ArrayList<>();

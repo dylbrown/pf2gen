@@ -43,6 +43,26 @@ public class MultiDamage extends Damage {
     }
 
     @Override
+    public List<Dice> getDice() {
+        return convertedDamage.stream().map(Damage::getDice).flatMap(Collection::stream).collect(Collectors.toList());
+    }
+
+    @Override
+    public int getAmount() {
+        return convertedDamage.stream().map(Damage::getAmount).reduce(0, Integer::sum);
+    }
+
+    @Override
+    DamageType getDamageType() {
+        return (convertedDamage.size() == 1) ? firstDamageType : DamageType.Multiple;
+    }
+
+    @Override
+    public boolean isPersistent() {
+        throw new RuntimeException("MultiDamage isn't necessarily persistent");
+    }
+
+    @Override
     public Damage add(int damageMod) {
         return add(damageMod, firstDamageType);
     }

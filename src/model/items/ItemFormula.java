@@ -2,6 +2,7 @@ package model.items;
 
 import model.abilities.Ability;
 import model.attributes.AttributeBonus;
+import model.enums.Recalculate;
 import model.enums.Slot;
 import model.enums.Trait;
 
@@ -125,6 +126,16 @@ public class ItemFormula implements Item {
     @Override
     public List<Trait> getTraits() {
         return item.getTraits();
+    }
+
+    @Override
+    public String getCustomMod() {
+        return item.getCustomMod();
+    }
+
+    @Override
+    public Recalculate getRecalculate() {
+        return item.getRecalculate();
     }
 
     @Override

@@ -2,8 +2,8 @@ package model.items;
 
 import model.AbstractNamedObject;
 import model.abilities.Ability;
-import model.abilities.AbilityExtension;
 import model.attributes.AttributeBonus;
+import model.enums.Recalculate;
 import model.enums.Slot;
 import model.enums.Trait;
 
@@ -14,9 +14,10 @@ import java.util.*;
 
 public class BaseItem extends AbstractNamedObject implements Item {
     private final double weight, value;
-    private final String category, subCategory;
+    private final String category, subCategory, customMod;
     private final Slot slot;
     private final List<Trait> traits;
+    private final Recalculate recalculate;
     private final int hands, level;
     private final List<AttributeBonus> bonuses;
     private final List<Ability> abilities;
@@ -30,6 +31,8 @@ public class BaseItem extends AbstractNamedObject implements Item {
         this.subCategory = builder.subCategory;
         this.slot = builder.slot;
         this.traits = (builder.traits.size() > 0) ? builder.traits : Collections.emptyList();
+        this.customMod = builder.customMod;
+        this.recalculate = builder.recalculate;
         this.hands = builder.hands;
         this.level = builder.level;
         this.bonuses = builder.bonuses;
@@ -131,6 +134,16 @@ public class BaseItem extends AbstractNamedObject implements Item {
         return Collections.unmodifiableList(traits);
     }
 
+    @Override
+    public String getCustomMod() {
+        return customMod;
+    }
+
+    @Override
+    public Recalculate getRecalculate() {
+        return recalculate;
+    }
+
     public List<AttributeBonus> getBonuses() {
         return Collections.unmodifiableList(bonuses);
     }
@@ -185,12 +198,14 @@ public class BaseItem extends AbstractNamedObject implements Item {
     }
 
     public static class Builder extends AbstractNamedObject.Builder {
-        double weight = 0;
-        double value = 0;
-        String category = "";
-        String subCategory = "";
-        Slot slot = Slot.None;
-        List<Trait> traits = new ArrayList<>();
+        private double weight = 0;
+        private double value = 0;
+        private String category = "";
+        private String subCategory = "";
+        private Slot slot = Slot.None;
+        private List<Trait> traits = new ArrayList<>();
+        private String customMod = "";
+        private Recalculate recalculate = Recalculate.Never;
         private int hands;
         private int level;
         private List<AttributeBonus> bonuses = Collections.emptyList();
@@ -237,6 +252,14 @@ public class BaseItem extends AbstractNamedObject implements Item {
             traits.add(trait);
         }
 
+        public void setCustomMod(String customMod) {
+            this.customMod = customMod;
+        }
+
+        public void setRecalculate(Recalculate recalculate) {
+            this.recalculate = recalculate;
+        }
+
         public void setHands(int hands) {
             this.hands = hands;
         }
@@ -262,6 +285,14 @@ public class BaseItem extends AbstractNamedObject implements Item {
             else {
                 if(extensions.size() == 0) extensions = new HashMap<>();
                 try {
+                    for (Constructor<?> constructor : extensionClass.getDeclaredConstructors()) {
+                        if(constructor.getParameterCount() == 1 &&
+                                constructor.getParameterTypes()[0] == BaseItem.Builder.class) {
+                            T newExtension = extensionClass.cast(constructor.newInstance(this));
+                            extensions.put(extensionClass, newExtension);
+                            return newExtension;
+                        }
+                    }
                     Constructor<T> defaultConstructor = extensionClass.getDeclaredConstructor();
                     T newExtension = defaultConstructor.newInstance();
                     extensions.put(extensionClass, newExtension);
@@ -273,7 +304,7 @@ public class BaseItem extends AbstractNamedObject implements Item {
             }
         }
 
-        public <T extends AbilityExtension.Builder> boolean hasExtension(Class<T> extensionClass) {
+        public <T extends ItemExtension.Builder> boolean hasExtension(Class<T> extensionClass) {
             return extensionClass.isInstance(extensions.get(extensionClass));
         }
 

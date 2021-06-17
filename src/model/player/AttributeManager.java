@@ -3,17 +3,16 @@ package model.player;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
-import javafx.collections.ObservableSet;
+import javafx.collections.*;
 import javafx.collections.transformation.FilteredList;
+import model.abilities.Ability;
 import model.abilities.GranterExtension;
 import model.attributes.*;
 import model.enums.Proficiency;
 import model.enums.Type;
 import model.enums.WeaponProficiency;
 import model.items.Item;
+import model.items.runes.runedItems.RunedArmor;
 import model.items.weapons.*;
 
 import java.beans.PropertyChangeListener;
@@ -50,7 +49,12 @@ public class AttributeManager implements PlayerState {
     private final Map<Attribute, Map<Type, NavigableSet<AttributeBonus>>> attributeBonuses = new HashMap<>();
     private final CustomGetter customGetter;
 
-    AttributeManager(CustomGetter customGetter, ReadOnlyObjectProperty<Integer> level, DecisionManager decisions, Applier applier){
+    AttributeManager(
+            CustomGetter customGetter,
+            ReadOnlyObjectProperty<Integer> level,
+            DecisionManager decisions,
+            Applier<Ability> abilityApplier,
+            Applier<Item> itemApplier) {
         this.customGetter = customGetter;
         this.level = level;
         this.decisions = decisions;
@@ -85,7 +89,7 @@ public class AttributeManager implements PlayerState {
             );
         }
 
-        applier.onApply((ability -> {
+        abilityApplier.onApply((ability -> {
             GranterExtension granter = ability.getExtension(GranterExtension.class);
             if(granter != null) {
                 addSkillIncreases(granter.getSkillIncreases(), ability.getLevel());
@@ -94,8 +98,7 @@ public class AttributeManager implements PlayerState {
                 }
             }
         }));
-
-        applier.onRemove((ability -> {
+        abilityApplier.onRemove((ability -> {
             GranterExtension granter = ability.getExtension(GranterExtension.class);
             if(granter != null) {
                 removeSkillIncreases(granter.getSkillIncreases(), ability.getLevel());
@@ -104,6 +107,22 @@ public class AttributeManager implements PlayerState {
                 }
             }
         }));
+
+        itemApplier.onApply(item -> {
+            apply(item.getBonuses());
+            if(item.hasExtension(RunedArmor.class)) {
+                item.getExtension(RunedArmor.class).getBonuses().addListener(
+                        (ListChangeListener<AttributeBonus>) c->{
+                            while(c.next()) {
+                                if(c.wasAdded())
+                                    apply(c.getAddedSubList());
+                                if(c.wasRemoved())
+                                    remove(c.getRemoved());
+                            }
+                        });
+            }
+        });
+        itemApplier.onRemove(item -> remove(item.getBonuses()));
     }
 
     /**

@@ -8,7 +8,6 @@ import model.abc.PClass;
 import model.abilities.Ability;
 import model.abilities.AncestryExtension;
 import model.abilities.ArchetypeExtension;
-import model.abilities.AttackExtension;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
@@ -45,13 +44,14 @@ public class PC {
     private final ReadOnlyObjectWrapper<Deity> deity = new ReadOnlyObjectWrapper<>();
     private final ReadOnlyObjectWrapper<Integer> level = new ReadOnlyObjectWrapper<>(0);
     private final PropertyChangeSupport ancestryWatcher = new PropertyChangeSupport(ancestry);
-    private final Applier applier = new Applier();
+    private final Applier<Ability> abilityApplier = new Applier<>();
+    private final Applier<Item> itemApplier = new Applier<>();
     private final ReadOnlyObjectWrapper<Alignment> alignment = new ReadOnlyObjectWrapper<>();
 
     private final DecisionManager decisions = new DecisionManager();
-    private final SpellListManager spells = new SpellListManager(applier);
+    private final SpellListManager spells = new SpellListManager(abilityApplier);
     private final AbilityManager abilities;
-    private final AbilityScoreManager scores = new AbilityScoreManager(applier, ()->{
+    private final AbilityScoreManager scores = new AbilityScoreManager(abilityApplier, ()->{
         PClass currClass = pClass.get();
         if(currClass == null) return None;
         AbilityMod abilityMod = currClass.getAbilityMods().get(0);
@@ -62,10 +62,11 @@ public class PC {
     }, (data)-> spells.getSpellList(data).getCastingAbility().get());
     private final CustomGetter customGetter = new CustomGetter(this);
     private final AttributeManager attributes =
-            new AttributeManager(customGetter, level.getReadOnlyProperty(), decisions, applier);
-    private final InventoryManager inventory = new InventoryManager(attributes, applier);
-    private final QualityManager qualities = new QualityManager(decisions::add, decisions::remove, applier);
-    private final CombatManager combat = new CombatManager(scores, attributes, inventory, levelProperty());
+            new AttributeManager(customGetter, level.getReadOnlyProperty(), decisions, abilityApplier, itemApplier);
+    private final InventoryManager inventory = new InventoryManager(abilityApplier, itemApplier);
+    private final QualityManager qualities = new QualityManager(decisions::add, decisions::remove, abilityApplier);
+    private final CombatManager combat =
+            new CombatManager(scores, attributes, inventory, levelProperty(), abilityApplier);
     private final VariantManager variants = new VariantManager();
     private final GroovyModManager modManager;
     private final List<PlayerState> stateManagers = new ArrayList<>(Arrays.asList(
@@ -75,32 +76,18 @@ public class PC {
     public PC(SourcesManager sources) {
         this.sources = sources;
         abilities = new AbilityManager(sources, decisions, ancestryProperty(),
-                pClassProperty(), applier, this::meetsPrerequisites, qualities.getTraits());
+                pClassProperty(), abilityApplier, this::meetsPrerequisites, qualities.getTraits());
         stateManagers.add(abilities);
         GroovyCommands groovyCommands = new GroovyCommands(
                 customGetter, sources, abilities, attributes, decisions, combat,
                 spells, deity.getReadOnlyProperty(), level.getReadOnlyProperty()
         );
-        modManager = new GroovyModManager(groovyCommands, applier, level.getReadOnlyProperty());
+        modManager = new GroovyModManager(groovyCommands, abilityApplier, itemApplier, level.getReadOnlyProperty());
         stateManagers.add(modManager);
         scores.getScoreEyeball(Int).addPropertyChangeListener(((o) -> {
             attributes.updateSkillCount(getPClass().getSkillIncrease() + scores.getMod(Int));
             qualities.updateInt(scores.getMod(Int));
         }));
-
-        applier.onApply(ability -> {
-            AttackExtension attackExt = ability.getExtension(AttackExtension.class);
-            if(attackExt != null) {
-                combat.addAttacks(attackExt.getAttacks());
-            }
-        });
-
-        applier.onRemove(ability -> {
-            AttackExtension attackExt = ability.getExtension(AttackExtension.class);
-            if(attackExt != null) {
-                combat.removeAttacks(attackExt.getAttacks());
-            }
-        });
     }
 
     public Alignment getAlignment() {
@@ -222,10 +209,13 @@ public class PC {
     }
 
     public int getTotalMod(Attribute attribute) {
+        return getTotalMod(attribute, null);
+    }
+
+    public int getTotalMod(Attribute attribute, String data) {
         int acp = 0;
         if(attribute.hasACP() && combat.getArmor().getExtension(Armor.class).getStrength() > scores.getScore(Str))
             acp -= combat.getArmor().getExtension(Armor.class).getACP();
-        String data = null;
         if(attribute instanceof CustomAttribute)
             data = ((CustomAttribute) attribute).getData();
         return scores.getMod(attribute.getKeyAbility(), data)

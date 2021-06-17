@@ -5,6 +5,7 @@ import model.enums.Slot;
 import model.items.BaseItem;
 import model.items.Item;
 import model.items.ItemExtension;
+import model.items.runes.runedItems.Enchantable;
 
 public class Armor extends ItemExtension {
     private final int AC;
@@ -67,10 +68,6 @@ public class Armor extends ItemExtension {
         return proficiency;
     }
 
-    public Armor copy() {
-        return new Armor.Builder(this).build(getItem());
-    }
-
     public static class Builder extends ItemExtension.Builder {
         private int AC=0;
         private int maxDex=0;
@@ -80,16 +77,8 @@ public class Armor extends ItemExtension {
         private ArmorGroup group=ArmorGroup.None;
         private ArmorProficiency proficiency = null;
 
-        public Builder() {}
-
-        public Builder(Armor armor) {
-            this.AC = armor.AC;
-            this.maxDex = armor.maxDex;
-            this.ACP = armor.ACP;
-            this.speedPenalty = armor.speedPenalty;
-            this.strength = armor.strength;
-            this.group = armor.group;
-            this.proficiency = armor.proficiency;
+        public Builder(BaseItem.Builder builder) {
+            builder.getExtension(Enchantable.Builder.class).armorRunes = true;
         }
 
         @Override

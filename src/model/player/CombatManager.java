@@ -1,16 +1,15 @@
 package model.player;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
+import model.abilities.Ability;
+import model.abilities.AttackExtension;
 import model.attributes.BaseAttribute;
 import model.enums.Slot;
 import model.items.Item;
 import model.items.armor.Armor;
 import model.items.armor.Shield;
 import model.items.runes.runedItems.RunedWeapon;
-import model.items.weapons.Damage;
-import model.items.weapons.DamageModifier;
-import model.items.weapons.RangedWeapon;
-import model.items.weapons.Weapon;
+import model.items.weapons.*;
 
 import java.util.*;
 
@@ -23,14 +22,27 @@ public class CombatManager implements PlayerState {
     private final AttributeManager attributes;
     private final InventoryManager inventory;
     private final ReadOnlyObjectProperty<Integer> level;
+    private final Map<String, StrikeModifier> strikeModifiers = new HashMap<>();
     private final Map<String, DamageModifier> damageModifiers = new HashMap<>();
 
     public CombatManager(AbilityScoreManager scores, AttributeManager attributes, InventoryManager inventory,
-                         ReadOnlyObjectProperty<Integer> level) {
+                         ReadOnlyObjectProperty<Integer> level, Applier<Ability> abilityApplier) {
         this.scores = scores;
         this.attributes = attributes;
         this.inventory = inventory;
         this.level = level;
+        abilityApplier.onApply(ability -> {
+            AttackExtension attackExt = ability.getExtension(AttackExtension.class);
+            if(attackExt != null) {
+                addAttacks(attackExt.getAttacks());
+            }
+        });
+        abilityApplier.onRemove(ability -> {
+            AttackExtension attackExt = ability.getExtension(AttackExtension.class);
+            if(attackExt != null) {
+                removeAttacks(attackExt.getAttacks());
+            }
+        });
     }
 
     public int getAC() {
@@ -83,11 +95,16 @@ public class CombatManager implements PlayerState {
         }
 
         if(weapon.getTraits().stream().anyMatch(t->t.getName().equals("Finesse")))
-            return mod + weapon.getExtension(Weapon.class).getAttackBonus() + Math.max(scores.getMod(Str), scores.getMod(Dex));
+            mod += weapon.getExtension(Weapon.class).getAttackBonus() + Math.max(scores.getMod(Str), scores.getMod(Dex));
         else if(weapon.hasExtension(RangedWeapon.class))
-            return mod + weapon.getExtension(Weapon.class).getAttackBonus() + scores.getMod(Dex);
+            mod += weapon.getExtension(Weapon.class).getAttackBonus() + scores.getMod(Dex);
         else
-            return mod + weapon.getExtension(Weapon.class).getAttackBonus() + scores.getMod(Str);
+            mod += weapon.getExtension(Weapon.class).getAttackBonus() + scores.getMod(Str);
+
+        for (StrikeModifier strikeModifier : strikeModifiers.values()) {
+            mod = strikeModifier.apply(weapon.getExtension(Weapon.class), mod);
+        }
+        return mod;
     }
 
     void addAttacks(List<Weapon> attacks) {
@@ -114,6 +131,9 @@ public class CombatManager implements PlayerState {
         for (DamageModifier damageModifier : damageModifiers.values()) {
             damage = damageModifier.apply(extension, damage);
         }
+        for (StrikeModifier strikeModifier : strikeModifiers.values()) {
+            damage = strikeModifier.apply(extension, damage);
+        }
         return damage;
     }
 
@@ -126,6 +146,14 @@ public class CombatManager implements PlayerState {
                 return (mod > 0) ? mod / 2 : mod;
             } else return 0;
         } else return mod;
+    }
+
+    void addStrikeModifier(String name, StrikeModifier d) {
+        strikeModifiers.put(name, d);
+    }
+
+    void removeStrikeModifier(String name) {
+        strikeModifiers.remove(name);
     }
 
     void addDamageModifier(String name, DamageModifier d) {

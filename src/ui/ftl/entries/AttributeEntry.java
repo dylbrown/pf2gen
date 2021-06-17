@@ -16,19 +16,25 @@ public class AttributeEntry implements TemplateHashModel {
     private final ObjectWrapper wrapper;
     private final ReadOnlyObjectProperty<Integer> level;
     private final PC character;
+    private final String totalModData;
 
-    public AttributeEntry(PC character, Attribute attr, ObservableValue<Proficiency> prof, ReadOnlyObjectProperty<Integer> levelProperty, ObjectWrapper objectWrapper) {
+    public AttributeEntry(PC character, Attribute attr, ObservableValue<Proficiency> prof, ReadOnlyObjectProperty<Integer> levelProperty, ObjectWrapper objectWrapper, String totalModData) {
         this.character = character;
         this.attr = attr;
         this.prof = prof;
         this.level = levelProperty;
         this.wrapper = objectWrapper;
+        this.totalModData = totalModData;
+    }
+
+    public AttributeEntry(PC character, Attribute attr, ObservableValue<Proficiency> prof, ReadOnlyObjectProperty<Integer> levelProperty, ObjectWrapper objectWrapper) {
+        this(character, attr, prof, levelProperty, objectWrapper, null);
     }
 
     @Override
     public TemplateModel get(String s) throws TemplateModelException {
         switch(s.toLowerCase()) {
-            case "total": return wrapper.wrap(character.getTotalMod(attr));
+            case "total": return wrapper.wrap(character.getTotalMod(attr, totalModData));
             case "attribute": return wrapper.wrap(attr);
             case "proficiency": return wrapper.wrap(prof.getValue());
             case "proficiencymod": return wrapper.wrap(prof.getValue().getMod(level.get()));

@@ -14,6 +14,7 @@ import model.items.CustomTrait;
 import model.items.Item;
 import model.items.ItemInstance;
 import model.items.armor.Armor;
+import model.items.runes.runedItems.Enchantable;
 import model.items.runes.runedItems.RunedArmor;
 import model.items.runes.runedItems.RunedWeapon;
 import model.items.runes.runedItems.Runes;
@@ -324,7 +325,8 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                 startOfItem--;
                 continue;
             }
-            if(!baseItem.hasExtension(Weapon.class) && !baseItem.hasExtension(Armor.class)) {
+            Enchantable enchantable = baseItem.getExtension(Enchantable.class);
+            if(enchantable == null || !enchantable.isEnchantable()) {
                 baseItem = null;
                 startOfItem--;
             }else if(baseItem.hasExtension(Armor.class))

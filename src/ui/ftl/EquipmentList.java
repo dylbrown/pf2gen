@@ -45,7 +45,9 @@ public class EquipmentList implements TemplateSequenceModel {
                 unequipList.add(change.getValueAdded());
             }
             if(change.wasRemoved()) {
-                unequipList.remove(findSourceIndex(change.getValueRemoved(), unequip, 0, unequip.size()));
+                int sourceIndex = findSourceIndex(change.getValueRemoved(), unequip, 0, unequip.size());
+                if(sourceIndex != -1)
+                    unequipList.remove(sourceIndex);
             }
         });
     }

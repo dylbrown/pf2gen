@@ -2,6 +2,7 @@ package model.player;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
+import model.abilities.Ability;
 import model.abilities.SpellExtension;
 import model.spells.SpellList;
 
@@ -13,7 +14,7 @@ public class SpellListManager implements PlayerState {
     private final ObservableMap<String, SpellList> spellLists = FXCollections.observableMap(new TreeMap<>());
     private final Map<String, Integer> abilityCountTracker = new HashMap<>();
 
-    SpellListManager(Applier applier) {
+    SpellListManager(Applier<Ability> applier) {
         applier.onApply(ability -> {
             SpellExtension spellExtension = ability.getExtension(SpellExtension.class);
             if(spellExtension != null) {

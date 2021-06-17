@@ -3,8 +3,10 @@ package model.items.weapons;
 import model.enums.Slot;
 import model.enums.Trait;
 import model.enums.WeaponProficiency;
+import model.items.BaseItem;
 import model.items.Item;
 import model.items.ItemExtension;
+import model.items.runes.runedItems.Enchantable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,21 +71,8 @@ public class Weapon extends ItemExtension {
         private List<Trait> traits = new ArrayList<>();
         private WeaponProficiency proficiency;
 
-        public Builder() {}
-
-        public Builder(Weapon weapon) {
-            this.damageDice = weapon.damageDice;
-            this.damageType = weapon.damageType;
-            this.group = weapon.group;
-            this.proficiency = weapon.proficiency;
-        }
-
-        public Builder(Builder builder) {
-            damageDice = builder.damageDice;
-            damageType = builder.damageType;
-            group = builder.group;
-            traits = new ArrayList<>(builder.traits);
-            proficiency = builder.proficiency;
+        public Builder(BaseItem.Builder builder) {
+            builder.getExtension(Enchantable.Builder.class).weaponRunes = true;
         }
 
         @Override

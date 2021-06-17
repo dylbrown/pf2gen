@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import model.abc.Ancestry;
+import model.abilities.Ability;
 import model.abilities.AncestryExtension;
 import model.enums.Language;
 import model.enums.Sense;
@@ -23,7 +24,9 @@ public class QualityManager implements PlayerState {
     private final ObservableList<String> bonusLanguages = FXCollections.observableArrayList();
     private final ArbitraryChoice<String> bonusLanguageChoice;
 
-    QualityManager(Consumer<ArbitraryChoice<String>> addDecision, Consumer<ArbitraryChoice<String>> removeDecision, Applier applier) {
+    QualityManager(Consumer<ArbitraryChoice<String>> addDecision,
+                   Consumer<ArbitraryChoice<String>> removeDecision,
+                   Applier<Ability> applier) {
         ArbitraryChoice.Builder<String> builder = new ArbitraryChoice.Builder<>();
         builder.setName("Bonus Languages");
         builder.setChoices(bonusLanguages);
@@ -113,7 +116,7 @@ public class QualityManager implements PlayerState {
         }
         bonusLanguageChoice.increaseChoices(bonusLanguageIncrease);
 
-        senses.removeAll(oldAncestry.getSenses());
+        oldAncestry.getSenses().forEach(senses::remove);
         senses.addAll(ancestry.getSenses());
 
         set("languages", languages.stream().map(Enum::toString).collect(Collectors.joining(", ")));

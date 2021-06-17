@@ -7,10 +7,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import model.attributes.BaseAttribute;
-import model.enums.WeaponProficiency;
-import model.items.weapons.WeaponGroupMod;
-import model.items.weapons.WeaponMod;
 import model.abilities.Ability;
 import model.abilities.ArchetypeExtension;
 import model.abilities.SpellExtension;
@@ -18,17 +14,19 @@ import model.ability_slots.AbilitySlot;
 import model.ability_slots.FeatSlot;
 import model.attributes.Attribute;
 import model.attributes.AttributeMod;
+import model.attributes.BaseAttribute;
 import model.data_managers.sources.MultiSourceLoader;
 import model.data_managers.sources.SourcesLoader;
 import model.enums.Proficiency;
-import model.items.weapons.Damage;
-import model.items.weapons.WeaponGroup;
+import model.enums.WeaponProficiency;
+import model.items.Item;
+import model.items.weapons.*;
+import model.setting.Deity;
+import model.setting.Domain;
 import model.spells.Spell;
 import model.util.ObjectNotFoundException;
 import model.util.StringUtils;
 import model.xml_parsers.AbilityLoader;
-import model.setting.Deity;
-import model.setting.Domain;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -316,6 +314,15 @@ class GroovyCommands {
             attributes.remove(translator::call);
         }
     }
+
+    public void strikeModifier(String name, Closure<Integer> attackModifier, Closure<Damage> damageModifier, Item item) {
+        if(applying.get()) {
+            combat.addStrikeModifier(name, new StrikeModifier(attackModifier::call, damageModifier::call, item));
+        } else {
+            combat.removeStrikeModifier(name);
+        }
+    }
+
     public void damageModifier(String name, Closure<Damage> modifier) {
         if(applying.get()) {
             combat.addDamageModifier(name, modifier::call);

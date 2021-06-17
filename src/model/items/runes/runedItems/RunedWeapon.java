@@ -17,8 +17,6 @@ public class RunedWeapon extends ItemExtension {
     public RunedWeapon(Item item) {
         super(item);
         runes = new Runes<>(item.getName(), WeaponRune.class);
-        if(!item.hasExtension(Weapon.class))
-            throw new RuntimeException("RunedWeapon is not Weapon");
     }
 
     @ItemDecorator
@@ -42,10 +40,13 @@ public class RunedWeapon extends ItemExtension {
     }
 
     public Damage getDamage() {
-        return getDamageStatic(runes, getItem().getExtension(Weapon.class));
+        if(!getItem().hasExtension(Weapon.class))
+            throw new RuntimeException("RunedWeapon is not Weapon");
+        return getDamage(getItem().getExtension(Weapon.class),
+                getItem().getExtension(Weapon.class).getDamage());
     }
 
-    static Damage getDamageStatic(Runes<WeaponRune> runes, Weapon baseWeapon) {
+    public Damage getDamage(Weapon baseWeapon, Damage baseDamage) {
         Stream<Damage> damages = runes.getAll().stream()
                 .map(WeaponRune::getBonusDamage);
 
@@ -53,13 +54,14 @@ public class RunedWeapon extends ItemExtension {
         Integer bonusDice = runes.getAll().stream()
                 .map(WeaponRune::getBonusWeaponDice)
                 .reduce(1, Integer::max);
-        Dice strikingDice = Dice.get(bonusDice-1, baseWeapon.getDamageDice().getSize());
+        // ASSUMPTION: First damage should always be the weapon damage
+        Dice strikingDice = Dice.get(bonusDice-1, baseDamage.getDice().get(0).getSize());
         Damage striking = new Damage.Builder()
                 .addDice(strikingDice)
                 .setDamageType(baseWeapon.getDamageType())
                 .build();
 
-        return new MultiDamage(baseWeapon.getDamage(),
+        return new MultiDamage(baseDamage,
                 Stream.concat(damages, Stream.of(striking))
                         .filter(d->!d.equals(Damage.ZERO))
                         .collect(Collectors.toList()));
