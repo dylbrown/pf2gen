@@ -7,6 +7,7 @@ import model.creatures.Attack;
 import model.creatures.Creature;
 import model.creatures.CreatureItem;
 import model.creatures.CreatureSpellList;
+import model.enums.Language;
 import model.enums.Trait;
 import model.spells.Spell;
 import model.util.StringUtils;
@@ -30,7 +31,7 @@ public class CreatureHTMLGenerator {
         String perception = signed(creature.getModifiers().get(BaseAttribute.Perception));
             builder.append(perception).append("<br>");
         builder.append("<b>Languages</b> ").append(
-                creature.getLanguages().stream().map(Enum::toString).collect(Collectors.joining(", "))
+                creature.getLanguages().stream().map(Language::toString).collect(Collectors.joining(", "))
         ).append("<br>");
         builder.append("<b>Str</b> ").append(creature.getAbilityModifiers().get(AbilityScore.Str))
                 .append(", <b>Dex</b> ").append(creature.getAbilityModifiers().get(AbilityScore.Dex))

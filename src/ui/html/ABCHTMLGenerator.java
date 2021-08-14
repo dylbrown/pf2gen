@@ -5,17 +5,16 @@ import model.abc.Background;
 import model.abc.PClass;
 import model.abilities.Ability;
 import model.abilities.GranterExtension;
-import model.ability_slots.AbilitySlot;
-import model.ability_slots.FilledSlot;
 import model.ability_scores.AbilityMod;
 import model.ability_scores.AbilityModChoice;
 import model.ability_scores.AbilityScore;
+import model.ability_slots.AbilitySlot;
+import model.ability_slots.FilledSlot;
 import model.attributes.AttributeMod;
 import model.enums.Language;
 import model.enums.Sense;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,11 +30,8 @@ public class ABCHTMLGenerator {
         }
 
         String bonusLanguages;
-        if(!ancestry.getBonusLanguages().equals(Arrays.asList(Language.getChooseable())))
-            bonusLanguages = ancestry.getBonusLanguages().stream()
-                    .map(Language::name).collect(Collectors.joining(", "));
-        else
-            bonusLanguages = "All Common Languages";
+        bonusLanguages = ancestry.getBonusLanguages().stream()
+                .map(Language::getName).collect(Collectors.joining(", "));
 
         return String.format("<h3>%s</h3>" +
                         "<b>Hit Points</b> %d; <b>Size</b> %s; <b>Speed</b> %d ft.<br>" +
@@ -50,7 +46,7 @@ public class ABCHTMLGenerator {
                 String.join(", ", bonuses),
                 String.join(", ", flaws),
                 ancestry.getSenses().stream().map(Sense::getName).collect(Collectors.joining(", ")),
-                ancestry.getLanguages().stream().map(Language::name).collect(Collectors.joining(", ")),
+                ancestry.getLanguages().stream().map(Language::getName).collect(Collectors.joining(", ")),
                 bonusLanguages,
                 ancestry.getDescription());
     }

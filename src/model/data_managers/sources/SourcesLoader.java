@@ -134,6 +134,9 @@ public class SourcesLoader extends FileLoader<Source> {
                         case "domains":
                             builder.addLoader(DomainsLoader.class,
                                     new DomainsLoader(getSourceConstructor((Element) item), parentFile, builder));
+                        case "languages":
+                            builder.addLoader(LanguagesLoader.class,
+                                    new LanguagesLoader(getSourceConstructor((Element) item), parentFile, builder));
                     }
                 }
                 break;

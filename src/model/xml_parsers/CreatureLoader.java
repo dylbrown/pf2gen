@@ -7,7 +7,6 @@ import model.attributes.BaseAttribute;
 import model.creatures.*;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
-import model.enums.Language;
 import model.enums.Trait;
 import model.enums.Type;
 import model.items.CustomTrait;
@@ -97,7 +96,15 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                     }
                     builder.setLanguages(
                             Arrays.stream(contents.substring(0, languagesEnd).split(", "))
-                                    .map(Language::testValueOf)
+                                    .map(s-> {
+                                        try {
+                                            return findFromDependencies("Language", LanguagesLoader.class, s);
+                                        } catch (ObjectNotFoundException e) {
+                                            e.printStackTrace();
+                                            return null;
+                                        }
+                                    })
+                                    .filter(Objects::nonNull)
                                     .collect(Collectors.toList())
                     );
                     break;
@@ -129,7 +136,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                     Arrays.stream(contents.split(", "))
                             .forEach(s->{
                                 String[] split = s.split(" ");
-                                builder.setModifier(AbilityScore.valueOf(split[0]), Integer.parseInt(split[1]));
+                                builder.setModifier(AbilityScore.robustValueOf(split[0]), Integer.parseInt(split[1]));
                             });
                     break;
                 case "Items":

@@ -5,10 +5,7 @@ import model.enums.Language;
 import model.enums.Sense;
 import model.enums.Size;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Ancestry extends AC {
     public static final Ancestry NO_ANCESTRY;
@@ -33,6 +30,7 @@ public class Ancestry extends AC {
         this.grantedAbilities = builder.grantedAbilities;
         this.languages = builder.languages;
         this.bonusLanguages = builder.bonusLanguages;
+        this.bonusLanguages.removeIf(language -> language.getName().equals("Free"));
         this.senses = builder.senses;
     }
 
@@ -90,8 +88,12 @@ public class Ancestry extends AC {
             this.bonusLanguages.removeAll(Arrays.asList(language));
         }
 
+        public void addBonusLanguages(Collection<Language> language) {
+            this.bonusLanguages.addAll(language);
+        }
+
         public void addBonusLanguages(Language... language) {
-            this.bonusLanguages.addAll(Arrays.asList(language));
+            this.addBonusLanguages(Arrays.asList(language));
         }
 
         public void addSenses(Sense... sense) {

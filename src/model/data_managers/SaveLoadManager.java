@@ -87,14 +87,14 @@ public class SaveLoadManager {
             for (Choice<?> decision : character.decisions().getDecisions()) {
                 if(decision.getSelections().size() == 0) continue;
                 StringBuilder builder = new StringBuilder();
-                builder.append(decision.toString()).append(" : ");
+                builder.append(decision).append(" : ");
                 boolean first = true;
                 for (Object selection : decision.getSelections()) {
                     if(first) first = false;
                     else builder.append(" ^ ");
                     builder.append(selection.toString());
                 }
-                writeOutLine(out, " - " + builder.toString());
+                writeOutLine(out, " - " + builder);
             }
             writeOutLine(out, "money = " + character.inventory().getMoney());
             writeOutLine(out, "Inventory");
@@ -615,10 +615,10 @@ public class SaveLoadManager {
     private static Triple<Type, AbilityScore, List<AbilityScore>> makeTriple(String s) {
         String[] choice = s.split(":", 3);
         Type type = Type.valueOf(choice[0]);
-        AbilityScore target = AbilityScore.valueOf(choice[choice.length-1]);
+        AbilityScore target = AbilityScore.robustValueOf(choice[choice.length-1]);
         List<AbilityScore> choices;
         if(choice.length == 3) {
-            choices = Arrays.stream(choice[1].split("/")).map(AbilityScore::valueOf).collect(Collectors.toList());
+            choices = Arrays.stream(choice[1].split("/")).map(AbilityScore::robustValueOf).collect(Collectors.toList());
         }else{
             choices = AbilityScore.scores();
         }

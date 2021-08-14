@@ -128,6 +128,26 @@ public abstract class FileLoader<T> {
         throw new ObjectNotFoundException(name, nameOfA);
     }
 
+    public <A, B extends FileLoader<A>> NavigableMap<String, A> findCategoryFromDependencies(String nameOfA, Class<B> loaderClass, String category) {
+        TreeMap<String, A> map = new TreeMap<>();
+        B loader = source.getLoader(loaderClass);
+        if (loader != null) {
+            loader.getCategory(category).entrySet().parallelStream()
+                    .forEach(e->map.put(e.getKey(), e.getValue()));
+        }
+        for (String dependency : source.getDependencies()) {
+            Source childSource = SourcesLoader.instance().find(dependency);
+            if(childSource != null) {
+                loader = childSource.getLoader(loaderClass);
+                if (loader != null) {
+                    loader.getCategory(category).entrySet().parallelStream()
+                            .forEach(e->map.put(e.getKey(), e.getValue()));
+                }
+            }
+        }
+        return map;
+    }
+
     public NavigableMap<String, T> getCategory(String category) {
         if(loadTracker.isNotLoaded(category))
             load(category, "");

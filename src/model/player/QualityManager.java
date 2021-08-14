@@ -21,19 +21,19 @@ public class QualityManager implements PlayerState {
     private final ObservableSet<Trait> traits = FXCollections.observableSet(new TreeSet<>());
     private final Set<Language> languages = new TreeSet<>();
     private final Set<Sense> senses = new TreeSet<>();
-    private final ObservableList<String> bonusLanguages = FXCollections.observableArrayList();
-    private final ArbitraryChoice<String> bonusLanguageChoice;
+    private final ObservableList<Language> bonusLanguages = FXCollections.observableArrayList();
+    private final ArbitraryChoice<Language> bonusLanguageChoice;
 
-    QualityManager(Consumer<ArbitraryChoice<String>> addDecision,
-                   Consumer<ArbitraryChoice<String>> removeDecision,
+    QualityManager(Consumer<ArbitraryChoice<Language>> addDecision,
+                   Consumer<ArbitraryChoice<Language>> removeDecision,
                    Applier<Ability> applier) {
-        ArbitraryChoice.Builder<String> builder = new ArbitraryChoice.Builder<>();
+        ArbitraryChoice.Builder<Language> builder = new ArbitraryChoice.Builder<>();
         builder.setName("Bonus Languages");
         builder.setChoices(bonusLanguages);
         builder.setFillFunction(this::addBonusLanguage);
         builder.setEmptyFunction(this::removeBonusLanguage);
         builder.setMaxSelections(0);
-        builder.setOptionsClass(String.class);
+        builder.setOptionsClass(Language.class);
         bonusLanguageChoice = builder.build();
         bonusLanguageChoice.maxSelectionsProperty().addListener((o, oldVal, newVal) -> {
             if(oldVal.intValue() > 0 && newVal.intValue() <= 0) removeDecision.accept(bonusLanguageChoice);
@@ -57,16 +57,16 @@ public class QualityManager implements PlayerState {
         });
     }
 
-    public ArbitraryChoice<String> getBonusLanguageChoice() {
+    public ArbitraryChoice<Language> getBonusLanguageChoice() {
         return bonusLanguageChoice;
     }
 
-    private void addBonusLanguage(String language) {
-        languages.add(Language.valueOf(language));
+    private void addBonusLanguage(Language language) {
+        languages.add(language);
     }
 
-    private void removeBonusLanguage(String language) {
-        languages.remove(Language.valueOf(language));
+    private void removeBonusLanguage(Language language) {
+        languages.remove(language);
     }
 
     protected void addTrait(Trait trait) {
@@ -95,21 +95,21 @@ public class QualityManager implements PlayerState {
     }
 
     public void update(Ancestry ancestry, Ancestry oldAncestry) {
-        bonusLanguages.removeIf(language -> ancestry.getBonusLanguages().contains(Language.valueOf(language)));
-        bonusLanguages.removeIf(l->!ancestry.getBonusLanguages().contains(Language.valueOf(l)));
+        bonusLanguages.removeIf(language -> ancestry.getBonusLanguages().contains(language));
+        bonusLanguages.removeIf(l->!ancestry.getBonusLanguages().contains(l));
         for (Language bonusLanguage : ancestry.getBonusLanguages()) {
-            if(!bonusLanguages.contains(bonusLanguage.toString()))
-                bonusLanguages.add(bonusLanguage.toString());
+            if(!bonusLanguages.contains(bonusLanguage))
+                bonusLanguages.add(bonusLanguage);
         }
         int bonusLanguageIncrease = 0;
         for (Language language : oldAncestry.getLanguages()) {
-            if(language.equals(Language.Free))
+            if(language.getName().equals("Free"))
                 bonusLanguageIncrease -= 1;
             else
                 languages.remove(language);
         }
         for (Language language : ancestry.getLanguages()) {
-            if(language.equals(Language.Free))
+            if(language.getName().equals("Free"))
                 bonusLanguageIncrease += 1;
             else
                 languages.add(language);
@@ -119,7 +119,7 @@ public class QualityManager implements PlayerState {
         oldAncestry.getSenses().forEach(senses::remove);
         senses.addAll(ancestry.getSenses());
 
-        set("languages", languages.stream().map(Enum::toString).collect(Collectors.joining(", ")));
+        set("languages", languages.stream().map(Language::toString).collect(Collectors.joining(", ")));
         set("senses", senses.stream().map(Sense::getName).collect(Collectors.joining(", ")));
     }
 

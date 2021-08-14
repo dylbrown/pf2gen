@@ -491,7 +491,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         for(int i=0;i<split.length;i++) {
             if(split[i].trim().equals("")) continue;
             split[i] = camelCaseWord(split[i].trim());
-            abilityMods.add(new AbilityMod(AbilityScore.valueOf(split[i]), false, type));
+            abilityMods.add(new AbilityMod(AbilityScore.robustValueOf(split[i]), false, type));
         }
 
         return abilityMods;
@@ -513,7 +513,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
     private AbilityScore[] parseChoices(String[] eachScore) {
         AbilityScore[] scores = new AbilityScore[eachScore.length];
         for(int i=0;i<eachScore.length;i++) {
-            scores[i] = AbilityScore.valueOf(camelCaseWord(eachScore[i].trim()));
+            scores[i] = AbilityScore.robustValueOf(camelCaseWord(eachScore[i].trim()));
         }
         return scores;
     }

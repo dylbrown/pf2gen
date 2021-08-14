@@ -51,11 +51,11 @@ public class CharacterWrapper implements TemplateHashModel {
 
         map.put("abilityMod", new FIHash((s)->
                 character.scores().getMod(
-                    AbilityScore.valueOf(camelCaseWord(s))),
+                    AbilityScore.robustValueOf(camelCaseWord(s))),
                 ()->false, wrapper));
 
         map.put("abilityScore", new FIHash((s)->
-                character.scores().getScore(AbilityScore.valueOf(camelCaseWord(s))),
+                character.scores().getScore(AbilityScore.robustValueOf(camelCaseWord(s))),
                 ()->false, wrapper));
 
 

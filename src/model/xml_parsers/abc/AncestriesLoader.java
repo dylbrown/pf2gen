@@ -3,10 +3,10 @@ package model.xml_parsers.abc;
 import model.abc.Ancestry;
 import model.data_managers.sources.Source;
 import model.data_managers.sources.SourceConstructor;
-import model.enums.Language;
 import model.enums.Size;
 import model.enums.Type;
 import model.util.ObjectNotFoundException;
+import model.xml_parsers.LanguagesLoader;
 import model.xml_parsers.SensesLoader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -15,6 +15,8 @@ import org.w3c.dom.NodeList;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static model.util.StringUtils.camelCaseWord;
 
@@ -39,16 +41,26 @@ public class AncestriesLoader extends ACLoader<Ancestry, Ancestry.Builder> {
         switch(curr.getTagName()){
             case "Languages":
                 for (String s : trim.split(",")) {
-                    builder.addLanguages(Language.valueOf(s.trim()));
+                    try {
+                        builder.addLanguages(findFromDependencies("Language", LanguagesLoader.class, s.trim()));
+                    } catch (ObjectNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 }
                 break;
             case "BonusLanguages":
-                for (String s : trim.split(",")) {
-                    if(s.trim().equals("All")){
-                        builder.addBonusLanguages(Language.getChooseable());
+                Pattern allLanguages = Pattern.compile("All (\\w+) Languages");
+                for (String s : trim.split(", ?")) {
+                    Matcher matcher = allLanguages.matcher(s);
+                    if(matcher.find()){
+                        builder.addBonusLanguages(findCategoryFromDependencies("Language", LanguagesLoader.class, matcher.group(1)).values());
                         break;
                     }
-                    builder.addBonusLanguages(Language.valueOf(s.trim()));
+                    try {
+                        builder.addBonusLanguages(findFromDependencies("Language", LanguagesLoader.class, s.trim()));
+                    } catch (ObjectNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 }
                 break;
             case "Senses":
