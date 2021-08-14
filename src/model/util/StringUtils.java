@@ -83,4 +83,8 @@ public class StringUtils {
         }
         return "";
     }
+
+    public static String sanitizePath(String s) {
+        return s.replaceAll("[#?!*.\"\\[\\]:;|,/]", "");
+    }
 }

@@ -13,6 +13,8 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public abstract class NethysListScraper extends NethysScraper {
@@ -45,7 +47,7 @@ public abstract class NethysListScraper extends NethysScraper {
         this(inputURL, outputPath, container, hrefValidator, sourceValidator, type, false);
     }
 
-    public NethysListScraper(String inputURL, Writer out, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator) {
+    public NethysListScraper(String inputURL, Consumer<String> out, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator) {
         this(inputURL, out, container, hrefValidator, sourceValidator, false);
     }
 
@@ -62,29 +64,66 @@ public abstract class NethysListScraper extends NethysScraper {
         printOutput(outputPath, sourceValidator);
     }
 
-    public NethysListScraper(String inputURL, Writer out, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator, boolean multithreaded) {
+    public NethysListScraper(String inputURL, Consumer<String> out, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator, boolean multithreaded) {
         this.multithreaded = multithreaded;
         parseList(inputURL, container, hrefValidator, e -> true);
         printOutput(out, sourceValidator);
+    }
+
+    protected final void printOutput(Function<String, String> sourceToFile, String prefix, String suffix) {
+        System.out.println("Checking Completion now");
+        try {
+            for(int i = 0; i < counter.get(); i++) {
+                completionService.take();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        afterThreadsCompleted();
+        System.out.println("Writing to disk");
+        sources.entrySet().parallelStream().forEach(entry->{
+            try {
+                File file = new File(sourceToFile.apply(entry.getKey()));
+                if(!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
+                    System.out.println("Failed to create dir "+ file);
+                    return;
+                }
+                BufferedWriter out = new BufferedWriter(new FileWriter(file), 32768);
+                out.write(prefix);
+                printList(entry.getValue(), s-> {
+                    try {
+                        out.write(s);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+                out.write(suffix);
+                out.close();
+                System.out.println("Wrote "+file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     protected final void printOutput(String outputPath, Predicate<String> sourceValidator) {
         BufferedWriter out;
         try {
             out = new BufferedWriter(new FileWriter(outputPath), 32768);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-        printOutput(out, sourceValidator);
-        try {
+            printOutput(str -> {
+                try {
+                    out.write(str);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }, sourceValidator);
             out.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    protected final void printOutput(Writer out, Predicate<String> sourceValidator) {
+    protected final void printOutput(Consumer<String> out, Predicate<String> sourceValidator) {
         System.out.println("Checking Completion now");
         try {
             for(int i = 0; i < counter.get(); i++) {
@@ -102,15 +141,9 @@ public abstract class NethysListScraper extends NethysScraper {
         }
     }
 
-    protected void printList(Map<String, List<Entry>> map, Writer out) {
+    protected void printList(Map<String, List<Entry>> map, Consumer<String> out) {
         map.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry->
-                entry.getValue().stream().sorted(Comparator.comparing(e->e.entryName)).forEach(e->{
-                            try {
-                                out.append(e.entry);
-                            } catch (IOException exception) {
-                                exception.printStackTrace();
-                            }
-                        })
+                entry.getValue().stream().sorted(Comparator.comparing(e->e.entryName)).forEach(e-> out.accept(e.entry))
         );
     }
 
@@ -205,22 +238,6 @@ public abstract class NethysListScraper extends NethysScraper {
             }
             semaphore.release();
         }, true);
-    }
-
-    public static class Entry {
-        public final String entryName;
-        public final String entry;
-        public final String source;
-
-        public Entry(String entryName, String entry, String source) {
-            this.entryName = entryName;
-            this.entry = entry;
-            this.source = source;
-        }
-
-        public String getEntryName() {
-            return entryName;
-        }
     }
 
     abstract Entry addItem(Document doc);

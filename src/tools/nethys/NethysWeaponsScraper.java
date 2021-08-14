@@ -8,9 +8,9 @@ import org.jsoup.nodes.Node;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class NethysWeaponsScraper extends NethysWeaponsArmorScraper {
@@ -34,7 +34,15 @@ public class NethysWeaponsScraper extends NethysWeaponsArmorScraper {
         for (Pair<String, String> table : tables) {
             try {
                 out.write("<" + table.second + ">");
-                new NethysWeaponsScraper("https://2e.aonprd.com/Weapons.aspx", out, table.first, href->href.contains("Weapons.aspx?ID="), s->s.equalsIgnoreCase("core_rulebook"));
+                new NethysWeaponsScraper("https://2e.aonprd.com/Weapons.aspx", s-> {
+                    try {
+                        out.write(s);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }, table.first,
+                        href->href.contains("Weapons.aspx?ID="),
+                        s->s.equalsIgnoreCase("core_rulebook"));
                 out.write("</" + table.second + ">");
             } catch (IOException e) {
                 e.printStackTrace();
@@ -48,7 +56,7 @@ public class NethysWeaponsScraper extends NethysWeaponsArmorScraper {
         }
     }
 
-    public NethysWeaponsScraper(String inputURL, Writer output, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator) {
+    public NethysWeaponsScraper(String inputURL, Consumer<String> output, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator) {
         super(inputURL, output, container, hrefValidator, sourceValidator, true);
     }
 

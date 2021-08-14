@@ -13,6 +13,23 @@ import java.util.List;
 import java.util.function.Predicate;
 
 abstract class NethysScraper {
+
+	public static class Entry {
+		public final String entryName;
+		public final String entry;
+		public final String source;
+
+		public Entry(String entryName, String entry, String source) {
+			this.entryName = entryName;
+			this.entry = entry;
+			this.source = source;
+		}
+
+		public String getEntryName() {
+			return entryName;
+		}
+	}
+
 	static String getAfter(Element output, String bContents) {
 		Elements elems = output.getElementsMatchingOwnText("\\A" + bContents + "\\z");
 		if(elems.size() > 0) {
@@ -47,7 +64,7 @@ abstract class NethysScraper {
 	}
 
 	String getHeaderContents(Element output, String headerTitle) {
-		Element header = output.getElementsMatchingOwnText(headerTitle).first();
+		Element header = output.getElementsMatchingOwnText(headerTitle).select(":not(#ctl00_MainContent_DetailedOutput)").first();
 		StringBuilder contents = new StringBuilder();
 		if(header != null) {
 			Node curr = header.nextSibling();

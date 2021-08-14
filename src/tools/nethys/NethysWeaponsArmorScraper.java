@@ -1,10 +1,9 @@
 package tools.nethys;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public abstract class NethysWeaponsArmorScraper extends NethysListScraper {
@@ -17,7 +16,7 @@ public abstract class NethysWeaponsArmorScraper extends NethysListScraper {
         super(inputURL, outputPath, container, hrefValidator, sourceValidator);
     }
 
-    public NethysWeaponsArmorScraper(String inputURL, Writer out, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator) {
+    public NethysWeaponsArmorScraper(String inputURL, Consumer<String> out, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator) {
         super(inputURL, out, container, hrefValidator, sourceValidator);
     }
 
@@ -25,33 +24,23 @@ public abstract class NethysWeaponsArmorScraper extends NethysListScraper {
         super(inputURL, outputPath, container, hrefValidator, sourceValidator, multithreaded);
     }
 
-    public NethysWeaponsArmorScraper(String inputURL, Writer out, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator, boolean multithreaded) {
+    public NethysWeaponsArmorScraper(String inputURL, Consumer<String> out, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator, boolean multithreaded) {
         super(inputURL, out, container, hrefValidator, sourceValidator, multithreaded);
     }
 
     @Override
-    protected void printList(Map<String, List<Entry>> map, Writer out) {
+    protected void printList(Map<String, List<Entry>> map, Consumer<String> out) {
         for (String proficiency : getProficiencies()) {
             List<Entry> entries = map.get(proficiency);
             if(entries == null)
                 continue;
-            try {
-                out.append("<").append(proficiency).append(">\n");
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
-            entries.stream().sorted(Comparator.comparing(e -> e.entryName)).forEach(e -> {
-                try {
-                    out.append(e.entry);
-                } catch (IOException exception) {
-                    exception.printStackTrace();
-                }
-            });
-            try {
-                out.append("</").append(proficiency).append(">\n");
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
+            out.accept("<");
+            out.accept(proficiency);
+            out.accept(">\n");
+            entries.stream().sorted(Comparator.comparing(e -> e.entryName)).forEach(e -> out.accept(e.entry));
+            out.accept("</");
+            out.accept(proficiency);
+            out.accept(">\n");
         }
 
     }

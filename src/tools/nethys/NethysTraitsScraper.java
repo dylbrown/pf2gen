@@ -7,22 +7,27 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class NethysTraitsScraper extends NethysListScraper {
 
     public static void main(String[] args) {
-        new NethysTraitsScraper("https://2e.aonprd.com/Traits.aspx", "generated/traits.pfdyl");
+        new NethysTraitsScraper();
     }
 
-    public NethysTraitsScraper(String inputURL, String outputPath) {
+    public NethysTraitsScraper() {
         super(true);
-        parseList(inputURL, "ctl00_MainContent_DetailedOutput",
+        parseList("https://2e.aonprd.com/Traits.aspx", "ctl00_MainContent_DetailedOutput",
                 href->href.contains("Traits.aspx?ID="), e -> true);
-        printOutput(outputPath, source->source.equals("advanced_player's_guide"));
+        String prefix = "<?xml version = \"1.0\"?>\n" +
+                "<pf2:traits xmlns:pf2=\"https://dylbrown.github.io\"\n" +
+                "            xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                "            xsi:schemaLocation=\"https://dylbrown.github.io ../../schemata/trait.xsd\">";
+        String suffix = "\n" + "</pf2:traits>";
+        printOutput(source->"generated/"+source+"/traits.pfdyl", prefix, suffix);
     }
 
     @Override
@@ -67,7 +72,7 @@ public class NethysTraitsScraper extends NethysListScraper {
         System.out.println(href);
         Entry entry = addItem(Jsoup.connect("http://2e.aonprd.com/"+href).get());
         if (!entry.entry.isBlank())
-            sources.computeIfAbsent(StringUtils.clean(entry.source), key ->
+            sources.computeIfAbsent(StringUtils.sanitizePath(entry.source), key ->
                     new ConcurrentHashMap<>())
                     .computeIfAbsent(currentSection, s-> Collections.synchronizedList(new ArrayList<>()))
                     .add(entry);
@@ -92,26 +97,15 @@ public class NethysTraitsScraper extends NethysListScraper {
     }
 
     @Override
-    protected void printList(Map<String, List<Entry>> map, Writer out) {
+    protected void printList(Map<String, List<Entry>> map, Consumer<String> out) {
         map.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry->
                 {
-                    try {
-                        out.append("<Category name=\"").append(entry.getKey()).append("\">\n");
-                    } catch (IOException exception) {
-                        exception.printStackTrace();
-                    }
-                    entry.getValue().stream().sorted(Comparator.comparing(e->e.entryName)).forEach(e->{
-                        try {
-                            out.append(e.entry);
-                        } catch (IOException exception) {
-                            exception.printStackTrace();
-                        }
-                    });
-                    try {
-                        out.append("</Category>\n");
-                    } catch (IOException exception) {
-                        exception.printStackTrace();
-                    }
+                    out.accept("<Category name=\"");
+                    out.accept(entry.getKey());
+                    out.accept("\">\n");
+                    entry.getValue().stream().sorted(Comparator.comparing(e->e.entryName))
+                            .forEach(e-> out.accept(e.entry));
+                    out.accept("</Category>\n");
                 }
         );
     }

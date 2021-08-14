@@ -9,11 +9,11 @@ import org.jsoup.nodes.Node;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class NethysArmorAndShieldsScraper extends NethysWeaponsArmorScraper {
@@ -38,7 +38,16 @@ public class NethysArmorAndShieldsScraper extends NethysWeaponsArmorScraper {
             return;
         }
         for (Triple<String, String, Integer> table : tables) {
-            new NethysArmorAndShieldsScraper(table.first, out, "ctl00_MainContent_TreasureElement", href->href.contains(table.second), s->s.equalsIgnoreCase("core_rulebook"), table.third);
+            new NethysArmorAndShieldsScraper(table.first, s-> {
+                try {
+                    out.write(s);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }, "ctl00_MainContent_TreasureElement",
+                    href->href.contains(table.second),
+                    s->s.equalsIgnoreCase("core_rulebook"),
+                    table.third);
         }
         try {
             out.write("</pf2:armorAndShields>");
@@ -48,7 +57,7 @@ public class NethysArmorAndShieldsScraper extends NethysWeaponsArmorScraper {
         }
     }
 
-    public NethysArmorAndShieldsScraper(String inputURL, Writer output, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator, int rowNumber) {
+    public NethysArmorAndShieldsScraper(String inputURL, Consumer<String> output, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator, int rowNumber) {
         super(false);
         this.rowNumber = rowNumber;
         parseList(inputURL, container, hrefValidator, e -> true);

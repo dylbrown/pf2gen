@@ -1,6 +1,9 @@
 package tools.nethys;
 
-import model.util.Pair;
+import model.util.StringUtils;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,118 +16,92 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 class NethysItemScraper extends NethysScraper {
-	private Map<String, StringBuilder> sources = new HashMap<>();
-	private final Set<Integer> visited = new HashSet<>();
-	private static final List<Integer> extensions = new ArrayList<>(Arrays.asList(
-			1,15,6,45,21,22,23,2,31,32,33,34,41
-	));
+	// source, category, subcategory
+	private Map<String, Map<String, Map<String, StringBuilder>>> strings = new HashMap<>();
+	private Set<Integer> visited = new HashSet<>();
 
 	public static void main(String[] args) {
-		for (int extension : extensions) {
-			new NethysItemScraper("https://2e.aonprd.com/Equipment.aspx?Category="+extension);
-		}
+		new NethysItemScraper("C:\\Users\\dylan\\Downloads\\RadGridExport (4).csv");
 	}
 
 	private NethysItemScraper(String inputURL) {
-		Document doc;
-		BufferedWriter out;
-		try  {
-			doc = Jsoup.connect(inputURL).get();
-			String title = doc.getElementById("main").getElementsByClass("title").first().text();
-			File outputFile = new File("generated/"
-					+ title.toLowerCase().replaceAll(" ", "_")
-					+ ".pfdyl");
-			if(outputFile.exists()) return;
-			out = new BufferedWriter(new FileWriter(outputFile));
-			out.write("<pf2:Items category=\""+title+"\" xmlns:pf2=\"https://dylbrown.github.io\"\n" +
-					"\t\t   xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-					"\t\t   xsi:schemaLocation=\"https://dylbrown.github.io ../../schemata/item.xsd\">\n");
-			parseTable(doc, out);
-			out.write("</pf2:Items>");
-			out.close();
+		try {
+			boolean isFirst = true;
+			for (CSVRecord record : CSVParser.parse(new File(inputURL), Charset.defaultCharset(), CSVFormat.DEFAULT)) {
+				if(isFirst) {
+					isFirst = false;
+					continue;
+				}
+				String href = record.get(0).replaceAll("(.*href=\"|\">(.|\n|\r)*)", "");
+				String source = record.get(2).replaceAll("((.|\n|\r)*<a [^>]+>|</a>(.|\n|\r)*)", "");
+				String category = StringUtils.clean(record.get(5).replaceAll("((.|\n|\r)*<a [^>]+>|</a>(.|\n|\r)*)", ""));
+				String subCategory = record.get(6).replaceAll("((.|\n|\r)*<a [^>]+>|</a>(.|\n|\r)*)", "");
+				if(subCategory.equals("—")) subCategory = null;
+				StringBuilder stringBuilder = strings.computeIfAbsent(source, s -> new HashMap<>())
+						.computeIfAbsent(category, s -> new HashMap<>())
+						.computeIfAbsent(subCategory, s -> new StringBuilder());
+				addItem(href, stringBuilder);
+			}
+
+			for (Map.Entry<String, Map<String, Map<String, StringBuilder>>> sourceEntry : strings.entrySet()) {
+				String source = StringUtils.sanitizePath(sourceEntry.getKey());
+				String itemsFolder = "generated/" + source + "/items/";
+				if(!new File(itemsFolder).mkdirs())
+					System.out.println(itemsFolder);
+				for (Map.Entry<String, Map<String, StringBuilder>> categoryEntry : sourceEntry.getValue().entrySet()) {
+					String category = categoryEntry.getKey();
+					BufferedWriter out = new BufferedWriter(
+							new FileWriter(itemsFolder + StringUtils.clean(category) + ".pfdyl"));
+					out.write("<pf2:Items category=\""+category+"\" xmlns:pf2=\"https://dylbrown.github.io\"\n" +
+							"\t\t   xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+							"\t\t   xsi:schemaLocation=\"https://dylbrown.github.io ../../schemata/item.xsd\">\n");
+					for (Map.Entry<String, StringBuilder> subcategoryEntry : categoryEntry.getValue().entrySet()) {
+						String subcategory = subcategoryEntry.getKey();
+						if(subcategory != null)
+							out.write("<SubCategory name=\""+subcategory+"\">\n");
+						out.write(subcategoryEntry.getValue().toString());
+						if(subcategory != null)
+							out.write("</SubCategory>\n");
+					}
+					out.write("</pf2:Items>");
+					out.close();
+				}
+			}
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void parseTable(Document doc, BufferedWriter out) {
-		if (doc.getElementById("ctl00_MainContent_TreasureElement") == null){
-			for (Element subCat : doc.getElementById("ctl00_MainContent_SubNavigation").getElementsByTag("a")) {
-				try {
-					Document subDoc = Jsoup.connect("https://2e.aonprd.com/"+subCat.attr("href")).get();
-					String subCatName = subDoc.getElementById("main")
-							.getElementsByClass("title").first().text();
-					out.write("<SubCategory name=\""+subCatName+"\">\n");
-					parseTable(subDoc, out);
-					out.write("</SubCategory>");
-					sources = new HashMap<>();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+	private void addItem(String href, StringBuilder items) {
+		Document doc;
+		try  {
+			doc = Jsoup.connect(href).get();
+		} catch (IOException e) {
+			System.out.println(href);
+			e.printStackTrace();
 			return;
 		}
-		doc.getElementById("ctl00_MainContent_TreasureElement").getElementsByTag("a").forEach(element -> {
-			String href = "";
-			try {
-				href = element.attr("href");
-				if (href.contains("ID")) {
-					int i = Integer.parseInt(href.replaceAll(".*\\?ID=", ""));
-					if (!visited.contains(i)) {
-						visited.add(i);
-						Pair<String, String> pair = addItem(href);
-						if (!pair.first.equals(""))
-							sources.computeIfAbsent(pair.second.toLowerCase(), key -> new StringBuilder())
-									.append(pair.first);
-					}
-				}
-			} catch (Exception e) {
-				System.out.println(href);
-				e.printStackTrace();
-			}
-		});
-		for (Map.Entry<String, StringBuilder> entry : sources.entrySet()) {
-			try {
-				if(entry.getKey().equals("core rulebook"))
-					out.write(entry.getValue().toString());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-	}
-
-	private Pair<String, String> addItem(String href) {
-		StringBuilder items = new StringBuilder();
-		Document doc;
-		try  {
-			doc = Jsoup.connect("http://2e.aonprd.com/"+href).get();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return new Pair<>("", "");
-		}
-//		if(href.equals("Equipment.aspx?ID=495"))
-//			System.out.println("Jellyfish");
 		Element output = doc.getElementById("main");
-		String sourceAndPage = output.getElementsMatchingText("\\ASource\\z").first().nextElementSibling().text();
-		String source = sourceAndPage.replaceAll(" pg.*", "");
-
 		Elements titles = output.getElementsByClass("title");
 		ItemBuilder baseItem = new ItemBuilder();
 		baseItem.setLevel(titles.first().getElementsByTag("span").text()
 								.replaceAll("[^\\d]", ""));
 		makeSpecificItem(titles.first(), baseItem);
 		if(titles.size() == 1) {
-			return new Pair<>(baseItem.build(), source);
+			items.append(baseItem.build());
 		} else {
 			for(int i=1; i < titles.size(); i++) {
 				items.append(makeSpecificItem(titles.get(i), baseItem.makeSubItem()).build());
 			}
 		}
-		return new Pair<>(items.toString(), source);
 	}
 
 	private ItemBuilder makeSpecificItem(Element element, ItemBuilder item) {
@@ -181,6 +158,7 @@ class NethysItemScraper extends NethysScraper {
 							item.setUsage(trim);
 							break;
 					}
+					previousLabel = null;
 				}
 			}
 			curr = curr.nextSibling();
