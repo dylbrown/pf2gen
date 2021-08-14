@@ -15,7 +15,7 @@ class SpellScraper extends SRDScraper {
 		new SpellScraper();
 	}
 	private SpellScraper() {
-		super("http://pf2.d20pfsrd.com/spell", "generated/spells.txt", 4);
+		super("http://pf2.d20pfsrd.com/spell", "generated/spells.pfdyl", 4);
 	}
 
 	@Override

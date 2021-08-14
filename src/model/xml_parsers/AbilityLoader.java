@@ -164,8 +164,8 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                             String[] split = s.trim().split(" ", 2);
                             builder.addRequiredScore(new Pair<>(AbilityScore.robustValueOf(split[0]), Integer.parseInt(split[1])));
                         } else if(s.matches("(Trained|Expert|Master|Legendary) [Ii]n .*")) {
-                            if(s.contains("or")) {
-                                String[] orStrings = s.split(" or ");
+                            if(s.contains("or") || s.contains("Or")) {
+                                String[] orStrings = s.split(" [Oo]r ");
                                 List<Requirement<Attribute>> orRequirements = new ArrayList<>();
                                 for (String option : orStrings) {
                                     orRequirements.add(getAttrReq(option));
@@ -175,8 +175,8 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                                 attrRequirements.add(getAttrReq(s));
                             }
                         } else if(s.matches("(Trained|Expert|Master|Legendary) [Ww]ith [Aa] .*")) {
-                            if(s.contains("or")) {
-                                String[] orStrings = s.split(" or ");
+                            if(s.contains("or") || s.contains("Or")) {
+                                String[] orStrings = s.split(" [Oo]r ");
                                 List<Requirement<String>> orRequirements = new ArrayList<>();
                                 for (String option : orStrings) {
                                     orRequirements.add(getReq(option));

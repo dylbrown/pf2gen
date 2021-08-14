@@ -123,7 +123,6 @@ class GroovyCommands {
         }
     }
     public void spell(String spellName, String spellListName) {
-        Spell spell = null;
         try {
             spell(sources.spells().find(spellName), spellListName);
         } catch (ObjectNotFoundException e) {
@@ -131,6 +130,20 @@ class GroovyCommands {
         }
     }
     public void spell(Spell spell, String spellListName) {
+        if(applying.get()) {
+            spells.getSpellList(spellListName).addBonusSpell(spell);
+        }else{
+            spells.getSpellList(spellListName).removeBonusSpell(spell);
+        }
+    }
+    public void focusSpell(String spellName, String spellListName) {
+        try {
+            focusSpell(sources.spells().find(spellName), spellListName);
+        } catch (ObjectNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+    public void focusSpell(Spell spell, String spellListName) {
         if(applying.get()) {
             spells.getSpellList(spellListName).addFocusSpell(spell);
         }else{

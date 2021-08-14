@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class AbilityHTMLGenerator {
+
     public static String parse(Ability ability) {
         StringBuilder text = new StringBuilder();
         text.append("<p><h4 style='display:inline;'>").append(ability.getName());
@@ -18,9 +19,11 @@ public class AbilityHTMLGenerator {
         if(activityExt != null)
             text.append(" ").append(activityExt.getCost().getIcon());
         text.append("<span style='float:right'>Level ").append(ability.getLevel()).append("</span></h4><br>");
-        text.append("<b>Traits</b> ")
-                .append(ability.getTraits().stream().map(Trait::toString).collect(Collectors.joining(", ")))
-                .append("<br>");
+        if(ability.getTraits().size() > 0) {
+            text.append("<b>Traits</b> ")
+                    .append(ability.getTraits().stream().map(Trait::toString).collect(Collectors.joining(", ")))
+                    .append("<br>");
+        }
 
         Requirement<Attribute> requiredAttrs = ability.getRequiredAttrs();
         List<Pair<AbilityScore, Integer>> requiredScores = ability.getRequiredScores();
@@ -54,7 +57,15 @@ public class AbilityHTMLGenerator {
         if(!ability.getRequirements().isBlank()) {
             text.append("<b>Requirements</b> ").append(ability.getRequirements()).append("<br>");
         }
-        text.append("<hr>").append(ability.getDescription());
+        if(!ability.getDescription().isBlank())
+            text.append("<hr>").append(ability.getDescription());
+        for (AbilityExtension extension : ability.getExtensions()) {
+            String s = HTMLGenerator.generate(extension);
+            if(!s.isBlank()) {
+                text.append("<hr>").append(s);
+            }
+        }
+
         return text.toString();
     }
 

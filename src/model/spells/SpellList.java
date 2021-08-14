@@ -48,7 +48,18 @@ public class SpellList implements PlayerState {
 			for (Map.Entry<Integer, Integer> entry : spellExtension.getExtraSpellsKnown().entrySet()) {
 				addKnown(entry.getKey(), entry.getValue());
 			}
-			addBonusSpells(spellExtension);
+			for (Map.Entry<SpellType, List<Spell>> entry : spellExtension.getBonusSpells().entrySet()) {
+				switch(entry.getKey()) {
+					case Spell:
+					case Cantrip:
+						entry.getValue().forEach(this::addBonusSpell);
+						break;
+					case Focus:
+					case FocusCantrip:
+						focusSpells.addAll(entry.getValue());
+						break;
+				}
+			}
 			if(spellExtension.getCasterType() != CasterType.None)
 				casterType.set(spellExtension.getCasterType());
 			if(spellExtension.getTradition() != null)
@@ -68,7 +79,19 @@ public class SpellList implements PlayerState {
 			for (Map.Entry<Integer, Integer> entry : spellExtension.getExtraSpellsKnown().entrySet()) {
 				removeKnown(entry.getKey(), entry.getValue());
 			}
-			removeBonusSpells(spellExtension);
+
+			for (Map.Entry<SpellType, List<Spell>> entry : spellExtension.getBonusSpells().entrySet()) {
+				switch(entry.getKey()) {
+					case Spell:
+					case Cantrip:
+						entry.getValue().forEach(this::removeBonusSpell);
+						break;
+					case Focus:
+					case FocusCantrip:
+						focusSpells.removeAll(entry.getValue());
+						break;
+				}
+			}
 			if(spellExtension.getCasterType() != CasterType.None)
 				casterType.set(CasterType.None);
 			if(spellExtension.getTradition() != null)
@@ -78,42 +101,16 @@ public class SpellList implements PlayerState {
 		}
 	}
 
-	private void addBonusSpells(SpellExtension spellExtension) {
-		for (Map.Entry<SpellType, List<Spell>> entry : spellExtension.getBonusSpells().entrySet()) {
-			switch(entry.getKey()) {
-				case Spell:
-				case Cantrip:
-					entry.getValue().forEach(s->{
-						if(addSpellInternal(s, s.getLevelOrCantrip(),  true))
-							addKnown(s.getLevelOrCantrip(), 1);
-					});
-					abilitySpells.addAll(entry.getValue());
-					break;
-				case Focus:
-				case FocusCantrip:
-					focusSpells.addAll(entry.getValue());
-					break;
-			}
-		}
+	public void addBonusSpell(Spell spell) {
+		addSpellInternal(spell, spell.getLevelOrCantrip(),  true);
+		addKnown(spell.getLevelOrCantrip(), 1);
+		abilitySpells.add(spell);
 	}
 
-	private void removeBonusSpells(SpellExtension spellExtension) {
-		for (Map.Entry<SpellType, List<Spell>> entry : spellExtension.getBonusSpells().entrySet()) {
-			switch(entry.getKey()) {
-				case Spell:
-				case Cantrip:
-					abilitySpells.removeAll(entry.getValue());
-					entry.getValue().forEach(s->{
-						if(removeSpellInternal(s, true))
-							removeKnown(s.getLevelOrCantrip(), 1);
-					});
-					break;
-				case Focus:
-				case FocusCantrip:
-					focusSpells.removeAll(entry.getValue());
-					break;
-			}
-		}
+	public void removeBonusSpell(Spell spell) {
+		removeSpellInternal(spell, true);
+		removeKnown(spell.getLevelOrCantrip(), 1);
+		abilitySpells.remove(spell);
 	}
 
 	public void addSlots(int level, int amount) {

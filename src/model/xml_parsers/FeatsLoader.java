@@ -28,6 +28,7 @@ public class FeatsLoader extends AbilityLoader<Ability> {
 
     private final Source.Builder sourceBuilder;
     private BloodlinesLoader bloodlineLoader;
+    private MysteriesLoader mysteryLoader;
 
     public FeatsLoader(SourceConstructor sourceConstructor, File root, Source.Builder sourceBuilder) {
         super(sourceConstructor, root, sourceBuilder);
@@ -43,6 +44,8 @@ public class FeatsLoader extends AbilityLoader<Ability> {
     protected Ability parseItem(File file, Element item, String category) {
         if(file.getName().toLowerCase().contains("bloodline") || category.equalsIgnoreCase("bloodline"))
             return makeBloodline(item);
+        if(file.getName().toLowerCase().contains("mystery") || category.equalsIgnoreCase("mystery"))
+            return makeMystery(item);
         Ability.Builder builder = makeAbility(item, item.getAttribute("name"));
         if (builder.getType() == Type.Untyped && sourceConstructor instanceof TypeSourceConstructor) {
             String type = ((TypeSourceConstructor) sourceConstructor).getObjectType(category);
@@ -79,5 +82,11 @@ public class FeatsLoader extends AbilityLoader<Ability> {
         if (bloodlineLoader == null)
             bloodlineLoader = new BloodlinesLoader(sourceBuilder);
         return bloodlineLoader.makeBloodline(item);
+    }
+
+    private Ability makeMystery(Element item) {
+        if (mysteryLoader == null)
+            mysteryLoader = new MysteriesLoader(sourceBuilder);
+        return mysteryLoader.makeMystery(item);
     }
 }

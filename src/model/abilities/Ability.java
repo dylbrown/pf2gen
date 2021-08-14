@@ -73,6 +73,10 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
         return null;
     }
 
+    public Collection<AbilityExtension> getExtensions() {
+        return Collections.unmodifiableCollection(extensions.values());
+    }
+
     public boolean hasExtension(String extensionName) {
         extensionName = extensionName.toLowerCase();
         for (Class<? extends AbilityExtension> aClass : extensions.keySet()) {

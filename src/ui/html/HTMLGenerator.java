@@ -4,17 +4,22 @@ import model.abc.Ancestry;
 import model.abc.Background;
 import model.abc.PClass;
 import model.abilities.Ability;
+import model.abilities.GranterExtension;
+import model.abilities.SpellExtension;
 import model.creatures.Creature;
 import model.items.Item;
-import model.spells.Spell;
 import model.setting.Deity;
 import model.setting.Domain;
+import model.spells.Spell;
+import ui.html.ability_extensions.GranterExtensionHTMLGenerator;
+import ui.html.ability_extensions.SpellExtensionHTMLGenerator;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 public class HTMLGenerator {
+
     private static class GeneratorPair<T> {
         public final Class<T> tClass;
         public final Function<T, String> generator;
@@ -41,6 +46,10 @@ public class HTMLGenerator {
         add(Domain.class, SettingHTMLGenerator::parse);
         add(Item.class, ItemHTMLGenerator::parse);
         add(Ability.class, AbilityHTMLGenerator::parse);
+        // Ability Extensions
+        add(SpellExtension.class, SpellExtensionHTMLGenerator::parse);
+        add(GranterExtension.class, GranterExtensionHTMLGenerator::parse);
+
         add(Spell.class, s -> SpellHTMLGenerator.parse(s, s.getLevelOrCantrip()));
         add(Creature.class, CreatureHTMLGenerator::parse);
     }
@@ -56,5 +65,12 @@ public class HTMLGenerator {
         }
         if(stringFunction == null) return t->"";
         return stringFunction::function;
+    }
+    public static <T> String generate(T t) {
+        return generateInternal(t.getClass(), t);
+    }
+
+    private static <T> String generateInternal(Class<T> tClass, Object o) {
+        return getGenerator(tClass).apply(tClass.cast(o));
     }
 }

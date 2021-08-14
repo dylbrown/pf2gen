@@ -1,11 +1,14 @@
 package tools.nethys;
 
 import model.util.StringUtils;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -13,6 +16,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 public abstract class NethysListScraper extends NethysScraper {
+    public enum Type {
+        CSV,
+        Webpage
+    }
+
     final Map<String, Map<String, List<Entry>>> sources = new ConcurrentHashMap<>();
     final Set<Integer> ids = new HashSet<>();
     final ExecutorService executorService = Executors.newCachedThreadPool();
@@ -30,7 +38,11 @@ public abstract class NethysListScraper extends NethysScraper {
     }
 
     public NethysListScraper(String inputURL, String outputPath, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator) {
-        this(inputURL, outputPath, container, hrefValidator, sourceValidator, false);
+        this(inputURL, outputPath, container, hrefValidator, sourceValidator, Type.Webpage);
+    }
+
+    public NethysListScraper(String inputURL, String outputPath, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator, Type type) {
+        this(inputURL, outputPath, container, hrefValidator, sourceValidator, type, false);
     }
 
     public NethysListScraper(String inputURL, Writer out, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator) {
@@ -38,8 +50,15 @@ public abstract class NethysListScraper extends NethysScraper {
     }
 
     public NethysListScraper(String inputURL, String outputPath, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator, boolean multithreaded) {
+        this(inputURL, outputPath ,container, hrefValidator, sourceValidator, Type.Webpage, multithreaded);
+    }
+
+    public NethysListScraper(String inputURL, String outputPath, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator, Type type, boolean multithreaded) {
         this.multithreaded = multithreaded;
-        parseList(inputURL, container, hrefValidator, e -> true);
+        if(type == Type.Webpage)
+            parseList(inputURL, container, hrefValidator, e -> true);
+        if(type == Type.CSV)
+            parseCSV(inputURL, hrefValidator);
         printOutput(outputPath, sourceValidator);
     }
 
@@ -131,6 +150,33 @@ public abstract class NethysListScraper extends NethysScraper {
                 }
             } else firstRow.set(false);
         });
+    }
+
+    protected void parseCSV(String inputURL, Predicate<String> hrefValidator) {
+        try {
+            CSVParser.parse(new File(inputURL), Charset.defaultCharset(), CSVFormat.DEFAULT).forEach(record -> {
+                        String href = "";
+                        try {
+                            href = record.get(0).replaceAll("(.*href=\"|\">.*)", "");
+                            int id = -1;
+                            try{
+                                id = Integer.parseInt(href.replaceAll(".*ID=", ""));
+                            }catch (NumberFormatException ignored) {}
+                            if(hrefValidator.test(href) && !ids.contains(id)) {
+                                ids.add(id);
+                                if(multithreaded)
+                                    setupItemMultithreaded(href, null);
+                                else
+                                    setupItem(href, null);
+                            }
+                        } catch (Exception e) {
+                            System.out.println(href);
+                            e.printStackTrace();
+                        }
+                    });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     protected void setupItem(String href, Element row) throws IOException {

@@ -141,6 +141,7 @@ public class PC {
             }
         }
         ancestryWatcher.firePropertyChange("ancestryChange", null, ancestry);
+        modManager.refreshAlways();
     }
 
     public void setBackground(Background background) {
@@ -158,6 +159,7 @@ public class PC {
             attributes.apply(background.getMods().get(1));
             abilities.apply(background.getFreeFeat());
         }
+        modManager.refreshAlways();
     }
 
     public void setPClass(PClass newPClass) {
@@ -178,10 +180,12 @@ public class PC {
             pClass.set(newPClass);
             level.set(1);
         }
+        modManager.refreshAlways();
     }
 
     public void setDeity(Deity newDeity) {
         deity.set(newDeity);
+        modManager.refreshAlways();
     }
 
     private void removeLevel(List<AbilitySlot> level) {

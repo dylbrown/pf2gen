@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>dylbrown</groupId>
     <artifactId>pf2gen</artifactId>
-    <version>0.15.0-alpha</version>
+    <version>0.16.0-alpha</version>
     <properties>
         <javafx.version>11.0.2</javafx.version>
     </properties>
@@ -98,6 +98,11 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
             <version>1.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.9.0</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->
         <dependency>

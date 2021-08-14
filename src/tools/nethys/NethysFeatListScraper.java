@@ -18,18 +18,18 @@ class NethysFeatListScraper extends NethysListScraper {
 
 	public static void main(String[] args) {
 		new NethysFeatListScraper(
-				"http://2e.aonprd.com/Feats.aspx?Traits=148",
+				"http://2e.aonprd.com/Feats.aspx?Traits=144",
 				"generated/feats.pfdyl",
 				source->source.equals("advanced_player's_guide"), true);
 	}
 
 	NethysFeatListScraper(String inputURL, String outputPath, Predicate<String> sourceValidator, boolean multithreaded) {
-		super(inputURL, outputPath, "ctl00_MainContent_TableElement",
+		super(inputURL, outputPath, "ctl00_MainContent_Rad_AllFeats",
 				href -> href.contains("Feats.aspx?ID"), sourceValidator, multithreaded);
 	}
 
 	NethysFeatListScraper(String inputURL, Writer output, Predicate<String> sourceValidator) {
-		super(inputURL, output, "ctl00_MainContent_TableElement",
+		super(inputURL, output, "ctl00_MainContent_Rad_AllFeats",
 				href -> href.contains("Feats.aspx?ID"), sourceValidator);
 	}
 
@@ -103,6 +103,8 @@ class NethysFeatListScraper extends NethysListScraper {
 			}
 		}
 		String prereqs = StringUtils.capitalize(getAfter(output, "Prerequisites"));
+		prereqs = prereqs.replace(";", ",");
+
 		String frequency = getAfter(output, "Frequency");
 		String archetype = getAfter(output, "Archetype");
 		String requirements = getAfter(output, "Requirements");

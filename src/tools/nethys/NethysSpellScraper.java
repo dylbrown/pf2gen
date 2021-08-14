@@ -13,11 +13,11 @@ import java.util.function.Predicate;
 class NethysSpellScraper extends NethysListScraper {
 
 	public static void main(String[] args) {
-		new NethysSpellScraper("http://2e.aonprd.com/Spells.aspx?Tradition=0", "generated/spells.txt", source->source.equals("advanced_player's_guide"));
+		new NethysSpellScraper("C:\\Users\\dylan\\Downloads\\RadGridExport (2).csv", "generated/spells.pfdyl", source->source.equals("world_guide"), Type.CSV);
 	}
 
-	private NethysSpellScraper(String inputURL, String outputPath, Predicate<String> sourceValidator) {
-		super(inputURL, outputPath, "ctl00_MainContent_DetailedOutput", href -> href.contains("Spells.aspx?ID"), sourceValidator);
+	private NethysSpellScraper(String inputURL, String outputPath, Predicate<String> sourceValidator, Type isCSV) {
+		super(inputURL, outputPath, "ctl00_MainContent_Rad_AllSpells", href -> href.contains("Spells.aspx?ID"), sourceValidator, isCSV);
 	}
 
 	@Override
