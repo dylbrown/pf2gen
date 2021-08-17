@@ -1,5 +1,6 @@
 package ui.todo;
 
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.ListChangeListener;
@@ -11,6 +12,7 @@ public class SpellsKnownTodoItem extends AbstractTodoItem {
     private final SpellList list;
     private final int level;
     private final ReadOnlyBooleanWrapper finished = new ReadOnlyBooleanWrapper(false);
+    private final ReadOnlyBooleanProperty finishedReadOnly = finished.getReadOnlyProperty();
 
     public SpellsKnownTodoItem(SpellList list, int level, Priority priority, Runnable navigateTo) {
         super(list.getIndex() + level, priority, navigateTo);
@@ -37,7 +39,7 @@ public class SpellsKnownTodoItem extends AbstractTodoItem {
 
     @Override
     public ObservableBooleanValue finishedProperty() {
-        return finished.getReadOnlyProperty();
+        return finishedReadOnly;
     }
 
     @Override

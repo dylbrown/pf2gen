@@ -85,7 +85,7 @@ public class PC {
         modManager = new GroovyModManager(groovyCommands, abilityApplier, itemApplier, level.getReadOnlyProperty());
         stateManagers.add(modManager);
         scores.getScoreEyeball(Int).addPropertyChangeListener(((o) -> {
-            attributes.updateSkillCount(getPClass().getSkillIncrease() + scores.getMod(Int));
+            attributes.updateSkillCount(getPClass().getSkillIncrease() + Math.max(0, scores.getMod(Int)));
             qualities.updateInt(scores.getMod(Int));
         }));
     }
@@ -175,7 +175,7 @@ public class PC {
             pClass.set(newPClass);
             level.set(1);
             applyLevel(newPClass.getLevel(1));
-            attributes.updateSkillCount(newPClass.getSkillIncrease() + scores.getMod(Int));
+            attributes.updateSkillCount(newPClass.getSkillIncrease() + Math.max(0, scores.getMod(Int)));
         }else{
             pClass.set(newPClass);
             level.set(1);

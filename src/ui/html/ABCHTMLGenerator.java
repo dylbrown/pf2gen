@@ -81,8 +81,9 @@ public class ABCHTMLGenerator {
             if(abilityMod instanceof AbilityModChoice) {
                 if(((AbilityModChoice) abilityMod).getChoices().size() == 6)
                     abilityMods.add("Free");
-                abilityMods.add(((AbilityModChoice) abilityMod).getChoices().stream()
-                        .map(AbilityScore::name).collect(Collectors.joining(" or ")));
+                else
+                    abilityMods.add(((AbilityModChoice) abilityMod).getChoices().stream()
+                            .map(AbilityScore::name).collect(Collectors.joining(" or ")));
             }else abilityMods.add(abilityMod.getTarget().name());
         }
         return abilityMods;

@@ -13,6 +13,7 @@ import model.enums.Type;
 import model.setting.Domain;
 import model.spells.SpellType;
 import model.util.ObjectNotFoundException;
+import model.util.StringUtils;
 import model.xml_parsers.setting.DomainsLoader;
 import org.w3c.dom.Element;
 
@@ -97,9 +98,11 @@ public class MysteriesLoader extends AbilityLoader<Ability> {
             try {
                 Domain domain = findFromDependencies("Domain", DomainsLoader.class, domainName);
                 Ability.Builder builder = new Ability.Builder();
-                builder.setName(domainName);
+                builder.setName(StringUtils.capitalize(domainName));
                 builder.setPage(domain.getPage());
-                builder.getExtension(SpellExtension.Builder.class).addBonusSpell(
+                SpellExtension.Builder spells = builder.getExtension(SpellExtension.Builder.class);
+                spells.setSpellListName("Oracle");
+                spells.addBonusSpell(
                         SpellType.Focus,
                         domain.getDomainSpell());
                 return builder.build();

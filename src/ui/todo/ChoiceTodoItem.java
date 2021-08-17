@@ -5,11 +5,13 @@ import model.ability_slots.Choice;
 
 public class ChoiceTodoItem<T> extends AbstractTodoItem {
     private final Choice<T> choice;
+    private final ObservableBooleanValue finished;
 
     public ChoiceTodoItem(Choice<T> choice, Priority priority, Runnable navigateTo) {
         super(choice.getName(), priority, navigateTo);
         priority.append(choice.getLevel());
         this.choice = choice;
+        this.finished = choice.numSelectionsProperty().greaterThanOrEqualTo(choice.maxSelectionsProperty());
     }
 
     @Override
@@ -19,6 +21,6 @@ public class ChoiceTodoItem<T> extends AbstractTodoItem {
 
     @Override
     public ObservableBooleanValue finishedProperty() {
-        return choice.numSelectionsProperty().greaterThanOrEqualTo(choice.maxSelectionsProperty());
+        return finished;
     }
 }

@@ -61,7 +61,7 @@ class NethysItemScraper extends NethysScraper {
 							new FileWriter(itemsFolder + StringUtils.clean(category) + ".pfdyl"));
 					out.write("<pf2:Items category=\""+category+"\" xmlns:pf2=\"https://dylbrown.github.io\"\n" +
 							"\t\t   xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-							"\t\t   xsi:schemaLocation=\"https://dylbrown.github.io ../../schemata/item.xsd\">\n");
+							"\t\t   xsi:schemaLocation=\"https://dylbrown.github.io ../../../schemata/item.xsd\">\n");
 					for (Map.Entry<String, StringBuilder> subcategoryEntry : categoryEntry.getValue().entrySet()) {
 						String subcategory = subcategoryEntry.getKey();
 						if(subcategory != null)

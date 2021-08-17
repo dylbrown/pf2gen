@@ -32,18 +32,18 @@ public class AbilityManager implements PlayerState {
 	private final ObservableList<AbilitySetExtension> abilitySetExtensions = FXCollections.observableArrayList();
 	private final Map<Type, Set<Ability>> abcTracker = new HashMap<>();
 	private final DecisionManager decisions;
-	private final Applier applier;
+	private final Applier<Ability> applier;
 	private final ReadOnlyObjectProperty<Ancestry> ancestry;
 	private final ReadOnlyObjectProperty<PClass> pClass;
 	private final Function<Ability, Boolean> meetsPrereqs;
 	private final Map<String, Set<Ability>> archetypeAbilities = new HashMap<>();
 	private final Map<String, Ability> archetypeDedications = new HashMap<>();
 	private final ObservableSet<Trait> traits;
-	private Map<FeatSlot, ObservableList<Ability>> featSlotOptions = new HashMap<>();
+	private final Map<FeatSlot, ObservableList<Ability>> featSlotOptions = new HashMap<>();
 	private final SourcesManager sources;
 
 	AbilityManager(SourcesManager sources, DecisionManager decisions, ReadOnlyObjectProperty<Ancestry> ancestry,
-	               ReadOnlyObjectProperty<PClass> pClass, Applier applier,
+	               ReadOnlyObjectProperty<PClass> pClass, Applier<Ability> applier,
 	               Function<Ability, Boolean> meetsPrereqs, ObservableSet<Trait> traits) {
 		this.sources = sources;
 		this.applier = applier;
@@ -161,6 +161,7 @@ public class AbilityManager implements PlayerState {
 							String className = allowedType.substring(bracket + 1, close);
 							try {
 								results.addAll(sources.classes().find(className).getFeats(maxLevel));
+								results.addAll(sources.feats().getCategory(className).values());
 							} catch (ObjectNotFoundException e) {
 								e.printStackTrace();
 							}
@@ -220,6 +221,12 @@ public class AbilityManager implements PlayerState {
 							try {
 								Ancestry ancestry = sources.ancestries().find(trait.getName());
 								results.addAll(ancestry.getFeats(maxLevel));
+								ObservableList<Ability> finalResults = results;
+								sources.feats().getCategory(ancestry.getName()).values().parallelStream()
+										.forEach(a->{
+											if(a.getType() == Type.Ancestry)
+												finalResults.add(a);
+								});
 							} catch (ObjectNotFoundException ignored) {
 							}
 						}
@@ -228,8 +235,15 @@ public class AbilityManager implements PlayerState {
 								results.add(value);
 						break;
 					case "heritage":
-						if (ancestry.get() != null)
+						if (ancestry.get() != null) {
 							results.addAll(ancestry.get().getHeritages());
+							ObservableList<Ability> finalResults = results;
+							sources.feats().getCategory(ancestry.get().getName()).values().parallelStream()
+									.forEach(a->{
+										if(a.getType() == Type.Heritage)
+											finalResults.add(a);
+							});
+						}
 						for (Ability value : sources.feats().getCategory("Ancestry").values())
 							if(value.getType() == Type.Heritage)
 								results.add(value);
