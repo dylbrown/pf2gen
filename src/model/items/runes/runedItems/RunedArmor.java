@@ -42,6 +42,10 @@ public class RunedArmor extends ItemExtension {
         return this.runes;
     }
 
+    public int getAC() {
+        return getAC(0);
+    }
+
     @ItemDecorator
     public int getAC(int ac) {
         return runes.getAll().stream()

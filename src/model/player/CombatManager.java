@@ -8,6 +8,7 @@ import model.enums.Slot;
 import model.items.Item;
 import model.items.armor.Armor;
 import model.items.armor.Shield;
+import model.items.runes.runedItems.RunedArmor;
 import model.items.runes.runedItems.RunedWeapon;
 import model.items.weapons.*;
 
@@ -47,12 +48,19 @@ public class CombatManager implements PlayerState {
 
     public int getAC() {
         if(inventory.getEquipped(Slot.Armor) != null) {
-            Armor armor = inventory.getEquipped(Slot.Armor).stats().getExtension(Armor.class);
+            Item item = inventory.getEquipped(Slot.Armor).stats();
+            Armor armor = item.getExtension(Armor.class);
             if(armor != null) {
                 int dexMod = scores.getMod(Dex);
                 dexMod = Math.min(dexMod, armor.getMaxDex());
-                return 10 + attributes.getProficiency(armor.getProficiency().toAttribute())
+                int ac = 10 + attributes.getProficiency(armor.getProficiency().toAttribute())
                         .getValue().getMod(level.get()) + armor.getAC() + dexMod;
+
+                RunedArmor extension = item.getExtension(RunedArmor.class);
+                if(extension != null) {
+                    ac += extension.getAC();
+                }
+                return ac;
             }
         }
         return 10 + attributes.getProficiency(BaseAttribute.Unarmored).getValue().getMod(level.get()) + scores.getMod(Dex);
