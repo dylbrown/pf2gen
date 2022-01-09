@@ -19,13 +19,13 @@ public class NethysCreatureFamilyScraper extends NethysListScraper {
     }
 
     public NethysCreatureFamilyScraper(String inputURL, String outputPath, Predicate<String> sourceValidator, boolean multithreaded) {
-        super(inputURL, outputPath, "ctl00_MainContent_DetailedOutput", href->href.contains("MonsterFamilies.aspx?ID="), sourceValidator, multithreaded);
+        super(inputURL, outputPath, "main", href->href.contains("MonsterFamilies.aspx?ID="), sourceValidator, multithreaded);
     }
 
     @Override
     Entry addItem(Document doc) {
         StringBuilder builder = new StringBuilder();
-        Element output = doc.getElementById("ctl00_MainContent_DetailedOutput");
+        Element output = doc.getElementById("main");
         Pair<String, String> sourcePage = getSourcePage(output);
         String name = output.getElementsByClass("title").first().wholeText();
         if(name.equalsIgnoreCase("basilisk"))

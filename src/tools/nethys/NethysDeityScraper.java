@@ -23,7 +23,7 @@ public class NethysDeityScraper extends NethysListScraper {
 
     @Override
     Entry addItem(Document doc) {
-        Element output = doc.getElementById("ctl00_MainContent_DetailedOutput");
+        Element output = doc.getElementById("main");
         String deity = output.getElementsByTag("h1")
                 .first().text().replaceAll("( \\(.*| ?\\[.*)", "");
         String title = output.getElementsByTag("h1")

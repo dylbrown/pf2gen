@@ -1,7 +1,7 @@
 package tools.nethys;
 
+import com.gargoylesoftware.htmlunit.WebClient;
 import model.util.StringUtils;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
@@ -19,8 +19,8 @@ public class NethysTraitsScraper extends NethysListScraper {
     }
 
     public NethysTraitsScraper() {
-        super(true);
-        parseList("https://2e.aonprd.com/Traits.aspx", "ctl00_MainContent_DetailedOutput",
+        super(true, source->true);
+        parseList("https://2e.aonprd.com/Traits.aspx", "ctl00_RadDrawer1_Content_MainContent_DetailedOutput",
                 href->href.contains("Traits.aspx?ID="), e -> true);
         String prefix = "<?xml version = \"1.0\"?>\n" +
                 "<pf2:traits xmlns:pf2=\"https://dylbrown.github.io\"\n" +
@@ -32,12 +32,15 @@ public class NethysTraitsScraper extends NethysListScraper {
 
     @Override
     protected void parseList(String inputURL, String container, Predicate<String> hrefValidator, Predicate<Element> elementValidator) {
-        Document rootDocument;
-        try  {
-            rootDocument = Jsoup.connect(inputURL).get();
-        } catch (IOException e) {
+        WebClient webClient = null;
+        try {
+            webClient = semaphore.getItem();
+        } catch (InterruptedException e) {
             e.printStackTrace();
-            return;
+        }
+        Document rootDocument = makeDocument(inputURL, webClient);
+        if(isMultithreaded()) {
+            semaphore.putItem(webClient);
         }
         String currentSection = "Core";
         for (Element child : rootDocument.getElementById(container).children()) {
@@ -58,7 +61,7 @@ public class NethysTraitsScraper extends NethysListScraper {
                         if(isMultithreaded())
                             setupItemMultithreaded(href, currentSection);
                         else
-                            setupItem(href, currentSection);
+                            setupItem(href, currentSection, webClient);
                     }
                 } catch (Exception e) {
                     System.out.println(href);
@@ -66,33 +69,38 @@ public class NethysTraitsScraper extends NethysListScraper {
                 }
             }
         }
+        semaphore.putItem(webClient);
     }
 
-    private void setupItem(String href, String currentSection) throws IOException {
+    private void setupItem(String href, String currentSection, WebClient webClient) throws IOException {
         System.out.println(href);
-        Entry entry = addItem(Jsoup.connect("http://2e.aonprd.com/"+href).get());
-        if (!entry.entry.isBlank())
-            sources.computeIfAbsent(StringUtils.sanitizePath(entry.source), key ->
-                    new ConcurrentHashMap<>())
+        Entry entry = addItem(makeDocument("https://2e.aonprd.com/"+href, webClient));
+        if (!entry.entry.isBlank()) {
+            String clean = StringUtils.sanitizePath(entry.source);
+            sources.computeIfAbsent(clean, key ->
+                            new ConcurrentHashMap<>())
                     .computeIfAbsent(currentSection, s-> Collections.synchronizedList(new ArrayList<>()))
                     .add(entry);
+            sourceNames.computeIfAbsent(clean, s->entry.source);
+        }
     }
 
     private void setupItemMultithreaded(String href, String currentSection) {
         counter.incrementAndGet();
         completionService.submit(() -> {
+            WebClient webClient = null;
             try {
-                semaphore.acquire();
+                webClient = semaphore.getItem();
+                try {
+                    setupItem(href, currentSection, webClient);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
-                return;
+            } finally {
+                semaphore.putItem(webClient);
             }
-            try {
-                setupItem(href, currentSection);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            semaphore.release();
         }, true);
     }
 
@@ -112,8 +120,11 @@ public class NethysTraitsScraper extends NethysListScraper {
 
     @Override
     Entry addItem(Document doc) {
+        if(doc == null) {
+            return Entry.EMPTY;
+        }
         StringBuilder result = new StringBuilder();
-        Element output = doc.getElementById("ctl00_MainContent_DetailedOutput");
+        Element output = doc.getElementById("main");
         String sourcePage = getAfter(output, "Source");
         int end = sourcePage.indexOf("pg. ");
         int endPage = sourcePage.indexOf(' ', end + 4);

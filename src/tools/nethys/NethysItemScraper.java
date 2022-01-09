@@ -4,7 +4,6 @@ import model.util.StringUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
@@ -81,14 +80,7 @@ class NethysItemScraper extends NethysScraper {
 	}
 
 	private void addItem(String href, StringBuilder items) {
-		Document doc;
-		try  {
-			doc = Jsoup.connect(href).get();
-		} catch (IOException e) {
-			System.out.println(href);
-			e.printStackTrace();
-			return;
-		}
+		Document doc = makeDocumentStatic(href);
 		Element output = doc.getElementById("main");
 		Elements titles = output.getElementsByClass("title");
 		ItemBuilder baseItem = new ItemBuilder();

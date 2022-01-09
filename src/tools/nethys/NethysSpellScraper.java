@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 class NethysSpellScraper extends NethysListScraper {
 
 	public static void main(String[] args) {
-		new NethysSpellScraper("C:\\Users\\dylan\\Downloads\\RadGridExport (2).csv", "generated/spells.pfdyl", source->source.equals("world_guide"), Type.CSV);
+		new NethysSpellScraper("C:\\Users\\dylan\\Downloads\\RadGridExport (2).csv", "focus_spells.pfdyl", source->source.equals("secrets_of_magic"), Type.CSV);
 	}
 
 	private NethysSpellScraper(String inputURL, String outputPath, Predicate<String> sourceValidator, Type isCSV) {
@@ -22,8 +22,11 @@ class NethysSpellScraper extends NethysListScraper {
 
 	@Override
 	Entry addItem(Document doc) {
-		Element output = doc.getElementById("ctl00_MainContent_DetailedOutput");
-
+		Element output = doc.getElementById("ctl00_RadDrawer1_Content_MainContent_DetailedOutput");
+		if(output == null) {
+			System.out.println("Failed to get output element for " + doc.location());
+			return null;
+		}
 		String spellName = output.getElementsByClass("title").first().ownText();
 		String spellLevel = output.getElementsByClass("title").first().getElementsByTag("span").text().replaceAll("[^\\d]*", "");
 		String spellType = output.getElementsByClass("title").first().getElementsByTag("span").text().replaceAll("[ \\d]*", "");
@@ -53,12 +56,12 @@ class NethysSpellScraper extends NethysListScraper {
 					!currElem.tagName().equals("b"))
 				currElem = currElem.nextElementSibling();
 			if(currElem != null && currElem.tagName().equals("img")) {
-				if(cast.startsWith("to") || cast.startsWith("To")) {
+				if(cast.matches("\\A([tT]o|[oO]r).*")) {
 					//Variable Cost
 					String cost1 = currElem.attr("alt");
 					currElem = currElem.nextElementSibling().nextElementSibling();
 					String cost2 = currElem.attr("alt");
-					cast = cast.replaceAll("\\A[Tt]o *", "");
+					cast = cast.replaceAll("\\A([tT]o|[oO]r) *", "");
 					if(cast.isBlank())
 						cast = "(Varies)";
 					cast = cost1 + " to " + cost2 + " " + cast;
@@ -77,6 +80,9 @@ class NethysSpellScraper extends NethysListScraper {
 			Element curr = output.getElementsMatchingText("\\ATraditions\\z").first().nextElementSibling();
 			while (!curr.tagName().equals("br")) {
 				traditions.add(curr.text());
+				if(curr.nextElementSibling() == null) {
+					System.out.println("Unexpected null");
+				}
 				curr = curr.nextElementSibling();
 			}
 		}
@@ -108,6 +114,7 @@ class NethysSpellScraper extends NethysListScraper {
 			Element curr = output.getElementsByTag("hr").last().nextElementSibling();
 			while(curr != null) {
 				if(!(curr.nextSibling() instanceof TextNode)) break;
+				if(curr.tagName().equals("h3")) break;
 				String number = curr.text().replaceAll("[^\\d]*", "");
 				if(number.equals("")) number = "1";
 				if(curr.text().contains("+")) {

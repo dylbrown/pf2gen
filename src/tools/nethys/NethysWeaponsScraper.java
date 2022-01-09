@@ -88,7 +88,7 @@ public class NethysWeaponsScraper extends NethysWeaponsArmorScraper {
         if(!output.getElementsMatchingText("Reload").isEmpty())
             reload = getAfter(output, "Reload");
 
-        Node afterHr = output.select("#ctl00_MainContent_DetailedOutput hr").first().nextSibling();
+        Node afterHr = output.select("#main hr").first().nextSibling();
         StringBuilder description = new StringBuilder();
         while(afterHr != null) {
             description.append(parseDesc(afterHr));

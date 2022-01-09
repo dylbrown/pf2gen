@@ -8,8 +8,8 @@ import java.util.function.Predicate;
 
 public abstract class NethysWeaponsArmorScraper extends NethysListScraper {
 
-    public NethysWeaponsArmorScraper(boolean multithreaded) {
-        super(multithreaded);
+    public NethysWeaponsArmorScraper(boolean multithreaded, Predicate<String> sourceValidator) {
+        super(multithreaded, sourceValidator);
     }
 
     public NethysWeaponsArmorScraper(String inputURL, String outputPath, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator) {

@@ -1,7 +1,7 @@
 package tools.nethys;
 
+import com.gargoylesoftware.htmlunit.WebClient;
 import model.util.StringUtils;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
@@ -18,30 +18,38 @@ class NethysFeatListScraper extends NethysListScraper {
 
 	public static void main(String[] args) {
 		new NethysFeatListScraper(
-				"http://2e.aonprd.com/Feats.aspx?Traits=144",
+				"C:\\Users\\dylan\\Downloads\\RadGridExport (1).csv",
 				"generated/feats.pfdyl",
-				source->source.equals("advanced_player's_guide"), true);
+				source->true, true);
 	}
 
 	NethysFeatListScraper(String inputURL, String outputPath, Predicate<String> sourceValidator, boolean multithreaded) {
-		super(inputURL, outputPath, "ctl00_MainContent_Rad_AllFeats",
+		super(inputURL, outputPath, "ctl00_RadDrawer1_Content_MainContent_Rad_AllFeats",
 				href -> href.contains("Feats.aspx?ID"), sourceValidator, multithreaded);
 	}
 
 	NethysFeatListScraper(String inputURL, Consumer<String> output, Predicate<String> sourceValidator) {
-		super(inputURL, output, "ctl00_MainContent_Rad_AllFeats",
+		super(inputURL, output, "ctl00_RadDrawer1_Content_MainContent_Rad_AllFeats",
 				href -> href.contains("Feats.aspx?ID"), sourceValidator);
 	}
 
+	NethysFeatListScraper(String inputURL, Consumer<String> output, Predicate<String> sourceValidator, boolean multithreaded) {
+		super(inputURL, output, "ctl00_RadDrawer1_Content_MainContent_Rad_AllFeats",
+				href -> href.contains("Feats.aspx?ID"), sourceValidator, multithreaded);
+	}
+
 	@Override
-	protected void setupItem(String href, Element row) throws IOException {
+	protected void setupItem(String href, Element row, WebClient webClient) throws IOException {
 		System.out.println(href);
-		FeatEntry entry = addItemStatic(Jsoup.connect("http://2e.aonprd.com/"+href).get());
-		if (!entry.entry.isBlank())
-			sources.computeIfAbsent(StringUtils.clean(entry.source), key ->
-					new ConcurrentHashMap<>())
-					.computeIfAbsent("", s-> Collections.synchronizedList(new ArrayList<>()))
+		FeatEntry entry = addItemStatic(makeDocument("https://2e.aonprd.com/"+href, webClient));
+		if (!entry.entry.isBlank()) {
+			String clean = StringUtils.clean(entry.source);
+			sources.computeIfAbsent(clean, key ->
+							new ConcurrentHashMap<>())
+					.computeIfAbsent("", s -> Collections.synchronizedList(new ArrayList<>()))
 					.add(entry);
+			sourceNames.computeIfAbsent(clean, s -> entry.source);
+		}
 	}
 
 	@Override
@@ -50,7 +58,10 @@ class NethysFeatListScraper extends NethysListScraper {
 	}
 
 	static FeatEntry addItemStatic(Document doc) {
-		Element output = doc.getElementById("ctl00_MainContent_DetailedOutput");
+		if(doc == null) {
+			return FeatEntry.EMPTY;
+		}
+		Element output = doc.getElementById("ctl00_RadDrawer1_Content_MainContent_DetailedOutput");
 
 		String featName = output.getElementsByTag("h1").first().text().replaceAll(" Feat.*", "").trim();
 		String level = output.getElementsByClass("title").first().getElementsByTag("span").text().replaceAll("[^\\d]*", "");
@@ -157,8 +168,11 @@ class NethysFeatListScraper extends NethysListScraper {
 		map.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry->
 				{
 					Comparator<Entry> comparing = Comparator.comparing(e -> {
-						if (e instanceof NethysFeatListScraper.FeatEntry)
-							return Integer.parseInt(((NethysFeatListScraper.FeatEntry) e).level);
+						if (e instanceof NethysFeatListScraper.FeatEntry) {
+							if(!((NethysFeatListScraper.FeatEntry) e).level.isBlank()) {
+								return Integer.parseInt(((NethysFeatListScraper.FeatEntry) e).level);
+							}
+						}
 						return 0;
 					}); 
 					entry.getValue().stream().sorted(comparing.thenComparing(Entry::getEntryName)).forEach(e-> out.accept(e.entry));
@@ -168,6 +182,9 @@ class NethysFeatListScraper extends NethysListScraper {
 
 
 	public static class FeatEntry extends Entry {
+
+		public static final FeatEntry EMPTY = new FeatEntry("", "", "", "", "");
+
 		public final String archetype;
 		public final String level;
 

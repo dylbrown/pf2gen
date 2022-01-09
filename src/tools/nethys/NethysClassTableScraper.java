@@ -4,23 +4,27 @@ import model.data_managers.sources.SourceConstructor;
 import model.enums.Proficiency;
 import model.util.StringUtils;
 import model.xml_parsers.FeatsLoader;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import tools.ClassTableParser;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 
+import static tools.nethys.NethysScraper.makeDocumentStatic;
+
 class NethysClassTableScraper extends ClassTableParser {
+
 	public static void main(String[] args) {
-		new NethysClassTableScraper("http://2e.aonprd.com/Classes.aspx?ID=13", "generated/classTable.txt");
+		new NethysClassTableScraper("https://2e.aonprd.com/Classes.aspx?ID=13", "generated/classTable.txt");
 	}
 
-	private Document doc;
 	private Element detailedOutput;
 	private final Set<String> templateAbilities;
 
@@ -29,28 +33,19 @@ class NethysClassTableScraper extends ClassTableParser {
 		FeatsLoader featsLoader = new FeatsLoader(new SourceConstructor("Core Rulebook/feats/base_class.pfdyl", true), new File("data/"), null);
 		templateAbilities = featsLoader.getAll().keySet();
 	}
-	NethysClassTableScraper(String inputURL, Writer output, int indent) {
+	public NethysClassTableScraper(Document doc, StringBuilder out, int indent) {
 		this();
-		scrape(inputURL, s->{
-			if(!s.isBlank()) {
-				String tabs = "\t".repeat(indent);
-				try {
-					output.write(tabs);
-					output.write(s.replaceAll("\n(?!$)", "\n" + tabs));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		});
+		String tabs = "\t".repeat(indent);
+		scrape(doc, s->out.append(s.replaceAll("\n(?!$)", "\n" + tabs)));
 	}
 
 	private NethysClassTableScraper(String inputURL, String outputPath) {
 		this();
 		BufferedWriter out;
 		try  {
+			Document doc = makeDocumentStatic(inputURL);
 			out = new BufferedWriter(new FileWriter(outputPath));
-
-			scrape(inputURL, str -> {
+			scrape(doc, str -> {
 				try {
 					out.write(str);
 				} catch (IOException e) {
@@ -65,20 +60,13 @@ class NethysClassTableScraper extends ClassTableParser {
 
 	}
 
-	private void scrape(String inputURL, Consumer<String> write) {
-		try  {
-			doc = Jsoup.connect(inputURL).get();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		}
+	private void scrape(Document doc, Consumer<String> write) {
+		detailedOutput = doc.getElementById("main");
 
-		detailedOutput = doc.getElementById("ctl00_MainContent_DetailedOutput");
-
-		className = doc.selectFirst("#ctl00_MainContent_DetailedOutput .title").ownText().toLowerCase();
+		className = doc.selectFirst("#main .title").ownText().toLowerCase();
 
 		int level = 0;
-		for (Element features : doc.selectFirst("#ctl00_MainContent_DetailedOutput table").select("tr td:nth-child(2)")) {
+		for (Element features : doc.selectFirst("#main table").select("tr td:nth-child(2)")) {
 			write.accept(parseTableLine(level, features.text()));
 			level++;
 		}
@@ -115,20 +103,20 @@ class NethysClassTableScraper extends ClassTableParser {
 				if(currNode instanceof TextNode && !((TextNode) currNode).text().isBlank() &&
 						!(((TextNode) currNode).text().startsWith("At 1st level, you gain"))) {
 					String[] split = ((TextNode) currNode).text().split(" in ", 2);
-					if(split.length == 1)
-						System.out.println("Test");
-					String value = split[1].trim();
-					if(!(value.startsWith("a number of additional skills equal to ") ||
-							value.equals("all armor"))) {
-						if(value.equals("unarmed attacks"))
-							value = "unarmed";
-						if(value.equals("unarmored defense"))
-							value = "unarmored";
-						value = value.replace("spell attack rolls", "spell attacks");
+					if(split.length == 2) {
+						String value = split[1].trim();
+						if (!(value.startsWith("a number of additional skills equal to ") ||
+								value.equals("all armor"))) {
+							if (value.equals("unarmed attacks"))
+								value = "unarmed";
+							if (value.equals("unarmored defense"))
+								value = "unarmored";
+							value = value.replace("spell attack rolls", "spell attacks");
 
-						proficiencies.computeIfAbsent(Proficiency.robustValueOf(split[0]).name(),
-								a->new ArrayList<>())
-								.add(StringUtils.capitalize(value));
+							proficiencies.computeIfAbsent(Proficiency.robustValueOf(split[0]).name(),
+											a -> new ArrayList<>())
+									.add(StringUtils.capitalize(value));
+						}
 					}
 				}
 				currNode = currNode.nextSibling();

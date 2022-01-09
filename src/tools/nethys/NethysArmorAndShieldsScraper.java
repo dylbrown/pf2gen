@@ -1,5 +1,6 @@
 package tools.nethys;
 
+import com.gargoylesoftware.htmlunit.WebClient;
 import model.util.StringUtils;
 import model.util.Triple;
 import org.jsoup.nodes.Document;
@@ -58,10 +59,10 @@ public class NethysArmorAndShieldsScraper extends NethysWeaponsArmorScraper {
     }
 
     public NethysArmorAndShieldsScraper(String inputURL, Consumer<String> output, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator, int rowNumber) {
-        super(false);
+        super(false, sourceValidator);
         this.rowNumber = rowNumber;
         parseList(inputURL, container, hrefValidator, e -> true);
-        printOutput(output, sourceValidator);
+        printOutput(source->output);
     }
 
     @Override
@@ -92,7 +93,7 @@ public class NethysArmorAndShieldsScraper extends NethysWeaponsArmorScraper {
         if(traits.contains("—"))
             traits = "";
 
-        Node afterHr = output.select("#ctl00_MainContent_DetailedOutput hr").first().nextSibling();
+        Node afterHr = output.select("#main hr").first().nextSibling();
         StringBuilder description = new StringBuilder();
         while(afterHr != null) {
             description.append(parseDesc(afterHr));
@@ -132,12 +133,12 @@ public class NethysArmorAndShieldsScraper extends NethysWeaponsArmorScraper {
     }
 
     @Override
-    protected void setupItem(String href, Element row) throws IOException {
+    protected void setupItem(String href, Element row, WebClient webClient) throws IOException {
         if(rowNumber != -1) {
             categoryMap.put(StringUtils.clean(row.children().get(0).wholeText()),
                     row.children().get(rowNumber).wholeText());
         }
-        super.setupItem(href, row);
+        super.setupItem(href, row, webClient);
     }
 
     @Override

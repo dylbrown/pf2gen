@@ -1,11 +1,17 @@
 package tools.nethys;
 
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebResponse;
 import model.util.Pair;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -15,6 +21,9 @@ import java.util.function.Predicate;
 abstract class NethysScraper {
 
 	public static class Entry {
+
+		public static final Entry EMPTY = new Entry("", "", "");
+
 		public final String entryName;
 		public final String entry;
 		public final String source;
@@ -28,6 +37,27 @@ abstract class NethysScraper {
 		public String getEntryName() {
 			return entryName;
 		}
+	}
+
+	static WebClient webClient = null;
+	static synchronized Document makeDocumentStatic(String url) {
+		if(webClient == null) {
+			webClient = ProxyPool.makeClient();
+		}
+		return makeDocument(url, webClient);
+	}
+
+	static Document makeDocument(String url, WebClient webClient) {
+		if(webClient == null) {
+			return null;
+		}
+		try {
+			WebResponse response = webClient.getPage(new URL(url)).getWebResponse();
+			return Jsoup.parse(response.getContentAsStream(), response.getContentCharset().name(), url);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	static String getAfter(Element output, String bContents) {
@@ -64,7 +94,7 @@ abstract class NethysScraper {
 	}
 
 	String getHeaderContents(Element output, String headerTitle) {
-		Element header = output.getElementsMatchingOwnText(headerTitle).select(":not(#ctl00_MainContent_DetailedOutput)").first();
+		Element header = output.getElementsMatchingOwnText(headerTitle).select(":not(#main)").first();
 		StringBuilder contents = new StringBuilder();
 		if(header != null) {
 			Node curr = header.nextSibling();

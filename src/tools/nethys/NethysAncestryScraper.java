@@ -21,7 +21,7 @@ public class NethysAncestryScraper extends NethysSourceScraper {
     protected NethysListScraper.Entry addItem(Document doc) {
         StringBuilder item = new StringBuilder();
 
-        Element detailedOutput = doc.getElementById("ctl00_MainContent_DetailedOutput");
+        Element detailedOutput = doc.getElementById("main");
         String name = detailedOutput.selectFirst(".title").wholeText();
         if(name.contains("Versatile"))
             return null;
@@ -64,7 +64,7 @@ public class NethysAncestryScraper extends NethysSourceScraper {
                 .append("\t<BonusLanguages>").append(bonusLanguages).append("</BonusLanguages>\n").append("    <Senses>").append(String.join(", ", senses)).append("</Senses>\n")
                 .append("\t<Description>").append(description).append("</Description>\n");
         item.append("\t<Feats>\n");
-        String href = doc.getElementById("ctl00_MainContent_SubNavigation").getElementsByAttributeValueStarting("href", "Feats").attr("href");
+        String href = doc.getElementById("ctl00_RadDrawer1_Content_MainContent_SubNavigation").getElementsByAttributeValueStarting("href", "Feats").attr("href");
         new NethysFeatListScraper("https://2e.aonprd.com/" + href, item::append, source->true);
         item.append("\t</Feats>\n</pf2:ancestry>");
 

@@ -22,7 +22,7 @@ public class NethysDomainScraper extends NethysListScraper {
 
     @Override
     Entry addItem(Document doc) {
-        Element output = doc.getElementById("ctl00_MainContent_DetailedOutput");
+        Element output = doc.getElementById("main");
         String domainName = output.getElementsByTag("h1")
                 .first().text().replaceAll(" Domain", "").trim();
         String sourceAndPage = output.getElementsMatchingText("\\ASource\\z")

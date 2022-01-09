@@ -1,7 +1,6 @@
 package tools.nethys;
 
 import model.util.StringUtils;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.BufferedWriter;
@@ -21,26 +20,13 @@ public abstract class NethysSourceScraper extends NethysScraper {
 
     public NethysSourceScraper(String inputURL, String source, Predicate<String> hrefValidator) {
         this.source = source;
-        Document rootDocument;
-        try  {
-            rootDocument = Jsoup.connect(inputURL).get();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println(inputURL);
-            return;
-        }
-        rootDocument.getElementById("ctl00_MainContent_DetailedOutput")
+
+        Document rootDocument = makeDocumentStatic(inputURL);
+        rootDocument.getElementById("ctl00_RadDrawer1_Content_MainContent_DetailedOutput")
                 .getElementsByTag("a").parallelStream()
                 .map(element -> element.attr("href"))
                 .filter(hrefValidator).forEach(href->{
-                    Document document;
-                    try  {
-                        document = Jsoup.connect("https://2e.aonprd.com/" + href).get();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        System.out.println("Failed to open " + inputURL);
-                        return;
-                    }
+                    Document document = makeDocumentStatic("https://2e.aonprd.com/" + href);
                     Entry entry = addItem(document);
                     if(entry != null)
                         objects.computeIfAbsent(entry.getEntryName(),

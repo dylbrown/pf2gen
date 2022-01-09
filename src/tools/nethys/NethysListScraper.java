@@ -1,13 +1,16 @@
 package tools.nethys;
 
+import com.gargoylesoftware.htmlunit.WebClient;
 import model.util.StringUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.*;
@@ -24,19 +27,22 @@ public abstract class NethysListScraper extends NethysScraper {
     }
 
     final Map<String, Map<String, List<Entry>>> sources = new ConcurrentHashMap<>();
+    final Map<String, String> sourceNames = new ConcurrentHashMap<>();
     final Set<Integer> ids = new HashSet<>();
     final ExecutorService executorService = Executors.newCachedThreadPool();
     final CompletionService<Boolean> completionService= new ExecutorCompletionService<>(executorService);
-    final Semaphore semaphore = new Semaphore(50);
     final AtomicInteger counter = new AtomicInteger(0);
+    final Predicate<String> sourceValidator;
     private final boolean multithreaded;
+    protected final ProxyPool semaphore = new ProxyPool(20);
 
     protected NethysListScraper() {
-        this(false);
+        this(false, source->true);
     }
 
-    public NethysListScraper(boolean multithreaded) {
+    public NethysListScraper(boolean multithreaded, Predicate<String> sourceValidator) {
         this.multithreaded = multithreaded;
+        this.sourceValidator = sourceValidator;
     }
 
     public NethysListScraper(String inputURL, String outputPath, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator) {
@@ -44,7 +50,7 @@ public abstract class NethysListScraper extends NethysScraper {
     }
 
     public NethysListScraper(String inputURL, String outputPath, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator, Type type) {
-        this(inputURL, outputPath, container, hrefValidator, sourceValidator, type, false);
+        this(inputURL, outputPath, container, hrefValidator, sourceValidator, type, true);
     }
 
     public NethysListScraper(String inputURL, Consumer<String> out, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator) {
@@ -52,22 +58,24 @@ public abstract class NethysListScraper extends NethysScraper {
     }
 
     public NethysListScraper(String inputURL, String outputPath, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator, boolean multithreaded) {
-        this(inputURL, outputPath ,container, hrefValidator, sourceValidator, Type.Webpage, multithreaded);
+        this(inputURL, outputPath ,container, hrefValidator, sourceValidator, Type.CSV, multithreaded);
     }
 
     public NethysListScraper(String inputURL, String outputPath, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator, Type type, boolean multithreaded) {
         this.multithreaded = multithreaded;
+        this.sourceValidator = sourceValidator;
         if(type == Type.Webpage)
             parseList(inputURL, container, hrefValidator, e -> true);
         if(type == Type.CSV)
             parseCSV(inputURL, hrefValidator);
-        printOutput(outputPath, sourceValidator);
+        printOutput(outputPath);
     }
 
     public NethysListScraper(String inputURL, Consumer<String> out, String container, Predicate<String> hrefValidator, Predicate<String> sourceValidator, boolean multithreaded) {
         this.multithreaded = multithreaded;
+        this.sourceValidator = sourceValidator;
         parseList(inputURL, container, hrefValidator, e -> true);
-        printOutput(out, sourceValidator);
+        printOutput(source->out);
     }
 
     protected final void printOutput(Function<String, String> sourceToFile, String prefix, String suffix) {
@@ -106,24 +114,39 @@ public abstract class NethysListScraper extends NethysScraper {
         });
     }
 
-    protected final void printOutput(String outputPath, Predicate<String> sourceValidator) {
-        BufferedWriter out;
-        try {
-            out = new BufferedWriter(new FileWriter(outputPath), 32768);
-            printOutput(str -> {
-                try {
-                    out.write(str);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }, sourceValidator);
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+    protected final void printOutput(String outputPath) {
+        List<BufferedWriter> writers = new ArrayList<>();
+        final Function<String, Consumer<String>> getOutput = source -> {
+            File file = new File("generated/" + source + "/" + outputPath);
+            if(file.getParentFile().mkdirs())
+                System.out.println("Created "+ file);
+            BufferedWriter out;
+            try {
+                out = new BufferedWriter(new FileWriter(file), 32768);
+                writers.add(out);
+                return str -> {
+                    try {
+                        out.write(str);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                };
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        };
+        printOutput(getOutput);
+        for (BufferedWriter writer : writers) {
+            try {
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    protected final void printOutput(Consumer<String> out, Predicate<String> sourceValidator) {
+    protected final void printOutput(Function<String, Consumer<String>> getOutput) {
         System.out.println("Checking Completion now");
         try {
             for(int i = 0; i < counter.get(); i++) {
@@ -137,7 +160,7 @@ public abstract class NethysListScraper extends NethysScraper {
         for (Map.Entry<String, Map<String, List<Entry>>> entry : sources.entrySet()) {
             if(!sourceValidator.test(entry.getKey()))
                 continue;
-            printList(entry.getValue(), out);
+            printList(entry.getValue(), getOutput.apply(sourceNames.get(entry.getKey())));
         }
     }
 
@@ -151,15 +174,18 @@ public abstract class NethysListScraper extends NethysScraper {
 
     protected void parseList(String inputURL, String container, Predicate<String> hrefValidator,
                              Predicate<Element> elementValidator) {
-        Document rootDocument;
-        try  {
-            rootDocument = Jsoup.connect(inputURL).get();
-        } catch (IOException e) {
+        WebClient webClient = null;
+        try {
+            webClient = semaphore.getItem();
+        } catch (InterruptedException e) {
             e.printStackTrace();
-            System.out.println(inputURL);
-            return;
+        }
+        Document rootDocument = makeDocument(inputURL, webClient);
+        if(multithreaded) {
+            semaphore.putItem(webClient);
         }
         AtomicBoolean firstRow = new AtomicBoolean(true);
+        WebClient finalWebClient = webClient;
         rootDocument.getElementById(container).getElementsByTag("tbody").first()
                 .getElementsByTag("tr").forEach(element -> {
             if(!firstRow.get()) {
@@ -175,68 +201,91 @@ public abstract class NethysListScraper extends NethysScraper {
                         if(multithreaded)
                             setupItemMultithreaded(href, element);
                         else
-                            setupItem(href, element);
+                            setupItem(href, element, finalWebClient);
                     }
                 } catch (Exception e) {
                     System.out.println(href);
                     e.printStackTrace();
                 }
             } else firstRow.set(false);
-        });
-    }
-
-    protected void parseCSV(String inputURL, Predicate<String> hrefValidator) {
-        try {
-            CSVParser.parse(new File(inputURL), Charset.defaultCharset(), CSVFormat.DEFAULT).forEach(record -> {
-                        String href = "";
-                        try {
-                            href = record.get(0).replaceAll("(.*href=\"|\">.*)", "");
-                            int id = -1;
-                            try{
-                                id = Integer.parseInt(href.replaceAll(".*ID=", ""));
-                            }catch (NumberFormatException ignored) {}
-                            if(hrefValidator.test(href) && !ids.contains(id)) {
-                                ids.add(id);
-                                if(multithreaded)
-                                    setupItemMultithreaded(href, null);
-                                else
-                                    setupItem(href, null);
-                            }
-                        } catch (Exception e) {
-                            System.out.println(href);
-                            e.printStackTrace();
-                        }
-                    });
-        } catch (IOException e) {
-            e.printStackTrace();
+                });
+        if(!multithreaded) {
+            semaphore.putItem(webClient);
         }
     }
 
-    protected void setupItem(String href, Element row) throws IOException {
+    protected void parseCSV(String inputURL, Predicate<String> hrefValidator) {
+        WebClient webClient = null;
+        try {
+            webClient = multithreaded ? null : semaphore.getItem();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        try {
+            WebClient finalWebClient = webClient;
+            CSVParser.parse(new File(inputURL), Charset.defaultCharset(), CSVFormat.DEFAULT).forEach(record -> {
+                // Check source
+                String source = record.get(2).replaceAll(".*title=\"", "")
+                        .replaceAll("\">.*", "");
+                if(!sourceValidator.test(StringUtils.clean(source))) {
+                    return;
+                }
+                // Load content
+                String href = "";
+                try {
+                    href = record.get(0).replaceAll("(.*href=\"|\">.*)", "");
+                    int id = -1;
+                    try {
+                        id = Integer.parseInt(href.replaceAll(".*ID=", ""));
+                    } catch (NumberFormatException ignored) {
+                    }
+                    if (hrefValidator.test(href) && !ids.contains(id)) {
+                        ids.add(id);
+                        if (multithreaded)
+                            setupItemMultithreaded(href, null);
+                        else
+                            setupItem(href, null, finalWebClient);
+                    }
+                } catch (Exception e) {
+                    System.out.println(href);
+                    e.printStackTrace();
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        semaphore.putItem(webClient);
+    }
+
+    protected void setupItem(String href, Element row, WebClient webClient) throws IOException {
         System.out.println(href);
-        Entry entry = addItem(Jsoup.connect("http://2e.aonprd.com/"+href).get());
-        if (!entry.entry.isBlank())
+        Entry entry = addItem(makeDocument("https://2e.aonprd.com/" + href, webClient));
+        if (!entry.entry.isBlank()) {
+            String clean = StringUtils.clean(entry.source);
             sources.computeIfAbsent(StringUtils.clean(entry.source), key ->
-                    new ConcurrentHashMap<>())
+                            new ConcurrentHashMap<>())
                     .computeIfAbsent(entry.getEntryName(), s->Collections.synchronizedList(new ArrayList<>()))
                     .add(entry);
+            sourceNames.computeIfAbsent(clean, s->entry.source);
+        }
     }
 
     protected void setupItemMultithreaded(String href, Element row) {
         counter.incrementAndGet();
         completionService.submit(() -> {
+            WebClient webClient = null;
             try {
-                semaphore.acquire();
+                webClient = semaphore.getItem();
+                try {
+                    setupItem(href, row, webClient);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
-                return;
+            } finally {
+                semaphore.putItem(webClient);
             }
-            try {
-                setupItem(href, row);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            semaphore.release();
         }, true);
     }
 

@@ -1,11 +1,10 @@
 package tools.nethys;
 
+import com.gargoylesoftware.htmlunit.WebClient;
 import model.util.StringUtils;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -20,33 +19,28 @@ public class NethysArchetypesScraper extends NethysListScraper {
     }
 
     public NethysArchetypesScraper(String inputURL, String outputPath, Predicate<String> sourceValidator) {
-        super(true);
-        parseList(inputURL, "ctl00_MainContent_DetailedOutput",
+        super(true, sourceValidator);
+        parseList(inputURL, "main",
                 href->href.contains("Archetypes") && href.contains("ID"), e -> true);
-        printOutput(outputPath, sourceValidator);
+        printOutput(outputPath);
     }
 
     @Override
-    protected void setupItem(String href, Element row) {
+    protected void setupItem(String href, Element row, WebClient webClient) {
         System.out.println(href);
         if (href.contains("Archetypes")) {
-            parseList("http://2e.aonprd.com/" + href, "ctl00_MainContent_DetailedOutput",
+            parseList("https://2e.aonprd.com/" + href, "main",
                     s -> s.contains("Feats") && s.contains("ID"), e -> e.parent().hasClass("title"));
         } else {
-            Document doc;
-            try  {
-                doc = Jsoup.connect(href).get();
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.out.println(href);
-                return;
-            }
+            Document doc = makeDocument(href, webClient);
             NethysFeatListScraper.FeatEntry entry = NethysFeatListScraper.addItemStatic(doc);
             if (!entry.entry.isBlank()) {
-                sources.computeIfAbsent(StringUtils.clean(entry.source), key ->
+                String clean = StringUtils.clean(entry.source);
+                sources.computeIfAbsent(clean, key ->
                         new ConcurrentHashMap<>())
                         .computeIfAbsent(entry.archetype, s->Collections.synchronizedList(new ArrayList<>()))
                         .add(entry);
+                sourceNames.computeIfAbsent(clean, s->entry.source);
             }
         }
     }

@@ -31,7 +31,7 @@ public class NethysCreatureScraper extends NethysListScraper {
 
     @Override
     Entry addItem(Document doc) {
-        Element output = doc.getElementById("ctl00_MainContent_DetailedOutput");
+        Element output = doc.getElementById("main");
 
         Elements titles = output.getElementsByTag("h1");
         Element title = titles.get(1);
