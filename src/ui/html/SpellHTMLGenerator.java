@@ -57,6 +57,7 @@ public class SpellHTMLGenerator {
         }
         return String.format(
                 "<p><b>%s - Spell %s</b><br>" +
+                        "<b>Source</b> %s<br>" +
                         "<b>Traits</b> %s<br>" +
                         "<b>Traditions</b> %s</b><br>" +
                         "<b>Cast</b> %s<br>" +
@@ -66,6 +67,7 @@ public class SpellHTMLGenerator {
                         "%s</p>",
                 spell.getName(),
                 spell.getLevel(),
+                spell.getSource(),
                 spell.getTraits().stream()
                         .map(Trait::toString).collect(Collectors.joining(", ")),
                 spell.getTraditions().stream()

@@ -1,6 +1,7 @@
 package model.player;
 
 import javafx.collections.ObservableMap;
+import model.data_managers.sources.Source;
 import model.data_managers.sources.SourcesLoader;
 import model.enums.Slot;
 import model.items.BaseItem;
@@ -61,7 +62,7 @@ class InventoryManagerTest {
     @Test
     void buyTooMany() {
         inventory.setMoney(10);
-        BaseItem.Builder builder = new BaseItem.Builder();
+        BaseItem.Builder builder = new BaseItem.Builder((Source) null);
         builder.setName("test");
         builder.setValue(5);
         builder.getExtension(Weapon.Builder.class);
@@ -72,7 +73,7 @@ class InventoryManagerTest {
     @Test
     void buyExact() {
         inventory.setMoney(10);
-        BaseItem.Builder builder = new BaseItem.Builder();
+        BaseItem.Builder builder = new BaseItem.Builder((Source) null);
         builder.setName("test");
         builder.setValue(1);
         builder.getExtension(Weapon.Builder.class);
@@ -134,7 +135,7 @@ class InventoryManagerTest {
 
     @Test
     void equipSome() {
-        BaseItem.Builder builder = new BaseItem.Builder();
+        BaseItem.Builder builder = new BaseItem.Builder((Source) null);
         builder.setName("test");
         builder.setValue(0);
         builder.getExtension(Armor.Builder.class);
@@ -156,7 +157,7 @@ class InventoryManagerTest {
 
     @Test
     void equipAll() {
-        BaseItem.Builder builder = new BaseItem.Builder();
+        BaseItem.Builder builder = new BaseItem.Builder((Source) null);
         builder.setName("test");
         builder.setValue(5);
         builder.getExtension(Armor.Builder.class);
@@ -177,7 +178,7 @@ class InventoryManagerTest {
 
     @Test
     void unequipSome() {
-        BaseItem.Builder builder = new BaseItem.Builder();
+        BaseItem.Builder builder = new BaseItem.Builder((Source) null);
         builder.setName("test");
         builder.setValue(5);
         builder.getExtension(Armor.Builder.class);
@@ -200,7 +201,7 @@ class InventoryManagerTest {
 
     @Test
     void unequipAll() {
-        BaseItem.Builder builder = new BaseItem.Builder();
+        BaseItem.Builder builder = new BaseItem.Builder((Source) null);
         builder.setName("test");
         builder.setValue(5);
         builder.getExtension(Armor.Builder.class);
@@ -220,7 +221,7 @@ class InventoryManagerTest {
 
     @Test
     void getEquipped() {
-        BaseItem.Builder builder = new BaseItem.Builder();
+        BaseItem.Builder builder = new BaseItem.Builder((Source) null);
         builder.setName("test");
         builder.setValue(5);
         builder.getExtension(Armor.Builder.class);
@@ -245,7 +246,7 @@ class InventoryManagerTest {
 
     @Test
     void equipOneHand() {
-        BaseItem.Builder builder = new BaseItem.Builder();
+        BaseItem.Builder builder = new BaseItem.Builder((Source) null);
         builder.setName("test");
         builder.setValue(5);
         builder.getExtension(Armor.Builder.class);

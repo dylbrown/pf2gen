@@ -1,6 +1,7 @@
 package model.abc;
 
 import model.abilities.Ability;
+import model.data_managers.sources.Source;
 import model.enums.Language;
 import model.enums.Sense;
 import model.enums.Size;
@@ -10,7 +11,7 @@ import java.util.*;
 public class Ancestry extends AC {
     public static final Ancestry NO_ANCESTRY;
     static{
-        Builder builder = new Builder();
+        Builder builder = new Builder(null);
         builder.setName("No Ancestry");
         NO_ANCESTRY = builder.build();
     }
@@ -70,6 +71,10 @@ public class Ancestry extends AC {
         private final List<Language> languages = new ArrayList<>();
         private final List<Language> bonusLanguages = new ArrayList<>();
         private final List<Sense> senses = new ArrayList<>();
+
+        public Builder(Source source) {
+            super(source);
+        }
 
         public void setSize(Size size) {
             this.size = size;

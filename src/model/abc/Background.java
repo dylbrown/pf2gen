@@ -4,6 +4,7 @@ import model.abilities.Ability;
 import model.ability_slots.AbilitySlot;
 import model.ability_slots.DynamicFilledSlot;
 import model.attributes.AttributeMod;
+import model.data_managers.sources.Source;
 import model.enums.Type;
 
 import java.util.Arrays;
@@ -18,7 +19,7 @@ public class Background extends ABC {
     private final String modString;
 
     static{
-        Builder builder = new Builder();
+        Builder builder = new Builder(null);
         builder.setName("No Background");
         NO_BACKGROUND = builder.build();
     }
@@ -49,6 +50,10 @@ public class Background extends ABC {
         private String feat = "";
         private String modString;
         private Function<String, Ability> abilityFunction;
+
+        public Builder(Source source) {
+            super(source);
+        }
 
         public void setMod1(AttributeMod mod1) {
             this.mod1 = mod1;

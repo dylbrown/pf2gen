@@ -56,7 +56,7 @@ public class ArmorLoader extends ItemLoader {
     }
 
     private Item getArmor(Element armor) {
-        BaseItem.Builder builder = new BaseItem.Builder();
+        BaseItem.Builder builder = new BaseItem.Builder(getSource());
         if(armor.getTagName().equalsIgnoreCase("shield"))
             builder.setCategory("Shields");
         else

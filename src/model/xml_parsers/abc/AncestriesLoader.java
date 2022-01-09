@@ -115,7 +115,7 @@ public class AncestriesLoader extends ACLoader<Ancestry, Ancestry.Builder> {
     protected Ancestry parseItem(File file, Element item) {
         NodeList classProperties = item.getChildNodes();
 
-        Ancestry.Builder builder = new Ancestry.Builder();
+        Ancestry.Builder builder = new Ancestry.Builder(getSource());
         this.bonuses = ""; this.penalties = "";
 
         for(int i=0; i<classProperties.getLength(); i++) {

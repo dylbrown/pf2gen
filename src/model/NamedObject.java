@@ -1,5 +1,7 @@
 package model;
 
+import model.data_managers.sources.Source;
+
 public interface NamedObject {
     String getName();
 
@@ -21,7 +23,7 @@ public interface NamedObject {
 
     int getPage();
 
-    String getSourceBook();
+    Source getSourceBook();
 
     String getSource();
 }

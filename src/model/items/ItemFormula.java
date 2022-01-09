@@ -114,6 +114,11 @@ public class ItemFormula implements Item {
     }
 
     @Override
+    public String getSource() {
+        return item.getSource();
+    }
+
+    @Override
     public String getDescription() {
         return item.getDescription();
     }

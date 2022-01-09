@@ -43,7 +43,7 @@ public class TraitsLoader extends FileLoader<Trait> {
     @Override
     protected Trait parseItem(File file, Element item, String category) {
         NodeList nodeList = item.getChildNodes();
-        Trait.Builder builder = new Trait.Builder();
+        Trait.Builder builder = new Trait.Builder(getSource());
         builder.setPage(Integer.parseInt(item.getAttribute("page")));
         builder.setCategory(category);
         for (int i = 0; i < nodeList.getLength(); i++) {

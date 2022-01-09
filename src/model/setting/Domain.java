@@ -1,6 +1,7 @@
 package model.setting;
 
 import model.AbstractNamedObject;
+import model.data_managers.sources.Source;
 import model.spells.Spell;
 
 public class Domain extends AbstractNamedObject {
@@ -23,6 +24,10 @@ public class Domain extends AbstractNamedObject {
     public static class Builder extends AbstractNamedObject.Builder {
         private Spell domainSpell = null;
         private Spell advancedDomainSpell = null;
+
+        public Builder(Source source) {
+            super(source);
+        }
 
         public void setDomainSpell(Spell domainSpell) {
             this.domainSpell = domainSpell;

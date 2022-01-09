@@ -19,6 +19,7 @@ public class AbilityHTMLGenerator {
         if(activityExt != null)
             text.append(" ").append(activityExt.getCost().getIcon());
         text.append("<span style='float:right'>Level ").append(ability.getLevel()).append("</span></h4><br>");
+        text.append("<b>Source</b> ").append(ability.getSource()).append("<br>");
         if(ability.getTraits().size() > 0) {
             text.append("<b>Traits</b> ")
                     .append(ability.getTraits().stream().map(Trait::toString).collect(Collectors.joining(", ")))

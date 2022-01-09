@@ -21,7 +21,7 @@ public class DomainsLoader extends FileLoader<Domain> {
     @Override
     protected Domain parseItem(File file, Element domain) {
         NodeList nodeList = domain.getChildNodes();
-        Domain.Builder builder = new Domain.Builder();
+        Domain.Builder builder = new Domain.Builder(getSource());
         builder.setPage(Integer.parseInt(domain.getAttribute("page")));
         for(int i=0; i<nodeList.getLength(); i++) {
             if(nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)

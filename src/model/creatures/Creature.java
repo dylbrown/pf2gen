@@ -4,6 +4,7 @@ import model.AbstractNamedObject;
 import model.abilities.Ability;
 import model.ability_scores.AbilityScore;
 import model.attributes.Attribute;
+import model.data_managers.sources.Source;
 import model.enums.Language;
 import model.enums.Trait;
 
@@ -179,6 +180,10 @@ public class Creature extends AbstractNamedObject {
         private List<Ability> offensiveAbilities = Collections.emptyList();
         private List<Attack> attacks= Collections.emptyList();
         private List<CreatureSpellList> spells= Collections.emptyList();
+
+        public Builder(Source source) {
+            super(source);
+        }
 
         public void setFamily(CreatureFamily creatureFamily) {
             this.family = creatureFamily;

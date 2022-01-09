@@ -145,6 +145,11 @@ public class ItemInstance implements Item {
     }
 
     @Override
+    public String getSource() {
+        return item.getSource();
+    }
+
+    @Override
     public String getDescription() {
         return resolveDecoration(item.getRawDescription(), "getDescription");
     }

@@ -38,7 +38,7 @@ public class LanguagesLoader extends FileLoader<Language> {
 
     @Override
     protected Language parseItem(File file, Element item) {
-        Language.Builder builder = new Language.Builder();
+        Language.Builder builder = new Language.Builder(getSource());
 
         builder.setName(item.getTextContent());
         builder.rarity = Rarity.valueOf(((Element) item.getParentNode()).getTagName());

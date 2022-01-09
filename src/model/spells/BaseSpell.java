@@ -2,6 +2,7 @@ package model.spells;
 
 
 import model.AbstractNamedObject;
+import model.data_managers.sources.Source;
 import model.enums.Trait;
 import model.spells.heightened.*;
 import model.util.StringUtils;
@@ -136,6 +137,10 @@ public class BaseSpell extends AbstractNamedObject implements Comparable<Spell>,
         private MagicalSchool school;
         private HeightenedEvery.Builder heightenedEvery;
         private HeightenedLevels.Builder heightenedLevels;
+
+        public Builder(Source source) {
+            super(source);
+        }
 
         public void setLevel(String level) {
             this.level = Integer.parseInt(level);

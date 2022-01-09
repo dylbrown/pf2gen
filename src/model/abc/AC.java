@@ -1,6 +1,7 @@
 package model.abc;
 
 import model.abilities.Ability;
+import model.data_managers.sources.Source;
 import model.player.PC;
 
 import java.util.*;
@@ -37,6 +38,10 @@ public abstract class AC extends ABC {
         private int HP = 0;
         private Map<Integer, List<Ability>> feats = Collections.emptyMap();
         private Map<String, Ability> searchForFeats = Collections.emptyMap();
+
+        protected Builder(Source source) {
+            super(source);
+        }
 
         public void setHP(int HP) {
             this.HP = HP;

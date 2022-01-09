@@ -217,9 +217,11 @@ public abstract class FileLoader<T> {
 
     protected void addItem(String category, T t) {
         synchronized (this) {
-            allItems.put(clean(getName(t)), t);
+            String clean = clean(getName(t));
+            assert(!clean.isBlank());
+            allItems.put(clean, t);
             if(category != null && category.length() > 0)
-                getCategoryInternal(category).put(clean(getName(t)), t);
+                getCategoryInternal(category).put(clean, t);
         }
     }
 

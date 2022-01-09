@@ -66,7 +66,7 @@ public class PClassesLoader extends ACLoader<PClass, PClass.Builder> {
     protected PClass parseItem(File file, Element item) {
         NodeList classProperties = item.getChildNodes();
 
-        PClass.Builder builder = new PClass.Builder();
+        PClass.Builder builder = new PClass.Builder(getSource());
 
         for(int i=0; i<classProperties.getLength(); i++) {
             if(classProperties.item(i).getNodeType() != Node.ELEMENT_NODE)

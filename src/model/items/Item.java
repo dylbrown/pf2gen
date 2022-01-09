@@ -25,6 +25,7 @@ public interface Item extends Comparable<Item> {
     String getSubCategory();
     String getName();
     String getRawName();
+    String getSource();
     String getDescription();
     Item copy();
     List<Trait> getTraits();

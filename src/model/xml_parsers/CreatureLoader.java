@@ -40,7 +40,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
 
     @Override
     protected Creature parseItem(File file, Element item) {
-        Creature.Builder builder = new Creature.Builder();
+        Creature.Builder builder = new Creature.Builder(getSource());
         NodeList childNodes = item.getChildNodes();
         builder.setLevel(Integer.parseInt(item.getAttribute("level")));
         builder.setPage(Integer.parseInt(item.getAttribute("page")));

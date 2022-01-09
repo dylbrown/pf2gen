@@ -41,12 +41,12 @@ public class CustomTrait extends Trait {
         private final Trait trait;
 
         public Builder(Trait trait) {
+            super(trait.getSourceBook());
             this.trait = trait;
             setName(trait.getName());
             setCategory(trait.getCategory());
             setDescription(trait.getDescription());
             setPage(trait.getPage());
-            setSourceBook(trait.getSourceBook());
         }
 
         public void setSpecialText(String specialText) {

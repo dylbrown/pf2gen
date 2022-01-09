@@ -3,6 +3,7 @@ package model.items;
 import model.AbstractNamedObject;
 import model.abilities.Ability;
 import model.attributes.AttributeBonus;
+import model.data_managers.sources.Source;
 import model.enums.Recalculate;
 import model.enums.Slot;
 import model.enums.Trait;
@@ -213,9 +214,12 @@ public class BaseItem extends AbstractNamedObject implements Item {
         private Map<Class<? extends ItemExtension.Builder>, ItemExtension.Builder>
                 extensions = Collections.emptyMap();
 
-        public Builder() {}
+        public Builder(Source source) {
+            super(source);
+        }
 
         public Builder(BaseItem item) {
+            super(item.getSourceBook());
             this.weight = item.weight;
             this.value = item.value;
             this.category = item.category;

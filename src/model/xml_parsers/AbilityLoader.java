@@ -100,7 +100,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                 }
             }
         }
-        if (builder == null) builder = new Ability.Builder();
+        if (builder == null) builder = new Ability.Builder(getSource());
         if(!element.getAttribute("cost").equals("")) {
             builder.getExtension(ActivityExtension.Builder.class)
                     .setCost(Action.robustValueOf(element.getAttribute("cost")));

@@ -2,6 +2,7 @@ package model.abc;
 
 import model.AbstractNamedObject;
 import model.ability_scores.AbilityMod;
+import model.data_managers.sources.Source;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,7 +22,9 @@ public abstract class ABC extends AbstractNamedObject {
     public static abstract class Builder extends AbstractNamedObject.Builder {
         private List<AbilityMod> abilityMods = Collections.emptyList();
 
-        protected Builder(){}
+        protected Builder(Source source) {
+            super(source);
+        }
 
         public void setAbilityMods(List<AbilityMod> abilityMods) {
             this.abilityMods = abilityMods;

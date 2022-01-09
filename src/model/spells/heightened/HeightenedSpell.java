@@ -1,5 +1,6 @@
 package model.spells.heightened;
 
+import model.data_managers.sources.Source;
 import model.enums.Trait;
 import model.spells.*;
 
@@ -51,7 +52,7 @@ public class HeightenedSpell implements Spell {
     }
 
     @Override
-    public String getSourceBook() {
+    public Source getSourceBook() {
         return baseSpell.getSourceBook();
     }
 

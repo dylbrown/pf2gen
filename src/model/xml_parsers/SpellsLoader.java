@@ -43,7 +43,7 @@ public class SpellsLoader extends FileLoader<Spell> {
 	@Override
 	protected Spell parseItem(File file, Element spell) {
 		NodeList nodeList = spell.getChildNodes();
-		BaseSpell.Builder builder = new BaseSpell.Builder();
+		BaseSpell.Builder builder = new BaseSpell.Builder(getSource());
 		builder.setPage(Integer.parseInt(spell.getAttribute("page")));
 		for(int i=0; i<nodeList.getLength(); i++) {
 			if(nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)

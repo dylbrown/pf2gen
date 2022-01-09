@@ -1,5 +1,6 @@
 package model.items.armor;
 
+import model.data_managers.sources.Source;
 import model.enums.ArmorProficiency;
 import model.enums.Slot;
 import model.items.BaseItem;
@@ -18,7 +19,7 @@ public class Armor extends ItemExtension {
     public static final Armor NO_ARMOR;
 
     static{
-        BaseItem.Builder builder = new BaseItem.Builder();
+        BaseItem.Builder builder = new BaseItem.Builder((Source) null);
         builder.getExtension(Armor.Builder.class)
                 .setProficiency(ArmorProficiency.Unarmored);
         NO_ARMOR = builder.build().getExtension(Armor.class);

@@ -2,6 +2,7 @@ package model.setting;
 
 import model.AbstractNamedObject;
 import model.attributes.Attribute;
+import model.data_managers.sources.Source;
 import model.enums.Alignment;
 import model.items.weapons.Weapon;
 import model.spells.Spell;
@@ -94,6 +95,10 @@ public class Deity extends AbstractNamedObject {
         private Weapon favoredWeapon = null;
         private List<Domain> domains = Collections.emptyList();
         private Map<Integer, Spell> spells = Collections.emptyMap();
+
+        public Builder(Source source) {
+            super(source);
+        }
 
         public void setTitle(String title) {
             this.title = title;

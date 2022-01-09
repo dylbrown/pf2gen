@@ -17,7 +17,7 @@ public class SensesLoader extends FileLoader<Sense> {
 
     @Override
     protected Sense parseItem(File file, Element item) {
-        Sense.Builder builder = new Sense.Builder();
+        Sense.Builder builder = new Sense.Builder(getSource());
 
         NodeList classProperties = item.getChildNodes();
 

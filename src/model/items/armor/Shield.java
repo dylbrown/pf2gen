@@ -1,5 +1,6 @@
 package model.items.armor;
 
+import model.data_managers.sources.Source;
 import model.items.BaseItem;
 import model.items.Item;
 import model.items.ItemExtension;
@@ -8,7 +9,7 @@ public class Shield extends ItemExtension {
     public static final Shield NO_SHIELD;
 
     static {
-        BaseItem.Builder builder = new BaseItem.Builder();
+        BaseItem.Builder builder = new BaseItem.Builder((Source) null);
         builder.getExtension(Armor.Builder.class);
         builder.getExtension(Shield.Builder.class);
         NO_SHIELD = builder.build().getExtension(Shield.class);

@@ -40,7 +40,7 @@ public class MysteriesLoader extends AbilityLoader<Ability> {
     }
 
     public Ability makeMystery(Element item) {
-        Ability.Builder mystery = new Ability.Builder();
+        Ability.Builder mystery = new Ability.Builder(getSource());
         mystery.setType(Type.Choice);
         SpellExtension.Builder spellExt = mystery.getExtension(SpellExtension.Builder.class);
         spellExt.setSpellListName("Oracle");
@@ -67,8 +67,8 @@ public class MysteriesLoader extends AbilityLoader<Ability> {
         } catch (ObjectNotFoundException e) {
             e.printStackTrace();
         }
-        Ability.Builder advanced = new Ability.Builder(); advanced.setName("Advanced Revelation Spell");
-        Ability.Builder greater = new Ability.Builder();  greater.setName("Greater Revelation Spell");
+        Ability.Builder advanced = new Ability.Builder(getSource()); advanced.setName("Advanced Revelation Spell");
+        Ability.Builder greater = new Ability.Builder(getSource());  greater.setName("Greater Revelation Spell");
         try {
             advanced.getExtension(SpellExtension.Builder.class)
                     .addBonusSpell(SpellType.Focus, findFromDependencies("Spell",
@@ -97,7 +97,7 @@ public class MysteriesLoader extends AbilityLoader<Ability> {
         List<Ability> domainSpells = Arrays.stream(domains).map(domainName -> {
             try {
                 Domain domain = findFromDependencies("Domain", DomainsLoader.class, domainName);
-                Ability.Builder builder = new Ability.Builder();
+                Ability.Builder builder = new Ability.Builder(getSource());
                 builder.setName(StringUtils.capitalize(domainName));
                 builder.setPage(domain.getPage());
                 SpellExtension.Builder spells = builder.getExtension(SpellExtension.Builder.class);

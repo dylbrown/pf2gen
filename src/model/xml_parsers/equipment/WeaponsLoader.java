@@ -50,7 +50,7 @@ public class WeaponsLoader extends ItemLoader {
     }
 
     public Item getWeapon(Element weapon, FileLoader<?> loader) {
-        BaseItem.Builder item = new BaseItem.Builder();
+        BaseItem.Builder item = new BaseItem.Builder(getSource());
         Weapon.Builder weaponExt = item.getExtension(Weapon.Builder.class);
         Node proficiencyNode= weapon.getParentNode();
         Node rangeNode = proficiencyNode.getParentNode();

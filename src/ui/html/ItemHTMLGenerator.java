@@ -28,7 +28,9 @@ public class ItemHTMLGenerator {
         if(item == null) return null;
         StringBuilder text = new StringBuilder();
         text.append("<p><h3 style='display:inline;'>").append(item.getName()).append("<div style=\"padding-right:5px; float:right\">");
-        text.append(item.getCategory()).append("</div></h3><br><b>Cost</b> ");
+        text.append(item.getCategory()).append("</div></h3><br><b>Source</b> ");
+        text.append(item.getSource());
+        text.append("<br><b>Cost</b> ");
         text.append(generateCostString(item.getValue()));
         if(item.getWeight() > 0)
             text.append("; <b>Bulk</b> ").append(item.getPrettyWeight());
@@ -48,9 +50,11 @@ public class ItemHTMLGenerator {
         StringBuilder text = new StringBuilder();
         text.append("<p><h3 style='display:inline;'>").append(armor.getItem().getName()).append("<div style=\"padding-right:5px; float:right\">");
         if(armor.getProficiency() != ArmorProficiency.Shield)
-            text.append(armor.getProficiency()).append(" Armor</div></h3><br><b>Cost</b> ");
+            text.append(armor.getProficiency()).append(" Armor</div></h3><br><b>Source</b> ");
         else
-            text.append("Shield</div></h3><br><b>Cost</b> ");
+            text.append("Shield</div></h3><br><b>Source</b> ");
+        text.append(armor.getItem().getSource());
+        text.append("<br><b>Cost</b> ");
         text.append(generateCostString(armor.getItem().getValue())).append("; <b>Bulk</b> ");
         text.append(armor.getItem().getPrettyWeight()).append("<br><b>AC Bonus</b> ");
         if(armor.getAC() >= 0)
@@ -96,7 +100,9 @@ public class ItemHTMLGenerator {
     private static String generateWeaponText(Weapon weapon) {
         StringBuilder text = new StringBuilder();
         text.append("<p><h3 style='display:inline;'>").append(weapon.getItem().getName()).append("<div style=\"padding-right:5px; float:right\">");
-        text.append(weapon.getProficiency().toString()).append(" Weapon</div></h3><br><b>Cost</b> ");
+        text.append(weapon.getProficiency().toString()).append(" Weapon</div></h3><br><b>Source</b> ");
+        text.append(weapon.getItem().getSource());
+        text.append("<br><b>Cost</b> ");
         text.append(generateCostString(weapon.getItem().getValue())).append("; <b>Bulk</b> ");
         text.append(weapon.getItem().getPrettyWeight()).append("; <b>Hands</b> ").append(weapon.getItem().getHands());
         text.append("<br><b>Damage</b> ").append(weapon.getDamage()).append("; <b>Group</b> ").append(weapon.getGroup().getName());

@@ -4,6 +4,7 @@ import model.AbstractNamedObject;
 import model.ability_scores.AbilityScore;
 import model.ability_slots.AbilitySlot;
 import model.attributes.Attribute;
+import model.data_managers.sources.Source;
 import model.enums.Recalculate;
 import model.enums.Trait;
 import model.enums.Type;
@@ -186,9 +187,8 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
         private Map<Class<? extends AbilityExtension.Builder>, AbilityExtension.Builder>
                 extensions = Collections.emptyMap();
 
-        public Builder(){}
-
         public Builder(Builder other) {
+            super(other.source);
             this.prerequisites = copy(other.prerequisites);
             this.prereqStrings = copy(other.prereqStrings);
             this.givenPrerequisites = copy(other.givenPrerequisites);
@@ -211,6 +211,7 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
         }
 
         private Builder(Ability ability) {
+            super(ability.getSourceBook());
             this.prerequisites = ability.prerequisites;
             this.prereqStrings = ability.prereqStrings;
             this.givenPrerequisites = ability.givenPrerequisites;
@@ -224,6 +225,10 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
             this.level = ability.level;
             this.requirements = ability.requirements;
             this.recalculate = ability.recalculate;
+        }
+
+        public Builder(Source source) {
+            super(source);
         }
 
         public void addPrerequisite(String prerequisite) {

@@ -27,6 +27,7 @@ public class SettingHTMLGenerator {
         }
 
         return String.format("<h3>%s (%s) [%s]</h3>" +
+                        "<b>Source</b> %s<br>" +
                         "<p>%s<p>" +
                         "<b>Edicts</b> %s<br>" +
                         "<b>Anathema</b> %s<br>" +
@@ -40,6 +41,7 @@ public class SettingHTMLGenerator {
                 deity.getName(),
                 deity.getTitle(),
                 deity.getDeityAlignment().name(),
+                deity.getSource(),
                 deity.getDescription(),
                 deity.getEdicts(),
                 deity.getAnathema(),

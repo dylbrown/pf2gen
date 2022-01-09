@@ -34,12 +34,14 @@ public class ABCHTMLGenerator {
                 .map(Language::getName).collect(Collectors.joining(", "));
 
         return String.format("<h3>%s</h3>" +
+                        "<b>Source</b> %s<br>" +
                         "<b>Hit Points</b> %d; <b>Size</b> %s; <b>Speed</b> %d ft.<br>" +
                         "<b>Ability Boosts</b> %s; <b>Ability Flaws</b> %s<br>" +
                         "<b>Senses</b> %s; <b>Languages</b> %s<br>" +
                         "<b>Bonus Languages</b> %s" +
                         "<p>%s</p>",
                 ancestry.getName(),
+                ancestry.getSource(),
                 ancestry.getHP(),
                 ancestry.getSize().toString(),
                 ancestry.getSpeed(),
@@ -63,11 +65,13 @@ public class ABCHTMLGenerator {
         }
 
         return String.format("<h3>%s</h3>" +
+                "<b>Source</b> %s<br>" +
                 "<p>%s</p>" +
                 "<b>Ability Boosts</b> %s<br>" +
                 "<b>Skills</b> %s<br>" +
                 "<b>Bonus Feat</b> %s",
                 background.getName(),
+                background.getSource(),
                 background.getDescription(),
                 String.join(", ", getAbilityMods(background.getAbilityMods())),
                 background.getMods().stream().map(AttributeMod::toNiceAttributeString)
@@ -107,11 +111,13 @@ public class ABCHTMLGenerator {
         }
 
         return String.format("<h3>%s</h3>" +
-                "<p>%s</p>" +
+                        "<b>Source</b> %s<br>" +
+                        "<p>%s</p>" +
                         "<b>Key Ability</b> %s; <b>Hit Points</b> %d plus your Con modifier.<br>" +
                         "<b>Skill Increases</b> %d plus your Int Modifier.<br>" +
                         "<b>Initial Proficiencies</b><br>%s",
                 pClass.getName(),
+                pClass.getSource(),
                 pClass.getDescription(),
                 String.join(", ", getAbilityMods(pClass.getAbilityMods())),
                 pClass.getHP(),

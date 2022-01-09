@@ -1,18 +1,20 @@
 package model;
 
+import model.data_managers.sources.Source;
 import model.util.StringUtils;
 
 import java.util.Objects;
 
 public abstract class AbstractNamedObject implements NamedObject {
-    private final String name, description, sourceBook;
+    private final String name, description;
+    private final Source source;
     private final int page;
 
     protected AbstractNamedObject(Builder builder) {
         name = builder.name;
         description = builder.description;
         page = builder.pageNo;
-        sourceBook = builder.sourceBook;
+        source = builder.source;
     }
 
     public String getName() {
@@ -48,13 +50,14 @@ public abstract class AbstractNamedObject implements NamedObject {
         return page;
     }
 
-    public String getSourceBook() {
-        return sourceBook;
+    public Source getSourceBook() {
+        return source;
     }
 
     public String getSource() {
-        if(page == -1) return StringUtils.intialism(sourceBook);
-        return StringUtils.intialism(sourceBook) + " pg. " + page;
+        if(source == null) return "N/A";
+        if(page == -1) return StringUtils.intialism(source.getName());
+        return StringUtils.intialism(source.getName()) + " pg. " + page;
     }
 
     @Override
@@ -65,19 +68,23 @@ public abstract class AbstractNamedObject implements NamedObject {
         return page == that.page &&
                 name.equals(that.name) &&
                 Objects.equals(description, that.description) &&
-                sourceBook.equals(that.sourceBook);
+                source.equals(that.source);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, sourceBook, page);
+        return Objects.hash(name, description, source, page);
     }
 
     public static abstract class Builder {
         private String name = "";
         private String description = "";
-        private String sourceBook = "Core Rulebook"; // TODO: Collect this in loader
+        protected final Source source;
         private int pageNo = -1;
+
+        public Builder(Source source) {
+            this.source = source;
+        }
 
         public String getName() {
             return name;
@@ -93,10 +100,6 @@ public abstract class AbstractNamedObject implements NamedObject {
 
         public void setPage(int pageNo) {
             this.pageNo = pageNo;
-        }
-
-        public void setSourceBook(String sourceBook) {
-            this.sourceBook = sourceBook;
         }
     }
 }

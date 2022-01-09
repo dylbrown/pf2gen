@@ -79,7 +79,7 @@ public class BackgroundsLoader extends ABCLoader<Background, Background.Builder>
     protected Background parseItem(File file, Element item) {
         NodeList classProperties = item.getChildNodes();
 
-        Background.Builder builder = new Background.Builder();
+        Background.Builder builder = new Background.Builder(getSource());
 
         for (int i = 0; i < classProperties.getLength(); i++) {
             if (classProperties.item(i).getNodeType() != Node.ELEMENT_NODE)

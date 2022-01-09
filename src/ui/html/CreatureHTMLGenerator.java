@@ -26,7 +26,7 @@ public class CreatureHTMLGenerator {
                         .map(Trait::toString)
                         .collect(Collectors.joining(", "))
         ).append("</br>");
-        builder.append("<b>Source</b> pg. ").append(creature.getPage())
+        builder.append("<b>Source</b> ").append(creature.getSource())
                 .append("; <b>Perception</b> ");
         String perception = signed(creature.getModifiers().get(BaseAttribute.Perception));
             builder.append(perception).append("<br>");

@@ -121,6 +121,11 @@ public class SearchItem implements Item {
     }
 
     @Override
+    public String getSource() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String getDescription() {
         throw new UnsupportedOperationException();
     }

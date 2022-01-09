@@ -28,7 +28,7 @@ public class DeitiesLoader extends FileLoader<Deity> {
     @Override
     protected Deity parseItem(File file, Element deity) {
         NodeList nodeList = deity.getChildNodes();
-        Deity.Builder builder = new Deity.Builder();
+        Deity.Builder builder = new Deity.Builder(getSource());
         builder.setPage(Integer.parseInt(deity.getAttribute("page")));
         for (int i = 0; i < nodeList.getLength(); i++) {
             if (nodeList.item(i).getNodeType() != Node.ELEMENT_NODE)
