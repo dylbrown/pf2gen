@@ -15,22 +15,30 @@ public class ThreeStateCell extends TreeTableCell<SourceEntry, ThreeState> {
             int sel=getTreeTableRow().getIndex();
             TreeItem<SourceEntry> item = list.getTreeTableView().getSelectionModel().getModelItem(sel);
             update(item, isNowSelected);
+            while(item.getParent() != null) {
+                updateParent(item.getParent(), isNowSelected);
+                item = item.getParent();
+            }
         });
     }
 
-    private void update(TreeItem<SourceEntry> item, Boolean value) {
+    private boolean update(TreeItem<SourceEntry> item, Boolean value) {
         SourceEntry selectedItem = item.getValue();
         if(selectedItem.isLocked())
-            return;
+            return false;
+        boolean failed = false;
+        for (TreeItem<SourceEntry> child : item.getChildren()) {
+            // If the update failed, set failed to true
+            failed |= !update(child, value);
+        }
         if(value)
             selectedItem.stateProperty().set(ThreeState.True);
-        else
-            selectedItem.stateProperty().set(ThreeState.False);
-        checkBox.setIndeterminate(false);
-        for (TreeItem<SourceEntry> child : item.getChildren()) {
-            update(child, value);
+        else {
+            selectedItem.stateProperty().set(failed ? ThreeState.Indeterminate : ThreeState.False);
         }
-        updateParent(item.getParent(), value);
+        // Indeterminate only if false
+        checkBox.setIndeterminate(failed && !value);
+        return true;
     }
 
     public static void updateParent(TreeItem<SourceEntry> parent, Boolean value) {

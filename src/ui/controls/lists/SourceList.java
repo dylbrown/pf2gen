@@ -1,5 +1,6 @@
 package ui.controls.lists;
 
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.scene.control.TreeItem;
@@ -41,23 +42,65 @@ public class SourceList extends ObservableCategoryEntryList<Source, SourceEntry>
                 entryMap.put(name, treeItem);
                 value.stateProperty().addListener((o, oldVal, newVal)->{
                     if(newVal == ThreeState.True) {
-                        for (String dependency : value.getContents().getDependencies()) {
-                            if(!entryMap.get(dependency).getValue().isLocked())
-                                entryMap.get(dependency).getValue().stateProperty().set(ThreeState.True);
-                        }
+                        addDependencies(value);
                     } else if(newVal == ThreeState.False) {
-                        for (TreeItem<SourceEntry> sourceEntry : entryMap.values()) {
-                            if(sourceEntry.getValue().getContents().getDependencies().contains(name)){
-                                if(!sourceEntry.getValue().isLocked())
-                                    sourceEntry.getValue().stateProperty().set(ThreeState.False);
-                            }
-                        }
+                        removeDependents(name);
                     }
                 });
             }
             setupDependencyChecking(treeItem);
         }
 
+    }
+
+    // Recursively add dependencies
+    private void addDependencies(SourceEntry addedSource) {
+        for (String dependency : addedSource.getContents().getDependencies()) {
+            TreeItem<SourceEntry> sourceEntry = entryMap.get(dependency);
+            SourceEntry value = sourceEntry.getValue();
+            if(!value.isLocked()) {
+                ObjectProperty<ThreeState> p = value.stateProperty();
+                if(p.get() != ThreeState.True) {
+                    p.set(ThreeState.True);
+                    addDependencies(value);
+                    updateParent(sourceEntry.getParent(), ThreeState.True);
+                }
+            }
+        }
+    }
+
+    // Recursively remove dependents
+    private void removeDependents(String parent) {
+        for (TreeItem<SourceEntry> sourceEntry : entryMap.values()) {
+            if(sourceEntry.getValue().getContents().getDependencies().contains(parent)){
+                if(!sourceEntry.getValue().isLocked()) {
+                    ObjectProperty<ThreeState> p = sourceEntry.getValue().stateProperty();
+                    if(p.get() != ThreeState.False) {
+                        p.set(ThreeState.False);
+                        removeDependents(sourceEntry.getValue().getContents().getName());
+                        updateParent(sourceEntry.getParent(), ThreeState.False);
+                    }
+                }
+            }
+        }
+    }
+
+    private void updateParent(TreeItem<SourceEntry> parent, ThreeState value) {
+        if(parent == null || parent.getValue() == null) return;
+        boolean indeterminate = false;
+        if(value == ThreeState.Indeterminate) {
+            indeterminate = true;
+        } else {
+            for (TreeItem<SourceEntry> child : parent.getChildren()) {
+                if(child.getValue().getState() != value) {
+                    indeterminate = true;
+                    break;
+                }
+            }
+        }
+        value = indeterminate ? ThreeState.Indeterminate : value;
+        parent.getValue().stateProperty().set(value);
+        updateParent(parent.getParent(), value);
     }
 
     static private List<TreeTableColumn<SourceEntry, ?>> makeColumns(ReadOnlyDoubleProperty width) {
