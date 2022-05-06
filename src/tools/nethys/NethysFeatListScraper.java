@@ -18,7 +18,7 @@ class NethysFeatListScraper extends NethysListScraper {
 
 	public static void main(String[] args) {
 		new NethysFeatListScraper(
-				"C:\\Users\\dylan\\Downloads\\RadGridExport (1).csv",
+				"C:\\Users\\dylan\\Downloads\\RadGridExport.csv",
 				"generated/feats.pfdyl",
 				source->true, true);
 	}

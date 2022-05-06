@@ -11,10 +11,10 @@ public class DynamicFilledSlot extends AbilitySlot {
     private final Type type;
     private final String contents;
     private boolean hasClass = false;
-    private final BiFunction<Type, String, Ability> abilityFunction;
+    private final BiFunction<String, String, Ability> abilityFunction;
     private PClass pClass;
 
-    public DynamicFilledSlot(String name, int level, String contents, Type type, BiFunction<Type, String, Ability> abilityFunction) {
+    public DynamicFilledSlot(String name, int level, String contents, Type type, BiFunction<String, String, Ability> abilityFunction) {
         super(name, level);
         preSet = true;
         this.contents = contents;
@@ -46,10 +46,10 @@ public class DynamicFilledSlot extends AbilitySlot {
                             gettingAbility = false;
                         }
                     }
-                    return abilityFunction.apply(type, contents);
+                    return abilityFunction.apply(type.name(), contents);
                 case Class:
                     if(hasClass){
-                        return pClass.findFeat(contents);
+                        return abilityFunction.apply(pClass.getName(), contents);
                     }
                 default:
                     return null;

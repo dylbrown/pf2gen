@@ -214,8 +214,19 @@ public class AbilityManager implements PlayerState {
 						}
 						break;
 					case "classfeature":
-					case "choice":
 						throw new RuntimeException("Feats of type "+allowedType+" should not be selectable!");
+					case "choice":
+						bracket = allowedType.indexOf("(");
+						if (bracket != -1) {
+							int close = allowedType.indexOf(")");
+							String choiceType = allowedType.substring(bracket + 1, close);
+							for (Ability ability : sources.choices().getCategory(choiceType).values()) {
+								if(ability.getLevel() <= maxLevel)
+									results.add(ability);
+							}
+							break;
+						}
+						break;
 					case "ancestry":
 						for (Trait trait : traits) {
 							try {

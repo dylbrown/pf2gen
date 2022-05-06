@@ -11,6 +11,10 @@ class ProxyPool {
     private final int max;
     private final Semaphore available;
 
+    static{
+        java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(java.util.logging.Level.OFF);
+    }
+
     static WebClient makeClient() {
         WebClient webClient = new WebClient(BrowserVersion.FIREFOX);
         webClient.getOptions().setThrowExceptionOnScriptError(false);
@@ -39,7 +43,6 @@ class ProxyPool {
     public ProxyPool(int max) {
         this.max = max;
         this.available = new Semaphore(max, true);
-        java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(java.util.logging.Level.OFF);
         for(int i = 0; i < max; i++) {
             items.add(makeClient());
             used.add(false);

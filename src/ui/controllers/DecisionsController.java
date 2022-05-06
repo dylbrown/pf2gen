@@ -11,10 +11,7 @@ import javafx.scene.web.WebView;
 import model.CharacterManager;
 import model.abilities.Ability;
 import model.abilities.ArchetypeExtension;
-import model.ability_slots.Choice;
-import model.ability_slots.ChoiceList;
-import model.ability_slots.FeatSlot;
-import model.ability_slots.SingleChoiceSlot;
+import model.ability_slots.*;
 import model.util.Pair;
 import model.util.TransformationProperty;
 import ui.controls.FeatSelectionPane;
@@ -25,6 +22,7 @@ import ui.controls.lists.entries.ListEntry;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -63,7 +61,7 @@ public class DecisionsController {
     }
 
     protected void initialize(ObservableList<Choice<?>> decisions) {
-        display.getEngine().setUserStyleSheetLocation(getClass().getResource("/webview_style.css").toString());
+        display.getEngine().setUserStyleSheetLocation(Objects.requireNonNull(getClass().getResource("/webview_style.css")).toString());
         groupBy.selectedToggleProperty().addListener((observableValue, oldVal, newVal) -> updateGroupBy(newVal, categoryFunctionProperty));
         groupBySecond.selectedToggleProperty().addListener((observableValue, oldVal, newVal) -> updateGroupBy(newVal, subCategoryFunctionProperty));
         updateGroupBy(groupBy.getSelectedToggle(), categoryFunctionProperty);
@@ -101,6 +99,8 @@ public class DecisionsController {
     private void updateDecisionGroupBy(Toggle toggle, ReadOnlyObjectWrapper<Pair<Function<Choice<?>, String>, String>> functionProperty) {
         if(toggle == decisionsFirstCategory || toggle == decisionsSecondCategory)
             functionProperty.set(new Pair<>(c->{
+                if(c instanceof DynamicChoiceSlot)
+                    return "Choices";
                 if(c instanceof FeatSlot)
                     return ((FeatSlot) c).getAllowedTypes().stream()
                             .map(s->(s.equalsIgnoreCase("feat")) ? s + "s" : s)

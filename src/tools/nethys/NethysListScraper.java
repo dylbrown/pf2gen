@@ -30,7 +30,7 @@ public abstract class NethysListScraper extends NethysScraper {
     final Map<String, String> sourceNames = new ConcurrentHashMap<>();
     final Set<Integer> ids = new HashSet<>();
     final ExecutorService executorService = Executors.newCachedThreadPool();
-    final CompletionService<Boolean> completionService= new ExecutorCompletionService<>(executorService);
+    final CompletionService<Boolean> completionService = new ExecutorCompletionService<>(executorService);
     final AtomicInteger counter = new AtomicInteger(0);
     final Predicate<String> sourceValidator;
     private final boolean multithreaded;
@@ -117,7 +117,7 @@ public abstract class NethysListScraper extends NethysScraper {
     protected final void printOutput(String outputPath) {
         List<BufferedWriter> writers = new ArrayList<>();
         final Function<String, Consumer<String>> getOutput = source -> {
-            File file = new File("generated/" + source + "/" + outputPath);
+            File file = new File("generated/" + StringUtils.sanitizePath(source) + "/" + outputPath);
             if(file.getParentFile().mkdirs())
                 System.out.println("Created "+ file);
             BufferedWriter out;

@@ -55,12 +55,18 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
     }
 
     protected List<Ability> makeAbilities(NodeList nodes) {
+        return makeAbilities(nodes, null);
+    }
+
+    protected List<Ability> makeAbilities(NodeList nodes, Type type) {
         List<Ability> choices = new ArrayList<>();
         for(int i=0; i<nodes.getLength(); i++) {
             if(!(nodes.item(i) instanceof Element)) continue;
             Element item = (Element) nodes.item(i);
             if(!item.getTagName().matches("Ability(Set)?")) continue;
-            Ability ability = makeAbility(item, item.getAttribute("name")).build();
+            Ability.Builder builder = makeAbility(item, item.getAttribute("name"));
+            if(type != null) builder.setType(type);
+            Ability ability = builder.build();
             if(ability != null)
                 choices.add(ability);
         }
@@ -225,14 +231,14 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     String type = propElem.getAttribute("type");
                     String tradition = propElem.getAttribute("tradition");
                     String ability = propElem.getAttribute("ability");
-                    if(spellListName != null)
+                    if(!spellListName.isBlank())
                         spellExt.setSpellListName(spellListName);
                     else System.out.println("Warning: missing spellListName");
-                    if(type != null && !type.equalsIgnoreCase("") && !type.equalsIgnoreCase("focusonly"))
+                    if(!type.isBlank() && !type.equalsIgnoreCase("focusonly"))
                         spellExt.setCasterType(CasterType.valueOf(propElem.getAttribute("type")));
-                    if(tradition != null && !tradition.equals(""))
+                    if(!tradition.isBlank())
                         spellExt.setTradition(Tradition.valueOf(tradition));
-                    if(ability != null && !ability.equals(""))
+                    if(!ability.isBlank())
                         spellExt.setCastingAbility(AbilityScore.robustValueOf(ability));
                     break;
                 case "SpellSlots":
@@ -396,7 +402,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                                 Ability a = null;
                                 try {
                                     a = findFromDependencies("Ability", FeatsLoader.class, name,
-                                            featType.toString());
+                                            featType);
                                 } catch (ObjectNotFoundException e) {
                                     e.printStackTrace();
                                 }
@@ -411,7 +417,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                         getTypes(propElem.getAttribute("type")));
             case "choice":
                 String contents = propElem.getAttribute("contents");
-                if(contents == null || contents.length() == 0)
+                if(contents.isBlank())
                     return new SingleChoiceSlot(abilityName, slotLevel,
                             makeAbilities(propElem.getChildNodes()));
                 else {
@@ -431,9 +437,8 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                             }
                         }
                     }
-                    choices.addChoices(contents, makeAbilities(propElem.getChildNodes()));
-                    return new DynamicSingleChoiceSlot(abilityName, slotLevel,
-                            ()->new ArrayList<>(choices.getCategory(contents).values()));
+                    choices.addChoices(contents, makeAbilities(propElem.getChildNodes(), Type.Choice));
+                    return new DynamicChoiceSlot(abilityName, slotLevel, contents);
                 }
 
         }

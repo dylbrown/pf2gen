@@ -102,6 +102,7 @@ public class SourcesLoader extends FileLoader<Source> {
                         new PClassesLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
             case "equipment":
+            case "items":
                 builder.addLoader(ItemLoader.class,
                         new ItemLoader(getSourceConstructor(curr), parentFile, builder));
                 break;
