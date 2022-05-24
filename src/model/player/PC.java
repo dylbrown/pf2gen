@@ -64,17 +64,19 @@ public class PC {
     private final AttributeManager attributes =
             new AttributeManager(customGetter, level.getReadOnlyProperty(), decisions, abilityApplier, itemApplier);
     private final InventoryManager inventory = new InventoryManager(abilityApplier, itemApplier);
-    private final QualityManager qualities = new QualityManager(decisions::add, decisions::remove, abilityApplier);
+    private final QualityManager qualities;
     private final CombatManager combat =
             new CombatManager(scores, attributes, inventory, levelProperty(), abilityApplier);
     private final VariantManager variants = new VariantManager();
     private final GroovyModManager modManager;
     private final List<PlayerState> stateManagers = new ArrayList<>(Arrays.asList(
-            decisions, spells, scores, attributes, inventory, qualities, combat
+            decisions, spells, scores, attributes, inventory, combat
     ));
 
     public PC(SourcesManager sources) {
         this.sources = sources;
+        qualities = new QualityManager(decisions::add, decisions::remove, abilityApplier, sources);
+        stateManagers.add(qualities);
         abilities = new AbilityManager(sources, decisions, ancestryProperty(),
                 pClassProperty(), abilityApplier, this::meetsPrerequisites, qualities.getTraits());
         stateManagers.add(abilities);

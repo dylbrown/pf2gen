@@ -465,6 +465,9 @@ public class AbilityManager implements PlayerState {
 	}
 
 	boolean meetsPrerequisite(String prereq, boolean isAbilityName) {
+		if(prereq.startsWith("!")) {
+			return !meetsPrerequisite(prereq.substring(1), isAbilityName);
+		}
 		if (isAbilityName) {
 			for (Ability charAbility : getAbilities()) {
 				if (charAbility != null && charAbility.toString().toLowerCase().trim().equals(

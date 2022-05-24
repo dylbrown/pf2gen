@@ -5,6 +5,14 @@ import model.data_managers.sources.Source;
 
 public class Sense extends AbstractNamedObject implements Comparable<Sense> {
 
+    public static Sense UPGRADED_VISION;
+
+    static {
+        Sense.Builder builder = new Builder(null);
+        builder.setName("Upgraded Vision");
+        UPGRADED_VISION = builder.build();
+    }
+
     protected Sense(Builder builder) {
         super(builder);
     }

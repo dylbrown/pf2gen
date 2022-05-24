@@ -282,10 +282,6 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
             this.traits.addAll(Arrays.asList(traits));
         }
 
-        public void setAbilitySlots(List<AbilitySlot> abilitySlots) {
-            this.abilitySlots = abilitySlots;
-        }
-
         public void setType(Type type) {
             if(type != Type.Untyped && type != null)
                 this.type = type;

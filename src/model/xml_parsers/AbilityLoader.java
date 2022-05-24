@@ -313,6 +313,10 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     break;
                 case "Senses":
                     for (String s : trim.split(" ?, ?")) {
+                        if(s.trim().equalsIgnoreCase("upgraded vision")) {
+                            builder.getExtension(GranterExtension.Builder.class).addSense(Sense.UPGRADED_VISION);
+                            continue;
+                        }
                         try {
                             Sense sense = findFromDependencies(
                                     "Sense",

@@ -8,9 +8,11 @@ import javafx.collections.ObservableSet;
 import model.abc.Ancestry;
 import model.abilities.Ability;
 import model.abilities.AncestryExtension;
+import model.abilities.GranterExtension;
 import model.enums.Language;
 import model.enums.Sense;
 import model.enums.Trait;
+import model.util.ObjectNotFoundException;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -23,10 +25,13 @@ public class QualityManager implements PlayerState {
     private final Set<Sense> senses = new TreeSet<>();
     private final ObservableList<Language> bonusLanguages = FXCollections.observableArrayList();
     private final ArbitraryChoice<Language> bonusLanguageChoice;
+    private Sense lowLightVision = null, darkvision = null;
+    private boolean upgradedLowLight = false;
+    private int senseUpgradeCount = 0;
 
     QualityManager(Consumer<ArbitraryChoice<Language>> addDecision,
                    Consumer<ArbitraryChoice<Language>> removeDecision,
-                   Applier<Ability> applier) {
+                   Applier<Ability> applier, SourcesManager sources) {
         ArbitraryChoice.Builder<Language> builder = new ArbitraryChoice.Builder<>();
         builder.setName("Bonus Languages");
         builder.setChoices(bonusLanguages);
@@ -39,11 +44,35 @@ public class QualityManager implements PlayerState {
             if(oldVal.intValue() > 0 && newVal.intValue() <= 0) removeDecision.accept(bonusLanguageChoice);
             if(oldVal.intValue() <= 0 && newVal.intValue() > 0) addDecision.accept(bonusLanguageChoice);
         });
+
+        try {
+            lowLightVision = sources.senses().find("Low-Light Vision");
+            darkvision = sources.senses().find("Darkvision");
+        } catch (ObjectNotFoundException e) {
+            e.printStackTrace();
+        }
+
         applier.onPreApply(ability->{
             AncestryExtension ancestry = ability.getExtension(AncestryExtension.class);
             if(ancestry != null) {
                 for (Trait trait : ancestry.getGrantsTraits()) {
                     addTrait(trait);
+                }
+            }
+            GranterExtension granter = ability.getExtension(GranterExtension.class);
+            if(granter != null) {
+                for (Sense sense : granter.getSenses()) {
+                    if(sense == Sense.UPGRADED_VISION) {
+                        if(senses.contains(lowLightVision)) {
+                            senses.add(darkvision);
+                        } else {
+                            senses.add(lowLightVision);
+                            upgradedLowLight = true;
+                        }
+                        senseUpgradeCount++;
+                    } else {
+                        senses.add(sense);
+                    }
                 }
             }
         });
@@ -54,11 +83,23 @@ public class QualityManager implements PlayerState {
                     removeTrait(trait);
                 }
             }
+            GranterExtension granter = ability.getExtension(GranterExtension.class);
+            if(granter != null) {
+                for (Sense sense : granter.getSenses()) {
+                    if(sense == Sense.UPGRADED_VISION) {
+                        if(senseUpgradeCount == 1 && upgradedLowLight) {
+                            senses.remove(lowLightVision);
+                            upgradedLowLight = false;
+                        } else if((upgradedLowLight && senseUpgradeCount == 2) || senseUpgradeCount == 1) {
+                            senses.remove(darkvision);
+                        }
+                        senseUpgradeCount--;
+                    } else {
+                        senses.remove(sense);
+                    }
+                }
+            }
         });
-    }
-
-    public ArbitraryChoice<Language> getBonusLanguageChoice() {
-        return bonusLanguageChoice;
     }
 
     private void addBonusLanguage(Language language) {
