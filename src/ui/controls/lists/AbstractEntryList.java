@@ -98,6 +98,11 @@ public abstract class AbstractEntryList<U, T extends ListEntry<U>> extends TreeT
             if(ie != null && ie.getContents() != null)
                 handler.accept(ie.getContents(), treeItem, i);
         })));
+        this.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal) -> {
+            T t = newVal.getValue();
+            if(t != null && t.getContents() != null)
+                handler.accept(t.getContents(), newVal, 1);
+        });
         setRoot(originalRoot);
         this.setColumnResizePolicy(TreeTableView.CONSTRAINED_RESIZE_POLICY);
         createColumns();

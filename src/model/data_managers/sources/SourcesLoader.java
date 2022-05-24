@@ -21,8 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class SourcesLoader extends FileLoader<Source> {
 
@@ -34,12 +33,12 @@ public class SourcesLoader extends FileLoader<Source> {
     }
 
     static {
-        Map<String, String> locations = new HashMap<>();
+        Map<String, List<String>> locations = new HashMap<>();
         File[] data = new File("data").listFiles();
         if(data != null) {
             for (File file : data) {
                 if (file.isDirectory() && !file.getName().startsWith(".")) {
-                    locations.put(StringUtils.clean(file.getName()), file.getName() + "/index.pfdyl");
+                    locations.put(StringUtils.clean(file.getName()), Collections.singletonList(file.getName() + "/index.pfdyl"));
                 }
             }
         }
@@ -47,7 +46,7 @@ public class SourcesLoader extends FileLoader<Source> {
             URL url = new URL("https://dylbrown.github.io/pf2gen_data/data/index.txt");
             if(((HttpURLConnection) url.openConnection()).getResponseCode() == HttpURLConnection.HTTP_OK) {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-                reader.lines().forEach(s->locations.putIfAbsent(StringUtils.clean(s), s+"/index.pfdyl"));
+                reader.lines().forEach(s->locations.putIfAbsent(StringUtils.clean(s), Collections.singletonList(s+"/index.pfdyl")));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -171,14 +170,16 @@ public class SourcesLoader extends FileLoader<Source> {
     private SourceConstructor getSourceConstructor(Element curr) {
         NodeList categories = curr.getElementsByTagName("Category");
         boolean isMultiMulti = categories.getLength() > 0;
-        NodeList children = curr.getElementsByTagName("*");
-        if(children.getLength() > 0) {
-            HashMap<String, String> map = new HashMap<>();
+        if(curr.getElementsByTagName("*").getLength() > 0) {
+            NodeList children = curr.getChildNodes();
+            HashMap<String, List<String>> map = new HashMap<>();
             HashMap<String, String> typeMap = new HashMap<>();
             for(int i = 0; i < children.getLength(); i++) {
+                if(!(children.item(i) instanceof Element))
+                    continue;
                 Element item = (Element) children.item(i);
                 String name = item.getAttribute("name").toLowerCase();
-                map.put(name, item.getAttribute("path"));
+                map.put(name, loadCategory(item));
                 String type = item.getAttribute("type");
                 if(!type.isBlank()) {
                     typeMap.put(name, type);
@@ -189,6 +190,21 @@ public class SourcesLoader extends FileLoader<Source> {
             return new SourceConstructor(map, isMultiMulti);
         }
         return new SourceConstructor(curr.getAttribute("path"), true);
+    }
+
+    private List<String> loadCategory(Element category) {
+        NodeList children = category.getChildNodes();
+        if(children.getLength() > 0) {
+            List<String> files = new ArrayList<>();
+            for(int i = 0; i < children.getLength(); i++) {
+                if(!(children.item(i) instanceof Element))
+                    continue;
+                Element item = (Element) children.item(i);
+                files.add(item.getTextContent());
+            }
+            return files;
+        }
+        return Collections.singletonList(category.getAttribute("path"));
     }
 
     @Override

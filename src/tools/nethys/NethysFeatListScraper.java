@@ -19,7 +19,7 @@ class NethysFeatListScraper extends NethysListScraper {
 	public static void main(String[] args) {
 		new NethysFeatListScraper(
 				"C:\\Users\\dylan\\Downloads\\RadGridExport.csv",
-				"generated/feats.pfdyl",
+				"feats.pfdyl",
 				source->true, true);
 	}
 
@@ -92,10 +92,10 @@ class NethysFeatListScraper extends NethysListScraper {
 		String source = sourceAndPage.replaceAll(" pg.*", "");
 		String pageNo = sourceAndPage.replaceAll(".*pg\\. ", "");
 
-		Elements actionIcons = output.getElementsByAttributeValueContaining("src", "Images\\Actions");
+		Elements actionIcons = output.getElementsByClass("action");
 		String cost = "";
 		if(actionIcons.size() > 0) {
-			switch(actionIcons.first().attr("alt")) {
+			switch(actionIcons.first().attr("title")) {
 				case "Single Action":
 					cost = "1";
 					break;

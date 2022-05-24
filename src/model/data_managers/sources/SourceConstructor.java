@@ -2,20 +2,18 @@ package model.data_managers.sources;
 
 import model.util.StringUtils;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class SourceConstructor {
     private final Type type;
-    private Map<String, String> locationMap;
+    private Map<String, List<String>> locationMap;
     private String location;
     private final boolean multiplePerFile, singleFile;
 
-    public SourceConstructor(Map<String, String> map, boolean isMultiMulti) {
+    public SourceConstructor(Map<String, List<String>> map, boolean isMultiMulti) {
         locationMap = new HashMap<>();
-        for (Map.Entry<String, String> entry : map.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : map.entrySet()) {
             locationMap.put(StringUtils.clean(entry.getKey()), entry.getValue());
         }
 
@@ -31,17 +29,25 @@ public class SourceConstructor {
         singleFile = true;
     }
 
-    public String getLocation(String name) {
-        if(type == Type.SingleFileMultiItem) return getLocation();
-        return locationMap.get(StringUtils.clean(name));
+    public List<String> getLocation(String name) {
+        if(type == Type.SingleFileMultiItem) {
+            String location = getLocation();
+            return (location != null) ? Collections.singletonList(location) : Collections.emptyList();
+        }
+        List<String> strings = locationMap.get(StringUtils.clean(name));
+        return (strings != null) ? strings : Collections.emptyList();
     }
 
-    public Collection<String> getLocations() {
+    private List<String> locations = null;
+    public List<String> getLocations() {
         if(type == Type.SingleFileMultiItem) return Collections.singletonList(getLocation());
-        return Collections.unmodifiableCollection(locationMap.values());
+        if(locations == null) {
+            locations = locationMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        }
+        return locations;
     }
 
-    public Map<String, String> map() {
+    public Map<String, List<String>> map() {
         return Collections.unmodifiableMap(locationMap);
     }
 

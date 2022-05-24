@@ -73,11 +73,13 @@ public abstract class FileLoader<T> {
             if(sourceConstructor.getType() == SourceConstructor.Type.SingleFileMultiItem) {
                 load("");
             } else {
-                for (Map.Entry<String, String> entry : sourceConstructor.map().entrySet()) {
-                    if(sourceConstructor.isMultiplePerFile())
-                        loadMultiple(entry.getKey(), entry.getValue());
-                    else
-                        loadSingle(entry.getValue());
+                for (Map.Entry<String, List<String>> entry : sourceConstructor.map().entrySet()) {
+                    for (String path : entry.getValue()) {
+                        if(sourceConstructor.isMultiplePerFile())
+                            loadMultiple(entry.getKey(), path);
+                        else
+                            loadSingle(path);
+                    }
                 }
             }
         }
@@ -160,7 +162,9 @@ public abstract class FileLoader<T> {
 
     private void load(String category, String name) {
         if(sourceConstructor.getType() == SourceConstructor.Type.MultiItemMultiFile) {
-            loadMultiple(category, sourceConstructor.getLocation(category));
+            for (String path : sourceConstructor.getLocation(category)) {
+                loadMultiple(category, path);
+            }
         } else load(name);
     }
 
@@ -173,11 +177,15 @@ public abstract class FileLoader<T> {
                 loadMultiple("", sourceConstructor.getLocation());
                 break;
             case MultiFileSingleItem:
-                loadSingle(sourceConstructor.getLocation(name));
+                for (String path : sourceConstructor.getLocation(name)) {
+                    loadSingle(path);
+                }
                 break;
             case MultiItemMultiFile:
-                for (Map.Entry<String, String> entry : sourceConstructor.map().entrySet()) {
-                    loadMultiple(entry.getKey(), entry.getValue());
+                for (Map.Entry<String, List<String>> entry : sourceConstructor.map().entrySet()) {
+                    for (String path : entry.getValue()) {
+                        loadMultiple(entry.getKey(), path);
+                    }
                 }
                 break;
         }
