@@ -165,8 +165,8 @@ public class SelectionPane<T, U extends ListEntry<T>> extends BorderPane {
         private ObservableList<T> options;
         private WebView display;
         private StringProperty search;
-        private ObservableValue<Pair<Function<T, String>, String>> categoryFunctionProperty;
-        private ObservableValue<Pair<Function<T, String>, String>> subCategoryFunctionProperty;
+        protected ObservableValue<Pair<Function<T, String>, String>> categoryFunctionProperty;
+        protected ObservableValue<Pair<Function<T, String>, String>> subCategoryFunctionProperty;
         private final Function<T, U> makeEntry;
         private final Function<String, U> makeLabelEntry;
 

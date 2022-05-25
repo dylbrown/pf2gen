@@ -12,10 +12,12 @@ import model.CharacterManager;
 import model.abilities.Ability;
 import model.abilities.ArchetypeExtension;
 import model.ability_slots.*;
+import model.spells.DynamicSpellChoice;
 import model.util.Pair;
 import model.util.TransformationProperty;
 import ui.controls.FeatSelectionPane;
 import ui.controls.SelectionPane;
+import ui.controls.SpellSelectionPane;
 import ui.controls.lists.DecisionsList;
 import ui.controls.lists.entries.ListEntry;
 
@@ -126,6 +128,10 @@ public class DecisionsController {
                 featBuilder.setSubCategoryFunctionProperty(subCategoryFunctionProperty.getReadOnlyProperty());
                 featBuilder.setFilterByPrerequisites(new TransformationProperty<>(filterChoices.selectedToggleProperty(), t->t == filterQualified));
                 node = getPane(featBuilder);
+            }else if(choice instanceof DynamicSpellChoice) {
+                SpellSelectionPane.Builder spellBuilder = new SpellSelectionPane.Builder();
+                spellBuilder.setChoice((DynamicSpellChoice) choice);
+                node = getPane(spellBuilder);
             }else if(choice instanceof ChoiceList){
                 node = getPane((ChoiceList<?>) choice);
             }else {

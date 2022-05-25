@@ -1,7 +1,5 @@
 package model.xml_parsers.equipment;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import model.attributes.Attribute;
 import model.attributes.AttributeBonus;
 import model.data_managers.sources.Source;
@@ -18,13 +16,11 @@ import model.items.runes.runedItems.Enchantable;
 import model.items.weapons.Damage;
 import model.items.weapons.DamageType;
 import model.items.weapons.Dice;
-import model.player.ArbitraryChoice;
-import model.spells.Spell;
+import model.spells.DynamicSpellChoice;
 import model.spells.Tradition;
 import model.util.ObjectNotFoundException;
 import model.util.StringUtils;
 import model.xml_parsers.FileLoader;
-import model.xml_parsers.SpellsLoader;
 import model.xml_parsers.TraitsLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -33,9 +29,7 @@ import org.w3c.dom.NodeList;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Consumer;
 
 import static model.util.StringUtils.camelCaseWord;
@@ -289,12 +283,8 @@ public class ItemLoader extends FileLoader<Item> {
     }
 
     private <T> void addSpellChoice(BaseItem.Builder builder, Element choice) {
-        ArbitraryChoice.Builder<Spell> spell = new ArbitraryChoice.Builder<>();
-        spell.setOptionsClass(Spell.class);
-        spell.setMaxSelections(1);
+        DynamicSpellChoice.Builder spell = new DynamicSpellChoice.Builder();
         NodeList childNodes = choice.getChildNodes();
-        Set<Integer> levels = new HashSet<>();
-        Set<Tradition> traditions = new HashSet<>();
         for(int i = 0; i < childNodes.getLength(); i++) {
             Node item = childNodes.item(i);
             if(item.getNodeType() != Node.ELEMENT_NODE)
@@ -311,35 +301,20 @@ public class ItemLoader extends FileLoader<Item> {
                             int start = Integer.parseInt(s.substring(0, dash));
                             int end = Integer.parseInt(s.substring(dash + 1));
                             for(int j = start; j <= end; j++) {
-                                levels.add(j);
+                                spell.addLevel(j);
                             }
                         }else{
-                            levels.add(Integer.parseInt(s));
+                            spell.addLevel(Integer.parseInt(s));
                         }
                     }
                     break;
                 case "traditions":
                     for (String s : curr.getTextContent().split(", ?")) {
-                        traditions.add(Tradition.valueOf(StringUtils.camelCaseWord(s.trim())));
+                        spell.addTradition(Tradition.valueOf(StringUtils.camelCaseWord(s.trim())));
                     }
                     break;
             }
         }
-        if(levels.isEmpty())
-            levels.addAll(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
-        if(traditions.isEmpty())
-            traditions.addAll(Arrays.asList(Tradition.values()));
-        ObservableList<Spell> choices = FXCollections.observableArrayList();
-        SpellsLoader loader = getSource().getLoader(SpellsLoader.class);//TODO: replace with fromDependencies
-        if(loader != null) {
-            for (Spell value : loader.getAll().values()) {
-                if(value.getTraditions().stream().anyMatch(traditions::contains) &&
-                levels.contains(value.getLevel())) { // TODO: Support heightened level
-                    choices.add(value);
-                }
-            }
-        }
-        spell.setChoices(choices);
         builder.getExtension(BaseItemChoices.Builder.class).addChoice(spell.build());
     }
 
