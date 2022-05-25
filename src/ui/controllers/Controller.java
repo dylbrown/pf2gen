@@ -71,9 +71,8 @@ public class Controller {
             }
         });
         open_menu.setOnAction(e -> {
-            PC pc = new PC(new SourcesManager());
-            boolean success = SaveLoadController.getInstance().load(pc, main.getScene());
-            if(!success) return;
+            PC pc = SaveLoadController.getInstance().load(main.getScene());
+            if(pc == null) return;
             CharacterManager.add(pc);
             characterSelect.getSelectionModel().select(pc);
         });

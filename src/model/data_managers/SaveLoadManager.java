@@ -21,6 +21,7 @@ import model.items.runes.Rune;
 import model.items.runes.WeaponRune;
 import model.items.runes.runedItems.Runes;
 import model.player.PC;
+import model.player.SourcesManager;
 import model.player.VariantManager;
 import model.spells.Spell;
 import model.spells.SpellList;
@@ -180,6 +181,33 @@ public class SaveLoadManager {
     private static void writeOutLine(Writer out, String s) throws IOException {
         out.write(s);
         out.write(System.lineSeparator());
+    }
+
+    public static SourcesManager loadSources(List<String> lineList) {
+        Pair<List<String>, Integer> lines= new Pair<>(lineList, 0);
+        String curr = nextLine(lines);
+        int version = 0;
+        if(curr.startsWith(HEADER)) {
+            version = Integer.parseInt(curr.substring(HEADER.length()));
+        }
+        if(version > VERSION)
+            throw new RuntimeException("Save is from newer version of software!!!");
+        while (version < VERSION) {
+            version++;
+            SaveCompatibilityConverter.updateTo(lines, version);
+        }
+
+        SourcesManager sources = new SourcesManager();
+
+        //Load Sources
+        lines.second++; // Skip Section Header
+        curr = nextLine(lines);
+        while(curr.startsWith(" - ")) {
+            sources.add(SourcesLoader.instance().find(curr.substring(3)));
+            curr = nextLine(lines);
+        }
+
+        return sources;
     }
 
     public static void load(PC character, List<String> lineList) {

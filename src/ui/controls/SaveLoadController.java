@@ -21,7 +21,7 @@ public class SaveLoadController {
 
     }
 
-    private static SaveLoadController INSTANCE;
+    private static final SaveLoadController INSTANCE;
 
     static{
         INSTANCE = new SaveLoadController();
@@ -32,7 +32,7 @@ public class SaveLoadController {
     }
 
     private File loadLocation = new File("./");
-    public boolean load(PC pc, Scene scene) {
+    public PC load(Scene scene) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(loadLocation);
         //Set extension filter for text files
@@ -42,11 +42,10 @@ public class SaveLoadController {
 
         //Show save file dialog
         File file = fileChooser.showOpenDialog(scene.getWindow());
-        if(file == null) return false;
+        if(file == null) return null;
         saveLocation = file;
         loadLocation = saveLocation.getParentFile();
-        load(pc, saveLocation);
-        return true;
+        return load(saveLocation);
     }
 
     private File saveContainer = new File("./");
@@ -77,15 +76,18 @@ public class SaveLoadController {
         }
     }
 
-    private void load(PC pc, File file) {
+    private PC load(File file) {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             List<String> lineList;
             lineList = reader.lines().collect(Collectors.toList());
+            PC pc = new PC(SaveLoadManager.loadSources(lineList));
             SaveLoadManager.load(pc, lineList);
+            return pc;
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     public void save(PC pc, Scene scene) {
