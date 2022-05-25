@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class FilteredSelectionList<T> extends TransformationList<T, T> {
-    private List<Integer> mapping;
+    private final List<Integer> mapping;
     private final ObservableList<T> selections;
     public FilteredSelectionList(ObservableList<T> options, Choice<T> choice) {
         super(options);
@@ -30,7 +30,7 @@ public class FilteredSelectionList<T> extends TransformationList<T, T> {
             } else if(!change.wasPermutated()) {
                 int current = 0;
                 for(int i = 0; i < getSource().size(); i++) {
-                    Integer nextSourceIndex = mapping.get(current);
+                    int nextSourceIndex = (mapping.size() > current) ? mapping.get(current) : -1;
                     while(current < mapping.size() && nextSourceIndex < i) {
                         current++;
                         nextSourceIndex = (current < mapping.size()) ? mapping.get(current) : -1;
