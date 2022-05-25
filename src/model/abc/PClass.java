@@ -6,12 +6,9 @@ import model.ability_scores.AbilityScore;
 import model.ability_slots.AbilitySlot;
 import model.data_managers.sources.Source;
 import model.enums.Type;
-import model.util.ObjectNotFoundException;
+import model.util.StringUtils;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class PClass extends AC {
     public static final PClass NO_CLASS;
@@ -40,14 +37,26 @@ public class PClass extends AC {
         return skillIncreases;
     }
 
-    public Ability findClassFeature(String contents) throws ObjectNotFoundException {
+    public Ability findClassFeature(String contents) {
         for (List<AbilitySlot> list : advancementTable.values()) {
             for (AbilitySlot slot : list) {
                 if(slot.isPreSet() && slot.getName().equalsIgnoreCase(contents))
                     return slot.getCurrentAbility();
             }
         }
-        throw new ObjectNotFoundException(contents, getName()+ " Class Feature");
+        return null;
+    }
+
+    public Ability findClassFeat(String featDirty) {
+        String feat = StringUtils.clean(featDirty);
+        for(int i = 1; i <= 20; i++) {
+            Optional<Ability> ability = getFeats(i).stream()
+                    .filter(a->StringUtils.clean(a.getName()).equals(feat))
+                    .findFirst();
+            if(ability.isPresent())
+                return ability.get();
+        }
+        return null;
     }
 
     public static class Builder extends AC.Builder {

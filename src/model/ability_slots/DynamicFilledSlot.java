@@ -3,7 +3,6 @@ package model.ability_slots;
 import model.abc.PClass;
 import model.abilities.Ability;
 import model.enums.Type;
-import model.util.ObjectNotFoundException;
 
 import java.util.function.BiFunction;
 
@@ -37,18 +36,19 @@ public class DynamicFilledSlot extends AbilitySlot {
                 case Skill:
                 case ClassFeature:
                     if(hasClass && !gettingAbility) {
-                        try {
-                            gettingAbility = true;
-                            Ability classFeature = pClass.findClassFeature(contents);
+                        gettingAbility = true;
+                        Ability classFeature = pClass.findClassFeature(contents);
+                        if(classFeature != null) {
                             gettingAbility = false;
                             return classFeature;
-                        } catch (ObjectNotFoundException ignored) {
-                            gettingAbility = false;
                         }
                     }
                     return abilityFunction.apply(type.name(), contents);
                 case Class:
                     if(hasClass){
+                        Ability classFeat = pClass.findClassFeat(contents);
+                        if(classFeat != null)
+                            return classFeat;
                         return abilityFunction.apply(pClass.getName(), contents);
                     }
                 default:
