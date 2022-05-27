@@ -139,6 +139,9 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
             Element propElem = (Element) item;
             String trim = propElem.getTextContent().trim();
             switch (propElem.getTagName()) {
+                case "CustomName":
+                    builder.getExtension(CustomTextExtension.Builder.class).setCustomName(trim);
+                    break;
                 case "Archetype":
                     builder.getExtension(ArchetypeExtension.Builder.class).setArchetype(trim);
                     break;
