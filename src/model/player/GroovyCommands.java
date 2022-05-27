@@ -23,7 +23,9 @@ import model.items.Item;
 import model.items.weapons.*;
 import model.setting.Deity;
 import model.setting.Domain;
+import model.spells.DynamicSpellChoice;
 import model.spells.Spell;
+import model.spells.Tradition;
 import model.util.ObjectNotFoundException;
 import model.util.StringUtils;
 import model.xml_parsers.AbilityLoader;
@@ -168,7 +170,7 @@ class GroovyCommands {
             }
             String[] listSplit = things.split(" ?: ?");
             String[] words = listSplit[0].split(" ");
-            ArbitraryChoice.Builder<?> builder = null;
+            ArbitraryChoice.Builder<?> builder;
             switch (words[0].toLowerCase()){
                 case "deitydomain":
                     ObservableList<Domain> domains = FXCollections.observableArrayList();
@@ -183,7 +185,7 @@ class GroovyCommands {
                         }
                         domains.sort(Comparator.comparing(Object::toString));
                     });
-                    ArbitraryChoice.Builder<Domain> domain = new ArbitraryChoice.Builder<>();
+                    ArbitraryListChoice.Builder<Domain> domain = new ArbitraryListChoice.Builder<>();
                     domain.setChoices(domains);
                     domain.setOptionsClass(Domain.class);
                     builder = domain;
@@ -205,20 +207,20 @@ class GroovyCommands {
                             skills.sort(Comparator.comparing(Object::toString));
                         }
                     });
-                    ArbitraryChoice.Builder<Attribute> attribute = new ArbitraryChoice.Builder<>();
+                    ArbitraryListChoice.Builder<Attribute> attribute = new ArbitraryListChoice.Builder<>();
                     attribute.setChoices(skills);
                     attribute.setOptionsClass(Attribute.class);
                     builder = attribute;
                     break;
                 case "weapongroup":
-                    ArbitraryChoice.Builder<WeaponGroup> groups = new ArbitraryChoice.Builder<>();
+                    ArbitraryListChoice.Builder<WeaponGroup> groups = new ArbitraryListChoice.Builder<>();
                     groups.setChoices(FXCollections.observableArrayList(sources.weapons()
                             .getWeaponGroups().values()));
                     groups.setOptionsClass(WeaponGroup.class);
                     builder = groups;
                     break;
                 case "skill":
-                    ArbitraryChoice.Builder<String> stringChoice = new ArbitraryChoice.Builder<>();
+                    ArbitraryListChoice.Builder<String> stringChoice = new ArbitraryListChoice.Builder<>();
                     if(words.length > 1){
                         Proficiency min = Proficiency.valueOf(words[1].replaceAll("[()]", ""));
                         stringChoice.setChoices(attributes.getMinList(min));
@@ -228,8 +230,8 @@ class GroovyCommands {
                     stringChoice.setOptionsClass(String.class);
                     builder = stringChoice;
                     break;
-                case "saving throw":
-                    stringChoice = new ArbitraryChoice.Builder<>();
+                case "savingthrow":
+                    stringChoice = new ArbitraryListChoice.Builder<>();
                     if(words.length > 1){
                         Proficiency min = Proficiency.valueOf(words[1].replaceAll("[()]", ""));
                         stringChoice.setChoices(attributes.getMinSavesList(min));
@@ -239,16 +241,26 @@ class GroovyCommands {
                     stringChoice.setOptionsClass(String.class);
                     builder = stringChoice;
                     break;
+                case "spell":
+                    String[] items = listSplit[1].split("[, ?]+");
+                    DynamicSpellChoice.Builder spellBuilder = new DynamicSpellChoice.Builder();
+                    for(String item : items) {
+                        if(item.trim().matches("\\d+"))
+                            spellBuilder.addLevel(Integer.parseInt(item));
+                        else
+                            spellBuilder.addTradition(Tradition.valueOf(item));
+                    }
+                    builder = spellBuilder;
+                    break;
                 case "attributes":
-                    String[] items = listSplit[1].split("[, ]+");
-                    stringChoice = new ArbitraryChoice.Builder<>();
+                default:
+                    items = listSplit[1].split("[, ?]+");
+                    stringChoice = new ArbitraryListChoice.Builder<>();
                     stringChoice.setChoices(FXCollections.observableArrayList(items));
                     stringChoice.setOptionsClass(String.class);
                     builder = stringChoice;
                     break;
             }
-            if(builder == null)
-                builder = new ArbitraryChoice.Builder<String>();
             builder.setName(name);
             builder.setFillFunction((response) -> {
                 choices.computeIfAbsent(name, (key)->new ArrayList<>()).add(response);

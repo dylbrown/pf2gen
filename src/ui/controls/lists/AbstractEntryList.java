@@ -99,6 +99,7 @@ public abstract class AbstractEntryList<U, T extends ListEntry<U>> extends TreeT
                 handler.accept(ie.getContents(), treeItem, i);
         })));
         this.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal) -> {
+            if(newVal == null) return;
             T t = newVal.getValue();
             if(t != null && t.getContents() != null)
                 handler.accept(t.getContents(), newVal, 1);

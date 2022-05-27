@@ -24,15 +24,15 @@ public class QualityManager implements PlayerState {
     private final Set<Language> languages = new TreeSet<>();
     private final Set<Sense> senses = new TreeSet<>();
     private final ObservableList<Language> bonusLanguages = FXCollections.observableArrayList();
-    private final ArbitraryChoice<Language> bonusLanguageChoice;
+    private final ArbitraryListChoice<Language> bonusLanguageChoice;
     private Sense lowLightVision = null, darkvision = null;
     private boolean upgradedLowLight = false;
     private int senseUpgradeCount = 0;
 
-    QualityManager(Consumer<ArbitraryChoice<Language>> addDecision,
-                   Consumer<ArbitraryChoice<Language>> removeDecision,
+    QualityManager(Consumer<ArbitraryListChoice<Language>> addDecision,
+                   Consumer<ArbitraryListChoice<Language>> removeDecision,
                    Applier<Ability> applier, SourcesManager sources) {
-        ArbitraryChoice.Builder<Language> builder = new ArbitraryChoice.Builder<>();
+        ArbitraryListChoice.Builder<Language> builder = new ArbitraryListChoice.Builder<>();
         builder.setName("Bonus Languages");
         builder.setChoices(bonusLanguages);
         builder.setFillFunction(this::addBonusLanguage);
