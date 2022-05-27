@@ -33,7 +33,7 @@ public abstract class NethysListScraper extends NethysScraper {
     final CompletionService<Boolean> completionService = new ExecutorCompletionService<>(executorService);
     final AtomicInteger counter = new AtomicInteger(0);
     final Predicate<String> sourceValidator;
-    private final boolean multithreaded;
+    protected final boolean multithreaded;
     protected final ProxyPool semaphore = new ProxyPool(20);
 
     protected NethysListScraper() {

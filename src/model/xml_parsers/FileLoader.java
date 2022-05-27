@@ -134,7 +134,7 @@ public abstract class FileLoader<T> {
         TreeMap<String, A> map = new TreeMap<>();
         B loader = source.getLoader(loaderClass);
         if (loader != null) {
-            loader.getCategory(category).entrySet().parallelStream()
+            loader.getCategory(category).entrySet().stream()
                     .forEach(e->map.put(e.getKey(), e.getValue()));
         }
         for (String dependency : source.getDependencies()) {

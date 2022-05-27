@@ -34,9 +34,8 @@ public class SourceLoadTracker {
             case SingleFileSingleItem:
                 return !allLoaded;
             case MultiFileSingleItem:
-                return !isLoaded.contains(StringUtils.clean(name));
             case MultiItemMultiFile:
-                return isNotAllLoaded();
+                return !isLoaded.contains(StringUtils.clean(name));
         }
         return true;
     }

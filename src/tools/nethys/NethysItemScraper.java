@@ -33,7 +33,7 @@ class NethysItemScraper extends NethysScraper {
     final ExecutorService executorService = Executors.newCachedThreadPool();
     final CompletionService<Boolean> completionService = new ExecutorCompletionService<>(executorService);
     final AtomicInteger counter = new AtomicInteger(0);
-    protected final ProxyPool semaphore = new ProxyPool(20);
+    protected final ProxyPool semaphore = new ProxyPool(10);
 
     public static void main(String[] args) {
         new NethysItemScraper("C:\\Users\\dylan\\Downloads\\RadGridExport (3).csv");

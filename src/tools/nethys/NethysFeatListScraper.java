@@ -41,7 +41,7 @@ class NethysFeatListScraper extends NethysListScraper {
 	@Override
 	protected void setupItem(String href, Element row, WebClient webClient) throws IOException {
 		System.out.println(href);
-		FeatEntry entry = addItemStatic(makeDocument("https://2e.aonprd.com/"+href, webClient));
+		FeatEntry entry = addItemStatic(makeDocument("https://2e.aonprd.com/"+href, webClient), sourceValidator);
 		if (!entry.entry.isBlank()) {
 			String clean = StringUtils.clean(entry.source);
 			sources.computeIfAbsent(clean, key ->
@@ -54,14 +54,21 @@ class NethysFeatListScraper extends NethysListScraper {
 
 	@Override
 	FeatEntry addItem(Document doc) {
-		return addItemStatic(doc);
+		return addItemStatic(doc, sourceValidator);
 	}
 
-	static FeatEntry addItemStatic(Document doc) {
+	static FeatEntry addItemStatic(Document doc, Predicate<String> sourceValidator) {
 		if(doc == null) {
 			return FeatEntry.EMPTY;
 		}
 		Element output = doc.getElementById("ctl00_RadDrawer1_Content_MainContent_DetailedOutput");
+
+		String sourceAndPage = output.getElementsMatchingText("\\ASource\\z").first().nextElementSibling().text();
+		String source = sourceAndPage.replaceAll(" pg.*", "");
+		String pageNo = sourceAndPage.replaceAll(".*pg\\. ", "");
+		if(sourceValidator != null && !sourceValidator.test(StringUtils.clean(source))) {
+			return null;
+		}
 
 		String featName = output.getElementsByTag("h1").first().text().replaceAll(" Feat.*", "").trim();
 		String level = output.getElementsByClass("title").first().getElementsByTag("span").text().replaceAll("[^\\d]*", "");
@@ -88,9 +95,6 @@ class NethysFeatListScraper extends NethysListScraper {
 		for (Element trait : output.getElementsByClass("trait")) {
 			traits.add(trait.getElementsByTag("a").text());
 		}
-		String sourceAndPage = output.getElementsMatchingText("\\ASource\\z").first().nextElementSibling().text();
-		String source = sourceAndPage.replaceAll(" pg.*", "");
-		String pageNo = sourceAndPage.replaceAll(".*pg\\. ", "");
 
 		Elements actionIcons = output.getElementsByClass("action");
 		String cost = "";

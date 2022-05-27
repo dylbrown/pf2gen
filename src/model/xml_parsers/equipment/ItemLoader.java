@@ -53,6 +53,10 @@ public class ItemLoader extends FileLoader<Item> {
         loadTracker.setLoaded(location);
         File subFile = getSubFile(location);
         Document doc = getDoc(subFile);
+        if(doc == null) {
+            System.out.println("Failed to find file " + subFile);
+            return;
+        }
         Consumer<Element> parser = (curr) -> {
             Item item = parseItem(subFile, curr);
             addItem(item.getCategory(), item);
@@ -201,6 +205,7 @@ public class ItemLoader extends FileLoader<Item> {
                 builder.setValue(getPrice(trim));
                 break;
             case "Bulk":
+                trim = trim.split(" ")[0];
                 if (trim.equalsIgnoreCase("L"))
                     builder.setWeight(.1);
                 else
@@ -320,7 +325,7 @@ public class ItemLoader extends FileLoader<Item> {
 
 
     public static double getPrice(String priceString) {
-        if(priceString.equals("")) return 0;
+        if(priceString.equals("") || priceString.equals("0")) return 0;
         String[] split = priceString.split(" ");
         double value = Double.parseDouble(split[0].replace(",",""));
         switch(split[1].toLowerCase()) {

@@ -233,7 +233,7 @@ public class AbilityManager implements PlayerState {
 								Ancestry ancestry = sources.ancestries().find(trait.getName());
 								results.addAll(ancestry.getFeats(maxLevel));
 								ObservableList<Ability> finalResults = results;
-								sources.feats().getCategory(ancestry.getName()).values().parallelStream()
+								sources.feats().getCategory(ancestry.getName()).values().stream()
 										.forEach(a->{
 											if(a.getType() == Type.Ancestry)
 												finalResults.add(a);

@@ -81,6 +81,8 @@ public enum BaseAttribute implements Attribute {
                 case "lightarmor": return LightArmor;
                 case "mediumarmor": return MediumArmor;
                 case "heavyarmor": return HeavyArmor;
+                case "unarmedattacks": return Unarmed;
+                case "unarmoreddefense": return Unarmored;
                 case "arcanespellattacks": return ArcaneSpellAttacks;
                 case "arcanespelldcs": return ArcaneSpellDCs;
                 case "divinespellattacks": return DivineSpellAttacks;

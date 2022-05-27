@@ -22,6 +22,7 @@ class ProxyPool {
         webClient.getOptions().setCssEnabled(false);
         webClient.getOptions().setTimeout(0);
         webClient.getOptions().setConnectionTimeToLive(0);
+        webClient.getCache().setMaxSize(100);
         webClient.getCookieManager().setCookiesEnabled(true);
         webClient.waitForBackgroundJavaScript(100000);
         return webClient;
