@@ -42,6 +42,8 @@ public class AttributeManager implements PlayerState {
     private final DecisionManager decisions;
     private final Map<String, Proficiency> weaponProficiencies = new HashMap<>();
     private final List<String> customWeaponStrings = new ArrayList<>();
+
+    private final List<WeaponProficiencyModifier> weaponProficiencyModifiers = new ArrayList<>();
     private final List<WeaponProficiencyTranslator> weaponProficiencyTranslators = new ArrayList<>();
     private final Map<WeaponGroup, Proficiency> groupProficiencies = new HashMap<>();
     private final PropertyChangeSupport proficiencyChange = new PropertyChangeSupport(this);
@@ -456,6 +458,14 @@ outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
         }
     }
 
+    void apply(WeaponProficiencyModifier modifier) {
+        weaponProficiencyModifiers.add(modifier);
+    }
+
+    void remove(WeaponProficiencyModifier modifier) {
+        weaponProficiencyModifiers.remove(modifier);
+    }
+
     void apply(WeaponProficiencyTranslator translator) {
         weaponProficiencyTranslators.add(translator);
     }
@@ -480,9 +490,15 @@ outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
     }
 
     Proficiency getProficiency(Attribute attr, Item weapon) {
-        return Proficiency.max(getProficiency(attr).getValue(),
+        Proficiency p = Proficiency.max(getProficiency(attr).getValue(),
                 groupProficiencies.getOrDefault(weapon.getExtension(Weapon.class).getGroup(), Proficiency.Untrained),
                 getSpecificWeaponProficiency(weapon));
+
+        for(WeaponProficiencyModifier m : weaponProficiencyModifiers) {
+            p = m.apply(weapon, p);
+        }
+
+        return p;
     }
 
     private Proficiency getSpecificWeaponProficiency(Item weapon) {
@@ -496,6 +512,14 @@ outer:            for(int i = minSpendLevel; i < entry.getKey(); i++) {
             }
         }
         return weaponProficiencies.getOrDefault(weapon.getRawName().toLowerCase(), Proficiency.Untrained);
+    }
+
+    public Map<String, Proficiency> getWeaponProficiencies() {
+        return Collections.unmodifiableMap(weaponProficiencies);
+    }
+
+    public Map<WeaponGroup, Proficiency> getGroupProficiencies() {
+        return Collections.unmodifiableMap(groupProficiencies);
     }
 
     public SortedMap<Integer, Set<SkillIncrease>> getSkillChoices() {

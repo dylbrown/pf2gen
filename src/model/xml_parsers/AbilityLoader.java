@@ -213,14 +213,19 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                                     .getExtension(Weapon.class));
                     break;
                 case "CustomMod":
-                    builder.setCustomMod(trim);
+                    CustomModExtension.Builder mod = builder.getExtension(CustomModExtension.Builder.class);
+                    mod.setCustomMod(trim);
                     switch (propElem.getAttribute("recalculate")) {
                         case "Always":
-                            builder.setRecalculateMod(Recalculate.Always);
+                            mod.setRecalculate(Recalculate.Always);
                             break;
                         case "On Level":
-                            builder.setRecalculateMod(Recalculate.OnLevel);
+                            mod.setRecalculate(Recalculate.OnLevel);
                             break;
+                    }
+                    String minScriptVersion = propElem.getAttribute("minScriptVersion");
+                    if(!minScriptVersion.isBlank()) {
+                        mod.setMinScriptVersion(Integer.parseInt(minScriptVersion));
                     }
                     break;
                 case "FormulasKnown":

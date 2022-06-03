@@ -38,6 +38,9 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 class GroovyCommands {
+
+    public static final int VERSION = 1;
+
     private final ObservableMap<String, Integer> mods = FXCollections.observableHashMap();
     private final BooleanProperty applying = new SimpleBooleanProperty(true);
     private final Map<String, AbilitySlot> slots = new HashMap<>();
@@ -123,6 +126,16 @@ class GroovyCommands {
         } else {
             attributes.remove(new AttributeMod(attr, Proficiency.valueOf(prof)));
         }
+    }
+
+    public Proficiency getMaxWeaponProficiency() {
+        return Proficiency.max(
+                attributes.getProficiency(BaseAttribute.SimpleWeapons).getValue(),
+                attributes.getProficiency(BaseAttribute.MartialWeapons).getValue(),
+                attributes.getProficiency(BaseAttribute.AdvancedWeapons).getValue(),
+                attributes.getGroupProficiencies().values().stream().reduce(Proficiency.Untrained, Proficiency::max),
+                attributes.getWeaponProficiencies().values().stream().reduce(Proficiency.Untrained, Proficiency::max)
+        );
     }
     public void spell(String spellName, String spellListName) {
         try {
@@ -332,11 +345,18 @@ class GroovyCommands {
             ));
         }
     }
+    public void weaponProficiencyModifier(Closure<Proficiency> translator) {
+        if(applying.get()) {
+            attributes.apply((WeaponProficiencyModifier) translator::call);
+        } else {
+            attributes.remove((WeaponProficiencyModifier) translator::call);
+        }
+    }
     public void weaponProficiencyTranslator(Closure<WeaponProficiency> translator) {
         if(applying.get()) {
-            attributes.apply(translator::call);
+            attributes.apply((WeaponProficiencyTranslator) translator::call);
         } else {
-            attributes.remove(translator::call);
+            attributes.remove((WeaponProficiencyTranslator) translator::call);
         }
     }
 

@@ -4,6 +4,7 @@ import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import model.abilities.Ability;
+import model.abilities.CustomModExtension;
 import model.items.Item;
 import org.codehaus.groovy.runtime.MethodClosure;
 
@@ -26,10 +27,11 @@ public class GroovyModManager implements PlayerState {
                      ReadOnlyObjectProperty<Integer> levelProperty) {
         abilityApplier.onPreApply(preAbility -> prepareToChange(null, null));
         abilityApplier.onApply(newAbility -> {
-            if (!newAbility.getCustomMod().equals("")) {
+            CustomModExtension mod = newAbility.getExtension(CustomModExtension.class);
+            if (mod != null && mod.getMinScriptVersion() <= GroovyCommands.VERSION) {
                 bindings.setProperty("ability", newAbility);
-                apply(newAbility.getCustomMod());
-                switch (newAbility.getRecalculate()) {
+                apply(mod.getCustomMod());
+                switch (mod.getRecalculate()) {
                     case Always:
                         activeAlwaysRecalculateAbilities.add(newAbility);
                     case OnLevel:
@@ -41,10 +43,11 @@ public class GroovyModManager implements PlayerState {
 
         abilityApplier.onPreRemove(preAbility->prepareToChange(preAbility, null));
         abilityApplier.onRemove(oldAbility -> {
-            if(!oldAbility.getCustomMod().equals("")) {
+            CustomModExtension mod = oldAbility.getExtension(CustomModExtension.class);
+            if(mod != null && mod.getMinScriptVersion() <= GroovyCommands.VERSION) {
                 bindings.setProperty("ability", oldAbility);
-                remove(oldAbility.getCustomMod());
-                switch (oldAbility.getRecalculate()) {
+                remove(mod.getCustomMod());
+                switch (mod.getRecalculate()) {
                     case Always:
                         activeAlwaysRecalculateAbilities.remove(oldAbility);
                     case OnLevel:
@@ -95,7 +98,7 @@ public class GroovyModManager implements PlayerState {
         levelProperty.addListener((event)-> {
             for (Ability ability : activeLevelAbilities) {
                 bindings.setProperty("ability", ability);
-                remove(ability.getCustomMod());
+                remove(ability.getExtension(CustomModExtension.class).getCustomMod());
             }
             for (Item item : activeLevelItems) {
                 bindings.setProperty("item", item);
@@ -104,7 +107,7 @@ public class GroovyModManager implements PlayerState {
             bindings.setVariable("level", levelProperty.get());
             for (Ability ability : activeLevelAbilities) {
                 bindings.setProperty("ability", ability);
-                apply(ability.getCustomMod());
+                apply(ability.getExtension(CustomModExtension.class).getCustomMod());
             }
             for (Item item : activeLevelItems) {
                 bindings.setProperty("item", item);
@@ -117,7 +120,7 @@ public class GroovyModManager implements PlayerState {
         for (Ability ability : activeAlwaysRecalculateAbilities) {
             if(ability == changingAbility) continue;
             bindings.setProperty("ability", ability);
-            remove(ability.getCustomMod());
+            remove(ability.getExtension(CustomModExtension.class).getCustomMod());
         }
         for (Item item : activeAlwaysRecalculateItems) {
             if(item == changingItem) continue;
@@ -130,7 +133,7 @@ public class GroovyModManager implements PlayerState {
         for (Ability ability : activeAlwaysRecalculateAbilities) {
             if(ability == changingAbility) continue;
             bindings.setProperty("ability", ability);
-            apply(ability.getCustomMod());
+            apply(ability.getExtension(CustomModExtension.class).getCustomMod());
         }
         for (Item item : activeAlwaysRecalculateItems) {
             if(item == changingItem) continue;
@@ -158,11 +161,11 @@ public class GroovyModManager implements PlayerState {
     public void refreshAlways() {
         for (Ability ability : activeAlwaysRecalculateAbilities) {
             bindings.setProperty("ability", ability);
-            remove(ability.getCustomMod());
+            remove(ability.getExtension(CustomModExtension.class).getCustomMod());
         }
         for (Ability ability : activeAlwaysRecalculateAbilities) {
             bindings.setProperty("ability", ability);
-            apply(ability.getCustomMod());
+            apply(ability.getExtension(CustomModExtension.class).getCustomMod());
         }
     }
 
