@@ -1,0 +1,100 @@
+PF2Gen Save - v5
+Sources
+ - Extinction Curse
+ - Bestiary 1
+ - Bestiary 2
+ - Bestiary 3
+ - Ancestry Guide
+ - Character Guide
+ - Gods and Magic
+ - Grand Bazaar
+ - Legends
+ - Pathfinder Society Guide
+ - The Mwangi Expanse
+ - World Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+ - Gamemastery Guide
+ - Guns and Gears
+ - Secrets of Magic
+ - Extinction Curse
+ - Bestiary 1
+ - Bestiary 2
+ - Bestiary 3
+ - Ancestry Guide
+ - Character Guide
+ - Gods and Magic
+ - Grand Bazaar
+ - Legends
+ - Pathfinder Society Guide
+ - The Mwangi Expanse
+ - World Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+ - Gamemastery Guide
+ - Guns and Gears
+ - Secrets of Magic
+Variant Rules
+name = Merin
+player = Laur
+alignment = CG
+deity = No Deity
+ancestry = Kitsune
+background = Charlatan
+class = Sorcerer
+level = 1
+abilityChoices = Initial:Dex, Initial:Cha, Initial:Int, Initial:Wis, Ancestry:Int, Background:Int/Cha:Cha, Background:Con
+Qualities
+hair = Black
+gender = 
+languages = Common
+senses = Low-Light Vision
+name = Merin
+weight = 65 kg
+eyes = 
+age = 22
+height = 189 cm
+player = Laur
+Skill Choices
+ - 1:Survival, Stealth, Crafting, Medicine, Diplomacy
+Decisions
+ - Ancestry Feat 1 : Dualborn
+ - Heritage 1 : Suli
+ - Bloodline 1 : Imperial
+ - Bonus Languages : Elven ^ Goblin
+money = 68.1
+Inventory
+ - 1 Belt Pouch
+ - 1 Blocks
+ - 1 Bandalore
+ - 1 Clothing (Explorer's)
+ - 1 Writing Set
+ - 1 Healing Potion (Minor)
+ - 1 Dagger
+ - 1 Adventurer's Pack
+ - 1 Compass
+ - 1 Depth Gauge
+Equipped
+Formulas Bought
+Formulas Granted
+Spells Known
+ - Sorcerer
+   - Level 0
+     - Acid Splash
+     - Detect Magic
+     - Electric Arc
+     - Produce Flame
+     - Ray of Frost
+   - Level 1
+     - Magic Missile
+     - Burning Hands
+     - Gust of Wind
+   - Level 2
+   - Level 3
+   - Level 4
+   - Level 5
+   - Level 6
+   - Level 7
+   - Level 8
+   - Level 9
+   - Level 10

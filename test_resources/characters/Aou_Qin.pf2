@@ -1,0 +1,67 @@
+PF2Gen Save - v5
+Sources
+ - Bestiary 1
+ - Bestiary 2
+ - Ancestry Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+Variant Rules
+name = Aou Qin
+player = Kyle
+alignment = N
+deity = No Deity
+ancestry = Orc
+background = Warrior
+class = Barbarian
+level = 10
+abilityChoices = Initial:Str, Initial:Dex, Initial:Con, Initial:Int, Ancestry:Dex, Background:Str/Con:Str, Background:Cha, Five:Str, Five:Dex, Five:Con, Five:Int, Ten:Str, Ten:Dex, Ten:Con, Ten:Cha
+Qualities
+hair = White
+languages = Common, Orcish
+gender = Male
+senses = Darkvision, Low-Light Vision
+name = Aou Qin
+weight = 326 lbs
+eyes = Blue
+age = 30
+height = 6'7"
+player = Kyle
+Skill Choices
+ - 1:Society, Diplomacy, Survival, Nature, Acrobatics, Arcana
+ - 2:
+ - 3:Intimidation
+ - 5:Athletics
+ - 7:Intimidation
+ - 9:Athletics
+ - 10:
+Decisions
+ - Ancestry Feat 1 : Iron Fists
+ - Heritage 1 : Hold-Scarred Orc
+ - Barbarian Instinct : Animal Instinct
+ - Barbarian Feat 1 : Raging Intimidation
+ - Barbarian Feat 2 : Monk Dedication
+ - Skill Feat 2 : Titan Wrestler
+ - General Feat 3 : Intimidating Prowess
+ - Barbarian Feat 4 : Basic Kata
+ - Skill Feat 4 : Train Animal
+ - Bonus Languages : Undercommon ^ Jotun
+ - Ancestry Feat 5 : Bloody Blows
+ - Barbarian Feat 6 : Animal Skin
+ - Skill Feat 6 : Sign Language
+ - General Feat 7 : Battle Cry
+ - Barbarian Feat 8 : Attack Of Opportunity
+ - Skill Feat 8 : Battle Cry
+ - Ancestry Feat 9 : Death's Drums
+ - Barbarian Feat 10 : Monk's Flurry
+ - Skill Feat 10 : Terrified Retreat
+ - Animal Choice : Shark
+ - Skill Choice : Athletics
+ - Monk Feat 2 : Dragon Stance
+money = 142.0
+Inventory
+ - 1 Explorer's Clothing
+ - 1 Adventurer's Pack
+Equipped
+Formulas Bought
+Formulas Granted
+Spells Known

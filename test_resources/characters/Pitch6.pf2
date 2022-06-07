@@ -1,0 +1,97 @@
+PF2Gen Save - v2
+Sources
+ - Core Rulebook
+ - The Amar Vale
+name = Pitch
+player = Jamie
+alignment = CG
+deity = Bastet
+ancestry = Elf
+background = Prisoner
+class = Champion
+level = 6
+abilityChoices = Initial:Str, Initial:Con, Initial:Wis, Initial:Cha, Ancestry:Str, Background:Str/Con:Con, Background:Str, Class:Str/Dex:Str, Five:Wis, Five:Cha, Five:Con, Five:Dex
+Qualities
+hair = Dark Brown/Black w white stress streaks
+gender = F
+languages = Common, Elven
+senses = Low-Light Vision
+name = Pitch
+weight = 190lbs
+eyes = Brown
+age = 20
+height = 6'0"
+player = Jamie
+Skill Choices
+ - 1:Acrobatics, Athletics, Diplomacy
+ - 2:
+ - 3:Intimidation
+ - 4:
+ - 5:Society
+ - 6:
+Decisions
+ - Bonus Languages : Gnomish
+ - Ancestry Feat 1 : Nimble Elf
+ - Heritage 1 : Whisper Elf
+ - Champion's Cause : Liberator Cause
+ - Champion Feat 2 : Divine Grace
+ - Skill Feat 2 : Intimidating Glare
+ - Divine Ally : Blade Ally
+ - General Feat 3 : Canny Acumen
+ - Champion Feat 4 : Mercy
+ - Skill Feat 4 : Assurance
+ - Ancestry Feat 5 : Otherworldly Magic
+ - Weapon Expertise Choice : Sword
+ - Champion Feat 6 : Attack Of Opportunity
+ - Skill Feat 6 : Read Lips
+ - Canny Acumen Choice : Perception
+money = 143.3
+Inventory
+ - 1 Waterskin
+ - 1 Backpack
+ - 1 Grappling Hook
+ - 1 Dagger
+ - 1 Claw
+ @ 1 Magic Wand (${get("1st-Level Spell")})
+    1st-Level Spell
+     - Bless
+ - 1 Clothing (Ordinary)
+ - 1 Candle
+ - 1 Full Plate
+ - 1 Crossbow
+ @ 1 Greatsword
+    Runes
+     - Striking
+     - Weapon Potency (+1)
+ - 1 Oil
+ - 1 Rope
+ - 1 Clothing (Winter)
+ - 1 Bedroll
+Equipped
+ - TwoHands: 1 +1 Striking Greatsword
+ - Armor: 1 Full Plate
+Spells Known
+ - Champion
+   - Level 0
+   - Level 1
+   - Level 2
+   - Level 3
+   - Level 4
+   - Level 5
+   - Level 6
+   - Level 7
+   - Level 8
+   - Level 9
+   - Level 10
+ - Elf
+   - Level 0
+   - Level 1
+   - Level 2
+   - Level 3
+   - Level 4
+   - Level 5
+   - Level 6
+   - Level 7
+   - Level 8
+   - Level 9
+   - Level 10

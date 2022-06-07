@@ -1,0 +1,53 @@
+PF2Gen Save - v2
+Sources
+ - Advanced Player's Guide
+ - Core Rulebook
+ - The Amar Vale
+name = 
+player = 
+alignment = N
+deity = No Deity
+ancestry = Human
+background = Artist
+class = Sorcerer
+level = 9
+abilityChoices = Initial:Dex, Initial:Cha, Initial:Int, Initial:Wis, Ancestry:Dex, Ancestry:Int, Background:Dex/Cha:Cha, Background:Dex
+Qualities
+hair = 
+gender = 
+languages = Common
+senses = 
+name = 
+weight = 
+eyes = 
+age = 
+height = 
+player = 
+Skill Choices
+ - 1:
+ - 2:
+ - 3:
+ - 4:
+ - 5:
+ - 6:
+ - 7:
+ - 8:
+ - 9:
+Decisions
+ - Ancestry Feat 9 : Multitalented
+money = 150.0
+Inventory
+Equipped
+Spells Known
+ - Sorcerer
+   - Level 0
+   - Level 1
+   - Level 2
+   - Level 3
+   - Level 4
+   - Level 5
+   - Level 6
+   - Level 7
+   - Level 8
+   - Level 9
+   - Level 10

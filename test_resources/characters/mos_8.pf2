@@ -1,0 +1,124 @@
+PF2Gen Save - v5
+Sources
+ - Extinction Curse
+ - Bestiary 1
+ - The Amar Vale
+ - Advanced Player's Guide
+ - Core Rulebook
+Variant Rules
+ - FreeArchetype
+name = Mos
+player = laur
+alignment = CN
+deity = No Deity
+ancestry = Elf
+background = Minstrel
+class = Bard
+level = 8
+abilityChoices = Initial:Cha, Initial:Int, Initial:Con, Initial:Dex, Ancestry:Cha, Background:Wis/Cha:Cha, Background:Int, Five:Int, Five:Cha, Five:Dex, Five:Wis
+Qualities
+hair = Dark Brown
+gender = Non-binary
+languages = Common, Elven
+senses = Low-Light Vision
+name = Mos
+weight = idk but he's skinny
+eyes = Brown
+age = 21ish
+height = Tall?
+player = laur
+Skill Choices
+ - 1:Stealth, Thievery, Acrobatics, Crafting, Diplomacy, Survival, Arcana, Deception, Intimidation
+ - 2:
+ - 3:Diplomacy
+ - 5:Performance
+ - 7:Performance
+Decisions
+ - Bonus Languages : Celestial ^ Draconic ^ Orcish ^ Sylvan
+ - Ancestry Feat 1 : Grimspawn
+ - Heritage 1 : Tiefling
+ - Bard Muse : Maestro Muse
+ - Bard Feat 2 : Multifarious Muse
+ - Skill Feat 2 : Bon Mot
+ - Free Archetype Feat 2 : Loremaster Dedication
+ - General Feat 3 : Ancestral Paragon
+ - Bard Feat 4 : Combat Reading
+ - Skill Feat 4 : Root Magic
+ - Free Archetype Feat 4 : Loremaster's Etude
+ - Ancestry Feat 5 : Ageless Patience
+ - Bard Feat 6 : Well-Versed
+ - Skill Feat 6 : Virtuosic Performer
+ - Free Archetype Feat 6 : Linguist Dedication
+ - General Feat 7 : Incredible Initiative
+ - Multifarious Muse Choice : Enigma Muse
+ - Ancestral Paragon Feat 1 : Forlorn
+ - Bard Feat 8 : Educate Allies
+ - Skill Feat 8 : Distracting Performance
+ - Free Archetype Feat 8 : Assured Knowledge
+money = 123.0
+Inventory
+ - 1 Thieves' Tools (Infiltrator)
+ - 1 Feather Token (Bird)
+ - 1 Clothing (Fine)
+ - 1 Disguise Kit
+ - 1 Feather Token (Fan)
+ - 1 Signal Whistle
+ - 1 Feather Token (Ladder)
+ - 1 Spyglass
+ - 1 Leather Armor
+ - 1 Feather Token (Chest)
+ - 1 Feather Token (Holly Bush)
+ - 1 Adventurer's Pack
+ - 1 Ventriloquist's Ring
+ - 1 Musical Instrument (Virtuoso Handheld)
+ - 1 Invisibility Potion
+Equipped
+ - Armor: 1 Leather Armor
+ - Carried: 1 Thieves' Tools (Infiltrator)
+ - Carried: 1 Ventriloquist's Ring
+ - Carried: 1 Musical Instrument (Virtuoso Handheld)
+Formulas Bought
+Formulas Granted
+Spells Known
+ - Bard
+   - Level 0
+     - Guidance
+     - Forbidding Ward
+     - Summon Instrument
+     - Telekinetic Projectile
+     - Message
+   - Level 1
+     - Soothe
+     - Ill Omen
+     - Command
+     - Ray of Enfeeblement
+   - Level 2
+     - Blur
+     - Paranoia
+     - Spirit Link
+   - Level 3
+     - Hypercognition
+     - Slow
+     - Haste
+   - Level 4
+     - Enervation
+     - Chroma Leach
+     - Confusion
+   - Level 5
+   - Level 6
+   - Level 7
+   - Level 8
+   - Level 9
+   - Level 10
+ - Loremaster
+   - Level 0
+   - Level 1
+   - Level 2
+   - Level 3
+   - Level 4
+   - Level 5
+   - Level 6
+   - Level 7
+   - Level 8
+   - Level 9
+   - Level 10

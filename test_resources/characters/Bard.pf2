@@ -1,0 +1,88 @@
+PF2Gen Save - v4
+Sources
+ - Core Rulebook
+name = Bard
+player = Dylan
+alignment = CN
+deity = No Deity
+ancestry = Elf
+background = Animal Whisperer
+class = Bard
+level = 5
+abilityChoices = Initial:Str, Initial:Dex, Initial:Con, Initial:Cha, Ancestry:Cha, Background:Wis/Cha:Cha, Background:Dex, Five:Wis, Five:Con, Five:Dex, Five:Str
+Qualities
+hair = 
+gender = 
+languages = Common, Elven
+senses = Low-Light Vision
+name = Bard
+weight = 
+eyes = 
+age = 
+height = 
+player = Dylan
+Skill Choices
+ - 1:Religion, Diplomacy, Deception, Crafting, Intimidation
+ - 2:
+ - 3:Diplomacy
+ - 4:
+ - 5:Performance
+Decisions
+ - Ancestry Feat 1 : Forlorn
+ - Heritage 1 : Arctic Elf
+ - Bard Muse : Enigma Muse
+ - Bard Feat 2 : Multifarious Muse
+ - Skill Feat 2 : Lie To Me
+ - General Feat 3 : Toughness
+ - Bard Feat 4 : Inspire Competence
+ - Skill Feat 4 : Alchemical Crafting
+ - Ancestry Feat 5 : Elven Weapon Familiarity
+ - Multifarious Muse Choice : Polymath Muse
+money = 110.0
+Inventory
+ - 1 Falchion
+ @ 1 Battle axe
+    Runes
+     - Weapon Potency (+2)
+ @ 1 Magic Wand (${get("2nd-Level Spell")})
+    2nd-Level Spell
+     - Comprehend Language
+ - 1 Leather Armor
+Equipped
+ - PrimaryHand: 1 +2 Battle axe
+ - Armor: 1 Leather Armor
+Formulas Bought
+ - Acid Flask (Lesser)
+ - Acid Flask (Greater)
+ - Acid Flask (Major)
+ - Acid Flask (Moderate)
+Formulas Granted
+ - Arsenic
+ - Acid Flask (Lesser)
+ - Alchemist's Fire (Lesser)
+Spells Known
+ - Bard
+   - Level 0
+     - Chill Touch
+     - Dancing Lights
+     - Daze
+     - Detect Magic
+   - Level 1
+     - True Strike
+     - Charm
+     - Detect Alignment
+     - Magic Missile
+   - Level 2
+     - Animal Messenger
+     - Darkvision
+     - Mending
+   - Level 3
+     - Continual Flame
+     - Circle of Protection
+   - Level 4
+   - Level 5
+   - Level 6
+   - Level 7
+   - Level 8
+   - Level 9
+   - Level 10

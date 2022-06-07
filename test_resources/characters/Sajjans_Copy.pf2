@@ -1,0 +1,47 @@
+name = Baek Constantine
+player = Sajjan Grewal
+alignment = NG
+deity = Pharasma
+ancestry = Human
+background = Acolyte
+class = Sorcerer
+level = 1
+abilityChoices = Initial:Int, Initial:Cha, Initial:Dex, Initial:Wis, Background:Int/Wis:Int, Background:Cha, Ancestry:Cha, Ancestry:Dex
+Qualities
+hair = Silver
+languages = Common
+gender = M
+senses = 
+name = Baek Constantine
+weight = 160lbs
+eyes = Brown
+age = 21
+height = 6'1"
+player = Sajjan Grewal
+Skill Choices
+ - 1:Deception, Arcana, Nature, Diplomacy, Society
+Decisions
+ - Bonus Languages : Common ^ Draconic ^ Elven
+ - Skill Choice : Lore
+ - Ancestry Feat 1 : Natural Ambition
+ - Heritage 1 : Versatile Heritage
+ - Bloodline 1 : Draconic
+ - Natural Ambition Class Feat 1 : Dangerous Sorcery
+ - Natural Ambition Class Feat 1 : Dangerous Sorcery
+money = 150.0
+Inventory
+Equipped
+Spells Known
+ - Level 0
+   - Shield
+ - Level 1
+   - True Strike
+ - Level 2
+ - Level 3
+ - Level 4
+ - Level 5
+ - Level 6
+ - Level 7
+ - Level 8
+ - Level 9
+ - Level 10

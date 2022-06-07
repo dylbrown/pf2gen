@@ -1,0 +1,72 @@
+name = Bard
+player = Dylan
+alignment = CN
+deity = Abadar
+ancestry = Elf
+background = Animal Whisperer
+class = Bard
+level = 5
+abilityChoices = Initial:Con, Initial:Str, Initial:Dex, Initial:Cha, Ancestry:Cha, Background:Wis/Cha:Cha, Background:Dex, Five:Dex, Five:Con, Five:Wis, Five:Str
+Qualities
+hair = 
+languages = Common, Elven
+gender = 
+senses = Low-Light Vision
+name = Bard
+weight = 
+eyes = 
+age = 
+height = 
+player = Dylan
+Skill Choices
+ - 1:Religion, Diplomacy, Intimidation, Society, Deception
+ - 2:
+ - 3:Diplomacy
+ - 4:
+ - 5:Performance
+Decisions
+ - Ancestry Feat 1 : Forlorn
+ - Heritage 1 : Arctic Elf
+ - Muses : Maestro Muse
+ - Bard Feat 2 : Multifarious Muse
+ - Skill Feat 2 : Lie To Me
+ - General Feat 3 : Toughness
+ - Bard Feat 4 : Inspire Competence
+ - Skill Feat 4 : Hobnobber
+ - Ancestry Feat 5 : Elven Weapon Familiarity
+ - Multifarious Muse Choice : Polymath Muse
+money = 110.0
+Inventory
+ - 1 Falchion
+ @ 1 Battle axe
+   - Weapon Potency (+2)
+ - 1 Leather Armor
+Equipped
+ - Armor: 1 Leather Armor
+ - PrimaryHand: 1 +2 Battle axe
+Spells Known
+ - Bard
+   - Level 0
+     - Chill Touch
+     - Dancing Lights
+     - Daze
+     - Detect Magic
+   - Level 1
+     - Soothe
+     - Alarm
+     - Charm
+     - Detect Alignment
+   - Level 2
+     - Animal Messenger
+     - Calm Emotions
+     - Darkvision
+   - Level 3
+     - Chilling Darkness
+     - Fireball
+   - Level 4
+   - Level 5
+   - Level 6
+   - Level 7
+   - Level 8
+   - Level 9
+   - Level 10

@@ -1,0 +1,75 @@
+PF2Gen Save - v5
+Sources
+ - Extinction Curse
+ - Bestiary 1
+ - Bestiary 2
+ - Bestiary 3
+ - The Amar Vale
+ - Ancestry Guide
+ - Character Guide
+ - Pathfinder Society Guide
+ - World Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+ - Secrets of Magic
+Variant Rules
+name = Farron
+player = lauren
+alignment = NG
+deity = No Deity
+ancestry = Mathan
+background = Warrior
+class = Fighter
+level = 6
+abilityChoices = Initial:Str, Initial:Con, Initial:Wis, Initial:Dex, Ancestry:Con, Background:Str/Con:Con, Background:Dex, Class:Str/Dex:Dex, Five:Dex, Five:Str, Five:Con, Five:Wis
+Qualities
+hair = 
+gender = guy
+languages = Common, Sylvan
+senses = Darkvision
+name = Farron
+weight = 
+eyes = 
+age = 
+height = 
+player = lauren
+Skill Choices
+ - 1:Society, Survival, Athletics
+ - 3:Intimidation
+ - 5:Acrobatics
+Decisions
+ - Skill Choice : Acrobatics
+ - Fighter Feat 1 : Sudden Charge
+ - Ancestry Feat 1 : Razor Claws
+ - Heritage 1 : Snowstrider Mathan
+ - Fighter Feat 2 : Combat Grab
+ - Skill Feat 2 : Lasting Coercion
+ - General Feat 3 : Toughness
+ - Fighter Feat 4 : Swipe
+ - Skill Feat 4 : Terrifying Resistance
+ - Ancestry Feat 5 : Towering Presence
+ - Weapon Mastery Choice : Brawling
+ - Fighter Feat 6 : Advantageous Assault
+ - Skill Feat 6 : Group Coercion
+money = 754.0
+Inventory
+ - 1 Savior Spike
+ - 1 Buckler
+ - 1 Adventurer's Pack
+ - 1 Grappling Hook
+ - 4 Dagger
+ @ 1 Handwraps of Mighty Blows
+    Runes
+     - Striking
+     - Weapon Potency (+1)
+ @ 1 Leather Armor
+    Runes
+     - Armor Potency (+1)
+Equipped
+ - OffHand: 1 Buckler
+ - Armor: 1 +1 Leather Armor
+ - Carried: 1 Savior Spike
+ - Carried: 1 +1 Striking Handwraps of Mighty Blows
+Formulas Bought
+Formulas Granted
+Spells Known

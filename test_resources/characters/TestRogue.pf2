@@ -1,0 +1,26 @@
+name = 
+player = 
+alignment = N
+deity = No Deity
+ancestry = No Ancestry
+background = No Background
+class = Rogue
+level = 1
+abilityChoices = 
+Qualities
+hair = 
+gender = 
+name = 
+weight = 
+eyes = 
+age = 
+height = 
+player = 
+Skill Choices
+ - 1:
+Decisions
+ - Rogue's Racket : Ruffian
+money = 150.0
+Inventory
+Equipped
+Spells Known

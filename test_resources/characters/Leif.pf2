@@ -1,0 +1,110 @@
+PF2Gen Save - v3
+Sources
+ - Core Rulebook
+ - Advanced Player's Guide
+ - The Amar Vale
+name = Leif
+player = Jonathan
+alignment = CG
+deity = No Deity
+ancestry = Gnome
+background = Herbalist
+class = Druid
+level = 10
+abilityChoices = Initial:Con, Initial:Wis, Initial:Int, Initial:Dex, Ancestry:Wis, Background:Con/Wis:Wis, Background:Dex, Five:Wis, Five:Dex, Five:Con, Five:Cha, Ten:Dex, Ten:Con, Ten:Wis, Ten:Int
+Qualities
+hair = Blue
+gender = male
+languages = Common, Gnomish, Sylvan
+senses = Low-Light Vision
+name = Leif
+weight = 50 lbs
+eyes = Blue
+age = 21
+height = 3'2"
+player = Jonathan
+Skill Choices
+ - 1:Diplomacy, Survival, Acrobatics, Stealth
+ - 2:
+ - 3:Medicine
+ - 4:
+ - 5:Nature
+ - 6:
+ - 7:Medicine
+ - 8:
+ - 9:Nature
+ - 10:
+Decisions
+ - Ancestry Feat 1 : Gnome Obsession
+ - Heritage 1 : Sensate Gnome
+ - Druidic Order : Animal Order
+ - Druid Feat 2 : Reach Spell
+ - Skill Feat 2 : Skill Training
+ - General Feat 3 : Battle Medicine
+ - Druid Feat 4 : Mature Animal Companion
+ - Skill Feat 4 : Continual Recovery
+ - Ancestry Feat 5 : Energized Font
+ - Druid Feat 6 : Medic Dedication
+ - Skill Feat 6 : Robust Recovery
+ - General Feat 7 : Ride
+ - Druid Feat 8 : Doctor's Visitation
+ - Skill Feat 8 : Recognize Spell
+ - Ancestry Feat 9 : Vivacious Conduit
+ - Druid Feat 10 : Incredible Companion
+ - Skill Feat 10 : Assurance
+ - Bonus Languages : Draconic ^ Goblin
+ - Skill Training Choice : Medicine
+ - Assurance Choice : Medicine
+money = 24.0
+Inventory
+ - 1 Wooden Shield
+ - 1 Animal Staff
+ - 2 Healing Potion (Minor)
+ - 1 Padded Armor
+ - 1 Healer's Tools (Expanded)
+ - 1 Dagger
+ @ 1 Magic Wand (${get("1st-Level Spell")})
+    1st-Level Spell
+     - Heal
+Equipped
+ - Carried: 1 Animal Staff
+ - Carried: 2 Healing Potion (Minor)
+ - Carried: 1 Healer's Tools (Expanded)
+ - Carried: 1 Dagger
+ - Carried: 1 Magic Wand (Heal)
+Formulas
+Spells Known
+ - Druid
+   - Level 0
+     - Guidance
+     - Ray of Frost
+     - Stabilize
+     - Tanglefoot
+   - Level 1
+     - Charm
+     - Heal
+     - Magic Fang
+     - Summon Animal
+   - Level 2
+     - Dispel Magic
+     - Barkskin
+     - Enlarge
+   - Level 3
+     - Haste
+     - Earthbind
+     - Slow
+   - Level 4
+     - Fly
+     - Stoneskin
+     - Vital Beacon
+   - Level 5
+     - Mariner's Curse
+     - Cone of Cold
+     - Banishment
+   - Level 6
+     - Chain Lightning
+     - Purple Worm Sting
+   - Level 7
+   - Level 8
+   - Level 9
+   - Level 10

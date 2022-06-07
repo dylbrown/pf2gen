@@ -1,0 +1,40 @@
+name = 
+player = 
+alignment = N
+ancestry = Gnome
+background = Animal Whisperer
+class = Champion
+level = 1
+abilityChoices = Initial:Str, Initial:Cha, Class:Str/Dex:Str
+Qualities
+hair = 
+languages = Common, Gnomish, Sylvan
+gender = 
+senses = Low-Light Vision
+name = 
+weight = 
+eyes = 
+age = 
+height = 
+player = 
+Skill Choices
+ - 1:
+Decisions
+ - Champion Feat 1 : Deity’s Domain
+ - Alignment : Liberator Cause
+ - Deity's Domain Choice : Protection
+money = 150.0
+Inventory
+Equipped
+Spells Known
+ - Level 0
+ - Level 1
+ - Level 2
+ - Level 3
+ - Level 4
+ - Level 5
+ - Level 6
+ - Level 7
+ - Level 8
+ - Level 9
+ - Level 10

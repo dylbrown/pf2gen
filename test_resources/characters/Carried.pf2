@@ -1,0 +1,41 @@
+name = 
+player = 
+alignment = N
+deity = No Deity
+ancestry = No Ancestry
+background = No Background
+class = No Class
+level = 0
+abilityChoices = 
+Qualities
+hair = 
+gender = 
+name = 
+weight = 
+eyes = 
+age = 
+height = 
+player = 
+Skill Choices
+Decisions
+money = 63.0
+Inventory
+ - 1 Adventurer's Pack
+ - 1 Alchemist's Tools
+ - 1 Alchemist's Lab
+Equipped
+ - Carried: 1 Adventurer's Pack
+ - Carried: 1 Alchemist's Tools
+ - Carried: 1 Alchemist's Lab
+Spells Known
+ - Level 0
+ - Level 1
+ - Level 2
+ - Level 3
+ - Level 4
+ - Level 5
+ - Level 6
+ - Level 7
+ - Level 8
+ - Level 9
+ - Level 10

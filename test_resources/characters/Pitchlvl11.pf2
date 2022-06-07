@@ -1,0 +1,120 @@
+PF2Gen Save - v2
+Sources
+ - Core Rulebook
+ - The Amar Vale
+name = Pitch
+player = Jamie
+alignment = CG
+deity = Bastet
+ancestry = Elf
+background = Prisoner
+class = Champion
+level = 11
+abilityChoices = Initial:Cha, Initial:Wis, Initial:Str, Initial:Con, Ancestry:Str, Background:Str/Con:Con, Background:Str, Class:Str/Dex:Str, Five:Cha, Five:Dex, Five:Wis, Five:Con, Ten:Dex, Ten:Cha, Ten:Con, Ten:Wis
+Qualities
+hair = Dark Brown/Black w white stress streaks
+gender = F
+languages = Common, Elven
+senses = Low-Light Vision
+name = Pitch
+weight = 190lbs
+eyes = Brown
+age = 20
+height = 6'0"
+player = Jamie
+Skill Choices
+ - 1:Deception, Acrobatics, Society
+ - 2:
+ - 3:Intimidation
+ - 4:
+ - 5:Athletics
+ - 6:
+ - 7:Intimidation
+ - 8:
+ - 9:Athletics
+ - 10:
+ - 11:Intimidation
+Decisions
+ - Bonus Languages : Orcish
+ - Champion Feat 1 : Deity's Domain
+ - Ancestry Feat 1 : Nimble Elf
+ - Heritage 1 : Whisper Elf
+ - Champion's Cause : Liberator Cause
+ - Champion Feat 2 : Divine Grace
+ - Skill Feat 2 : Intimidating Glare
+ - Divine Ally : Blade Ally
+ - General Feat 3 : Canny Acumen
+ - Champion Feat 4 : Mercy
+ - Skill Feat 4 : Assurance
+ - Ancestry Feat 5 : Otherworldly Magic
+ - Weapon Expertise Choice : Sword
+ - Champion Feat 6 : Smite Evil
+ - Skill Feat 6 : Read Lips
+ - General Feat 7 : Skill Training
+ - Champion Feat 8 : Advanced Deity's Domain
+ - Skill Feat 8 : Skill Training
+ - Ancestry Feat 9 : Elf Step
+ - Champion Feat 10 : Attack Of Opportunity
+ - Skill Feat 10 : Steady Balance
+ - Deity's Domain Choice : Protection
+ - Assurance Choice : Athletics
+ - Skill Training Choice : Athletics ^ Diplomacy
+ - Canny Acumen Choice : Perception
+ - General Feat 11 : Toughness
+money = 83.3
+Inventory
+ @ 1 Sword Of Dawn
+    Runes
+     - Weapon Potency (+1)
+     - Striking
+     - Corrosive
+ - 1 Healing Potion (Lesser)
+ - 1 Bedroll
+ - 1 Claw
+ - 1 Grappling Hook
+ - 1 Clothing (Winter)
+ - 1 Clothing (Ordinary)
+ - 1 Dagger
+ @ 1 Full Plate
+    Runes
+     - Armor Potency (+1)
+     - Resilient
+ - 1 Crossbow
+ - 1 Backpack
+ @ 1 Longbow
+    Runes
+     - Striking
+     - Weapon Potency (+1)
+ - 1 Candle
+ - 1 Rope
+ - 1 Oil
+ - 1 Waterskin
+Equipped
+ - Armor: 1 +1 Resilient Full Plate
+ - TwoHands: 1 +1 Corrosive Striking Sword Of Dawn
+Spells Known
+ - Champion
+   - Level 0
+   - Level 1
+   - Level 2
+   - Level 3
+   - Level 4
+   - Level 5
+   - Level 6
+   - Level 7
+   - Level 8
+   - Level 9
+   - Level 10
+ - Elf
+   - Level 0
+     - Acid Splash
+   - Level 1
+   - Level 2
+   - Level 3
+   - Level 4
+   - Level 5
+   - Level 6
+   - Level 7
+   - Level 8
+   - Level 9
+   - Level 10

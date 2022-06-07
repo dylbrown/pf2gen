@@ -1,0 +1,53 @@
+name = David
+player = Dylan
+alignment = CG
+ancestry = Human
+background = Animal Whisperer
+class = Fighter
+level = 7
+abilityChoices = Initial:Dex, Initial:Str, Initial:Int, Ancestry:Con, Background:Wis/Cha:Cha, Background:Con, Class:Str/Dex:Dex, Five:Str, Five:Int
+Qualities
+height = 180 cm
+weight = 180 lbs
+age = 37
+hair = White
+eyes = Blue
+gender = Male
+Skill Choices
+ - 1:Athletics
+ - 2:
+ - 3:
+ - 4:
+ - 5:
+ - 6:
+ - 7:
+Decisions
+ - Fighter Feat 1 : Power Attack
+ - Fighter Feat 2 : Aggressive Block
+ - Fighter Feat 4 : Powerful Shove
+ - Fighter Feat 6 : Disarming Stance
+ - Weapon Mastery Choice : bomb
+ - General Feat 7 : Canny Acumen
+ - Canny Acumen Choice : Perception
+money = 130.0
+Inventory
+ - 1 Breastplate
+ @ 1 Blowgun
+   - Weapon Potency (+2)
+   - Striking (Greater)
+   - Disrupting (Greater)
+   - Wounding
+ - 3 Club
+Equipped
+Spells Known
+ - Level 0
+ - Level 1
+ - Level 2
+ - Level 3
+ - Level 4
+ - Level 5
+ - Level 6
+ - Level 7
+ - Level 8
+ - Level 9
+ - Level 10

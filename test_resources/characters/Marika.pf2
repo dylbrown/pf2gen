@@ -1,0 +1,96 @@
+PF2Gen Save - v5
+Sources
+ - Extinction Curse
+ - Bestiary 1
+ - Character Guide
+ - World Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+Variant Rules
+name = Marika
+player = 
+alignment = NG
+deity = No Deity
+ancestry = Human
+background = Animal Whisperer
+class = Witch
+level = 4
+abilityChoices = Initial:Con, Initial:Str, Initial:Int, Initial:Wis, Ancestry:Int, Ancestry:Con, Background:Wis/Cha:Wis, Background:Int
+Qualities
+hair = 
+gender = 
+languages = Common
+senses = 
+name = Marika
+weight = 
+eyes = 
+age = 
+height = 
+player = 
+Skill Choices
+ - 1:Crafting, Athletics, Deception, Survival, Arcana, Stealth, Society, Intimidation
+ - 3:Nature
+Decisions
+ - Bonus Languages : Abyssal ^ Common ^ Ignan ^ Terran ^ Undercommon
+ - Ancestry Feat 1 : Natural Ambition
+ - Heritage 1 : Versatile Heritage
+ - Witch's Patron Theme : Wild Theme
+ - Skill Feat 2 : Natural Medicine
+ - Witch Feat 2 : Basic Lesson
+ - General Feat 3 : Untrained Improvisation
+ - Skill Feat 4 : Snare Crafting
+ - Witch Feat 4 : Familiar Master Dedication
+ - Natural Ambition Class Feat 1 : Cackle
+ - General Feat 1 : Canny Acumen
+ - Patron Theme Granted Spell : Summon Animal
+ - Basic Lesson Choice : Lesson of Protection
+ - Canny Acumen Choice : Fortitude
+money = 885.0
+Inventory
+ - 1 Aeon Stone (Dusty Rose Prism)
+ - 1 Sickle
+ - 1 Adventurer's Pack
+ - 1 Healing Potion (Minor)
+ - 1 Wondrous Figurine (Onyx Dog)
+ - 1 Wayfinder
+ - 1 Clothing (Explorer's)
+ - 1 Staff
+ - 1 Material Component Pouch
+Equipped
+ - OffHand: 1 Sickle
+Formulas Bought
+Formulas Granted
+Spells Known
+ - Witch
+   - Level 0
+     - Detect Magic
+     - Electric Arc
+     - Guidance
+     - Know Direction
+     - Light
+     - Prestidigitation
+     - Produce Flame
+     - Ray of Frost
+     - Tanglefoot
+   - Level 1
+     - Summon Animal
+     - Mage Armor
+     - Goblin Pox
+     - Pet Cache
+     - Magic Fang
+     - Snowball
+     - Hydraulic Push
+     - Create Water
+   - Level 2
+     - Animal Form
+     - Dispel Magic
+     - Spider Climb
+     - Web
+   - Level 3
+   - Level 4
+   - Level 5
+   - Level 6
+   - Level 7
+   - Level 8
+   - Level 9
+   - Level 10

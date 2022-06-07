@@ -1,0 +1,51 @@
+PF2Gen Save - v4
+Sources
+ - Core Rulebook
+name = David
+player = Dylan
+alignment = CG
+deity = No Deity
+ancestry = Human
+background = Animal Whisperer
+class = Fighter
+level = 7
+abilityChoices = Initial:Str, Initial:Dex, Initial:Int, Ancestry:Con, Background:Wis/Cha:Cha, Background:Con, Class:Str/Dex:Dex, Five:Str, Five:Int
+Qualities
+hair = White
+gender = Male
+languages = Common
+senses = 
+name = David
+weight = 180 lbs
+eyes = Blue
+age = 37
+height = 180 cm
+player = Dylan
+Skill Choices
+ - 1:Athletics
+ - 2:
+ - 3:
+ - 4:
+ - 5:
+ - 6:
+ - 7:
+Decisions
+ - Fighter Feat 1 : Power Attack
+ - Fighter Feat 2 : Aggressive Block
+ - Fighter Feat 4 : Powerful Shove
+ - Fighter Feat 6 : Disarming Stance
+ - General Feat 7 : Canny Acumen
+ - Canny Acumen Choice : Perception
+money = 130.0
+Inventory
+ - 3 Club
+ - 2 Battle axe
+ - 1 Breastplate
+ - 1 Blowgun
+Equipped
+ - Armor: 1 Breastplate
+ - OffHand: 1 Club
+ - PrimaryHand: 1 Club
+Formulas Bought
+Formulas Granted
+Spells Known

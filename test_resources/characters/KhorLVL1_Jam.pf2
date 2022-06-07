@@ -1,0 +1,96 @@
+PF2Gen Save - v5
+Sources
+ - Extinction Curse
+ - Bestiary 1
+ - Bestiary 2
+ - The Amar Vale
+ - Ancestry Guide
+ - Character Guide
+ - Pathfinder Society Guide
+ - World Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+ - Secrets of Magic
+ - Extinction Curse
+ - Bestiary 1
+ - Bestiary 2
+ - The Amar Vale
+ - Ancestry Guide
+ - Character Guide
+ - Pathfinder Society Guide
+ - World Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+ - Secrets of Magic
+Variant Rules
+name = Khor
+player = Jam
+alignment = LN
+deity = No Deity
+ancestry = Human
+background = Miner
+class = Druid
+level = 1
+abilityChoices = Initial:Int, Initial:Wis, Initial:Str, Initial:Con, Ancestry:Con, Ancestry:Wis, Background:Str/Wis:Wis, Background:Int
+Qualities
+hair = grey/faded red
+gender = F
+languages = Common
+senses = 
+name = Khor
+weight = 
+eyes = amber
+age = unknown
+height = 
+player = Jam
+Skill Choices
+ - 1:Deception, Medicine, Society, Athletics
+Decisions
+ - Bonus Languages : Abyssal ^ Shadowtongue ^ Undercommon
+ - Ancestry Feat 1 : Unconventional Weaponry
+ - Heritage 1 : Duskwalker
+ - Druidic Order : Stone Order
+money = 97.20000000000002
+Inventory
+ - 1 Fist
+ - 1 Clothing (Ordinary)
+ - 1 Hammer
+ - 2 Dagger
+ - 1 Earplugs
+ - 1 Torch
+ - 1 Leather Armor
+ - 1 Flint and Steel
+ - 1 Bedroll
+ - 1 Lantern (Hooded)
+ - 1 Sickle
+ - 1 Rations
+ - 1 Pick
+ - 1 Waterskin
+ - 1 Belt Pouch
+ - 1 Rope
+ - 1 Oil
+Equipped
+ - Armor: 1 Leather Armor
+ - PrimaryHand: 1 Pick
+Formulas Bought
+Formulas Granted
+Spells Known
+ - Druid
+   - Level 0
+     - Scatter Scree
+     - Gouging Claw
+     - Guidance
+     - Electric Arc
+     - Detect Magic
+   - Level 1
+     - Heal
+     - Pummeling Rubble
+   - Level 2
+   - Level 3
+   - Level 4
+   - Level 5
+   - Level 6
+   - Level 7
+   - Level 8
+   - Level 9
+   - Level 10

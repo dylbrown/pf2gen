@@ -1,0 +1,40 @@
+name = 
+player = 
+alignment = N
+deity = No Deity
+ancestry = Human
+background = No Background
+class = Fighter
+level = 1
+abilityChoices = 
+Qualities
+hair = 
+languages = Common
+gender = 
+senses = 
+name = 
+weight = 
+eyes = 
+age = 
+height = 
+player = 
+Skill Choices
+ - 1:
+Decisions
+ - Heritage 1 : Skilled Heritage
+ - Skilled Heritage Choice : Medicine
+money = 150.0
+Inventory
+Equipped
+Spells Known
+ - Level 0
+ - Level 1
+ - Level 2
+ - Level 3
+ - Level 4
+ - Level 5
+ - Level 6
+ - Level 7
+ - Level 8
+ - Level 9
+ - Level 10

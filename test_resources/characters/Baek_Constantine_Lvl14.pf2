@@ -1,0 +1,138 @@
+PF2Gen Save - v4
+Sources
+ - Core Rulebook
+ - The Amar Vale
+ - Advanced Player's Guide
+name = Baek Constantine
+player = Sajjan Grewal
+alignment = CG
+deity = No Deity
+ancestry = Human
+background = Acolyte
+class = Sorcerer
+level = 14
+abilityChoices = Initial:Wis, Initial:Int, Initial:Cha, Initial:Dex, Ancestry:Cha, Ancestry:Dex, Background:Int/Wis:Int, Background:Cha, Five:Int, Five:Str, Five:Dex, Five:Cha, Ten:Int, Ten:Dex, Ten:Str, Ten:Cha
+Qualities
+hair = Black
+gender = Male
+languages = Common
+senses = 
+name = Baek Constantine
+weight = 185
+eyes = Bronze
+age = 22
+height = 6'1"
+player = Sajjan Grewal
+Skill Choices
+ - 1:Deception, Athletics, Stealth, Thievery, Diplomacy, Crafting, Acrobatics, Performance
+ - 2:
+ - 3:Diplomacy
+ - 4:
+ - 5:Society
+ - 6:
+ - 7:Diplomacy
+ - 8:
+ - 9:Society
+ - 10:
+ - 11:Arcana
+ - 12:
+ - 13:Arcana
+ - 14:
+Decisions
+ - Ancestry Feat 1 : Natural Ambition
+ - Heritage 1 : Versatile Heritage
+ - Bloodline 1 : Draconic
+ - Skill Feat 2 : Hobnobber
+ - Sorcerer Feat 2 : Cantrip Expansion
+ - General Feat 3 : Arcane Sense
+ - Skill Feat 4 : Bargain Hunter
+ - Sorcerer Feat 4 : Swashbuckler Dedication
+ - Ancestry Feat 5 : General Training
+ - Skill Feat 6 : Glad-hand
+ - Sorcerer Feat 6 : Basic Flair
+ - General Feat 7 : Shameless Request
+ - Skill Feat 8 : Bargain Hunter
+ - Sorcerer Feat 8 : Swashbuckler's Speed
+ - Ancestry Feat 9 : Multitalented
+ - Skill Feat 10 : Bon Mot
+ - Sorcerer Feat 10 : Quickened Casting
+ - General Feat 11 : Toughness
+ - Skill Feat 12 : Group Impression
+ - Sorcerer Feat 12 : Evasiveness (Swashbuckler)
+ - Ancestry Feat 13 : Cooperative Soul
+ - Natural Ambition Class Feat 1 : Dangerous Sorcery
+ - General Feat 1 : Bon Mot
+ - Dragon Type : Bronze (Good)
+ - General Feat 1 : Armor Proficiency
+ - Swashbuckler Feat 2 : Nimble Dodge
+ - Multitalented Dedication Feat 2 : Investigator Dedication
+ - Skill Feat 14 : Read Lips
+ - Sorcerer Feat 14 : Evasiveness (Swashbuckler)
+ - Armor Proficiency Choice : Light Armor Proficiency
+money = 37.400000000000006
+Inventory
+ - 1 Studded Leather Armor
+ - 1 Waterskin
+ - 1 Dagger
+ - 2 Healing Potion (Minor)
+ - 1 Staff
+ - 1 Torch
+Equipped
+ - Armor: 1 Studded Leather Armor
+Formulas Bought
+Formulas Granted
+Spells Known
+ - Sorcerer
+   - Level 0
+     - Electric Arc
+     - Dancing Lights
+     - Ghost Sound
+     - Acid Splash
+     - Shield
+     - Prestidigitation
+     - Ray of Frost
+   - Level 1
+     - True Strike
+     - Hydraulic Push
+     - Shocking Grasp
+     - Gust of Wind
+     - Magic Missile
+   - Level 2
+     - Resist Energy
+     - Flaming Sphere
+     - Acid Arrow
+     - Dispel Magic
+     - Summon Elemental
+   - Level 3
+     - Haste
+     - Fireball
+     - Lightning Bolt
+     - Invisibility Sphere
+     - Slow
+   - Level 4
+     - Spell Immunity
+     - Weapon Storm
+     - Phantasmal Killer
+     - Dimension Door
+     - Suggestion
+   - Level 5
+     - Chromatic Wall
+     - Cone of Cold
+     - Drop Dead
+     - Tongues
+     - Shadow Siphon
+   - Level 6
+     - Dragon Form
+     - Chain Lightning
+     - Disintegrate
+     - Flesh to Stone
+     - Teleport
+   - Level 7
+     - Mask of Terror
+     - True Target
+     - Prismatic Spray
+     - Power Word Blind
+     - Eclipse Burst
+   - Level 8
+   - Level 9
+   - Level 10

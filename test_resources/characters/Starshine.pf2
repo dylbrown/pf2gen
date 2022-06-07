@@ -1,0 +1,60 @@
+name = Starshine
+player = Jonathan
+alignment = CG
+deity = No Deity
+ancestry = Gnome
+background = Herbalist
+class = Druid
+level = 1
+abilityChoices = Initial:Con, Initial:Wis, Initial:Int, Initial:Dex, Ancestry:Wis, Background:Con/Wis:Wis, Background:Dex
+Qualities
+hair = Blue
+languages = Common, Gnomish, Sylvan
+gender = Male
+senses = Low-Light Vision
+name = Starshine
+weight = 5'6"
+eyes = Blue
+age = 21
+height = 150
+player = Jonathan
+Skill Choices
+ - 1:Medicine, Acrobatics, Survival
+Decisions
+ - Ancestry Feat 1 : Gnome Obsession
+ - Heritage 1 : Sensate Gnome
+ - Order Choice : Animal Order
+ - Bonus Languages : Draconic
+money = 54.0
+Inventory
+ - 1 Sickle
+ - 1 Wooden Shield
+ - 2 Healing Potion (Minor)
+ - 1 Dagger
+ - 1 Padded Armor
+Equipped
+ - OffHand: 1 Wooden Shield
+ - PrimaryHand: 1 Sickle
+ - None: 2 Healing Potion (Minor)
+ - Armor: 1 Padded Armor
+Spells Known
+ - Level 0
+   - Detect Magic
+   - Guidance
+   - Stabilize
+   - Tanglefoot
+   - Ray of Frost
+ - Level 1
+   - Magic Fang
+   - Charm
+   - Heal
+   - Ventriloquism
+ - Level 2
+ - Level 3
+ - Level 4
+ - Level 5
+ - Level 6
+ - Level 7
+ - Level 8
+ - Level 9
+ - Level 10

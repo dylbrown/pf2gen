@@ -1,0 +1,128 @@
+PF2Gen Save - v5
+Sources
+ - Extinction Curse
+ - Bestiary 1
+ - Bestiary 2
+ - Bestiary 3
+ - The Amar Vale
+ - Ancestry Guide
+ - Character Guide
+ - Pathfinder Society Guide
+ - World Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+Variant Rules
+name = Sibyl
+player = jam
+alignment = CN
+deity = No Deity
+ancestry = Elf
+background = Mystic Seer
+class = Witch
+level = 6
+abilityChoices = Initial:Cha, Initial:Dex, Initial:Con, Initial:Int, Ancestry:Wis, Five:Wis, Five:Int, Five:Con, Five:Cha, Background:Int/Wis:Int, Background:Cha
+Qualities
+hair = 
+gender = F
+languages = Common, Elven
+senses = Low-Light Vision
+name = Sibyl
+weight = 140
+eyes = 
+age = 
+height = 6'1
+player = jam
+Skill Choices
+ - 1:Deception, Diplomacy, Intimidation, Stealth, Acrobatics, Performance, Thievery, Society
+ - 3:Occultism
+ - 5:Arcana
+Decisions
+ - Bonus Languages : Celestial ^ Gnoll ^ Goblin ^ Sylvan
+ - Ancestry Feat 1 : Nimble Elf
+ - Heritage 1 : Arctic Elf
+ - Witch's Patron Theme : Fate Theme
+ - Skill Feat 2 : Root Magic
+ - Witch Feat 2 : Cackle
+ - General Feat 3 : Armor Proficiency
+ - Skill Feat 4 : Skill Training
+ - Witch Feat 4 : Basic Lesson
+ - Ancestry Feat 5 : Otherworldly Magic
+ - Skill Feat 6 : Quick Identification
+ - Witch Feat 6 : Living Hair
+ - Armor Proficiency Choice : Light Armor Proficiency
+ - Skill Training Choice : Arcana
+ - Basic Lesson Choice : Lesson of Vengeance
+money = 215.0
+Inventory
+ - 1 Fist
+ - 1 Clothing (Winter)
+ - 2 Bedroll
+ - 1 Waterskin
+ - 1 Leather Armor
+ - 1 Bag of Holding (Type I)
+ - 1 Sickle
+ - 1 Staff of Fire
+ - 1 Hand of the Mage
+ - 1 Hourglass
+ - 1 Rope
+ @ 1 Spear
+    Runes
+     - Weapon Potency (+1)
+ - 1 Demon Mask
+ - 1 Spellbook (Blank)
+Equipped
+ - Armor: 1 Leather Armor
+ - PrimaryHand: 1 +1 Spear
+ - Carried: 1 Clothing (Winter)
+ - Carried: 1 Hand of the Mage
+ - Carried: 1 Staff of Fire
+ - Carried: 1 Demon Mask
+ - Carried: 1 Bag of Holding (Type I)
+Formulas Bought
+Formulas Granted
+Spells Known
+ - Elf
+   - Level 0
+     - Electric Arc
+   - Level 1
+   - Level 2
+   - Level 3
+   - Level 4
+   - Level 5
+   - Level 6
+   - Level 7
+   - Level 8
+   - Level 9
+   - Level 10
+ - Witch
+   - Level 0
+     - Message
+     - Shield
+     - Telekinetic Projectile
+     - Detect Magic
+     - Guidance
+   - Level 1
+     - True Strike
+     - Phantom Pain
+     - Charm
+     - Ill Omen
+     - Magic Missile
+     - Soothe
+     - Bless
+   - Level 2
+     - Hideous Laughter
+     - Resist Energy
+     - Blur
+     - Blistering Invective
+   - Level 3
+     - Invisibility Sphere
+     - Haste
+     - Slow
+     - Agonizing Despair
+   - Level 4
+   - Level 5
+   - Level 6
+   - Level 7
+   - Level 8
+   - Level 9
+   - Level 10

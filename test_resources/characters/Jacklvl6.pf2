@@ -1,0 +1,110 @@
+PF2Gen Save - v5
+Sources
+ - Bestiary 1
+ - The Amar Vale
+ - Advanced Player's Guide
+ - Core Rulebook
+Variant Rules
+ - FreeArchetype
+name = Jack
+player = Jamie
+alignment = N
+deity = No Deity
+ancestry = Human
+background = Noble
+class = Sorcerer
+level = 6
+abilityChoices = Initial:Int, Initial:Wis, Initial:Cha, Initial:Dex, Ancestry:Cha, Ancestry:Dex, Background:Int/Cha:Cha, Background:Con, Five:Int, Five:Cha, Five:Con, Five:Wis
+Qualities
+hair = dark blue-violet
+gender = M
+languages = Common
+senses = 
+name = Jack
+weight = 170lbs
+eyes = blue-violet/black
+age = 19
+height = 6'0
+player = Jamie
+Skill Choices
+ - 1:Arcana, Diplomacy, Survival, Crafting, Stealth
+ - 3:Crafting
+ - 5:Society
+Decisions
+ - Bonus Languages : Goblin ^ Orcish ^ Sylvan
+ - Skill Choice : Lore (Genealogy)
+ - Ancestry Feat 1 : Dream May
+ - Heritage 1 : Changeling
+ - Bloodline 1 : Fey
+ - Skill Feat 2 : Specialty Crafting
+ - Sorcerer Feat 2 : Cantrip Expansion
+ - Free Archetype Feat 2 : Poisoner Dedication
+ - General Feat 3 : Quick Identification
+ - Skill Feat 4 : Charming Liar
+ - Sorcerer Feat 4 : Dangerous Sorcery
+ - Free Archetype Feat 4 : Subtle Delivery
+ - Ancestry Feat 5 : Hag's Sight
+ - Skill Feat 6 : Connections
+ - Sorcerer Feat 6 : Spell Relay
+ - Free Archetype Feat 6 : Expert Poisoner
+money = 612.2
+Inventory
+ - 1 Signal Whistle
+ - 1 Formula Book (Blank)
+ - 18 Dart
+ - 1 Alchemist's Tools
+ - 1 Feather Token (Chest)
+ - 1 Disguise Kit
+ - 8 Vial
+ - 1 Dagger
+ - 1 Blowgun
+ - 1 Feather Token (Holly Bush)
+ - 1 Feather Token (Bird)
+ - 1 Feather Token (Ladder)
+ - 1 Feather Token (Fan)
+ - 1 Clothing (Fine)
+Equipped
+Formulas Bought
+ - Cytillesh Oil
+ - Black Adder Venom
+ - Graveroot
+ - Belladonna
+Formulas Granted
+ - Arsenic
+ - Elixir of Life (Minor)
+ - Giant Centipede Venom
+Spells Known
+ - Sorcerer
+   - Level 0
+     - Tanglefoot
+     - Prestidigitation
+     - Electric Arc
+     - Detect Magic
+     - Stabilize
+     - Ray of Frost
+     - Know Direction
+   - Level 1
+     - Charm
+     - Heal
+     - Burning Hands
+     - Shocking Grasp
+     - Grease
+   - Level 2
+     - Hideous Laughter
+     - Summon Plant or Fungus
+     - Sudden Blight
+     - Fungal Infestation
+     - Web
+   - Level 3
+     - Enthrall
+     - Insect Form
+     - Blindness
+     - Noxious Vapors
+     - Fear
+   - Level 4
+   - Level 5
+   - Level 6
+   - Level 7
+   - Level 8
+   - Level 9
+   - Level 10

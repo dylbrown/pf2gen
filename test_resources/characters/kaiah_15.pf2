@@ -1,0 +1,112 @@
+PF2Gen Save - v5
+Sources
+ - Core Rulebook
+ - The Amar Vale
+ - Advanced Player's Guide
+Variant Rules
+name = kaiah
+player = lauren
+alignment = CG
+deity = Isis
+ancestry = Gnome
+background = Acolyte
+class = Rogue
+level = 15
+abilityChoices = Initial:Dex, Initial:Wis, Initial:Str, Initial:Int, Ancestry:Str, Background:Int/Wis:Wis, Background:Dex, Class:Str/Dex/Cha:Dex, Five:Con, Five:Str, Five:Dex, Five:Wis, Ten:Dex, Ten:Int, Ten:Con, Ten:Wis, Fifteen:Dex, Fifteen:Wis, Fifteen:Str, Fifteen:Cha
+Qualities
+hair = 
+gender = 
+languages = Common, Gnomish, Sylvan
+senses = Low-Light Vision
+name = kaiah
+weight = 
+eyes = 
+age = 
+height = 
+player = lauren
+Skill Choices
+ - 1:Deception, Occultism, Nature, Medicine, Crafting, Survival, Acrobatics, Athletics, Performance, Intimidation
+ - 2:Religion
+ - 3:Stealth
+ - 4:Thievery
+ - 5:Acrobatics
+ - 6:Deception
+ - 7:Religion
+ - 8:Stealth
+ - 9:Thievery
+ - 10:Arcana
+ - 11:Acrobatics
+ - 12:Intimidation
+ - 13:Society
+ - 14:Performance
+ - 15:Religion
+Decisions
+ - Ancestry Feat 1 : Gnome Weapon Familiarity
+ - Heritage 1 : Umbral Gnome
+ - Rogue Feat 1 : Twin Feint
+ - Rogue's Racket : Thief Racket
+ - Skill Feat 1 : Assurance
+ - Rogue Feat 2 : Cleric Dedication
+ - Skill Feat 2 : Titan Wrestler
+ - General Feat 3 : Toughness
+ - Skill Feat 3 : Quiet Allies
+ - Rogue Feat 4 : Reactive Pursuit
+ - Skill Feat 4 : Automatic Knowledge
+ - Ancestry Feat 5 : Gnome Weapon Innovator
+ - Skill Feat 5 : Steady Balance
+ - Rogue Feat 6 : Gang Up
+ - Skill Feat 6 : Subtle Theft
+ - General Feat 7 : Incredible Initiative
+ - Skill Feat 7 : Foil Senses
+ - Rogue Feat 8 : Basic Cleric Spellcasting
+ - Skill Feat 8 : Dubious Knowledge
+ - Ancestry Feat 9 : Illusion Sense
+ - Skill Feat 9 : Underwater Marauder
+ - Rogue Feat 10 : Precise Debilitations
+ - Skill Feat 10 : Swift Sneak
+ - General Feat 11 : Feather Step
+ - Skill Feat 11 : Kip Up [free-action]
+ - Rogue Feat 12 : Expert Cleric Spellcasting
+ - Skill Feat 12 : Consult the Spirits
+ - Ancestry Feat 13 : Fey Fellowship
+ - Skill Feat 13 : Quick Disguise
+ - Rogue Feat 14 : Leave An Opening
+ - Skill Feat 14 : Wary Disarmament
+ - Bonus Languages : Goblin ^ Jotun
+ - Assurance Choice : Religion
+ - Cleric Divine Skill Choice : Arcana
+ - General Feat 15 : Fleet
+ - General Feat 15 : Expeditious Search
+ - General Feat 15 : Fleet
+money = 3802.3999999999987
+Inventory
+ - 2 Dagger
+ - 2 Clothing (Ordinary)
+ - 1 The Shadow Cloak
+ - 1 Doubling Rings
+ @ 1 Shortsword
+    Runes
+     - Striking
+     - Weapon Potency (+1)
+     - Thundering
+ - 1 Winged Boots
+ @ 1 Shortsword
+ - 1 Kukri
+ - 1 Adventurer's Pack
+ - 1 Bestial Mutagen (Greater)
+Equipped
+Formulas Bought
+Formulas Granted
+Spells Known
+ - Cleric
+   - Level 0
+   - Level 1
+   - Level 2
+   - Level 3
+   - Level 4
+   - Level 5
+   - Level 6
+   - Level 7
+   - Level 8
+   - Level 9
+   - Level 10

@@ -1,0 +1,46 @@
+PF2Gen Save - v2
+Sources
+ - Advanced Player's Guide
+ - Core Rulebook
+name = Dave
+player = 
+alignment = N
+deity = No Deity
+ancestry = Goblin
+background = Animal Whisperer
+class = Bard
+level = 1
+abilityChoices = 
+Qualities
+hair = 
+languages = Common, Goblin
+gender = 
+senses = Darkvision
+name = Dave
+weight = 
+eyes = 
+age = 
+height = 
+player = 
+Skill Choices
+ - 1:
+Decisions
+money = 150.0
+Inventory
+ @ 1 Magic Wand (${get("1st-Level Spell")})
+    1st-Level Spell
+     - Bane
+Equipped
+Spells Known
+ - Bard
+   - Level 0
+   - Level 1
+   - Level 2
+   - Level 3
+   - Level 4
+   - Level 5
+   - Level 6
+   - Level 7
+   - Level 8
+   - Level 9
+   - Level 10

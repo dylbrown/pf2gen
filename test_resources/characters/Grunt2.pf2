@@ -1,0 +1,69 @@
+PF2Gen Save - v5
+Sources
+ - Extinction Curse
+ - Bestiary 1
+ - Bestiary 2
+ - Bestiary 3
+ - The Amar Vale
+ - Ancestry Guide
+ - Character Guide
+ - Pathfinder Society Guide
+ - World Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+Variant Rules
+name = Grunt
+player = Kyle
+alignment = LE
+deity = No Deity
+ancestry = Lizardfolk
+background = Warrior
+class = Monk
+level = 6
+abilityChoices = Initial:Str, Initial:Dex, Initial:Con, Initial:Cha, Ancestry:Dex, Background:Str/Con:Con, Background:Str, Class:Str/Dex:Str, Five:Str, Five:Dex, Five:Con, Five:Cha
+Qualities
+hair = 
+languages = Common, Iruxi
+gender = Male
+senses = 
+name = Grunt
+weight = Unkown
+eyes = Blue/White
+age = Unknown
+height = 7'
+player = Kyle
+Skill Choices
+ - 1:Survival, Diplomacy, Nature
+ - 2:
+ - 3:Intimidation
+ - 5:Athletics
+Decisions
+ - Ancestry Feat 1 : Sharp Fangs
+ - Heritage 1 : Frilled Lizardfolk
+ - Monk Feat 1 : Wolf Stance
+ - Monk Feat 2 : Stunning Fist
+ - Skill Feat 2 : Survey Wildlife
+ - General Feat 3 : Incredible Initiative
+ - Monk Feat 4 : Barbarian Dedication
+ - Skill Feat 4 : Intimidating Prowess
+ - Ancestry Feat 5 : Iruxi Unarmed Cunning
+ - Monk Feat 6 : Wolf Drag
+ - Skill Feat 6 : Natural Medicine
+ - Barbarian Instinct : Animal Instinct
+money = 592.0
+Inventory
+ - 0 Coyote Cloak
+ - 1 Necklace of Fireballs I
+ - 1 Handwraps of Mighty Blows
+ - 2 Healing Potion (Lesser)
+ - 1 Explorer's Clothing
+ - 1 Adventurer's Pack
+ - 1 Lifting Belt
+Equipped
+ - Armor: 1 Explorer's Clothing
+ - Carried: 1 Necklace of Fireballs I
+ - Carried: 1 Handwraps of Mighty Blows
+ - Carried: 1 Lifting Belt
+Formulas Bought
+Formulas Granted
+Spells Known

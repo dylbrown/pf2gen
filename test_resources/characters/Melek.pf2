@@ -1,0 +1,145 @@
+PF2Gen Save - v4
+Sources
+ - Bestiary 1
+ - Advanced Player's Guide
+ - Core Rulebook
+name = 
+player = 
+alignment = N
+deity = No Deity
+ancestry = Human
+background = Acolyte
+class = Wizard
+level = 14
+abilityChoices = Initial:Cha, Initial:Int, Initial:Dex, Initial:Con, Ancestry:Cha, Ancestry:Int, Background:Int/Wis:Int, Background:Dex, Five:Dex, Five:Cha, Five:Int, Five:Con, Ten:Con, Ten:Int, Ten:Cha, Ten:Dex
+Qualities
+hair = 
+gender = 
+languages = Common
+senses = 
+name = 
+weight = 
+eyes = 
+age = 
+height = 
+player = 
+Skill Choices
+ - 1:Acrobatics, Deception, Intimidation, Occultism, Stealth, Diplomacy, Society
+ - 2:
+ - 3:Arcana
+ - 4:
+ - 5:Deception
+ - 6:
+ - 7:Arcana
+ - 8:
+ - 9:Deception
+ - 10:
+ - 11:Society
+ - 12:
+ - 13:Society
+ - 14:
+Decisions
+ - Bonus Languages : Draconic ^ Orcish ^ Abyssal ^ Celestial ^ Infernal ^ Necril
+ - Ancestry Feat 1 : Natural Ambition
+ - Heritage 1 : Skilled Heritage
+ - Arcane School : Conjuration School
+ - Arcane Thesis : Spell Substitution
+ - Skill Feat 2 : Recognize Spell
+ - Wizard Feat 2 : Scroll Trickster Dedication
+ - General Feat 3 : Fleet
+ - Skill Feat 4 : Charming Liar
+ - Wizard Feat 4 : Conceal Spell
+ - Skill Feat 6 : Streetwise
+ - General Feat 7 : Toughness
+ - Skill Feat 8 : Quick Recognition
+ - Wizard Feat 8 : Skim Scroll
+ - Ancestry Feat 9 : Multitalented
+ - Wizard Feat 10 : Quickened Casting
+ - General Feat 11 : Incredible Initiative
+ - Wizard Feat 12 : Clever Counterspell
+ - Wizard Feat 14 : Reflect Spell
+ - Natural Ambition Class Feat 1 : Counterspell
+ - Skilled Heritage Choice : Crafting
+money = 150.0
+Inventory
+Equipped
+Formulas Bought
+Formulas Granted
+Spells Known
+ - Wizard
+   - Level 0
+     - Light
+     - Detect Magic
+     - Prestidigitation
+     - Shield
+     - Electric Arc
+   - Level 1
+     - Charm
+     - True Strike
+     - Alarm
+     - Fear
+     - Lock
+     - Longstrider
+     - Mage Armor
+     - Magic Missile
+     - Summon Animal
+     - Summon Construct
+     - Unseen Servant
+   - Level 2
+     - Blur
+     - Darkvision
+     - Dispel Magic
+     - Enlarge
+     - False Life
+     - Glitterdust
+     - Humanoid Form
+     - Invisibility
+     - Knock
+     - Mirror Image
+     - Misdirection
+     - See Invisibility
+     - Shrink
+     - Summon Elemental
+   - Level 3
+     - Earthbind
+     - Fireball
+     - Haste
+     - Invisibility Sphere
+     - Locate
+     - Meld into Stone
+     - Nondetection
+     - Secret Page
+     - Shrink Item
+     - Slow
+   - Level 4
+     - Bestial Curse
+     - Vampiric Maiden
+     - Countless Eyes
+     - Blink
+     - Confusion
+     - Dimension Door
+     - Dimensional Anchor
+     - Enervation
+     - Fly
+     - Suggestion
+     - Telepathy
+   - Level 5
+     - Banishment
+     - Black Tentacles
+     - Impaling Spike
+     - Mind Probe
+     - Passwall
+     - Sending
+     - Shadow Walk
+     - Summon Dragon
+   - Level 6
+     - Vampiric Exsanguination
+     - Feeblemind
+     - Chain Lightning
+   - Level 7
+     - Duplicate Foe
+     - Eclipse Burst
+     - Magnificent Mansion
+   - Level 8
+   - Level 9
+   - Level 10
