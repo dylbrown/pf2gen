@@ -18,8 +18,8 @@ import java.util.Map;
 
 public class SpellList implements PlayerState {
 	private final ObservableList<Integer> spellSlots = FXCollections.observableArrayList();
-	private final ObservableList<ObservableList<Spell>> spellsKnown = FXCollections.observableArrayList();
-	private final ObservableList<Integer> extraSpellsKnown = FXCollections.observableArrayList();
+	private final ObservableList<Integer> spellsKnown = FXCollections.observableArrayList();
+	private final ObservableList<ObservableList<Spell>> spellRepertoire = FXCollections.observableArrayList();
 	private final ReadOnlyObjectWrapper<CasterType> casterType = new ReadOnlyObjectWrapper<>(CasterType.None);
 	private final ReadOnlyObjectWrapper<Tradition> tradition = new ReadOnlyObjectWrapper<>();
 	private final ReadOnlyObjectWrapper<AbilityScore> castingAbilityScore = new ReadOnlyObjectWrapper<>();
@@ -33,9 +33,9 @@ public class SpellList implements PlayerState {
 		this.index = index;
 		for(int i = 0; i <= 10; i++){
 			spellSlots.add(0);
-			extraSpellsKnown.add(0);
-			spellsKnown.add(FXCollections.observableArrayList());
-			knownRetainer.add(FXCollections.unmodifiableObservableList(spellsKnown.get(i)));
+			spellsKnown.add(0);
+			spellRepertoire.add(FXCollections.observableArrayList());
+			knownRetainer.add(FXCollections.unmodifiableObservableList(spellRepertoire.get(i)));
 		}
 	}
 
@@ -117,23 +117,18 @@ public class SpellList implements PlayerState {
 		spellSlots.set(level, amount + spellSlots.get(level));
 	}
 	private void addKnown(int level, int amount) {
-		extraSpellsKnown.set(level, amount + extraSpellsKnown.get(level));
+		spellsKnown.set(level, amount + spellsKnown.get(level));
 	}
 
 	public void removeSlots(int level, int amount) {
 		spellSlots.set(level, spellSlots.get(level) - amount);
-		checkKnownCap(level);
 	}
 
 	private void removeKnown(int level, int amount) {
-		extraSpellsKnown.set(level, extraSpellsKnown.get(level) - amount);
-		checkKnownCap(level);
-	}
-
-	private void checkKnownCap(int level) {
+		spellsKnown.set(level, spellsKnown.get(level) - amount);
 		if(getCasterType().get() == CasterType.Spontaneous) {
-			while(spellsKnown.get(level).size() > spellSlots.get(level)) {
-				spellsKnown.get(level).remove(spellsKnown.get(level).size() - 1);
+			while(spellRepertoire.get(level).size() > spellsKnown.get(level)) {
+				spellRepertoire.get(level).remove(spellRepertoire.get(level).size() - 1);
 			}
 		}
 	}
@@ -149,7 +144,7 @@ public class SpellList implements PlayerState {
 	}
 
 	private final ObservableList<ObservableList<Spell>> nestedKnown = FXCollections.unmodifiableObservableList(knownRetainer);
-	public ObservableList<ObservableList<Spell>> getSpellsKnown() {
+	public ObservableList<ObservableList<Spell>> getSpellRepertoire() {
 		return nestedKnown;
 	}
 
@@ -157,8 +152,8 @@ public class SpellList implements PlayerState {
 		return knownRetainer.get(level);
 	}
 
-	private final ObservableList<Integer> extraRetainer = FXCollections.unmodifiableObservableList(extraSpellsKnown);
-	public ObservableList<Integer> getExtraSpellsKnown() {
+	private final ObservableList<Integer> extraRetainer = FXCollections.unmodifiableObservableList(spellsKnown);
+	public ObservableList<Integer> getSpellsKnown() {
 		return extraRetainer;
 	}
 
@@ -178,12 +173,12 @@ public class SpellList implements PlayerState {
 		if(spell == null) return false;
 		if(getCasterType().get() == CasterType.None && !override) return false;
 		if(getCasterType().get() == CasterType.Spontaneous) {
-			if(spellsKnown.get(level).size()
-					>= spellSlots.get(level) + extraSpellsKnown.get(level)
+			if(spellRepertoire.get(level).size()
+					>= spellSlots.get(level) + spellsKnown.get(level)
 					&& !override)
 				return false;
 		}
-		ObservableList<Spell> levelList = spellsKnown.get(level);
+		ObservableList<Spell> levelList = spellRepertoire.get(level);
 		if(levelList.contains(spell)) return false;
 		levelList.add(spell);
 		return true;
@@ -196,7 +191,7 @@ public class SpellList implements PlayerState {
 
 	private boolean removeSpellInternal(Spell spell, boolean override) {
 		if(abilitySpells.contains(spell) && !override) return false;
-		spellsKnown.get(spell.getLevelOrCantrip()).remove(spell);
+		spellRepertoire.get(spell.getLevelOrCantrip()).remove(spell);
 		return true;
 	}
 
@@ -243,7 +238,7 @@ public class SpellList implements PlayerState {
 	@Override
 	public void reset(PC.ResetEvent resetEvent) {
 		for(int i=0; i <= 10; i++) {
-			spellsKnown.get(i).clear();
+			spellRepertoire.get(i).clear();
 		}
 	}
 

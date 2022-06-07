@@ -73,7 +73,7 @@ public class SpellListController {
                 SpellEntry::new,
                 this::makeColumns);
         allSpells.setFilter(filterPredicate.getReadOnlyProperty());
-        spellsKnown = ObservableEntryList.makeList(new FlattenedList<>(spells.getSpellsKnown()),
+        spellsKnown = ObservableEntryList.makeList(new FlattenedList<>(spells.getSpellRepertoire()),
                 (spell, clickCount) -> {
                     renderSpell(spell);
                     if (clickCount == 2) {
@@ -97,7 +97,7 @@ public class SpellListController {
         AnchorPane.setRightAnchor(spellsKnown, 0.0);
 
         ObservableList<Integer> spellSlots = spells.getSpellSlots();
-        ObservableList<Integer> extraSpellsKnown = spells.getExtraSpellsKnown();
+        ObservableList<Integer> extraSpellsKnown = spells.getSpellsKnown();
         spellSlots.addListener((ListChangeListener<Integer>) c->{
             while(c.next()) {
                 if (c.wasReplaced()) {
@@ -170,8 +170,7 @@ public class SpellListController {
     private void updateRange(int from, int to) {
         for (int i = from ; i < to ; i++) {
             slots[i].setText(String.valueOf(spells.getSpellSlots().get(i)));
-            knowns[i].setText(String.valueOf(spells.getSpellSlots().get(i) + spells.getExtraSpellsKnown().get(i)));
-            knowns[i].setText(String.valueOf(spells.getSpellSlots().get(i) + spells.getExtraSpellsKnown().get(i)));
+            knowns[i].setText(String.valueOf(spells.getSpellsKnown().get(i)));
         }
     }
 

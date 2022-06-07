@@ -164,7 +164,7 @@ public class SaveLoadManager {
             for (Map.Entry<String, SpellList> entry : character.spells().getSpellLists().entrySet()) {
                 writeOutLine(out, " - " + entry.getKey());
                 int i = 0;
-                for (ObservableList<Spell> spells : entry.getValue().getSpellsKnown()) {
+                for (ObservableList<Spell> spells : entry.getValue().getSpellRepertoire()) {
                     writeOutLine(out, "   - Level "+i);
                     for (Spell spell : spells) {
                         writeOutLine(out, "     - "+ spell.getRawName());

@@ -148,6 +148,9 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                 case "Trigger":
                     builder.getExtension(ActivityExtension.Builder.class).setTrigger(trim);
                     break;
+                case "Frequency":
+                    builder.getExtension(ActivityExtension.Builder.class).setFrequency(trim);
+                    break;
                 case "AttributeMods":
                     Proficiency prof = Proficiency.robustValueOf(propElem.getAttribute("Proficiency").trim());
                     builder.getExtension(GranterExtension.Builder.class).addAllMods(addMods(trim, prof));
@@ -253,7 +256,8 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                     builder.getExtension(SpellExtension.Builder.class)
                             .addSpellSlots(Integer.parseInt(propElem.getAttribute("level")),
                             Integer.parseInt(propElem.getAttribute("count")));
-                    break;
+                    String known = propElem.getAttribute("known");
+                    if(!known.isBlank() && !Boolean.getBoolean(known)) break;
                 case "SpellsKnown":
                     builder.getExtension(SpellExtension.Builder.class)
                             .addExtraSpellKnown(Integer.parseInt(propElem.getAttribute("level")),

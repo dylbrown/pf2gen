@@ -5,11 +5,13 @@ import model.enums.Action;
 public class ActivityExtension extends AbilityExtension {
     private final Action cost;
     private final String trigger;
+    private final String frequency;
 
     public ActivityExtension(ActivityExtension.Builder builder, Ability baseAbility) {
         super(baseAbility);
         this.cost = builder.cost;
         this.trigger = builder.trigger;
+        this.frequency = builder.frequency;
     }
 
     public Action getCost() {
@@ -20,15 +22,21 @@ public class ActivityExtension extends AbilityExtension {
         return trigger;
     }
 
+    public String getFrequency() {
+        return frequency;
+    }
+
     public static class Builder extends AbilityExtension.Builder {
         private Action cost = Action.Free;
         private String trigger = "";
+        private  String frequency = "";
 
         Builder() {}
 
         public Builder(Builder other) {
-            this.cost = other.cost;
-            this.trigger = other.trigger;
+            cost = other.cost;
+            trigger = other.trigger;
+            frequency = other.frequency;
         }
 
         public void setCost(Action cost) {
@@ -37,6 +45,10 @@ public class ActivityExtension extends AbilityExtension {
 
         public void setTrigger(String trigger) {
             this.trigger = trigger;
+        }
+
+        public void setFrequency(String frequency) {
+            this.frequency = frequency;
         }
 
         @Override

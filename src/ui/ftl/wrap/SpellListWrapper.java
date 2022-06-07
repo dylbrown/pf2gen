@@ -14,7 +14,7 @@ public class SpellListWrapper extends GenericWrapper<SpellList> {
     Object getSpecialCase(String s, SpellList spellList) {
         if(!s.equals("spellsknown")) return null;
         return new WrapperTransformationList<>(
-                spellList.getSpellsKnown(),
+                spellList.getSpellRepertoire(),
                 ol -> new WrapperTransformationList<>(
                         ol, spell ->
                         new SpellWrapper(spell, wrapper, spellList.getHighestLevelCanCast()
