@@ -25,13 +25,10 @@ import model.xml_parsers.equipment.WeaponsLoader;
 import model.xml_parsers.setting.DeitiesLoader;
 import model.xml_parsers.setting.DomainsLoader;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class SourcesManager {
-    private final List<Source> sources = new ArrayList<>();
+    private final Set<Source> sources = new HashSet<>();
     private final MultiSourceLoader<Ancestry> ancestries = new MultiSourceLoader<>("Ancestry");
     private final MultiSourceLoader<Background> backgrounds = new MultiSourceLoader<>("Background");
     private final MultiSourceLoader<PClass> classes = new MultiSourceLoader<>("Class");
@@ -58,6 +55,8 @@ public class SourcesManager {
     }
 
     public void add(Source source) {
+        if(sources.contains(source))
+            return;
         sources.add(source);
         addIfNotNull(ancestries, source.getLoader(AncestriesLoader.class));
         addIfNotNull(backgrounds, source.getLoader(BackgroundsLoader.class));
@@ -146,7 +145,7 @@ public class SourcesManager {
         return senses;
     }
 
-    public List<Source> getSources() {
-        return Collections.unmodifiableList(sources);
+    public Set<Source> getSources() {
+        return Collections.unmodifiableSet(sources);
     }
 }

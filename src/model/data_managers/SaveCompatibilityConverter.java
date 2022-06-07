@@ -50,6 +50,9 @@ public class SaveCompatibilityConverter {
             case 5:
                 for (int i = 0; i < lines.first.size(); i++) {
                     String line = lines.first.get(i);
+                    if(line.startsWith("name =")) {
+                        break;
+                    }
                     if(line.contains("=")) {
                         lines.first.set(i, "Variant Rules");
                         break;
@@ -57,5 +60,6 @@ public class SaveCompatibilityConverter {
                 }
                 break;
         }
+        lines.first.set(0,"PF2Gen Save - v" + version);
     }
 }

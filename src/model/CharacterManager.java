@@ -65,8 +65,7 @@ public abstract class CharacterManager {
         try {
             SaveLoadManager.save(pc, writer);
             List<String> lineList = writer.toString().lines().collect(Collectors.toList());
-            PC newPC = new PC(SaveLoadManager.loadSources(lineList));
-            SaveLoadManager.load(newPC, lineList);
+            PC newPC = SaveLoadManager.load(lineList);
             CharacterManager.add(newPC);
             if(active)
                 setActive(newPC);

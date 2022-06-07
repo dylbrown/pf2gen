@@ -76,14 +76,12 @@ public class SaveLoadController {
         }
     }
 
-    private PC load(File file) {
+    public PC load(File file) {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             List<String> lineList;
             lineList = reader.lines().collect(Collectors.toList());
-            PC pc = new PC(SaveLoadManager.loadSources(lineList));
-            SaveLoadManager.load(pc, lineList);
-            return pc;
+            return SaveLoadManager.load(lineList);
         } catch (IOException e) {
             e.printStackTrace();
         }

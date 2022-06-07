@@ -12,13 +12,11 @@ import ui.controls.lists.SourceList;
 import ui.controls.lists.ThreeState;
 import ui.controls.lists.entries.SourceEntry;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class SourceSelectController implements Popup.Controller {
     private Stage stage = null;
-    private final List<Source> preSelectedSources;
+    private final Collection<Source> preSelectedSources;
     @FXML
     private BorderPane sources;
     @FXML
@@ -36,13 +34,14 @@ public class SourceSelectController implements Popup.Controller {
         this(Collections.emptyList());
     }
 
-    public SourceSelectController(List<Source> preSelectedSources) {
+    public SourceSelectController(Collection<Source> preSelectedSources) {
         this.preSelectedSources = preSelectedSources;
     }
 
     @FXML
     private void initialize() {
-        display.getEngine().setUserStyleSheetLocation(getClass().getResource("/webview_style.css").toString());
+        display.getEngine().setUserStyleSheetLocation(
+                Objects.requireNonNull(getClass().getResource("/webview_style.css")).toString());
         sourceList = new SourceList((source, i) -> display.getEngine().loadContent(source.getDescription()));
         sourceList.selectAndLock(preSelectedSources);
         sourceList.getSelectionModel().selectedItemProperty().addListener((o, oldVal, newVal) -> {

@@ -11,15 +11,12 @@ import ui.controls.lists.entries.SourceEntry;
 import ui.controls.lists.factories.ThreeStateCell;
 import ui.controls.lists.factories.TreeCellFactory;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 public class SourceList extends ObservableCategoryEntryList<Source, SourceEntry> {
 
-    private Map<String, TreeItem<SourceEntry>> entryMap = new HashMap<>();
+    private final Map<String, TreeItem<SourceEntry>> entryMap = new HashMap<>();
 
     public SourceList(BiConsumer<Source, Integer> handler) {
         super(FXCollections.observableArrayList(SourcesLoader.instance().getAll().values()),
@@ -117,7 +114,7 @@ public class SourceList extends ObservableCategoryEntryList<Source, SourceEntry>
         return Arrays.asList(name, id, enabled);
     }
 
-    public void selectAndLock(List<Source> preSelectedSources) {
+    public void selectAndLock(Collection<Source> preSelectedSources) {
         for (Source source : preSelectedSources) {
             TreeItem<SourceEntry> entry = entryMap.get(source.getName());
             entry.getValue().stateProperty().set(ThreeState.LockedTrue);

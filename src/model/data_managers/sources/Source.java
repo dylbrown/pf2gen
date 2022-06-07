@@ -62,6 +62,19 @@ public final class Source {
         else return null;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Source source = (Source) o;
+        return name.equals(source.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
+
     public static class Builder {
         private String name, shortName, description, category, subCategory;
         private List<String> dependencies = Collections.emptyList();
