@@ -36,7 +36,10 @@ public class AbilityWrapper extends MapGenericWrapper<Ability> {
         super(ability, wrapper);
         this.character = character;
         map.put("name", this::getName);
-        map.put("hasExtension".toLowerCase(), a->((TemplateMethodModelEx) o->a.hasExtension(o.toString())));
+        map.put("hasExtension".toLowerCase(),
+                a->((TemplateMethodModelEx) o->a.hasExtension(o.get(0).toString())));
+        map.put("getExtensionByName".toLowerCase(),
+                a->((TemplateMethodModelEx) o->a.getExtensionByName(o.get(0).toString())));
     }
 
     private String getName(Ability ability) {

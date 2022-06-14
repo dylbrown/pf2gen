@@ -1,0 +1,53 @@
+PF2Gen Save - v5
+Sources
+ - Bestiary 1
+ - Grand Bazaar
+ - Legends
+ - The Mwangi Expanse
+ - World Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+ - Gamemastery Guide
+ - Guns and Gears
+ - Secrets of Magic
+Variant Rules
+name = Ranger
+player = 
+alignment = NG
+deity = No Deity
+ancestry = Elf
+background = Hunter
+class = Ranger
+level = 1
+abilityChoices = Initial:Str, Initial:Dex, Initial:Con, Initial:Wis, Ancestry:Str, Background:Dex/Wis:Wis, Background:Con, Class:Str/Dex:Dex
+Qualities
+hair = 
+languages = Common, Elven
+gender = 
+senses = Low-Light Vision
+name = Ranger
+weight = 
+eyes = 
+age = 
+height = 
+player = 
+Skill Choices
+ - 1:Medicine, Athletics, Thievery, Acrobatics, Stealth, Occultism
+Decisions
+ - Bonus Languages : Gnomish
+ - Ancestry Feat 1 : Nimble Elf
+ - Heritage 1 : Woodland Elf
+ - Ranger Feat 1 : Hunted Shot
+ - Hunter's Edge : Flurry
+money = 63.0
+Inventory
+ - 1 Longbow
+ - 1 Leather Armor
+ - 1 Adventurer's Pack
+Equipped
+ - Armor: 1 Leather Armor
+ - TwoHands: 1 Longbow
+ - Carried: 1 Adventurer's Pack
+Formulas Bought
+Formulas Granted
+Spells Known

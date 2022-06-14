@@ -1,0 +1,124 @@
+PF2Gen Save - v5
+Sources
+ - Bestiary 1
+ - Grand Bazaar
+ - Legends
+ - The Mwangi Expanse
+ - World Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+ - Gamemastery Guide
+ - Guns and Gears
+ - Secrets of Magic
+ - Bestiary 1
+ - Grand Bazaar
+ - Legends
+ - The Mwangi Expanse
+ - World Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+ - Gamemastery Guide
+ - Guns and Gears
+ - Secrets of Magic
+ - Bestiary 1
+ - Grand Bazaar
+ - Legends
+ - The Mwangi Expanse
+ - World Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+ - Gamemastery Guide
+ - Guns and Gears
+ - Secrets of Magic
+ - Bestiary 1
+ - Grand Bazaar
+ - Legends
+ - The Mwangi Expanse
+ - World Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+ - Gamemastery Guide
+ - Guns and Gears
+ - Secrets of Magic
+ - Bestiary 1
+ - Grand Bazaar
+ - Legends
+ - The Mwangi Expanse
+ - World Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+ - Gamemastery Guide
+ - Guns and Gears
+ - Secrets of Magic
+ - Bestiary 1
+ - Grand Bazaar
+ - Legends
+ - The Mwangi Expanse
+ - World Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+ - Gamemastery Guide
+ - Guns and Gears
+ - Secrets of Magic
+ - Bestiary 1
+ - Grand Bazaar
+ - Legends
+ - The Mwangi Expanse
+ - World Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+ - Gamemastery Guide
+ - Guns and Gears
+ - Secrets of Magic
+ - Bestiary 1
+ - Grand Bazaar
+ - Legends
+ - The Mwangi Expanse
+ - World Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+ - Gamemastery Guide
+ - Guns and Gears
+ - Secrets of Magic
+Variant Rules
+name = Fighter
+player = 
+alignment = N
+deity = No Deity
+ancestry = Dwarf
+background = Farmhand
+class = Fighter
+level = 1
+abilityChoices = Initial:Int, Initial:Con, Initial:Str, Initial:Dex, Ancestry:Str, Background:Con/Wis:Con, Background:Dex, Class:Str/Dex:Str
+Qualities
+hair = 
+gender = 
+languages = Common, Dwarven
+senses = Darkvision
+name = Fighter
+weight = 
+eyes = 
+age = 
+height = 
+player = 
+Skill Choices
+ - 1:Acrobatics, Occultism, Intimidation, Stealth
+Decisions
+ - Assurance Choice : Athletics
+ - Skill Choice : Athletics
+ - Fighter Feat 1 : Sudden Charge
+ - Ancestry Feat 1 : Unburdened Iron
+ - Heritage 1 : Strong-Blooded Dwarf
+ - Bonus Languages : Gnomish
+money = 113.0
+Inventory
+ - 1 Warhammer
+ - 1 Adventurer's Pack
+ - 1 Greataxe
+Equipped
+ - TwoHands: 1 Greataxe
+ - Carried: 1 Warhammer
+ - Carried: 1 Adventurer's Pack
+Formulas Bought
+Formulas Granted
+Spells Known

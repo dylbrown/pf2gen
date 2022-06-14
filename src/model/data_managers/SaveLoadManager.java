@@ -343,7 +343,6 @@ public class SaveLoadManager {
             if(split.length < 2) continue;
             int level = Integer.parseInt(split[0]);
             for (String skill : split[1].split(" ?, ?")) {
-                int openBracket = skill.indexOf("(");
                 if(!allDecisionsMade && character.attributes().getSkillIncreasesRemaining(level) == 0)
                     allDecisionsMade = makeDecisions(character, decisionStringMap);
                 character.attributes().advanceSkill(Attribute.valueOf(skill));
@@ -514,6 +513,7 @@ public class SaveLoadManager {
 
     private static boolean makeDecisions(PC character, Map<String, String> decisionStringMap) {
         ObservableList<Choice<?>> decisions = character.decisions().getUnmadeDecisions();
+        Map<Choice<?>, List<String>> selectionsMap = new HashMap<>();
         while(decisions.size() > 0){
             int successes = 0;
             int index = 0;
@@ -523,8 +523,8 @@ public class SaveLoadManager {
                     index++;
                     continue;
                 }
-                List<String> selections = Arrays.asList(
-                        decisionStringMap.get(decision.toString()).split(" ?\\^ ?"));
+                List<String> selections = selectionsMap.computeIfAbsent(decision, c->
+                        new ArrayList<>(Arrays.asList(decisionStringMap.get(c.toString()).split(" ?\\^ ?"))));
                 List<?> options;
                 if(decision instanceof ChoiceList)
                     options = ((ChoiceList<?>) decision).getOptions();
@@ -536,11 +536,14 @@ public class SaveLoadManager {
                         int oldSize = decision.getSelections().size();
                         if(!decision.tryAdd(option))
                             throw new ClassCastException("Could not cast "+option+" to "+decision.getOptionsClass());
-                        if(decision.getSelections().size() > oldSize)
+                        if(decision.getSelections().size() > oldSize) {
+                            selections.remove(option.toString());
                             successes++;
+                        }
                         if(decision.getSelections().size() == selections.size()) {
                             index--;
                             decisionStringMap.remove(decision.toString());
+                            selectionsMap.remove(decision);
                             break;
                         }
                     }
@@ -548,6 +551,7 @@ public class SaveLoadManager {
                 index++;
             }
             if(successes == 0) break;
+            decisions = character.decisions().getUnmadeDecisions();
         }
         return decisions.isEmpty();
     }

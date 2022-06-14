@@ -118,11 +118,13 @@ public abstract class NethysListScraper extends NethysScraper {
         List<BufferedWriter> writers = new ArrayList<>();
         final Function<String, Consumer<String>> getOutput = source -> {
             File file = new File("generated/" + StringUtils.sanitizePath(source) + "/" + outputPath);
-            if(file.getParentFile().mkdirs())
-                System.out.println("Created "+ file);
+            //noinspection ResultOfMethodCallIgnored
+            file.getParentFile().mkdirs();
+            System.out.println("Wrote to "+ file);
             BufferedWriter out;
             try {
                 out = new BufferedWriter(new FileWriter(file), 32768);
+                writePrefix(out);
                 writers.add(out);
                 return str -> {
                     try {
@@ -139,12 +141,21 @@ public abstract class NethysListScraper extends NethysScraper {
         printOutput(getOutput);
         for (BufferedWriter writer : writers) {
             try {
+                writeSuffix(writer);
                 writer.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
+
+    protected void writePrefix(BufferedWriter out) throws IOException {
+
+    };
+
+    protected  void writeSuffix(BufferedWriter out) throws IOException {
+
+    };
 
     protected final void printOutput(Function<String, Consumer<String>> getOutput) {
         System.out.println("Checking Completion now");

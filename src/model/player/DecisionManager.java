@@ -13,7 +13,7 @@ import java.util.List;
 
 public class DecisionManager implements PlayerState {
     private final ObservableList<Choice<?>> decisions = FXCollections.observableArrayList(
-            choice -> new Observable[]{choice.numSelectionsProperty()});
+            choice -> new Observable[]{choice.numSelectionsProperty(), choice.maxSelectionsProperty()});
     private final ObservableList<Choice<?>> unmodifiableDecisions = FXCollections.unmodifiableObservableList(decisions);
     private final FilteredList<Choice<?>> unmade;
     private final SortedList<Choice<?>> unmadeByLevel;

@@ -8,6 +8,7 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,7 +20,7 @@ class NethysFeatListScraper extends NethysListScraper {
 	public static void main(String[] args) {
 		new NethysFeatListScraper(
 				"C:\\Users\\dylan\\Downloads\\RadGridExport.csv",
-				"feats.pfdyl",
+				"feats\\skill.pfdyl",
 				source->true, true);
 	}
 
@@ -74,13 +75,15 @@ class NethysFeatListScraper extends NethysListScraper {
 		String level = output.getElementsByClass("title").first().getElementsByTag("span").text().replaceAll("[^\\d]*", "");
 		StringBuilder descBuilder = new StringBuilder();
 		Node afterHr = output.getElementsByTag("hr").first().nextSibling();
-		while(afterHr != null) {
-			if(afterHr instanceof TextNode)
+		while(afterHr != null) {			if(afterHr instanceof TextNode)
 				descBuilder.append(((TextNode) afterHr).getWholeText());
 			else if(afterHr instanceof Element) {
 				String tagName = ((Element) afterHr).tagName();
-				if(tagName.equals("h2") && ((Element) afterHr).text().equals("Traits"))
-					break;
+				if(tagName.equals("h2")) {
+					String text = ((Element) afterHr).text();
+					if (text.equals("Traits") || text.equals("Archetype Use") || text.endsWith("Leads To..."))
+						break;
+				}
 				if(tagName.equals("b") || tagName.equals("i") || tagName.equals("br"))
 					descBuilder.append("&lt;").append(tagName).append("&gt;");
 				descBuilder.append(((Element) afterHr).text());
@@ -197,5 +200,18 @@ class NethysFeatListScraper extends NethysListScraper {
 			this.archetype = archetype;
 			this.level = level;
 		}
+	}
+
+	@Override
+	protected void writePrefix(BufferedWriter out) throws IOException {
+		out.write("<?xml version = \"1.0\"?>\n" +
+				"<pf2:feats xmlns:pf2=\"https://dylbrown.github.io\"\n" +
+				"           xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+				"           xsi:schemaLocation=\"https://dylbrown.github.io ../../../../schemata/abc/class.xsd\">\n");
+	}
+
+	@Override
+	protected void writeSuffix(BufferedWriter out) throws IOException {
+		out.write("</pf2:feats>");
 	}
 }

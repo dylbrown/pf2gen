@@ -179,8 +179,19 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                             if(s.contains("or") || s.contains("Or")) {
                                 String[] orStrings = s.split(" [Oo]r ");
                                 List<Requirement<Attribute>> orRequirements = new ArrayList<>();
+                                Proficiency required = null;
                                 for (String option : orStrings) {
-                                    orRequirements.add(getAttrReq(option));
+                                    if(option.contains("in") || option.contains("In")) {
+                                        SingleRequirement<Attribute> req = getAttrReq(option);
+                                        required = req.getProficiency();
+                                        orRequirements.add(req);
+                                    } else if(required != null) {
+                                        orRequirements.add(new SingleRequirement<>(
+                                                Attribute.valueOf(option), required));
+                                    } else {
+                                        System.out.println("Invalid Prerequisite Option: " + option);
+                                        assert(false);
+                                    }
                                 }
                                 attrRequirements.add(new RequirementList<>(orRequirements, false));
                             } else {
@@ -383,13 +394,13 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
         return builder;
     }
 
-    private Requirement<Attribute> getAttrReq(String option) {
+    private SingleRequirement<Attribute> getAttrReq(String option) {
         String[] split = option.split(" [iI]n ");
         Proficiency reqProf = Proficiency.valueOf(camelCaseWord(split[0].trim()));
         return new SingleRequirement<>(Attribute.valueOf(split[1]), reqProf);
     }
 
-    private Requirement<String> getReq(String option) {
+    private SingleRequirement<String> getReq(String option) {
         String[] split = option.split(" [Ww]ith [Aa] ");
         Proficiency reqProf = Proficiency.valueOf(camelCaseWord(split[0].trim()));
         return new SingleRequirement<>(split[1].trim(), reqProf);
@@ -421,6 +432,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                                             featType);
                                 } catch (ObjectNotFoundException e) {
                                     e.printStackTrace();
+                                    assert(false);
                                 }
                                 return a;
                             });

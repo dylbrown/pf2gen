@@ -1,0 +1,84 @@
+PF2Gen Save - v5
+Sources
+ - Bestiary 1
+ - Grand Bazaar
+ - Legends
+ - The Mwangi Expanse
+ - World Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+ - Gamemastery Guide
+ - Guns and Gears
+ - Secrets of Magic
+ - Bestiary 1
+ - Grand Bazaar
+ - Legends
+ - The Mwangi Expanse
+ - World Guide
+ - Advanced Player's Guide
+ - Core Rulebook
+ - Gamemastery Guide
+ - Guns and Gears
+ - Secrets of Magic
+Variant Rules
+name = Sorcerer
+player = 
+alignment = CG
+deity = No Deity
+ancestry = Tengu
+background = Gambler
+class = Sorcerer
+level = 1
+abilityChoices = Initial:Wis, Initial:Dex, Initial:Con, Initial:Cha, Ancestry:Cha, Background:Dex/Cha:Cha, Background:Int
+Qualities
+hair = 
+gender = 
+languages = Common, Tengu
+senses = Low-Light Vision
+name = Sorcerer
+weight = 
+eyes = 
+age = 
+height = 
+player = 
+Skill Choices
+ - 1:Diplomacy, Society, Acrobatics, Performance
+Decisions
+ - Ancestry Feat 1 : Squawk!
+ - Heritage 1 : Taloned Tengu
+ - Bloodline 1 : Draconic
+ - Bonus Languages : Dwarven
+ - Dragon Type : Gold (Good)
+money = 93.0
+Inventory
+ - 1 Clan Dagger
+ - 1 Hand Crossbow
+ - 1 Adventurer's Pack
+Equipped
+ - PrimaryHand: 1 Clan Dagger
+ - Carried: 1 Hand Crossbow
+ - Carried: 1 Adventurer's Pack
+Formulas Bought
+Formulas Granted
+Spells Known
+ - Sorcerer
+   - Level 0
+     - Light
+     - Prestidigitation
+     - Tanglefoot
+     - Produce Flame
+     - Detect Magic
+   - Level 1
+     - True Strike
+     - Burning Hands
+     - Charm
+     - Mage Armor
+   - Level 2
+   - Level 3
+   - Level 4
+   - Level 5
+   - Level 6
+   - Level 7
+   - Level 8
+   - Level 9
+   - Level 10

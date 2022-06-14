@@ -111,7 +111,7 @@ public class CharacterWrapper implements TemplateHashModel {
             if (o2Activity && !o1Activity) return 1;
             return o1.toString().compareTo(o2.toString());
         }));
-        map.put("abilities", abilities);
+        map.put("abilities", abilities.stream().distinct().collect(Collectors.toList()));
     }
 
     private List<Ability> flattenAbilities(List<Ability> abilities) {
