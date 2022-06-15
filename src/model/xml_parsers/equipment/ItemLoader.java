@@ -224,6 +224,7 @@ public class ItemLoader extends FileLoader<Item> {
                                 item.trim());
                     } catch (ObjectNotFoundException e) {
                         e.printStackTrace();
+                        assert(false);
                     }
                     return trait;
                 }).filter(Objects::nonNull)

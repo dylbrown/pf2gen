@@ -84,6 +84,7 @@ class GroovyCommands {
                     }
                 } catch (IllegalAccessException | InvocationTargetException | ObjectNotFoundException e) {
                     e.printStackTrace();
+                    assert(false);
                 }
             }
         }
@@ -142,6 +143,7 @@ class GroovyCommands {
             spell(sources.spells().find(spellName), spellListName);
         } catch (ObjectNotFoundException e) {
             e.printStackTrace();
+            assert(false);
         }
     }
     public void spell(Spell spell, String spellListName) {
@@ -156,6 +158,7 @@ class GroovyCommands {
             focusSpell(sources.spells().find(spellName), spellListName);
         } catch (ObjectNotFoundException e) {
             e.printStackTrace();
+            assert(false);
         }
     }
     public void focusSpell(Spell spell, String spellListName) {

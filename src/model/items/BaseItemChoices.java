@@ -53,6 +53,7 @@ public class BaseItemChoices extends ItemExtension {
             return results.toString();
         } catch (IOException | TemplateException e) {
             e.printStackTrace();
+            assert(false);
             return name;
         }
     }
@@ -66,6 +67,7 @@ public class BaseItemChoices extends ItemExtension {
             return results.toString();
         } catch (IOException | TemplateException e) {
             e.printStackTrace();
+            assert(false);
             return description;
         }
     }

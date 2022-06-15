@@ -50,6 +50,7 @@ public class SourcesLoader extends FileLoader<Source> {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            assert(false);
         }
         SourceConstructor sourceConstructor = new SourceConstructor(locations, false);
         INSTANCE = new SourcesLoader(sourceConstructor, new File("data"));

@@ -66,6 +66,7 @@ public class SpellsLoader extends FileLoader<Spell> {
 								traitName));
 					} catch (ObjectNotFoundException e) {
 						e.printStackTrace();
+						assert(false);
 					}
 				}
 			} else {
@@ -74,6 +75,7 @@ public class SpellsLoader extends FileLoader<Spell> {
 					setter.invoke(builder, trim);
 				} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
 					e.printStackTrace();
+					assert(false);
 				}
 			}
 		}

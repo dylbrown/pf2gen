@@ -163,6 +163,7 @@ public class BaseSpell extends AbstractNamedObject implements Comparable<Spell>,
                     this.traditions.add(Tradition.valueOf(StringUtils.camelCaseWord(tradition)));
                 }catch(Exception e) {
                     e.printStackTrace();
+                    assert(false);
                 }
             }
         }
@@ -178,11 +179,16 @@ public class BaseSpell extends AbstractNamedObject implements Comparable<Spell>,
                 setCastTime(casts.substring(0, index));
                 casts = casts.substring(index + 1, endIndex);
             }
+            if(casts.toLowerCase().contains("minute") || casts.toLowerCase().contains("hour") || casts.toLowerCase().contains("day")) {
+                setCastTime(casts);
+                return;
+            }
             for (String cast : casts.split(", ?")) {
                 try {
                     this.cast.add(SpellComponent.valueOf(StringUtils.camelCaseWord(cast).trim()));
                 }catch(Exception e) {
                     e.printStackTrace();
+                    assert(false);
                 }
             }
         }

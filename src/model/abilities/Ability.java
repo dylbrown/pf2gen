@@ -285,6 +285,7 @@ public class Ability extends AbstractNamedObject implements Comparable<Ability> 
                     return newExtension;
                 } catch (ReflectiveOperationException e) {
                     e.printStackTrace();
+                    assert(false);
                     return null;
                 }
             }

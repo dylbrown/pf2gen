@@ -133,6 +133,7 @@ public class CharacterWrapper implements TemplateHashModel {
                         return wrapper.wrap(method.invoke(character));
                     } catch (IllegalAccessException | InvocationTargetException e) {
                         e.printStackTrace();
+                        assert(false);
                     }
                 }
             }
@@ -144,6 +145,7 @@ public class CharacterWrapper implements TemplateHashModel {
                         return wrapper.wrap(method.invoke(character.inventory()));
                     } catch (IllegalAccessException | InvocationTargetException e) {
                         e.printStackTrace();
+                        assert(false);
                     }
                 }
             }

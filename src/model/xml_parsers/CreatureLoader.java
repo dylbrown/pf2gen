@@ -60,6 +60,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                                 contents));
                     } catch (ObjectNotFoundException e) {
                         e.printStackTrace();
+                        assert(false);
                     }
                     break;
                 case "Traits":
@@ -73,6 +74,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                                                     s);
                                         } catch (ObjectNotFoundException e) {
                                             e.printStackTrace();
+                                            assert(false);
                                         }
                                         return trait;
                                     })
@@ -101,6 +103,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                                             return findFromDependencies("Language", LanguagesLoader.class, s);
                                         } catch (ObjectNotFoundException e) {
                                             e.printStackTrace();
+                                            assert(false);
                                             return null;
                                         }
                                     })
@@ -406,6 +409,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                                 s), levelNumber);
                     } catch (ObjectNotFoundException e) {
                         e.printStackTrace();
+                        assert(false);
                     }
                 } else {
                     int endBracket = s.indexOf(')');
@@ -417,6 +421,7 @@ public class CreatureLoader extends AbilityLoader<Creature> {
                                 s.substring(bracket + 1, endBracket));
                     } catch (ObjectNotFoundException e) {
                         e.printStackTrace();
+                        assert(false);
                     }
                 }
             }

@@ -42,6 +42,7 @@ public class DomainsLoader extends FileLoader<Domain> {
                                 trim));
                     } catch (ObjectNotFoundException e) {
                         e.printStackTrace();
+                        assert(false);
                     }
                     break;
                 case "advanceddomainspell":
@@ -51,6 +52,7 @@ public class DomainsLoader extends FileLoader<Domain> {
                                 trim));
                     } catch (ObjectNotFoundException e) {
                         e.printStackTrace();
+                        assert(false);
                     }
                     break;
             }

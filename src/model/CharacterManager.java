@@ -72,6 +72,7 @@ public abstract class CharacterManager {
             remove(pc);
         } catch (IOException e) {
             e.printStackTrace();
+            assert(false);
         }
     }
 }

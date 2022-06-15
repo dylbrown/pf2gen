@@ -73,6 +73,7 @@ public class ItemWrapper extends GenericWrapper<Item> {
                         return method.invoke(extension);
                     } catch (IllegalAccessException | InvocationTargetException e) {
                         e.printStackTrace();
+                        assert(false);
                     }
                 }
             }

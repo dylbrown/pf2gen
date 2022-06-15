@@ -103,6 +103,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                             firstChild.getTextContent()).get();
                 } catch (ObjectNotFoundException e) {
                     e.printStackTrace();
+                    assert(false);
                 }
             }
         }
@@ -293,6 +294,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                                         ));
                     } catch (ObjectNotFoundException e) {
                         e.printStackTrace();
+                        assert(false);
                     }
                     break;
                 case "AbilitySlot":
@@ -316,6 +318,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                                 builder.getExtension(AncestryExtension.Builder.class).setFirstLevelOnly(true);
                         } catch (ObjectNotFoundException e) {
                             e.printStackTrace();
+                            assert(false);
                         }
                     }
                     break;
@@ -331,6 +334,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                                 builder.getExtension(AncestryExtension.Builder.class).addGrantedTrait(trait);
                         } catch (ObjectNotFoundException e) {
                             e.printStackTrace();
+                            assert(false);
                         }
                     }
                     break;
@@ -349,6 +353,7 @@ public abstract class AbilityLoader<T> extends FileLoader<T> {
                             builder.getExtension(GranterExtension.Builder.class).addSense(sense);
                         } catch (ObjectNotFoundException e) {
                             e.printStackTrace();
+                            assert(false);
                         }
                     }
                     break;

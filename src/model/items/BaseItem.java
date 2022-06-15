@@ -193,6 +193,7 @@ public class BaseItem extends AbstractNamedObject implements Item {
             } catch (NoSuchMethodException ignored) {
             } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
+                assert(false);
             }
         }
         return value;
@@ -303,6 +304,7 @@ public class BaseItem extends AbstractNamedObject implements Item {
                     return newExtension;
                 } catch (ReflectiveOperationException e) {
                     e.printStackTrace();
+                    assert(false);
                     return null;
                 }
             }

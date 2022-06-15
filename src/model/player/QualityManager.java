@@ -50,6 +50,7 @@ public class QualityManager implements PlayerState {
             darkvision = sources.senses().find("Darkvision");
         } catch (ObjectNotFoundException e) {
             e.printStackTrace();
+            assert(false);
         }
 
         applier.onPreApply(ability->{

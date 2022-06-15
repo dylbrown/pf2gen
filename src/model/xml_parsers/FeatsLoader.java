@@ -73,6 +73,7 @@ public class FeatsLoader extends AbilityLoader<Ability> {
                 );
             } catch (ObjectNotFoundException e) {
                 e.printStackTrace();
+                assert(false);
             }
         }
         return builder.build();

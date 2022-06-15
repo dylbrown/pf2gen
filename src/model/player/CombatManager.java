@@ -4,6 +4,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import model.abilities.Ability;
 import model.abilities.AttackExtension;
 import model.attributes.BaseAttribute;
+import model.enums.Proficiency;
 import model.enums.Slot;
 import model.items.Item;
 import model.items.armor.Armor;
@@ -66,13 +67,13 @@ public class CombatManager implements PlayerState {
         return 10 + attributes.getProficiency(BaseAttribute.Unarmored).getValue().getMod(level.get()) + scores.getMod(Dex);
     }
 
-    public int getArmorProficiency() {
+    public Proficiency getArmorProficiency() {
         if(inventory.getEquipped(Slot.Armor) != null) {
             Armor armor = inventory.getEquipped(Slot.Armor).stats().getExtension(Armor.class);
             if(armor != null)
-                return attributes.getProficiency(armor.getProficiency().toAttribute()).getValue().getMod(level.get());
+                return attributes.getProficiency(armor.getProficiency().toAttribute()).getValue();
         }
-        return attributes.getProficiency(BaseAttribute.Unarmored).getValue().getMod(level.get());
+        return attributes.getProficiency(BaseAttribute.Unarmored).getValue();
     }
 
     public Item getArmor() {

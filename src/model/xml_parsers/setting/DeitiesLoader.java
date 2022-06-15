@@ -78,6 +78,7 @@ public class DeitiesLoader extends FileLoader<Deity> {
                                 trim).getExtension(Weapon.class));
                     } catch (ObjectNotFoundException e) {
                         e.printStackTrace();
+                        assert(false);
                     }
                     break;
                 case "domains":

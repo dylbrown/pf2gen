@@ -38,6 +38,7 @@ public class CreaturesTemplateFiller {
                         return new URL("https://dylbrown.github.io/pf2gen_data/"+s);
                     } catch (MalformedURLException e) {
                         e.printStackTrace();
+                        assert(false);
                     }
                     return null;
                 }
@@ -58,6 +59,7 @@ public class CreaturesTemplateFiller {
                         return new URL("https://dylbrown.github.io/pf2gen_data/sheets/"+s);
                     } catch (MalformedURLException e) {
                         e.printStackTrace();
+                        assert(false);
                     }
                     return null;
                 }

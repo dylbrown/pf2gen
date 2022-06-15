@@ -45,6 +45,7 @@ public class AncestriesLoader extends ACLoader<Ancestry, Ancestry.Builder> {
                         builder.addLanguages(findFromDependencies("Language", LanguagesLoader.class, s.trim()));
                     } catch (ObjectNotFoundException e) {
                         e.printStackTrace();
+                        assert(false);
                     }
                 }
                 break;
@@ -60,6 +61,7 @@ public class AncestriesLoader extends ACLoader<Ancestry, Ancestry.Builder> {
                         builder.addBonusLanguages(findFromDependencies("Language", LanguagesLoader.class, s.trim()));
                     } catch (ObjectNotFoundException e) {
                         e.printStackTrace();
+                        assert(false);
                     }
                 }
                 break;
@@ -69,6 +71,7 @@ public class AncestriesLoader extends ACLoader<Ancestry, Ancestry.Builder> {
                         return findFromDependencies("Sense", SensesLoader.class, s);
                     } catch (ObjectNotFoundException e) {
                         e.printStackTrace();
+                        assert(false);
                     }
                     return null;
                 }).filter(Objects::nonNull).forEach(builder::addSenses);

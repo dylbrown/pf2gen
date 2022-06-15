@@ -56,6 +56,7 @@ public class MysteriesLoader extends AbilityLoader<Ability> {
             mystery.getExtension(SpellExtension.Builder.class).addBonusSpell(SpellType.Cantrip, findFromDependencies("Spell", SpellsLoader.class, item.getElementsByTagName("Cantrip").item(0).getTextContent()));
         } catch (ObjectNotFoundException e) {
             e.printStackTrace();
+            assert(false);
         }
 
         //Mystery Spells
@@ -66,6 +67,7 @@ public class MysteriesLoader extends AbilityLoader<Ability> {
                     bSpells[0].split(": ")[1]));
         } catch (ObjectNotFoundException e) {
             e.printStackTrace();
+            assert(false);
         }
         Ability.Builder advanced = new Ability.Builder(getSource()); advanced.setName("Advanced Revelation Spell");
         Ability.Builder greater = new Ability.Builder(getSource());  greater.setName("Greater Revelation Spell");
@@ -76,6 +78,7 @@ public class MysteriesLoader extends AbilityLoader<Ability> {
                             bSpells[1].split(": ")[1]));
         } catch (ObjectNotFoundException e) {
             e.printStackTrace();
+            assert(false);
         }
         advanced.getExtension(SpellExtension.Builder.class).setSpellListName("Oracle");
         try {
@@ -85,6 +88,7 @@ public class MysteriesLoader extends AbilityLoader<Ability> {
                             bSpells[2].split(": ")[1]));
         } catch (ObjectNotFoundException e) {
             e.printStackTrace();
+            assert(false);
         }
         greater.getExtension(SpellExtension.Builder.class).setSpellListName("Oracle");
         advanced.addPrerequisite("Advanced Revelation");
@@ -108,6 +112,7 @@ public class MysteriesLoader extends AbilityLoader<Ability> {
                 return builder.build();
             } catch (ObjectNotFoundException e) {
                 e.printStackTrace();
+                assert(false);
             }
             return null;
         }).filter(Objects::nonNull).collect(Collectors.toList());

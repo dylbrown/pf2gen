@@ -164,6 +164,7 @@ public class AbilityManager implements PlayerState {
 								results.addAll(sources.feats().getCategory(className).values());
 							} catch (ObjectNotFoundException e) {
 								e.printStackTrace();
+								assert(false);
 							}
 							break;
 						}else if (pClass.get() != null) {
@@ -188,6 +189,7 @@ public class AbilityManager implements PlayerState {
 								multiclass = sources.traits().find("multiclass");
 							} catch (ObjectNotFoundException e) {
 								e.printStackTrace();
+								assert(false);
 							}
 							if(a.getLevel() <= maxLevel
 									&& a.getTraits().contains(dedication)
@@ -205,6 +207,7 @@ public class AbilityManager implements PlayerState {
 								dedication = sources.traits().find("dedication");
 							} catch (ObjectNotFoundException e) {
 								e.printStackTrace();
+								assert(false);
 							}
 							if(a.getLevel() <= maxLevel && a.getTraits().contains(dedication)) {
 								if(a.getExtension(ScalingExtension.class) != null) {
@@ -232,12 +235,9 @@ public class AbilityManager implements PlayerState {
 							try {
 								Ancestry ancestry = sources.ancestries().find(trait.getName());
 								results.addAll(ancestry.getFeats(maxLevel));
-								ObservableList<Ability> finalResults = results;
 								sources.feats().getCategory(ancestry.getName()).values().stream()
-										.forEach(a->{
-											if(a.getType() == Type.Ancestry)
-												finalResults.add(a);
-								});
+										.filter(a->a.getType() == Type.Ancestry)
+										.forEach(results::add);
 							} catch (ObjectNotFoundException ignored) {
 							}
 						}

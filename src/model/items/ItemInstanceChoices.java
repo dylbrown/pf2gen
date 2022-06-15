@@ -35,6 +35,7 @@ public class ItemInstanceChoices extends ItemInstanceExtension<BaseItemChoices> 
             return results.toString();
         } catch (IOException | TemplateException e) {
             e.printStackTrace();
+            assert(false);
             return name;
         }
     }
@@ -48,6 +49,7 @@ public class ItemInstanceChoices extends ItemInstanceExtension<BaseItemChoices> 
             return results.toString();
         } catch (IOException | TemplateException e) {
             e.printStackTrace();
+            assert(false);
             return description;
         }
     }
@@ -60,18 +62,21 @@ public class ItemInstanceChoices extends ItemInstanceExtension<BaseItemChoices> 
                 return objectWrapper.wrap(c.getName());
             } catch (TemplateModelException e) {
                 e.printStackTrace();
+                assert(false);
             }
         } else if(c.getMaxSelections() == 1) {
             try {
                 return objectWrapper.wrap(c.getSelections().get(0));
             } catch (TemplateModelException e) {
                 e.printStackTrace();
+                assert(false);
             }
         } else {
             try {
                 return objectWrapper.wrap(c.getSelections());
             } catch (TemplateModelException e) {
                 e.printStackTrace();
+                assert(false);
             }
         }
         return null;

@@ -134,8 +134,7 @@ public abstract class FileLoader<T> {
         TreeMap<String, A> map = new TreeMap<>();
         B loader = source.getLoader(loaderClass);
         if (loader != null) {
-            loader.getCategory(category).entrySet().stream()
-                    .forEach(e->map.put(e.getKey(), e.getValue()));
+            map.putAll(loader.getCategory(category));
         }
         for (String dependency : source.getDependencies()) {
             Source childSource = SourcesLoader.instance().find(dependency);
@@ -152,7 +151,7 @@ public abstract class FileLoader<T> {
 
     public NavigableMap<String, T> getCategory(String category) {
         if(loadTracker.isNotLoaded(category))
-            load(category, "");
+            loadCategory(category);
         return Collections.unmodifiableNavigableMap(getCategoryInternal(category));
     }
 
@@ -160,12 +159,12 @@ public abstract class FileLoader<T> {
         return categorizedItems.computeIfAbsent(clean(category), s->new TreeMap<>());
     }
 
-    private void load(String category, String name) {
+    private void loadCategory(String category) {
         if(sourceConstructor.getType() == SourceConstructor.Type.MultiItemMultiFile) {
             for (String path : sourceConstructor.getLocation(category)) {
                 loadMultiple(category, path);
             }
-        } else load(name);
+        } else load(null);
     }
 
     private void load(String name) {
@@ -246,6 +245,7 @@ public abstract class FileLoader<T> {
                 doc = factory.newDocumentBuilder().parse(path);
             } catch (IOException | SAXException | ParserConfigurationException e) {
                 e.printStackTrace();
+                assert(false);
             }
         }else{
             try {
@@ -257,6 +257,7 @@ public abstract class FileLoader<T> {
                 this.loadedFromRepository = true;
             } catch ( SAXException|IOException|ParserConfigurationException e) {
                 e.printStackTrace();
+                assert(false);
             }
         }
         assert doc != null;

@@ -32,6 +32,7 @@ public abstract class GenericWrapper<T> implements TemplateHashModel, TemplateSc
                         return wrapper.wrap(method.invoke(t));
                     } catch (IllegalAccessException | InvocationTargetException e) {
                         e.printStackTrace();
+                        assert(false);
                     }
                 }
             }

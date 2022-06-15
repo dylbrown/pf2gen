@@ -74,6 +74,7 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 								split[1]));
 			} catch (ObjectNotFoundException e) {
 				e.printStackTrace();
+				assert(false);
 			}
 			builder.getExtension(SpellExtension.Builder.class).setSpellListName("Sorcerer");
 			grantedAbilities.add(builder.build());
@@ -91,6 +92,7 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 					bSpells[0].split(": ")[1]));
 		} catch (ObjectNotFoundException e) {
 			e.printStackTrace();
+			assert(false);
 		}
 		Ability.Builder advanced = new Ability.Builder(getSource()); advanced.setName("Advanced Bloodline Spell");
 		Ability.Builder greater = new Ability.Builder(getSource());  greater.setName("Greater Bloodline Spell");
@@ -101,6 +103,7 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 							bSpells[1].split(": ")[1]));
 		} catch (ObjectNotFoundException e) {
 			e.printStackTrace();
+			assert(false);
 		}
 		advanced.getExtension(SpellExtension.Builder.class).setSpellListName("Sorcerer");
 		try {
@@ -110,6 +113,7 @@ public class BloodlinesLoader extends AbilityLoader<Ability> {
 							bSpells[2].split(": ")[1]));
 		} catch (ObjectNotFoundException e) {
 			e.printStackTrace();
+			assert(false);
 		}
 		greater.getExtension(SpellExtension.Builder.class).setSpellListName("Sorcerer");
 		advanced.addPrerequisite("Advanced Bloodline");

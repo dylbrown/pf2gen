@@ -44,6 +44,7 @@ public class ItemInstance implements Item {
         } catch (NoSuchMethodException | IllegalAccessException
                 | InstantiationException | InvocationTargetException e) {
             e.printStackTrace();
+            assert(false);
         }
         return null;
     }
@@ -57,6 +58,7 @@ public class ItemInstance implements Item {
         } catch (NoSuchMethodException | IllegalAccessException
                 | InstantiationException | InvocationTargetException e) {
             e.printStackTrace();
+            assert(false);
         }
         return null;
     }
@@ -226,6 +228,7 @@ public class ItemInstance implements Item {
         } catch (NoSuchMethodException ignored) {
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
+            assert(false);
         }
         return value;
     }
@@ -243,6 +246,7 @@ public class ItemInstance implements Item {
         } catch (NoSuchMethodException ignored) {
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
+            assert(false);
         }
     }
 }

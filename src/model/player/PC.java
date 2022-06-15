@@ -130,6 +130,7 @@ public class PC {
                 qualities.removeTrait(sources.traits().find(oldAncestry.getName()));
             } catch (ObjectNotFoundException e) {
                 e.printStackTrace();
+                assert(false);
             }
         }
         this.ancestry.set(ancestry);
@@ -140,6 +141,7 @@ public class PC {
                 qualities.addTrait(sources.traits().find(ancestry.getName()));
             } catch (ObjectNotFoundException e) {
                 e.printStackTrace();
+                assert(false);
             }
         }
         ancestryWatcher.firePropertyChange("ancestryChange", null, ancestry);
@@ -246,6 +248,7 @@ public class PC {
                     return attributes.getProficiency(weapon.getProficiency(), item);
             } catch (ObjectNotFoundException e) {
                 e.printStackTrace();
+                assert(false);
             }
             return Proficiency.Untrained;
         }))
@@ -319,6 +322,7 @@ outerLoop:  for (String orClause : split) {
             return (deity.get() != null) ? deity.get() : sources.deities().find("no deity");
         } catch (ObjectNotFoundException e) {
             e.printStackTrace();
+            assert(false);
         }
         return null;
     }
