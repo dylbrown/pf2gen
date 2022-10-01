@@ -7,6 +7,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import model.abc.Ancestry;
 import model.abilities.Ability;
 import model.abilities.ArchetypeExtension;
 import model.abilities.SpellExtension;
@@ -101,6 +102,13 @@ class GroovyCommands {
     }
     public int archetypeCount(Ability ability) {
         return abilities.getArchetypeAbilities(ability.getExtension(ArchetypeExtension.class).getArchetype()).size();
+    }
+    public void ancestryFeats(Ancestry ancestry) {
+        if(applying.get()) {
+            abilities.addAdoptedAncestry(ancestry);
+        } else {
+            abilities.removeAdoptedAncestry(ancestry);
+        }
     }
     public void featSlot(String name, Number level, String type) {
         if(applying.get()) {
@@ -234,6 +242,12 @@ class GroovyCommands {
                             .getWeaponGroups().values()));
                     groups.setOptionsClass(WeaponGroup.class);
                     builder = groups;
+                    break;
+                case "ancestry":
+                    ArbitraryListChoice.Builder<Ancestry> ancestries = new ArbitraryListChoice.Builder<>();
+                    ancestries.setChoices(FXCollections.observableArrayList(sources.ancestries().getAll().values()));
+                    ancestries.setOptionsClass(Ancestry.class);
+                    builder = ancestries;
                     break;
                 case "skill":
                     ArbitraryListChoice.Builder<String> stringChoice = new ArbitraryListChoice.Builder<>();

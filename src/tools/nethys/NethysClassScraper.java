@@ -13,8 +13,8 @@ public class NethysClassScraper extends NethysSourceScraper {
 
     public static void main(String[] args) {
         new NethysClassScraper(
-                "https://2e.aonprd.com/Sources.aspx?ID=96",
-                "Secrets of Magic",
+                "https://2e.aonprd.com/Sources.aspx?ID=129",
+                "Dark Archive",
                 href->href.startsWith("Classes"));
 
     }

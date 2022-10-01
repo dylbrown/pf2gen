@@ -41,6 +41,7 @@ public class AbilityManager implements PlayerState {
 	private final ObservableSet<Trait> traits;
 	private final Map<FeatSlot, ObservableList<Ability>> featSlotOptions = new HashMap<>();
 	private final SourcesManager sources;
+	private final Set<Ancestry> adoptedAncestries = new HashSet<>();
 
 	AbilityManager(SourcesManager sources, DecisionManager decisions, ReadOnlyObjectProperty<Ancestry> ancestry,
 	               ReadOnlyObjectProperty<PClass> pClass, Applier<Ability> applier,
@@ -234,12 +235,12 @@ public class AbilityManager implements PlayerState {
 						for (Trait trait : traits) {
 							try {
 								Ancestry ancestry = sources.ancestries().find(trait.getName());
-								results.addAll(ancestry.getFeats(maxLevel));
-								sources.feats().getCategory(ancestry.getName()).values().stream()
-										.filter(a->a.getType() == Type.Ancestry)
-										.forEach(results::add);
+								addAncestryFeats(ancestry, maxLevel, results);
 							} catch (ObjectNotFoundException ignored) {
 							}
+						}
+						for(Ancestry ancestry : adoptedAncestries) {
+							addAncestryFeats(ancestry, maxLevel, results);
 						}
 						for (Ability value : sources.feats().getCategory("Ancestry").values())
 							if(value.getType() == Type.Ancestry)
@@ -275,6 +276,20 @@ public class AbilityManager implements PlayerState {
 			return results;
 		}
 		return Collections.emptyList();
+	}
+
+	private void addAncestryFeats(Ancestry ancestry, int maxLevel, ObservableList<Ability> list) {
+		list.addAll(ancestry.getFeats(maxLevel));
+		sources.feats().getCategory(ancestry.getName()).values().stream()
+				.filter(a->a.getType() == Type.Ancestry)
+				.forEach(list::add);
+	}
+
+	private void removeAncestryFeats(Ancestry ancestry, int maxLevel, ObservableList<Ability> list) {
+		list.addAll(ancestry.getFeats(maxLevel));
+		sources.feats().getCategory(ancestry.getName()).values().stream()
+				.filter(a->a.getType() == Type.Ancestry)
+				.forEach(list::add);
 	}
 
 	void apply(AbilitySlot slot) {
@@ -514,5 +529,21 @@ public class AbilityManager implements PlayerState {
 
 	public void addOnRemoveListener(Consumer<Ability> c) {
 		applier.onRemove(c);
+	}
+
+	public void addAdoptedAncestry(Ancestry ancestry) {
+		boolean added = adoptedAncestries.add(ancestry);
+		if(!added) return;
+		for (Map.Entry<FeatSlot, ObservableList<Ability>> entry : featSlotOptions.entrySet()) {
+			addAncestryFeats(ancestry, entry.getKey().getLevel(), entry.getValue());
+		}
+	}
+
+	public void removeAdoptedAncestry(Ancestry ancestry) {
+		boolean removed = adoptedAncestries.remove(ancestry);
+		if(!removed) return;
+		for (Map.Entry<FeatSlot, ObservableList<Ability>> entry : featSlotOptions.entrySet()) {
+			removeAncestryFeats(ancestry, entry.getKey().getLevel(), entry.getValue());
+		}
 	}
 }

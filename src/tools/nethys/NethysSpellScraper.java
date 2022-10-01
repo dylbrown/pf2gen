@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 class NethysSpellScraper extends NethysListScraper {
 
 	public static void main(String[] args) {
-		new NethysSpellScraper("C:\\Users\\dylan\\Downloads\\RadGridExport (2).csv", "spells.pfdyl", s->true, Type.CSV);
+		new NethysSpellScraper("C:\\Users\\dylan\\Downloads\\RadGridExport (2).csv", "focus_spells.pfdyl", s->true, Type.CSV);
 	}
 
 	private NethysSpellScraper(String inputURL, String outputPath, Predicate<String> sourceValidator, Type isCSV) {
