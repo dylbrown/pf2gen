@@ -13,8 +13,8 @@ public class NethysClassScraper extends NethysSourceScraper {
 
     public static void main(String[] args) {
         new NethysClassScraper(
-                "https://2e.aonprd.com/Sources.aspx?ID=129",
-                "Dark Archive",
+                "https://2e.aonprd.com/Sources.aspx?ID=98",
+                "Guns and Gears/classes",
                 href->href.startsWith("Classes"));
 
     }
@@ -81,5 +81,10 @@ public class NethysClassScraper extends NethysSourceScraper {
         new NethysFeatListScraper("https://2e.aonprd.com/" + href, out::append, source->true, true);
         out.append("\t</Feats>\n</pf2:class>");
         return new Entry(name, out.toString(), source);
+    }
+
+    @Override
+    protected String nameToFileName(String name) {
+        return "generated/" + source + "/classes/" + StringUtils.capitalize(name) + ".pfdyl";
     }
 }

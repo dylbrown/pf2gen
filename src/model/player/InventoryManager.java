@@ -75,7 +75,7 @@ public class InventoryManager implements PlayerState {
         if(item.getValue() * count * buyMultiplier > money.get()) return false;
         money.set(money.get() - item.getValue() * count * buyMultiplier);
         if(!add(item, count)) return false;
-        ItemCount ic = inventory.computeIfAbsent(item, (key) -> new ItemCount(item, 0));
+        inventory.computeIfAbsent(item, (key) -> new ItemCount(item, 0));
         return true;
     }
 
@@ -176,6 +176,7 @@ public class InventoryManager implements PlayerState {
         if(unequipped.get(item).getCount() <= 0) {
             unequipped.remove(item);
         }
+        itemApplier.preApply(item);
         itemApplier.apply(item);
         return true;
     }

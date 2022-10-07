@@ -21,6 +21,8 @@ public class GroovyModManager implements PlayerState {
     private final Set<Item> activeLevelItems = new HashSet<>();
     private final Set<Item> activeAlwaysRecalculateItems = new HashSet<>();
 
+    private int changing = 0;
+
     GroovyModManager(GroovyCommands commands,
                      Applier<Ability> abilityApplier,
                      Applier<Item> itemApplier,
@@ -117,6 +119,8 @@ public class GroovyModManager implements PlayerState {
     }
 
     private void prepareToChange(Ability changingAbility, Item changingItem) {
+        changing++;
+        if(changing > 1) return;
         for (Ability ability : activeAlwaysRecalculateAbilities) {
             if(ability == changingAbility) continue;
             bindings.setProperty("ability", ability);
@@ -130,6 +134,8 @@ public class GroovyModManager implements PlayerState {
     }
 
     private void finishChanging(Ability changingAbility, Item changingItem) {
+        changing--;
+        if(changing > 0) return;
         for (Ability ability : activeAlwaysRecalculateAbilities) {
             if(ability == changingAbility) continue;
             bindings.setProperty("ability", ability);

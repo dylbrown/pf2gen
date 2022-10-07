@@ -11,12 +11,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Predicate;
 
 public abstract class NethysSourceScraper extends NethysScraper {
     protected final String source;
-    Map<String, List<Entry>> objects = new ConcurrentHashMap<>();
+    Map<String, List<Entry>> objects = new ConcurrentSkipListMap<>();
 
     public NethysSourceScraper(String inputURL, String source, Predicate<String> hrefValidator) {
         this.source = source;
@@ -33,6 +33,10 @@ public abstract class NethysSourceScraper extends NethysScraper {
                                         s -> Collections.synchronizedList(new ArrayList<>()))
                             .add(entry);
                 });
+        write();
+    }
+
+    protected void write() {
         objects.keySet().forEach(name->{
             File file = new File(nameToFileName(name));
             if(!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
