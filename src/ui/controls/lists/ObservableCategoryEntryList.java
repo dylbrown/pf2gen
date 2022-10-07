@@ -63,6 +63,7 @@ public class ObservableCategoryEntryList<T, U extends ListEntry<T>> extends Obse
             }
             TreeItem<U> subcat = makeLabelEntry.apply(subCategory);
             categoryRoot.getChildren().add(subcat);
+            categoryRoot.getChildren().sort(Comparator.comparing(TreeItem::getValue));
             super.insertCategoryChild(subcat, item);
         }else{
             if(categoryRoot.getChildren().size() > 0) {

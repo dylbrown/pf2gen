@@ -55,20 +55,6 @@ public class ObservableEntryList<T, U extends ListEntry<T>> extends AbstractEntr
         return list;
     }
 
-    private <X> ObservableEntryList(ObservableMap<X, T> items,
-                                      Function<T, String> getCategory,
-                                      Function<T, U> makeEntry,
-                                      Function<String, U> makeLabelEntry,
-                                      Function<ReadOnlyDoubleProperty, List<TreeTableColumn<U, ?>>> makeColumns) {
-        this(getCategory, makeEntry, makeLabelEntry, makeColumns, items.values());
-        items.addListener((MapChangeListener<X, T>)  c-> {
-            if(c.wasAdded())
-                insert(c.getValueAdded());
-            if(c.wasRemoved())
-                retract(c.getValueRemoved());
-        });
-    }
-
     private ObservableEntryList(ObservableSet<T> items,
                                   Function<T, String> getCategory,
                                   Function<T, U> makeEntry,
@@ -206,7 +192,7 @@ public class ObservableEntryList<T, U extends ListEntry<T>> extends AbstractEntr
 
     protected boolean checkForCollapse(TreeItem<U> root, TreeItem<U> child) {
         if(root.getChildren().size() == 1) {
-            ObservableList<TreeItem<U>> children = child.getChildren();
+            ObservableList<TreeItem<U>> children = root.getChildren().get(0).getChildren();
             root.getChildren().clear();
             for (TreeItem<U> subChild : children) {
                 root.getChildren().add(deepCopy(subChild));

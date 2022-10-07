@@ -16,28 +16,22 @@ public class Background extends ABC {
     private final AttributeMod mod1;
     private final AttributeMod mod2;
     private final AbilitySlot freeFeat;
-    private final String modString;
 
-    static{
+    static {
         Builder builder = new Builder(null);
         builder.setName("No Background");
         NO_BACKGROUND = builder.build();
     }
-    
+
     private Background(Background.Builder builder) {
         super(builder);
-        this.modString = builder.modString;
         this.mod1 = builder.mod1;
         this.mod2 = builder.mod2;
-        this.freeFeat = new DynamicFilledSlot("Background Feat", 1, builder.feat, Type.Skill, (type, name)->builder.abilityFunction.apply(name));
+        this.freeFeat = new DynamicFilledSlot("Background Feat", 1, builder.feat, Type.Skill, (type, name) -> builder.abilityFunction.apply(name));
     }
 
     public List<AttributeMod> getMods() {
         return Arrays.asList(mod1, mod2);
-    }
-
-    public String getModString() {
-        return modString;
     }
 
     public AbilitySlot getFreeFeat() {
@@ -48,7 +42,6 @@ public class Background extends ABC {
         private AttributeMod mod1 = AttributeMod.NONE;
         private AttributeMod mod2 = AttributeMod.NONE;
         private String feat = "";
-        private String modString;
         private Function<String, Ability> abilityFunction;
 
         public Builder(Source source) {
@@ -65,10 +58,6 @@ public class Background extends ABC {
 
         public void setFeat(String feat) {
             this.feat = feat;
-        }
-
-        public void setModString(String modString) {
-            this.modString = modString;
         }
 
         public void setAbilityFunction(Function<String, Ability> abilityFunction) {

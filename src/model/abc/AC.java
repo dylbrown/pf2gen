@@ -21,9 +21,8 @@ public abstract class AC extends ABC {
     }
 
     public List<Ability> getFeats(int level) {
-        if(feats.get(level) == null) {
-            System.out.println("Warning: Null feats at level "+level);
-            return null;
+        if (feats.get(level) == null) {
+            throw new RuntimeException("Null feats at level " + level);
         }
         return Collections.unmodifiableList(feats.get(level));
     }
@@ -40,18 +39,12 @@ public abstract class AC extends ABC {
             this.HP = HP;
         }
 
-        public void setFeats(List<Ability> feats) {
-            for (Ability feat : feats) {
-                addFeat(feat);
-            }
-        }
-
         public void addFeat(Ability feat) {
-            if(feats.size() == 0) {
+            if (feats.size() == 0) {
                 feats = new HashMap<>();
             }
-            for(int i = PC.MAX_LEVEL; i>=feat.getLevel(); i--) {
-                this.feats.computeIfAbsent(i, (key)->new ArrayList<>()).add(feat);
+            for (int i = PC.MAX_LEVEL; i >= feat.getLevel(); i--) {
+                this.feats.computeIfAbsent(i, (key) -> new ArrayList<>()).add(feat);
             }
         }
     }

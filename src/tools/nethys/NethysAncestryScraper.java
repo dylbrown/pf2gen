@@ -11,7 +11,7 @@ import java.util.List;
 public class NethysAncestryScraper extends NethysSourceScraper {
 
     public static void main(String[] args) {
-        new NethysAncestryScraper("https://2e.aonprd.com/Sources.aspx?ID=74", "Ancestry Guide");
+        new NethysAncestryScraper("https://2e.aonprd.com/Sources.aspx?ID=12", "Character Guide");
     }
 
     public NethysAncestryScraper(String inputURL, String source) {
@@ -26,11 +26,10 @@ public class NethysAncestryScraper extends NethysSourceScraper {
         if(name.contains("Versatile"))
             return null;
         String description = "";
-        for (Element child : detailedOutput.children()) {
-            if(child.tagName().equals("i")) {
-                description = child.wholeText();
-                break;
-            }
+        Element descElem = detailedOutput.selectFirst(
+                "#ctl00_RadDrawer1_Content_MainContent_DetailedOutput > i");
+        if(descElem != null) {
+            description = descElem.wholeText();
         }
 
         String hitPoints = getHeaderContents(detailedOutput, "Hit Points");
@@ -45,7 +44,7 @@ public class NethysAncestryScraper extends NethysSourceScraper {
         List<String> senses = new ArrayList<>();
         if(!detailedOutput.getElementsMatchingOwnText("Darkvision").isEmpty())
             senses.add("Darkvision");
-        if(!detailedOutput.getElementsMatchingOwnText("Darkvision").isEmpty())
+        if(!detailedOutput.getElementsMatchingOwnText("Low-Light Vision").isEmpty())
             senses.add("Low-light Vision");
 
         item.append("<?xml version = \"1.0\"?>\n" +
@@ -57,10 +56,12 @@ public class NethysAncestryScraper extends NethysSourceScraper {
                 .append("\t<HP>").append(hitPoints.trim()).append("</HP>\n")
                 .append("\t<Size>").append(size.trim()).append("</Size>\n")
                 .append("\t<Speed>").append(speed.trim()).append("</Speed>\n")
-                .append("\t<AbilityBonuses>").append(String.join(", ", boosts)).append("</AbilityBonuses>\n")
-                .append("\t<AbilityPenalties>").append(String.join(", ", penalties))
-                        .append("</AbilityPenalties>\n")
-                .append("\t<Languages>").append(String.join(", ", languages)).append("</Languages>\n")
+                .append("\t<AbilityBonuses>").append(String.join(", ", boosts)).append("</AbilityBonuses>\n");
+        if(!penalties.isEmpty()) {
+            item.append("\t<AbilityPenalties>").append(String.join(", ", penalties))
+                    .append("</AbilityPenalties>\n");
+        }
+        item.append("\t<Languages>").append(String.join(", ", languages)).append("</Languages>\n")
                 .append("\t<BonusLanguages>").append(bonusLanguages).append("</BonusLanguages>\n").append("    <Senses>").append(String.join(", ", senses)).append("</Senses>\n")
                 .append("\t<Description>").append(description).append("</Description>\n");
         item.append("\t<Feats>\n");

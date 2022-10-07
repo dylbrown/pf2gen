@@ -249,7 +249,7 @@ class InventoryManagerTest {
         BaseItem.Builder builder = new BaseItem.Builder((Source) null);
         builder.setName("test");
         builder.setValue(5);
-        builder.getExtension(Armor.Builder.class);
+        builder.getExtension(Weapon.Builder.class);
         Item item1 = builder.build();
         inventory.buy(item1, 3);
         inventory.equip(item1, item1.getSlot(), 2);
